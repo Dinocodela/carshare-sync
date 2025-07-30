@@ -1,0 +1,48 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from './AppSidebar';
+
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <div className="flex-1">
+          <header className="h-12 flex items-center border-b bg-background px-4">
+            <SidebarTrigger />
+          </header>
+          <main className="flex-1 p-6">
+            {children}
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
