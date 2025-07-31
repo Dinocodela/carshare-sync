@@ -82,7 +82,7 @@ export function AppSidebar() {
         },
         {
           title: "Hosted Cars",
-          url: "/host-cars",
+          url: "/host-car-management",
           icon: Car,
         },
         {

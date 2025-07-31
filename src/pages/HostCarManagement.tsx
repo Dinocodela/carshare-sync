@@ -98,7 +98,8 @@ export default function HostCarManagement() {
         .from('cars')
         .update({ 
           status: 'available',
-          host_id: null
+          host_id: null,
+          client_id: null
         })
         .eq('id', carId);
 
@@ -106,7 +107,7 @@ export default function HostCarManagement() {
 
       toast({
         title: "Car returned successfully",
-        description: "The car has been marked as returned and is now available.",
+        description: "The car has been marked as returned and is now available for new requests.",
       });
 
       // Refresh the list

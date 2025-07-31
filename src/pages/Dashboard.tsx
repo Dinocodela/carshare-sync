@@ -114,8 +114,8 @@ export default function Dashboard() {
                   <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigate('/host-requests')}>
                     Review Pending Requests
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    Update Vehicle Status
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigate('/host-car-management')}>
+                    Manage Hosted Cars
                   </Button>
                   <Button variant="outline" size="sm" className="w-full justify-start">
                     Contact Clients
