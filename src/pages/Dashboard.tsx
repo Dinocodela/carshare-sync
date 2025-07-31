@@ -73,7 +73,7 @@ export default function Dashboard() {
                   <Car className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{data.cars.filter(car => car.status === 'active').length}</div>
+                  <div className="text-2xl font-bold">{data.cars.filter(car => car.status === 'hosted').length}</div>
                   <p className="text-xs text-muted-foreground">
                     Currently under your care
                   </p>
@@ -155,7 +155,7 @@ export default function Dashboard() {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{data.cars.filter(car => car.status === 'active').length}</div>
+                  <div className="text-2xl font-bold">{data.cars.filter(car => car.status === 'hosted').length}</div>
                   <p className="text-xs text-muted-foreground">
                     Currently hosted
                   </p>

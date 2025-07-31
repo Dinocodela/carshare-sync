@@ -139,12 +139,15 @@ export default function HostRequests() {
 
       console.log('Request status updated successfully');
 
-      // Update car status
-      const newCarStatus = action === 'accepted' ? 'active' : 'available';
-      console.log(`Updating car status to ${newCarStatus}...`);
+      // Update car status and host_id
+      const newCarStatus = action === 'accepted' ? 'hosted' : 'available';
+      const updateData = action === 'accepted' 
+        ? { status: newCarStatus, host_id: user?.id } 
+        : { status: newCarStatus, host_id: null };
+      console.log(`Updating car status to ${newCarStatus} and host_id...`);
       const { error: carError } = await supabase
         .from('cars')
-        .update({ status: newCarStatus })
+        .update(updateData)
         .eq('id', request.car_id);
 
       if (carError) {

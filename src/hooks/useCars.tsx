@@ -13,7 +13,7 @@ export interface Car {
   location: string;
   description: string | null;
   images: string[] | null;
-  status: 'pending' | 'active' | 'completed';
+  status: 'pending' | 'available' | 'hosted';
   host_id: string | null;
   created_at: string;
   updated_at: string;
