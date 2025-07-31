@@ -94,16 +94,24 @@ export default function HostCarManagement() {
 
   const handleCarReturn = async (carId: string) => {
     try {
-      const { error } = await supabase
+      // First, update just the status to 'available'
+      const { error: statusError } = await supabase
+        .from('cars')
+        .update({ status: 'available' })
+        .eq('id', carId);
+
+      if (statusError) throw statusError;
+
+      // Then, clear the host and client associations
+      const { error: clearError } = await supabase
         .from('cars')
         .update({ 
-          status: 'available',
           host_id: null,
           client_id: null
         })
         .eq('id', carId);
 
-      if (error) throw error;
+      if (clearError) throw clearError;
 
       toast({
         title: "Car returned successfully",
