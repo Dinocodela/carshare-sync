@@ -12,7 +12,7 @@ const corsHeaders = {
 
 interface ClientConfirmationRequest {
   requestId: string;
-  clientEmail: string;
+  clientId: string;
   clientName: string;
   hostName: string;
   hostCompany: string;
@@ -27,9 +27,30 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { requestId, clientEmail, clientName, hostName, hostCompany, carDetails, status }: ClientConfirmationRequest = await req.json();
+    const { requestId, clientId, clientName, hostName, hostCompany, carDetails, status }: ClientConfirmationRequest = await req.json();
 
     console.log("Sending client confirmation email for request:", requestId);
+
+    // Get client email from auth.users using the service role key
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(clientId);
+    
+    if (userError || !userData.user?.email) {
+      console.error('Error getting user email:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to get client email' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const clientEmail = userData.user.email;
 
     const isAccepted = status === 'accepted';
     const subject = isAccepted ? "Your Car Hosting Request Has Been Accepted!" : "Update on Your Car Hosting Request";

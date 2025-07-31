@@ -111,7 +111,7 @@ export default function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigate('/host-requests')}>
                     Review Pending Requests
                   </Button>
                   <Button variant="outline" size="sm" className="w-full justify-start">

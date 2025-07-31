@@ -14,6 +14,7 @@ import SelectHost from "./pages/SelectHost";
 import MyCars from "./pages/MyCars";
 import CarDetails from "./pages/CarDetails";
 import EditCar from "./pages/EditCar";
+import HostRequests from "./pages/HostRequests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/add-car" element={<AddCar />} />
             <Route path="/select-host" element={<SelectHost />} />
             <Route path="/my-cars" element={<MyCars />} />
+            <Route path="/host-requests" element={<HostRequests />} />
             <Route path="/cars/:id/view" element={<CarDetails />} />
             <Route path="/cars/:id/edit" element={<EditCar />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
