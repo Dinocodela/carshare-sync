@@ -141,6 +141,44 @@ export default function HostCarManagement() {
     }
   };
 
+  const handleManagementAction = (action: string, car: CarWithClient) => {
+    switch (action) {
+      case 'view-details':
+        toast({
+          title: "Car Details",
+          description: `Viewing details for ${car.year} ${car.make} ${car.model}`,
+        });
+        break;
+      case 'schedule-maintenance':
+        toast({
+          title: "Schedule Maintenance",
+          description: "Maintenance scheduling feature coming soon!",
+        });
+        break;
+      case 'report-issue':
+        toast({
+          title: "Report Issue",
+          description: "Issue reporting feature coming soon!",
+        });
+        break;
+      case 'message-client':
+        toast({
+          title: "Message Client",
+          description: "Messaging feature coming soon!",
+        });
+        break;
+      case 'full-details':
+        // Only navigate if the route exists
+        navigate(`/car-details/${car.id}`);
+        break;
+      default:
+        toast({
+          title: "Feature Coming Soon",
+          description: "This feature will be available soon!",
+        });
+    }
+  };
+
   const activeHostedCars = cars.filter(car => car.status === 'hosted');
   const readyForReturnCars = cars.filter(car => car.status === 'ready_for_return');
 
@@ -264,24 +302,24 @@ export default function HostCarManagement() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleManagementAction('view-details', car)}>
                               <FileText className="h-4 w-4 mr-2" />
                               View Car Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleManagementAction('schedule-maintenance', car)}>
                               <Calendar className="h-4 w-4 mr-2" />
                               Schedule Maintenance
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleManagementAction('report-issue', car)}>
                               <AlertTriangle className="h-4 w-4 mr-2" />
                               Report Issue
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleManagementAction('message-client', car)}>
                               <Mail className="h-4 w-4 mr-2" />
                               Message Client
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/car-details/${car.id}`)}>
+                            <DropdownMenuItem onClick={() => handleManagementAction('full-details', car)}>
                               <Car className="h-4 w-4 mr-2" />
                               Full Car Details
                             </DropdownMenuItem>
