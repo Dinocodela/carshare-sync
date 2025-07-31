@@ -75,9 +75,14 @@ export default function HostCarManagement() {
             first_name: clientProfile.first_name,
             last_name: clientProfile.last_name,
             phone: clientProfile.phone
-          } : null
+          } : {
+            id: car.client_id || 'unknown',
+            first_name: 'Unknown',
+            last_name: 'Client',
+            phone: 'N/A'
+          }
         };
-      }).filter(car => car.client !== null);
+      });
 
       setCars(transformedCars as CarWithClient[]);
     } catch (error) {
