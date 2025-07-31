@@ -107,7 +107,7 @@ export default function AddCar() {
           color: data.color,
           location: data.location,
           description: data.description,
-          status: 'pending',
+          status: 'available',
         })
         .select()
         .single();
@@ -129,10 +129,10 @@ export default function AddCar() {
 
       toast({
         title: "Car added successfully!",
-        description: "Your car has been listed. Now select a host to manage your vehicle.",
+        description: "Your car has been listed. You can now request hosting services from your My Cars page.",
       });
 
-      navigate(`/select-host?carId=${carData?.id}`);
+      navigate('/my-cars');
     } catch (error) {
       console.error('Error adding car:', error);
       toast({
@@ -368,7 +368,7 @@ export default function AddCar() {
                     disabled={isSubmitting}
                     className="flex-1"
                   >
-                    {isSubmitting ? 'Adding Car...' : 'Add Car & Select Host'}
+                    {isSubmitting ? 'Adding Car...' : 'Add Car'}
                   </Button>
                 </div>
               </form>

@@ -72,17 +72,6 @@ export default function SelectHost() {
 
       if (carError) throw carError;
       
-      // Validate car availability
-      if (carData.status !== 'available') {
-        toast({
-          title: "Car not available",
-          description: "This car already has a pending or active hosting request.",
-          variant: "destructive",
-        });
-        // Don't redirect immediately, let user see the page
-        setTimeout(() => navigate('/my-cars'), 2000);
-        return;
-      }
       
       setCar(carData);
 

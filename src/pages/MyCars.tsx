@@ -187,7 +187,7 @@ export default function MyCars() {
                           className="flex-1"
                           onClick={() => navigate(`/select-host?carId=${car.id}`)}
                         >
-                          Request Host
+                          Request Hosting Services
                         </Button>
                       ) : car.status === 'pending' ? (
                         <Button 
