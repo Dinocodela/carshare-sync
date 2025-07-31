@@ -54,8 +54,8 @@ export default function SelectHost() {
       // Mock data for now since we don't have host profiles yet
       const mockHosts: Host[] = [
         {
-          id: '1',
-          user_id: '1',
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          user_id: '550e8400-e29b-41d4-a716-446655440001',
           name: 'AutoCare Pro',
           company_name: 'AutoCare Professional Services',
           location: 'San Francisco, CA',
@@ -64,8 +64,8 @@ export default function SelectHost() {
           bio: 'Professional automotive care with 15+ years of experience. We provide comprehensive vehicle maintenance and storage solutions.',
         },
         {
-          id: '2',
-          user_id: '2',
+          id: '550e8400-e29b-41d4-a716-446655440002',
+          user_id: '550e8400-e29b-41d4-a716-446655440002',
           name: 'Elite Motor Services',
           company_name: 'Elite Motor Services LLC',
           location: 'Los Angeles, CA',
@@ -74,8 +74,8 @@ export default function SelectHost() {
           bio: 'Specialized in luxury and exotic vehicle care. State-of-the-art facility with climate-controlled storage.',
         },
         {
-          id: '3',
-          user_id: '3',
+          id: '550e8400-e29b-41d4-a716-446655440003',
+          user_id: '550e8400-e29b-41d4-a716-446655440003',
           name: 'Valley Auto Care',
           company_name: 'Valley Automotive Solutions',
           location: 'San Jose, CA',
