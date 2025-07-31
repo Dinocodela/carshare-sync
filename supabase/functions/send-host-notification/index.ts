@@ -15,6 +15,8 @@ interface HostNotificationRequest {
   hostEmail: string;
   hostName: string;
   clientName: string;
+  clientPhone?: string;
+  clientEmail?: string;
   carDetails: string;
   message: string;
 }
@@ -26,7 +28,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { requestId, hostEmail, hostName, clientName, carDetails, message }: HostNotificationRequest = await req.json();
+    const { requestId, hostEmail, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
 
     console.log("Sending host notification email for request:", requestId);
 
@@ -45,7 +47,14 @@ const handler = async (req: Request): Promise<Response> => {
           <p>You have received a new car hosting request from <strong>${clientName}</strong>.</p>
           
           <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #374151;">Car Details:</h3>
+            <h3 style="margin-top: 0; color: #374151;">Client Contact Information:</h3>
+            <div style="color: #374151; line-height: 1.6;">
+              <p style="margin: 8px 0;"><strong>Client:</strong> ${clientName}</p>
+              ${clientPhone ? `<p style="margin: 8px 0;"><strong>Phone:</strong> <a href="tel:${clientPhone}" style="color: #2563eb;">${clientPhone}</a></p>` : ''}
+              ${clientEmail ? `<p style="margin: 8px 0;"><strong>Email:</strong> <a href="mailto:${clientEmail}" style="color: #2563eb;">${clientEmail}</a></p>` : ''}
+            </div>
+            
+            <h3 style="margin-top: 20px; color: #374151;">Car Details:</h3>
             <p style="margin: 8px 0;"><strong>Vehicle:</strong> ${carDetails}</p>
             
             <h3 style="color: #374151;">Client Message:</h3>

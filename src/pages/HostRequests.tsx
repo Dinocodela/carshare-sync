@@ -136,13 +136,22 @@ export default function HostRequests() {
 
       if (carError) throw carError;
 
-      // Send client confirmation email - we'll let the edge function handle getting the email
+      // Get host profile information for contact details
+      const { data: hostProfile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, company_name, phone')
+        .eq('user_id', user?.id)
+        .single();
+
+      // Send client confirmation email
       const emailData = {
         requestId: requestId,
         clientId: request.client_id,
         clientName: `${request.client.first_name} ${request.client.last_name}`,
-        hostName: "Teslys Team",
-        hostCompany: "Teslys LLC",
+        hostName: hostProfile ? `${hostProfile.first_name} ${hostProfile.last_name}` : "Teslys Team",
+        hostCompany: hostProfile?.company_name || "Teslys LLC",
+        hostPhone: hostProfile?.phone,
+        hostEmail: user?.email,
         carDetails: `${request.car.year} ${request.car.make} ${request.car.model}`,
         status: action
       };

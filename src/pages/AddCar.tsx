@@ -19,7 +19,7 @@ const carSchema = z.object({
   make: z.string().min(1, 'Make is required'),
   model: z.string().min(1, 'Model is required'),
   year: z.number().min(1990, 'Year must be 1990 or later').max(new Date().getFullYear() + 1),
-  mileage: z.number().min(0, 'Mileage must be positive'),
+  mileage: z.number().min(0, 'Mileage is required and must be positive'),
   color: z.string().min(1, 'Color is required'),
   location: z.string().min(1, 'Location is required'),
   description: z.string().optional(),
@@ -220,7 +220,7 @@ export default function AddCar() {
                     name="mileage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mileage</FormLabel>
+                        <FormLabel>Mileage *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -241,7 +241,7 @@ export default function AddCar() {
                     name="color"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Color</FormLabel>
+                        <FormLabel>Color *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -269,7 +269,7 @@ export default function AddCar() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Location</FormLabel>
+                        <FormLabel>Location *</FormLabel>
                         <FormControl>
                           <Input placeholder="City, State" {...field} />
                         </FormControl>

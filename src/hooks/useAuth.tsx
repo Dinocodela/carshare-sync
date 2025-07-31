@@ -49,6 +49,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, role: 'client' | 'host', metadata?: any) => {
     const redirectUrl = `${window.location.origin}/`;
     
+    // Extract phone from metadata and ensure it's available
+    const { phone, ...otherMetadata } = metadata || {};
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -56,7 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           role,
-          ...metadata
+          phone,
+          ...otherMetadata
         }
       }
     });

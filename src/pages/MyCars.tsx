@@ -198,6 +198,29 @@ export default function MyCars() {
                         >
                           Request Sent
                         </Button>
+                      ) : car.status === 'active' ? (
+                        <div className="flex flex-col gap-2 w-full">
+                          <div className="text-xs text-green-600 font-medium">
+                            ✓ Currently being hosted
+                          </div>
+                          {car.host_id && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full"
+                              onClick={() => {
+                                // For now, just show that hosting is active
+                                // In a real app, this would show host contact details
+                                toast({
+                                  title: "Active Hosting",
+                                  description: "Your car is currently being hosted. Check your email for host contact details.",
+                                });
+                              }}
+                            >
+                              View Hosting Details
+                            </Button>
+                          )}
+                        </div>
                       ) : (
                         <Button 
                           variant="outline" 

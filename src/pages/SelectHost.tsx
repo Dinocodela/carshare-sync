@@ -148,7 +148,7 @@ export default function SelectHost() {
       // Get client profile data for the notification
       const { data: clientProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('first_name, last_name')
+        .select('first_name, last_name, phone')
         .eq('user_id', user.id)
         .single();
 
@@ -182,6 +182,8 @@ export default function SelectHost() {
           hostEmail: hostEmail,
           hostName: `${host.first_name} ${host.last_name}`,
           clientName: clientName,
+          clientPhone: clientProfile?.phone,
+          clientEmail: user.email,
           carDetails: `${car.year} ${car.make} ${car.model}`,
           message: message.trim()
         }

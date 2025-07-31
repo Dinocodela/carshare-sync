@@ -16,6 +16,8 @@ interface ClientConfirmationRequest {
   clientName: string;
   hostName: string;
   hostCompany: string;
+  hostPhone?: string;
+  hostEmail?: string;
   carDetails: string;
   status: string;
 }
@@ -27,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { requestId, clientId, clientName, hostName, hostCompany, carDetails, status }: ClientConfirmationRequest = await req.json();
+    const { requestId, clientId, clientName, hostName, hostCompany, hostPhone, hostEmail, carDetails, status }: ClientConfirmationRequest = await req.json();
 
     console.log("Sending client confirmation email for request:", requestId);
 
@@ -87,7 +89,15 @@ const handler = async (req: Request): Promise<Response> => {
           
           ${isAccepted ? `
             <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin-top: 0; color: #059669;">Next Steps:</h3>
+              <h3 style="margin-top: 0; color: #059669;">Host Contact Information:</h3>
+              <div style="color: #374151; line-height: 1.6;">
+                <p style="margin: 8px 0;"><strong>Host:</strong> ${hostName}</p>
+                <p style="margin: 8px 0;"><strong>Company:</strong> ${hostCompany}</p>
+                ${hostPhone ? `<p style="margin: 8px 0;"><strong>Phone:</strong> <a href="tel:${hostPhone}" style="color: #2563eb;">${hostPhone}</a></p>` : ''}
+                ${hostEmail ? `<p style="margin: 8px 0;"><strong>Email:</strong> <a href="mailto:${hostEmail}" style="color: #2563eb;">${hostEmail}</a></p>` : ''}
+              </div>
+              
+              <h3 style="margin-top: 20px; color: #059669;">Next Steps:</h3>
               <ul style="color: #374151; line-height: 1.6;">
                 <li>Your host will contact you soon to arrange pickup details</li>
                 <li>Please ensure your vehicle is clean and ready for hosting</li>
