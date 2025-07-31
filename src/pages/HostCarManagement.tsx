@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle, DollarSign, Plus, Edit, Trash } from 'lucide-react';
+import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle, DollarSign, Plus, Edit, Trash, Clock } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -132,12 +132,32 @@ const expenseSchema = z.object({
   expense_date: z.string().min(1, "Date is required"),
 });
 
+const earningSchema = z.object({
+  car_id: z.string().min(1, "Car is required"),
+  guest_name: z.string().min(1, "Guest name is required"),
+  earning_type: z.string().min(1, "Earning type is required"),
+  gross_earnings: z.number().min(0.01, "Amount must be greater than 0"),
+  payment_source: z.string().min(1, "Payment source is required"),
+  earning_period_start: z.string().min(1, "Start date is required"),
+  earning_period_end: z.string().min(1, "End date is required"),
+  client_profit_percentage: z.number().min(0).max(100).default(30),
+  host_profit_percentage: z.number().min(0).max(100).default(70),
+  payment_status: z.string().min(1, "Payment status is required"),
+  date_paid: z.string().optional(),
+});
+
 const claimSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
   claim_type: z.string().min(1, "Claim type is required"),
   description: z.string().min(1, "Description is required"),
+  accident_description: z.string().optional(),
   claim_amount: z.number().min(0.01, "Amount must be greater than 0"),
   incident_date: z.string().min(1, "Incident date is required"),
+  adjuster_name: z.string().optional(),
+  adjuster_contact: z.string().optional(),
+  autobody_shop_name: z.string().optional(),
+  shop_contact_info: z.string().optional(),
+  photos_taken: z.boolean().default(false),
 });
 export default function HostCarManagement() {
   const navigate = useNavigate();
@@ -153,6 +173,7 @@ export default function HostCarManagement() {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
+  const [earningDialogOpen, setEarningDialogOpen] = useState(false);
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
 
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
@@ -165,6 +186,22 @@ export default function HostCarManagement() {
     },
   });
 
+  const earningForm = useForm<z.infer<typeof earningSchema>>({
+    resolver: zodResolver(earningSchema),
+    defaultValues: {
+      car_id: "",
+      guest_name: "",
+      earning_type: "hosting",
+      gross_earnings: 0,
+      payment_source: "Turo",
+      earning_period_start: new Date().toISOString().split('T')[0],
+      earning_period_end: new Date().toISOString().split('T')[0],
+      client_profit_percentage: 30,
+      host_profit_percentage: 70,
+      payment_status: "pending",
+    },
+  });
+
   const claimForm = useForm<z.infer<typeof claimSchema>>({
     resolver: zodResolver(claimSchema),
     defaultValues: {
@@ -173,6 +210,7 @@ export default function HostCarManagement() {
       description: "",
       claim_amount: 0,
       incident_date: new Date().toISOString().split('T')[0],
+      photos_taken: false,
     },
   });
   useEffect(() => {
@@ -362,6 +400,57 @@ export default function HostCarManagement() {
     }
   };
 
+  const onEarningSubmit = async (values: z.infer<typeof earningSchema>) => {
+    if (!user) return;
+
+    try {
+      const clientProfit = (values.gross_earnings * values.client_profit_percentage) / 100;
+      const hostProfit = (values.gross_earnings * values.host_profit_percentage) / 100;
+      const commission = values.gross_earnings * 0.1; // 10% commission
+      const netAmount = hostProfit - commission;
+
+      const { error } = await (supabase as any)
+        .from('host_earnings')
+        .insert({
+          host_id: user.id,
+          car_id: values.car_id,
+          guest_name: values.guest_name,
+          earning_type: values.earning_type,
+          amount: hostProfit,
+          gross_earnings: values.gross_earnings,
+          commission: commission,
+          net_amount: netAmount,
+          client_profit_percentage: values.client_profit_percentage,
+          host_profit_percentage: values.host_profit_percentage,
+          client_profit_amount: clientProfit,
+          host_profit_amount: hostProfit,
+          payment_source: values.payment_source,
+          earning_period_start: values.earning_period_start,
+          earning_period_end: values.earning_period_end,
+          payment_status: values.payment_status,
+          date_paid: values.date_paid || null,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Earning recorded successfully",
+        description: "Your earning has been added to the system.",
+      });
+
+      setEarningDialogOpen(false);
+      earningForm.reset();
+      fetchEarnings();
+    } catch (error) {
+      console.error('Error adding earning:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add earning. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const onClaimSubmit = async (values: z.infer<typeof claimSchema>) => {
     if (!user) return;
 
@@ -373,8 +462,14 @@ export default function HostCarManagement() {
           car_id: values.car_id,
           claim_type: values.claim_type,
           description: values.description,
+          accident_description: values.accident_description || null,
           claim_amount: values.claim_amount,
           incident_date: values.incident_date,
+          adjuster_name: values.adjuster_name || null,
+          adjuster_contact: values.adjuster_contact || null,
+          autobody_shop_name: values.autobody_shop_name || null,
+          shop_contact_info: values.shop_contact_info || null,
+          photos_taken: values.photos_taken,
         });
 
       if (error) throw error;
@@ -921,43 +1016,366 @@ export default function HostCarManagement() {
           </TabsContent>
 
           <TabsContent value="earnings" className="space-y-4">
-            <h3 className="text-lg font-medium">Earnings</h3>
-            
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Earnings</h3>
+              <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Earning
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Record New Earning</DialogTitle>
+                    <DialogDescription>
+                      Add a new earning record from your hosting activities.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...earningForm}>
+                    <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={earningForm.control}
+                          name="car_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Car</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a car" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {cars.map((car) => (
+                                    <SelectItem key={car.id} value={car.id}>
+                                      {car.year} {car.make} {car.model}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={earningForm.control}
+                          name="guest_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Guest Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter guest name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={earningForm.control}
+                          name="earning_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Earning Type</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select earning type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="hosting">Hosting</SelectItem>
+                                  <SelectItem value="delivery">Delivery</SelectItem>
+                                  <SelectItem value="subscription">Subscription</SelectItem>
+                                  <SelectItem value="bonus">Bonus</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={earningForm.control}
+                          name="payment_source"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Payment Source</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select payment source" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Turo">Turo</SelectItem>
+                                  <SelectItem value="Eon">Eon</SelectItem>
+                                  <SelectItem value="GetAround">GetAround</SelectItem>
+                                  <SelectItem value="Private">Private</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={earningForm.control}
+                        name="gross_earnings"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gross Earnings</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="0.00"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={earningForm.control}
+                          name="client_profit_percentage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Client Profit %</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  step="1"
+                                  placeholder="30"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 30)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={earningForm.control}
+                          name="host_profit_percentage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Host Profit %</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  step="1"
+                                  placeholder="70"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 70)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={earningForm.control}
+                          name="earning_period_start"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Period Start</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={earningForm.control}
+                          name="earning_period_end"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Period End</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={earningForm.control}
+                          name="payment_status"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Payment Status</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select payment status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="paid">Paid</SelectItem>
+                                  <SelectItem value="processing">Processing</SelectItem>
+                                  <SelectItem value="failed">Failed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={earningForm.control}
+                          name="date_paid"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Date Paid (Optional)</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <DialogFooter>
+                        <Button type="submit">Record Earning</Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
             {earnings.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
                   <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No earnings recorded</h3>
                   <p className="text-muted-foreground">
-                    Your hosting earnings will appear here.
+                    Start tracking your hosting earnings.
                   </p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {earnings.map((earning) => (
-                  <Card key={earning.id}>
+              <div className="space-y-4">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
                     <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium capitalize">{earning.earning_type}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(earning.earning_period_start).toLocaleDateString()} - {new Date(earning.earning_period_end).toLocaleDateString()}
-                          </p>
-                          <Badge variant={earning.payment_status === 'paid' ? 'default' : 'secondary'}>
-                            {earning.payment_status}
-                          </Badge>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-lg text-green-600">${earning.net_amount.toFixed(2)}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Gross: ${earning.amount.toFixed(2)}
+                          <p className="text-sm text-muted-foreground">Total Earnings</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            ${earnings.reduce((sum, e) => sum + e.net_amount, 0).toFixed(2)}
                           </p>
                         </div>
+                        <DollarSign className="h-8 w-8 text-green-600" />
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Pending Payments</p>
+                          <p className="text-2xl font-bold text-yellow-600">
+                            ${earnings.filter(e => e.payment_status === 'pending').reduce((sum, e) => sum + e.net_amount, 0).toFixed(2)}
+                          </p>
+                        </div>
+                        <Clock className="h-8 w-8 text-yellow-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">This Month</p>
+                          <p className="text-2xl font-bold text-blue-600">
+                            ${earnings.filter(e => new Date(e.earning_period_start).getMonth() === new Date().getMonth())
+                              .reduce((sum, e) => sum + e.net_amount, 0).toFixed(2)}
+                          </p>
+                        </div>
+                        <Calendar className="h-8 w-8 text-blue-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Earnings List */}
+                <div className="grid gap-4">
+                  {earnings.map((earning) => (
+                    <Card key={earning.id}>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium capitalize">{earning.earning_type}</h4>
+                              <Badge variant={earning.payment_status === 'paid' ? 'default' : 'secondary'}>
+                                {earning.payment_status}
+                              </Badge>
+                            </div>
+                            {earning.guest_name && (
+                              <p className="text-sm text-muted-foreground">Guest: {earning.guest_name}</p>
+                            )}
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(earning.earning_period_start).toLocaleDateString()} - {new Date(earning.earning_period_end).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Source: {earning.payment_source}
+                            </p>
+                            
+                            {/* Profit Breakdown */}
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Gross Earnings:</span>
+                                <p className="font-medium">${earning.gross_earnings?.toFixed(2) || '0.00'}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Commission:</span>
+                                <p className="font-medium">${earning.commission.toFixed(2)}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Client Profit ({earning.client_profit_percentage}%):</span>
+                                <p className="font-medium">${earning.client_profit_amount?.toFixed(2) || '0.00'}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Host Profit ({earning.host_profit_percentage}%):</span>
+                                <p className="font-medium">${earning.host_profit_amount?.toFixed(2) || '0.00'}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-xl text-green-600">${earning.net_amount.toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground">Net Amount</p>
+                            {earning.date_paid && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Paid: {new Date(earning.date_paid).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
           </TabsContent>
@@ -981,86 +1399,58 @@ export default function HostCarManagement() {
                   </DialogHeader>
                   <Form {...claimForm}>
                     <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
-                      <FormField
-                        control={claimForm.control}
-                        name="car_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Car</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a car" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {cars.map((car) => (
-                                  <SelectItem key={car.id} value={car.id}>
-                                    {car.year} {car.make} {car.model}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={claimForm.control}
-                        name="claim_type"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Claim Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select claim type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="damage">Damage</SelectItem>
-                                <SelectItem value="theft">Theft</SelectItem>
-                                <SelectItem value="accident">Accident</SelectItem>
-                                <SelectItem value="vandalism">Vandalism</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={claimForm.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                              <Textarea placeholder="Describe the incident..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={claimForm.control}
-                        name="claim_amount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Claim Amount</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={claimForm.control}
+                          name="car_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Car</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a car" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {cars.map((car) => (
+                                    <SelectItem key={car.id} value={car.id}>
+                                      {car.year} {car.make} {car.model}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={claimForm.control}
+                          name="claim_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Claim Type</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select claim type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="damage">Physical Damage</SelectItem>
+                                  <SelectItem value="theft">Theft</SelectItem>
+                                  <SelectItem value="accident">Accident</SelectItem>
+                                  <SelectItem value="vandalism">Vandalism</SelectItem>
+                                  <SelectItem value="mechanical">Mechanical Issues</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
                       <FormField
                         control={claimForm.control}
                         name="incident_date"
@@ -1074,6 +1464,137 @@ export default function HostCarManagement() {
                           </FormItem>
                         )}
                       />
+
+                      <FormField
+                        control={claimForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Incident Description</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Describe what happened..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={claimForm.control}
+                        name="accident_description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Detailed Accident Description (Optional)</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Provide additional details about the accident..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={claimForm.control}
+                        name="claim_amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Estimated Claim Amount</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="0.00"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="space-y-4">
+                        <h4 className="font-medium">Insurance & Repair Information</h4>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={claimForm.control}
+                            name="adjuster_name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Adjuster Name (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter adjuster name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={claimForm.control}
+                            name="adjuster_contact"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Adjuster Contact (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Phone or email" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={claimForm.control}
+                            name="autobody_shop_name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Auto Body Shop (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Shop name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={claimForm.control}
+                            name="shop_contact_info"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Shop Contact (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Phone or address" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <FormField
+                          control={claimForm.control}
+                          name="photos_taken"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="h-4 w-4"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Photos taken of damage/incident</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
                       <DialogFooter>
                         <Button type="submit">Submit Claim</Button>
                       </DialogFooter>
@@ -1094,36 +1615,151 @@ export default function HostCarManagement() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {claims.map((claim) => (
-                  <Card key={claim.id}>
+              <div className="space-y-4">
+                {/* Claims Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
                     <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium capitalize">{claim.claim_type}</h4>
-                          <p className="text-sm text-muted-foreground">{claim.description}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Incident: {new Date(claim.incident_date).toLocaleDateString()}
-                          </p>
-                          <Badge variant={
-                            claim.claim_status === 'approved' ? 'default' :
-                            claim.claim_status === 'denied' ? 'destructive' : 'secondary'
-                          }>
-                            {claim.claim_status}
-                          </Badge>
+                          <p className="text-sm text-muted-foreground">Total Claims</p>
+                          <p className="text-2xl font-bold">{claims.length}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-lg">${claim.claim_amount?.toFixed(2) || '0.00'}</p>
-                          {claim.approved_amount && (
-                            <p className="text-sm text-green-600">
-                              Approved: ${claim.approved_amount.toFixed(2)}
-                            </p>
-                          )}
-                        </div>
+                        <FileText className="h-8 w-8 text-blue-600" />
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Pending</p>
+                          <p className="text-2xl font-bold text-yellow-600">
+                            {claims.filter(c => c.claim_status === 'pending').length}
+                          </p>
+                        </div>
+                        <AlertTriangle className="h-8 w-8 text-yellow-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Approved</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            {claims.filter(c => c.claim_status === 'approved').length}
+                          </p>
+                        </div>
+                        <CheckCircle className="h-8 w-8 text-green-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Amount</p>
+                          <p className="text-2xl font-bold">
+                            ${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}
+                          </p>
+                        </div>
+                        <DollarSign className="h-8 w-8 text-purple-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Claims List */}
+                <div className="grid gap-4">
+                  {claims.map((claim) => (
+                    <Card key={claim.id}>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium capitalize">{claim.claim_type} Claim</h4>
+                              <Badge variant={
+                                claim.claim_status === 'approved' ? 'default' :
+                                claim.claim_status === 'denied' ? 'destructive' : 'secondary'
+                              }>
+                                {claim.claim_status}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{claim.description}</p>
+                            {claim.accident_description && (
+                              <p className="text-sm text-muted-foreground">
+                                <strong>Details:</strong> {claim.accident_description}
+                              </p>
+                            )}
+                            <p className="text-sm text-muted-foreground">
+                              <strong>Incident Date:</strong> {new Date(claim.incident_date).toLocaleDateString()}
+                            </p>
+                            
+                            {/* Additional Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                              {claim.adjuster_name && (
+                                <div>
+                                  <span className="text-muted-foreground">Adjuster:</span>
+                                  <p className="font-medium">{claim.adjuster_name}</p>
+                                  {claim.adjuster_contact && (
+                                    <p className="text-xs text-muted-foreground">{claim.adjuster_contact}</p>
+                                  )}
+                                </div>
+                              )}
+                              {claim.autobody_shop_name && (
+                                <div>
+                                  <span className="text-muted-foreground">Repair Shop:</span>
+                                  <p className="font-medium">{claim.autobody_shop_name}</p>
+                                  {claim.shop_contact_info && (
+                                    <p className="text-xs text-muted-foreground">{claim.shop_contact_info}</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {claim.photos_taken && (
+                              <div className="flex items-center gap-1 text-sm text-green-600">
+                                <CheckCircle className="h-4 w-4" />
+                                <span>Photos documented</span>
+                              </div>
+                            )}
+
+                            {/* Progress Indicators */}
+                            {claim.claim_status !== 'pending' && (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>Filed: {new Date(claim.created_at).toLocaleDateString()}</span>
+                                {claim.approval_date && (
+                                  <span>• Approved: {new Date(claim.approval_date).toLocaleDateString()}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-lg">${claim.claim_amount?.toFixed(2) || '0.00'}</p>
+                            <p className="text-xs text-muted-foreground">Claimed</p>
+                            {claim.approved_amount && (
+                              <div className="mt-1">
+                                <p className="text-sm font-medium text-green-600">
+                                  ${claim.approved_amount.toFixed(2)}
+                                </p>
+                                <p className="text-xs text-muted-foreground">Approved</p>
+                              </div>
+                            )}
+                            {claim.payout_amount && (
+                              <div className="mt-1">
+                                <p className="text-sm font-medium text-blue-600">
+                                  ${claim.payout_amount.toFixed(2)}
+                                </p>
+                                <p className="text-xs text-muted-foreground">Paid Out</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
           </TabsContent>
