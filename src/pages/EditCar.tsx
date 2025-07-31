@@ -3,13 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Car, Upload, X } from 'lucide-react';
+import { ArrowLeft, Car, Upload, X, Trash2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -171,6 +172,34 @@ export default function EditCar() {
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!user || !id) return;
+
+    try {
+      const { error } = await supabase
+        .from('cars')
+        .delete()
+        .eq('id', id)
+        .eq('client_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Car deleted successfully!",
+        description: "Your car has been removed from the platform.",
+      });
+
+      navigate('/my-cars');
+    } catch (error) {
+      console.error('Error deleting car:', error);
+      toast({
+        title: "Error deleting car",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -420,6 +449,35 @@ export default function EditCar() {
                   >
                     {isSubmitting ? 'Updating...' : 'Update Car'}
                   </Button>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="w-full">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Car
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your car
+                          and remove all associated data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={handleDelete}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete Car
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </form>
             </Form>
