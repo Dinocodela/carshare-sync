@@ -153,10 +153,16 @@ export default function SelectHost() {
                       {host.company_name}
                     </CardDescription>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <a 
+                    href="https://www.google.com/search?q=Teslys&oq=teslys+&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MggIARBFGCcYOzIGCAIQRRg8MgYIAxBFGD0yBggEEEUYPTIGCAUQRRhBMgYIBhBFGEEyBggHEEUYQdIBCDIxOTNqMGo0qAIAsAIB&sourceid=chrome&ie=UTF-8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:underline"
+                  >
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     <span className="font-medium">{host.rating}</span>
-                  </div>
+                    <span className="text-muted-foreground text-sm">(45 reviews)</span>
+                  </a>
                 </div>
               </CardHeader>
               <CardContent>
