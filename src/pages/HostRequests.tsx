@@ -112,29 +112,47 @@ export default function HostRequests() {
     }
   };
 
-  const handleRequestAction = async (requestId: string, action: 'accepted' | 'declined') => {
+  const handleRequestAction = async (requestId: string, action: 'accepted' | 'rejected') => {
+    console.log(`Starting ${action} action for request:`, requestId);
     setProcessingRequests(prev => new Set(prev).add(requestId));
     
     try {
       const request = requests.find(r => r.id === requestId);
-      if (!request) throw new Error('Request not found');
+      if (!request) {
+        console.error('Request not found:', requestId);
+        throw new Error('Request not found');
+      }
+
+      console.log('Found request:', request);
 
       // Update request status
+      console.log(`Updating request status to ${action}...`);
       const { error: requestError } = await supabase
         .from('requests')
         .update({ status: action })
         .eq('id', requestId);
 
-      if (requestError) throw requestError;
+      if (requestError) {
+        console.error('Error updating request:', requestError);
+        throw requestError;
+      }
+
+      console.log('Request status updated successfully');
 
       // Update car status
       const newCarStatus = action === 'accepted' ? 'active' : 'available';
+      console.log(`Updating car status to ${newCarStatus}...`);
       const { error: carError } = await supabase
         .from('cars')
         .update({ status: newCarStatus })
         .eq('id', request.car_id);
 
-      if (carError) throw carError;
+      if (carError) {
+        console.error('Error updating car status:', carError);
+        throw carError;
+      }
+
+      console.log('Car status updated successfully');
 
       // Get host profile information for contact details
       const { data: hostProfile } = await supabase
@@ -156,15 +174,20 @@ export default function HostRequests() {
         status: action
       };
 
+      console.log('Sending client confirmation email...');
       const { error: emailError } = await supabase.functions.invoke('send-client-confirmation', {
         body: emailData
       });
 
       if (emailError) {
         console.error('Error sending email:', emailError);
+        // Don't throw - email failure shouldn't block the main action
+      } else {
+        console.log('Email sent successfully');
       }
 
       // Refresh requests
+      console.log('Refreshing requests...');
       await fetchRequests();
 
       toast({
@@ -172,11 +195,13 @@ export default function HostRequests() {
         description: `Request ${action} successfully`,
       });
 
+      console.log(`${action} action completed successfully`);
+
     } catch (error) {
       console.error('Error processing request:', error);
       toast({
         title: "Error",
-        description: `Failed to ${action === 'accepted' ? 'accept' : 'decline'} request`,
+        description: `Failed to ${action === 'accepted' ? 'accept' : 'decline'} request: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
@@ -269,16 +294,16 @@ export default function HostRequests() {
                       className="flex-1"
                     >
                       <CheckCircle className="h-4 w-4 mr-2" />
-                      Accept Request
+                      {processingRequests.has(request.id) ? 'Processing...' : 'Accept Request'}
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => handleRequestAction(request.id, 'declined')}
+                      onClick={() => handleRequestAction(request.id, 'rejected')}
                       disabled={processingRequests.has(request.id)}
                       className="flex-1"
                     >
                       <XCircle className="h-4 w-4 mr-2" />
-                      Decline Request
+                      {processingRequests.has(request.id) ? 'Processing...' : 'Decline Request'}
                     </Button>
                   </div>
                 </CardContent>
