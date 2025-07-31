@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle } from 'lucide-react';
+import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle, DollarSign, Plus, Edit, Trash } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 interface CarWithClient {
   id: string;
   make: string;
@@ -29,6 +37,68 @@ interface CarWithClient {
     phone: string;
   };
 }
+
+interface Expense {
+  id: string;
+  host_id: string;
+  car_id: string | null;
+  expense_type: string;
+  amount: number;
+  description: string | null;
+  expense_date: string;
+  receipt_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Earning {
+  id: string;
+  host_id: string;
+  car_id: string;
+  earning_type: string;
+  amount: number;
+  commission: number;
+  net_amount: number;
+  earning_period_start: string;
+  earning_period_end: string;
+  payment_status: string;
+  payment_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Claim {
+  id: string;
+  host_id: string;
+  car_id: string;
+  claim_type: string;
+  description: string;
+  claim_amount: number | null;
+  approved_amount: number | null;
+  incident_date: string;
+  claim_status: string;
+  claim_number: string | null;
+  supporting_documents: string[] | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+const expenseSchema = z.object({
+  car_id: z.string().optional(),
+  expense_type: z.string().min(1, "Expense type is required"),
+  amount: z.number().min(0.01, "Amount must be greater than 0"),
+  description: z.string().optional(),
+  expense_date: z.string().min(1, "Date is required"),
+});
+
+const claimSchema = z.object({
+  car_id: z.string().min(1, "Car is required"),
+  claim_type: z.string().min(1, "Claim type is required"),
+  description: z.string().min(1, "Description is required"),
+  claim_amount: z.number().min(0.01, "Amount must be greater than 0"),
+  incident_date: z.string().min(1, "Incident date is required"),
+});
 export default function HostCarManagement() {
   const navigate = useNavigate();
   const {
@@ -38,9 +108,38 @@ export default function HostCarManagement() {
     user
   } = useAuth();
   const [cars, setCars] = useState<CarWithClient[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [earnings, setEarnings] = useState<Earning[]>([]);
+  const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
+  const [claimDialogOpen, setClaimDialogOpen] = useState(false);
+
+  const expenseForm = useForm<z.infer<typeof expenseSchema>>({
+    resolver: zodResolver(expenseSchema),
+    defaultValues: {
+      expense_type: "",
+      amount: 0,
+      description: "",
+      expense_date: new Date().toISOString().split('T')[0],
+    },
+  });
+
+  const claimForm = useForm<z.infer<typeof claimSchema>>({
+    resolver: zodResolver(claimSchema),
+    defaultValues: {
+      car_id: "",
+      claim_type: "",
+      description: "",
+      claim_amount: 0,
+      incident_date: new Date().toISOString().split('T')[0],
+    },
+  });
   useEffect(() => {
     fetchHostedCars();
+    fetchExpenses();
+    fetchEarnings();
+    fetchClaims();
   }, [user]);
   const fetchHostedCars = async () => {
     if (!user) return;
@@ -131,6 +230,127 @@ export default function HostCarManagement() {
       });
     }
   };
+
+  const fetchExpenses = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await (supabase as any)
+        .from('host_expenses')
+        .select('*')
+        .eq('host_id', user.id)
+        .order('expense_date', { ascending: false });
+
+      if (error) throw error;
+      setExpenses(data || []);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
+
+  const fetchEarnings = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await (supabase as any)
+        .from('host_earnings')
+        .select('*')
+        .eq('host_id', user.id)
+        .order('earning_period_start', { ascending: false });
+
+      if (error) throw error;
+      setEarnings(data || []);
+    } catch (error) {
+      console.error('Error fetching earnings:', error);
+    }
+  };
+
+  const fetchClaims = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await (supabase as any)
+        .from('host_claims')
+        .select('*')
+        .eq('host_id', user.id)
+        .order('incident_date', { ascending: false });
+
+      if (error) throw error;
+      setClaims(data || []);
+    } catch (error) {
+      console.error('Error fetching claims:', error);
+    }
+  };
+
+  const onExpenseSubmit = async (values: z.infer<typeof expenseSchema>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await (supabase as any)
+        .from('host_expenses')
+        .insert({
+          host_id: user.id,
+          car_id: values.car_id || null,
+          expense_type: values.expense_type,
+          amount: values.amount,
+          description: values.description || null,
+          expense_date: values.expense_date,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Expense added successfully",
+        description: "Your expense has been recorded.",
+      });
+
+      setExpenseDialogOpen(false);
+      expenseForm.reset();
+      fetchExpenses();
+    } catch (error) {
+      console.error('Error adding expense:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add expense. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onClaimSubmit = async (values: z.infer<typeof claimSchema>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await (supabase as any)
+        .from('host_claims')
+        .insert({
+          host_id: user.id,
+          car_id: values.car_id,
+          claim_type: values.claim_type,
+          description: values.description,
+          claim_amount: values.claim_amount,
+          incident_date: values.incident_date,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Claim submitted successfully",
+        description: "Your claim has been filed for review.",
+      });
+
+      setClaimDialogOpen(false);
+      claimForm.reset();
+      fetchClaims();
+    } catch (error) {
+      console.error('Error submitting claim:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit claim. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   const handleManagementAction = (action: string, car: CarWithClient) => {
     switch (action) {
       case 'view-details':
@@ -190,12 +410,21 @@ export default function HostCarManagement() {
         </div>
 
         <Tabs defaultValue="active" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="active">
-              Active Hosting ({activeHostedCars.length})
+              Active ({activeHostedCars.length})
             </TabsTrigger>
             <TabsTrigger value="returns">
-              Ready for Return ({readyForReturnCars.length})
+              Returns ({readyForReturnCars.length})
+            </TabsTrigger>
+            <TabsTrigger value="expenses">
+              Expenses ({expenses.length})
+            </TabsTrigger>
+            <TabsTrigger value="earnings">
+              Earnings ({earnings.length})
+            </TabsTrigger>
+            <TabsTrigger value="claims">
+              Claims ({claims.length})
             </TabsTrigger>
           </TabsList>
 
@@ -352,6 +581,370 @@ export default function HostCarManagement() {
                     </CardContent>
                   </Card>)}
               </div>}
+          </TabsContent>
+
+          <TabsContent value="expenses" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Expenses</h3>
+              <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Expense
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Expense</DialogTitle>
+                    <DialogDescription>
+                      Record a new hosting-related expense.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...expenseForm}>
+                    <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
+                      <FormField
+                        control={expenseForm.control}
+                        name="car_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Car (Optional)</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a car" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {cars.map((car) => (
+                                  <SelectItem key={car.id} value={car.id}>
+                                    {car.year} {car.make} {car.model}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={expenseForm.control}
+                        name="expense_type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Expense Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select expense type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="fuel">Fuel</SelectItem>
+                                <SelectItem value="maintenance">Maintenance</SelectItem>
+                                <SelectItem value="repairs">Repairs</SelectItem>
+                                <SelectItem value="insurance">Insurance</SelectItem>
+                                <SelectItem value="cleaning">Cleaning</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={expenseForm.control}
+                        name="amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Amount</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="0.00"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={expenseForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description (Optional)</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Describe the expense..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={expenseForm.control}
+                        name="expense_date"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Date</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <Button type="submit">Add Expense</Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {expenses.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No expenses recorded</h3>
+                  <p className="text-muted-foreground">
+                    Start tracking your hosting expenses.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {expenses.map((expense) => (
+                  <Card key={expense.id}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium capitalize">{expense.expense_type}</h4>
+                          <p className="text-sm text-muted-foreground">{expense.description}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(expense.expense_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-lg">${expense.amount.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="earnings" className="space-y-4">
+            <h3 className="text-lg font-medium">Earnings</h3>
+            
+            {earnings.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No earnings recorded</h3>
+                  <p className="text-muted-foreground">
+                    Your hosting earnings will appear here.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {earnings.map((earning) => (
+                  <Card key={earning.id}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium capitalize">{earning.earning_type}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(earning.earning_period_start).toLocaleDateString()} - {new Date(earning.earning_period_end).toLocaleDateString()}
+                          </p>
+                          <Badge variant={earning.payment_status === 'paid' ? 'default' : 'secondary'}>
+                            {earning.payment_status}
+                          </Badge>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-lg text-green-600">${earning.net_amount.toFixed(2)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Gross: ${earning.amount.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="claims" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Claims</h3>
+              <Dialog open={claimDialogOpen} onOpenChange={setClaimDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    File Claim
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>File New Claim</DialogTitle>
+                    <DialogDescription>
+                      Submit a claim for damages or incidents.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...claimForm}>
+                    <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
+                      <FormField
+                        control={claimForm.control}
+                        name="car_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Car</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a car" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {cars.map((car) => (
+                                  <SelectItem key={car.id} value={car.id}>
+                                    {car.year} {car.make} {car.model}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={claimForm.control}
+                        name="claim_type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Claim Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select claim type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="damage">Damage</SelectItem>
+                                <SelectItem value="theft">Theft</SelectItem>
+                                <SelectItem value="accident">Accident</SelectItem>
+                                <SelectItem value="vandalism">Vandalism</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={claimForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Describe the incident..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={claimForm.control}
+                        name="claim_amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Claim Amount</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="0.00"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={claimForm.control}
+                        name="incident_date"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Incident Date</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <Button type="submit">Submit Claim</Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {claims.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No claims filed</h3>
+                  <p className="text-muted-foreground">
+                    File claims for damages or incidents here.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {claims.map((claim) => (
+                  <Card key={claim.id}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium capitalize">{claim.claim_type}</h4>
+                          <p className="text-sm text-muted-foreground">{claim.description}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Incident: {new Date(claim.incident_date).toLocaleDateString()}
+                          </p>
+                          <Badge variant={
+                            claim.claim_status === 'approved' ? 'default' :
+                            claim.claim_status === 'denied' ? 'destructive' : 'secondary'
+                          }>
+                            {claim.claim_status}
+                          </Badge>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-lg">${claim.claim_amount?.toFixed(2) || '0.00'}</p>
+                          {claim.approved_amount && (
+                            <p className="text-sm text-green-600">
+                              Approved: ${claim.approved_amount.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
