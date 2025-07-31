@@ -65,6 +65,273 @@ export type Database = {
         }
         Relationships: []
       }
+      host_claims: {
+        Row: {
+          accident_description: string | null
+          actual_pickup_date: string | null
+          additional_notes: string | null
+          adjuster_contact: string | null
+          adjuster_name: string | null
+          approval_date: string | null
+          approved_amount: number | null
+          autobody_shop_name: string | null
+          car_id: string
+          car_ready_pickup_date: string | null
+          claim_amount: number | null
+          claim_number: string | null
+          claim_status: string
+          claim_submitted_date: string | null
+          claim_type: string
+          created_at: string
+          description: string
+          estimate_approved_date: string | null
+          estimate_submitted_date: string | null
+          estimated_completion_date: string | null
+          final_status: string | null
+          host_id: string
+          id: string
+          incident_date: string
+          notes: string | null
+          payout_amount: number | null
+          photos_taken: boolean | null
+          post_repair_inspection: boolean | null
+          repair_dropoff_date: string | null
+          repair_status: string | null
+          shop_contact_info: string | null
+          supporting_documents: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          accident_description?: string | null
+          actual_pickup_date?: string | null
+          additional_notes?: string | null
+          adjuster_contact?: string | null
+          adjuster_name?: string | null
+          approval_date?: string | null
+          approved_amount?: number | null
+          autobody_shop_name?: string | null
+          car_id: string
+          car_ready_pickup_date?: string | null
+          claim_amount?: number | null
+          claim_number?: string | null
+          claim_status?: string
+          claim_submitted_date?: string | null
+          claim_type: string
+          created_at?: string
+          description: string
+          estimate_approved_date?: string | null
+          estimate_submitted_date?: string | null
+          estimated_completion_date?: string | null
+          final_status?: string | null
+          host_id: string
+          id?: string
+          incident_date: string
+          notes?: string | null
+          payout_amount?: number | null
+          photos_taken?: boolean | null
+          post_repair_inspection?: boolean | null
+          repair_dropoff_date?: string | null
+          repair_status?: string | null
+          shop_contact_info?: string | null
+          supporting_documents?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          accident_description?: string | null
+          actual_pickup_date?: string | null
+          additional_notes?: string | null
+          adjuster_contact?: string | null
+          adjuster_name?: string | null
+          approval_date?: string | null
+          approved_amount?: number | null
+          autobody_shop_name?: string | null
+          car_id?: string
+          car_ready_pickup_date?: string | null
+          claim_amount?: number | null
+          claim_number?: string | null
+          claim_status?: string
+          claim_submitted_date?: string | null
+          claim_type?: string
+          created_at?: string
+          description?: string
+          estimate_approved_date?: string | null
+          estimate_submitted_date?: string | null
+          estimated_completion_date?: string | null
+          final_status?: string | null
+          host_id?: string
+          id?: string
+          incident_date?: string
+          notes?: string | null
+          payout_amount?: number | null
+          photos_taken?: boolean | null
+          post_repair_inspection?: boolean | null
+          repair_dropoff_date?: string | null
+          repair_status?: string | null
+          shop_contact_info?: string | null
+          supporting_documents?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_host_claims_car_id"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      host_earnings: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          car_id: string
+          client_profit_amount: number | null
+          client_profit_percentage: number | null
+          commission: number | null
+          created_at: string
+          date_paid: string | null
+          earning_period_end: string
+          earning_period_start: string
+          earning_type: string
+          gross_earnings: number | null
+          guest_name: string | null
+          host_id: string
+          host_profit_amount: number | null
+          host_profit_percentage: number | null
+          id: string
+          net_amount: number
+          payment_date: string | null
+          payment_source: string | null
+          payment_status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          car_id: string
+          client_profit_amount?: number | null
+          client_profit_percentage?: number | null
+          commission?: number | null
+          created_at?: string
+          date_paid?: string | null
+          earning_period_end: string
+          earning_period_start: string
+          earning_type?: string
+          gross_earnings?: number | null
+          guest_name?: string | null
+          host_id: string
+          host_profit_amount?: number | null
+          host_profit_percentage?: number | null
+          id?: string
+          net_amount: number
+          payment_date?: string | null
+          payment_source?: string | null
+          payment_status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          car_id?: string
+          client_profit_amount?: number | null
+          client_profit_percentage?: number | null
+          commission?: number | null
+          created_at?: string
+          date_paid?: string | null
+          earning_period_end?: string
+          earning_period_start?: string
+          earning_type?: string
+          gross_earnings?: number | null
+          guest_name?: string | null
+          host_id?: string
+          host_profit_amount?: number | null
+          host_profit_percentage?: number | null
+          id?: string
+          net_amount?: number
+          payment_date?: string | null
+          payment_source?: string | null
+          payment_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_host_earnings_car_id"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      host_expenses: {
+        Row: {
+          amount: number
+          car_id: string | null
+          carwash_cost: number | null
+          created_at: string
+          delivery_cost: number | null
+          description: string | null
+          ev_charge_cost: number | null
+          expense_date: string
+          expense_type: string
+          guest_name: string | null
+          host_id: string
+          id: string
+          receipt_url: string | null
+          receipt_urls: string[] | null
+          toll_cost: number | null
+          total_expenses: number | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          car_id?: string | null
+          carwash_cost?: number | null
+          created_at?: string
+          delivery_cost?: number | null
+          description?: string | null
+          ev_charge_cost?: number | null
+          expense_date?: string
+          expense_type: string
+          guest_name?: string | null
+          host_id: string
+          id?: string
+          receipt_url?: string | null
+          receipt_urls?: string[] | null
+          toll_cost?: number | null
+          total_expenses?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          car_id?: string | null
+          carwash_cost?: number | null
+          created_at?: string
+          delivery_cost?: number | null
+          description?: string | null
+          ev_charge_cost?: number | null
+          expense_date?: string
+          expense_type?: string
+          guest_name?: string | null
+          host_id?: string
+          id?: string
+          receipt_url?: string | null
+          receipt_urls?: string[] | null
+          toll_cost?: number | null
+          total_expenses?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_host_expenses_car_id"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           bio: string | null

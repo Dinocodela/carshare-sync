@@ -42,11 +42,18 @@ interface Expense {
   id: string;
   host_id: string;
   car_id: string | null;
+  guest_name?: string;
   expense_type: string;
   amount: number;
+  ev_charge_cost?: number;
+  carwash_cost?: number;
+  delivery_cost?: number;
+  toll_cost?: number;
+  total_expenses?: number;
   description: string | null;
   expense_date: string;
   receipt_url: string | null;
+  receipt_urls?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -55,14 +62,22 @@ interface Earning {
   id: string;
   host_id: string;
   car_id: string;
+  guest_name?: string;
   earning_type: string;
   amount: number;
+  gross_earnings?: number;
   commission: number;
   net_amount: number;
+  client_profit_percentage?: number;
+  host_profit_percentage?: number;
+  client_profit_amount?: number;
+  host_profit_amount?: number;
+  payment_source?: string;
   earning_period_start: string;
   earning_period_end: string;
   payment_status: string;
   payment_date: string | null;
+  date_paid?: string;
   created_at: string;
   updated_at: string;
 }
@@ -80,14 +95,39 @@ interface Claim {
   claim_number: string | null;
   supporting_documents: string[] | null;
   notes: string | null;
+  // Enhanced claim tracking fields
+  accident_description?: string;
+  photos_taken?: boolean;
+  claim_submitted_date?: string;
+  adjuster_name?: string;
+  adjuster_contact?: string;
+  approval_date?: string;
+  payout_amount?: number;
+  autobody_shop_name?: string;
+  shop_contact_info?: string;
+  estimate_submitted_date?: string;
+  estimate_approved_date?: string;
+  repair_dropoff_date?: string;
+  estimated_completion_date?: string;
+  repair_status?: string;
+  car_ready_pickup_date?: string;
+  actual_pickup_date?: string;
+  post_repair_inspection?: boolean;
+  additional_notes?: string;
+  final_status?: string;
   created_at: string;
   updated_at: string;
 }
 
 const expenseSchema = z.object({
   car_id: z.string().optional(),
+  guest_name: z.string().optional(),
   expense_type: z.string().min(1, "Expense type is required"),
-  amount: z.number().min(0.01, "Amount must be greater than 0"),
+  amount: z.number().min(0, "Amount must be 0 or greater").optional(),
+  ev_charge_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
+  carwash_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
+  delivery_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
+  toll_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
   description: z.string().optional(),
   expense_date: z.string().min(1, "Date is required"),
 });
@@ -291,8 +331,13 @@ export default function HostCarManagement() {
         .insert({
           host_id: user.id,
           car_id: values.car_id || null,
+          guest_name: values.guest_name || null,
           expense_type: values.expense_type,
-          amount: values.amount,
+          amount: values.amount || 0,
+          ev_charge_cost: values.ev_charge_cost || 0,
+          carwash_cost: values.carwash_cost || 0,
+          delivery_cost: values.delivery_cost || 0,
+          toll_cost: values.toll_cost || 0,
           description: values.description || null,
           expense_date: values.expense_date,
         });
@@ -653,23 +698,119 @@ export default function HostCarManagement() {
                       />
                       <FormField
                         control={expenseForm.control}
-                        name="amount"
+                        name="guest_name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Amount</FormLabel>
+                            <FormLabel>Guest Name (Optional)</FormLabel>
                             <FormControl>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                              />
+                              <Input placeholder="Enter guest name" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                      
+                      <div className="space-y-4">
+                        <h4 className="font-medium">Cost Breakdown</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={expenseForm.control}
+                            name="ev_charge_cost"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>EV Charge Cost</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={expenseForm.control}
+                            name="carwash_cost"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Carwash Cost</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={expenseForm.control}
+                            name="delivery_cost"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Delivery Cost</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={expenseForm.control}
+                            name="toll_cost"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Toll Cost</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <FormField
+                          control={expenseForm.control}
+                          name="amount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Other Expenses</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="0.00"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <FormField
                         control={expenseForm.control}
                         name="description"
@@ -719,20 +860,60 @@ export default function HostCarManagement() {
               <div className="grid gap-4">
                 {expenses.map((expense) => (
                   <Card key={expense.id}>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium capitalize">{expense.expense_type}</h4>
-                          <p className="text-sm text-muted-foreground">{expense.description}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(expense.expense_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-lg">${expense.amount.toFixed(2)}</p>
-                        </div>
-                      </div>
-                    </CardContent>
+                     <CardContent className="p-4">
+                       <div className="flex justify-between items-start">
+                         <div>
+                           <h4 className="font-medium capitalize">{expense.expense_type}</h4>
+                           {expense.guest_name && (
+                             <p className="text-sm text-muted-foreground">Guest: {expense.guest_name}</p>
+                           )}
+                           <p className="text-sm text-muted-foreground">{expense.description}</p>
+                           <p className="text-sm text-muted-foreground">
+                             {new Date(expense.expense_date).toLocaleDateString()}
+                           </p>
+                           
+                           {/* Cost Breakdown */}
+                           <div className="mt-2 space-y-1">
+                             {expense.ev_charge_cost > 0 && (
+                               <div className="flex justify-between text-sm">
+                                 <span>EV Charge:</span>
+                                 <span>${expense.ev_charge_cost.toFixed(2)}</span>
+                               </div>
+                             )}
+                             {expense.carwash_cost > 0 && (
+                               <div className="flex justify-between text-sm">
+                                 <span>Carwash:</span>
+                                 <span>${expense.carwash_cost.toFixed(2)}</span>
+                               </div>
+                             )}
+                             {expense.delivery_cost > 0 && (
+                               <div className="flex justify-between text-sm">
+                                 <span>Delivery:</span>
+                                 <span>${expense.delivery_cost.toFixed(2)}</span>
+                               </div>
+                             )}
+                             {expense.toll_cost > 0 && (
+                               <div className="flex justify-between text-sm">
+                                 <span>Tolls:</span>
+                                 <span>${expense.toll_cost.toFixed(2)}</span>
+                               </div>
+                             )}
+                             {expense.amount > 0 && (
+                               <div className="flex justify-between text-sm">
+                                 <span>Other:</span>
+                                 <span>${expense.amount.toFixed(2)}</span>
+                               </div>
+                             )}
+                           </div>
+                         </div>
+                         <div className="text-right">
+                           <p className="font-bold text-lg">
+                             ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
+                           </p>
+                           <p className="text-xs text-muted-foreground">Total</p>
+                         </div>
+                       </div>
+                     </CardContent>
                   </Card>
                 ))}
               </div>
