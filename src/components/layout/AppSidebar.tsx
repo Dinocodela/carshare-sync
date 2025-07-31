@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Car, ChevronUp, Home, LogOut, Plus, Settings, User2 } from 'lucide-react';
+import { Car, ChevronUp, Home, LogOut, Plus, Settings, User2, Inbox } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Sidebar,
   SidebarContent,
@@ -21,36 +22,80 @@ interface Profile {
   company_name?: string;
 }
 
-// Menu items.
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "My Cars",
-    url: "/my-cars",
-    icon: Car,
-  },
-  {
-    title: "Add Car",
-    url: "/add-car",
-    icon: Plus,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-]
-
 export function AppSidebar() {
   const { user, signOut } = useAuth();
+  const [userRole, setUserRole] = useState<'client' | 'host' | null>(null);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profile) {
+        setUserRole(profile.role as 'client' | 'host');
+      }
+    };
+
+    fetchUserRole();
+  }, [user]);
+
+  const getMenuItems = () => {
+    const baseItems = [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: Home,
+      }
+    ];
+
+    if (userRole === 'client') {
+      return [
+        ...baseItems,
+        {
+          title: "My Cars",
+          url: "/my-cars",
+          icon: Car,
+        },
+        {
+          title: "Add Car",
+          url: "/add-car",
+          icon: Plus,
+        },
+        {
+          title: "Settings",
+          url: "#",
+          icon: Settings,
+        }
+      ];
+    } else if (userRole === 'host') {
+      return [
+        ...baseItems,
+        {
+          title: "Host Requests",
+          url: "/host-requests",
+          icon: Inbox,
+        },
+        {
+          title: "Settings",
+          url: "#",
+          icon: Settings,
+        }
+      ];
+    }
+
+    return baseItems;
+  };
 
   const handleSignOut = async () => {
     await signOut();
   };
+
+  const menuItems = getMenuItems();
 
   return (
     <Sidebar collapsible="icon">
@@ -58,7 +103,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url}>
