@@ -9,6 +9,9 @@ import Login from "./pages/Login";
 import RegisterClient from "./pages/RegisterClient";
 import RegisterHost from "./pages/RegisterHost";
 import Dashboard from "./pages/Dashboard";
+import AddCar from "./pages/AddCar";
+import SelectHost from "./pages/SelectHost";
+import MyCars from "./pages/MyCars";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +29,9 @@ const App = () => (
             <Route path="/register/client" element={<RegisterClient />} />
             <Route path="/register/host" element={<RegisterHost />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/add-car" element={<AddCar />} />
+            <Route path="/select-host" element={<SelectHost />} />
+            <Route path="/my-cars" element={<MyCars />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
