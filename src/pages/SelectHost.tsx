@@ -71,6 +71,18 @@ export default function SelectHost() {
         .single();
 
       if (carError) throw carError;
+      
+      // Validate car availability
+      if (carData.status !== 'available') {
+        toast({
+          title: "Car not available",
+          description: "This car already has a pending or active hosting request.",
+          variant: "destructive",
+        });
+        navigate('/my-cars');
+        return;
+      }
+      
       setCar(carData);
 
       // Fetch Teslys host profile (the only host for now)
@@ -123,6 +135,36 @@ export default function SelectHost() {
 
     setIsSubmitting(true);
     try {
+      // Check for existing pending requests
+      const { data: existingRequest, error: checkError } = await supabase
+        .from('requests')
+        .select('id')
+        .eq('car_id', car.id)
+        .eq('client_id', user.id)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (checkError && checkError.code !== 'PGRST116') throw checkError;
+      
+      if (existingRequest) {
+        toast({
+          title: "Request already exists",
+          description: "You already have a pending request for this car.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get client profile data for the notification
+      const { data: clientProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching client profile:', profileError);
+      }
       // Create the request record
       const { data: requestData, error: requestError } = await supabase
         .from('requests')
@@ -140,13 +182,16 @@ export default function SelectHost() {
 
       // Send notification email to host
       const hostEmail = "info@teslys.com"; // Teslys email
+      const clientName = clientProfile 
+        ? `${clientProfile.first_name} ${clientProfile.last_name}`
+        : user.email || 'Client';
       
       const emailResponse = await supabase.functions.invoke('send-host-notification', {
         body: {
           requestId: requestData.id,
           hostEmail: hostEmail,
           hostName: `${host.first_name} ${host.last_name}`,
-          clientName: user.email || 'Client',
+          clientName: clientName,
           carDetails: `${car.year} ${car.make} ${car.model}`,
           message: message.trim()
         }

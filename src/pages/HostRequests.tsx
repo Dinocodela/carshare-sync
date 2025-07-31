@@ -43,7 +43,29 @@ export default function HostRequests() {
       navigate('/login');
       return;
     }
-    fetchRequests();
+    
+    // Check if user is a host
+    const checkHostRole = async () => {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error || profile?.role !== 'host') {
+        toast({
+          title: "Access Denied",
+          description: "Only hosts can access this page.",
+          variant: "destructive",
+        });
+        navigate('/dashboard');
+        return;
+      }
+      
+      fetchRequests();
+    };
+    
+    checkHostRole();
   }, [user, navigate]);
 
   const fetchRequests = async () => {

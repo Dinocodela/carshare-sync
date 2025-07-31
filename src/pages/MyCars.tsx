@@ -61,19 +61,23 @@ export default function MyCars() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { variant: 'secondary' as const, label: 'Pending Host' },
-      active: { variant: 'default' as const, label: 'Active' },
-      completed: { variant: 'outline' as const, label: 'Completed' },
+      available: { variant: 'outline' as const, label: 'Available', description: 'Ready to send hosting request' },
+      pending: { variant: 'secondary' as const, label: 'Pending Review', description: 'Waiting for host response' },
+      active: { variant: 'default' as const, label: 'Active Hosting', description: 'Currently being hosted' },
+      completed: { variant: 'outline' as const, label: 'Completed', description: 'Hosting completed' },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || 
-      { variant: 'secondary' as const, label: status };
+      { variant: 'secondary' as const, label: status, description: '' };
 
-    return (
-      <Badge variant={config.variant}>
-        {config.label}
-      </Badge>
-    );
+    return {
+      badge: (
+        <Badge variant={config.variant}>
+          {config.label}
+        </Badge>
+      ),
+      description: config.description
+    };
   };
 
   if (loading) {
@@ -133,7 +137,12 @@ export default function MyCars() {
                         {car.color} • {car.mileage.toLocaleString()} miles
                       </CardDescription>
                     </div>
-                    {getStatusBadge(car.status)}
+                    <div className="text-right">
+                      {getStatusBadge(car.status).badge}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {getStatusBadge(car.status).description}
+                      </p>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -172,15 +181,25 @@ export default function MyCars() {
                         <Eye className="h-3 w-3 mr-1" />
                         View
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => navigate(`/cars/${car.id}/edit`)}
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Edit
-                      </Button>
+                      {car.status === 'available' ? (
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => navigate(`/select-host?carId=${car.id}`)}
+                        >
+                          Request Host
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => navigate(`/cars/${car.id}/edit`)}
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
