@@ -51,41 +51,19 @@ export default function SelectHost() {
 
       if (error) throw error;
 
-      // Mock data for now since we don't have host profiles yet
-      const mockHosts: Host[] = [
-        {
-          id: '550e8400-e29b-41d4-a716-446655440001',
-          user_id: '550e8400-e29b-41d4-a716-446655440001',
-          name: 'AutoCare Pro',
-          company_name: 'AutoCare Professional Services',
-          location: 'San Francisco, CA',
-          services: ['Maintenance', 'Detailing', 'Storage', 'Inspection'],
-          rating: 4.8,
-          bio: 'Professional automotive care with 15+ years of experience. We provide comprehensive vehicle maintenance and storage solutions.',
-        },
-        {
-          id: '550e8400-e29b-41d4-a716-446655440002',
-          user_id: '550e8400-e29b-41d4-a716-446655440002',
-          name: 'Elite Motor Services',
-          company_name: 'Elite Motor Services LLC',
-          location: 'Los Angeles, CA',
-          services: ['Maintenance', 'Repairs', 'Storage'],
-          rating: 4.6,
-          bio: 'Specialized in luxury and exotic vehicle care. State-of-the-art facility with climate-controlled storage.',
-        },
-        {
-          id: '550e8400-e29b-41d4-a716-446655440003',
-          user_id: '550e8400-e29b-41d4-a716-446655440003',
-          name: 'Valley Auto Care',
-          company_name: 'Valley Automotive Solutions',
-          location: 'San Jose, CA',
-          services: ['Maintenance', 'Detailing', 'Inspection'],
-          rating: 4.9,
-          bio: 'Family-owned business serving the Bay Area for over 20 years. We treat every car like our own.',
-        },
-      ];
+      // Transform database profiles to Host format
+      const hostsData: Host[] = (data || []).map((profile: any) => ({
+        id: profile.id,
+        user_id: profile.user_id,
+        name: profile.company_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Host Name',
+        company_name: profile.company_name || 'Company Name',
+        location: profile.location || 'Location not specified',
+        services: profile.services || ['General Services'],
+        rating: parseFloat(profile.rating) || 0,
+        bio: profile.bio || 'No bio available',
+      }));
 
-      setHosts(mockHosts);
+      setHosts(hostsData);
     } catch (error) {
       console.error('Error fetching hosts:', error);
       toast({
