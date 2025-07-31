@@ -40,28 +40,46 @@ export default function HostCarManagement() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data: carsData, error: carsError } = await supabase
         .from('cars')
-        .select(`
-          id,
-          make,
-          model,
-          year,
-          status,
-          location,
-          profiles!cars_client_id_fkey (
-            id,
-            first_name,
-            last_name,
-            phone
-          )
-        `)
+        .select('*')
         .eq('host_id', user.id)
         .in('status', ['hosted', 'ready_for_return'])
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
-      setCars(data.map(car => ({ ...car, client: car.profiles })) as CarWithClient[]);
+      if (carsError) throw carsError;
+
+      if (!carsData || carsData.length === 0) {
+        setCars([]);
+        return;
+      }
+
+      // Get unique client IDs
+      const clientIds = [...new Set(carsData.map(car => car.client_id).filter(Boolean))];
+      
+      // Fetch client profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, phone')
+        .in('user_id', clientIds);
+
+      if (profilesError) throw profilesError;
+
+      // Map cars with client information
+      const transformedCars = carsData.map(car => {
+        const clientProfile = profilesData?.find(profile => profile.user_id === car.client_id);
+        return {
+          ...car,
+          client: clientProfile ? {
+            id: clientProfile.user_id,
+            first_name: clientProfile.first_name,
+            last_name: clientProfile.last_name,
+            phone: clientProfile.phone
+          } : null
+        };
+      }).filter(car => car.client !== null);
+
+      setCars(transformedCars as CarWithClient[]);
     } catch (error) {
       console.error('Error fetching hosted cars:', error);
       toast({

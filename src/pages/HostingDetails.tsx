@@ -42,35 +42,46 @@ export default function HostingDetails() {
     if (!user || !carId) return;
 
     try {
-      const { data, error } = await supabase
+      const { data: carData, error: carError } = await supabase
         .from('cars')
-        .select(`
-          id,
-          make,
-          model,
-          year,
-          status,
-          profiles!cars_host_id_fkey (
-            id,
-            first_name,
-            last_name,
-            phone,
-            company_name,
-            location,
-            rating
-          )
-        `)
+        .select('*')
         .eq('id', carId)
         .eq('client_id', user.id)
         .single();
 
-      if (error) throw error;
-      
-      if (!data.profiles) {
+      if (carError) throw carError;
+
+      if (!carData.host_id) {
+        throw new Error('No host assigned to this car');
+      }
+
+      // Fetch host profile
+      const { data: hostProfile, error: hostError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, phone, company_name, location, rating')
+        .eq('user_id', carData.host_id)
+        .single();
+
+      if (hostError) throw hostError;
+
+      if (!hostProfile) {
         throw new Error('No host information found');
       }
 
-      setCar({ ...data, host: data.profiles } as CarWithHost);
+      const transformedCar = {
+        ...carData,
+        host: {
+          id: hostProfile.user_id,
+          first_name: hostProfile.first_name,
+          last_name: hostProfile.last_name,
+          phone: hostProfile.phone,
+          company_name: hostProfile.company_name,
+          location: hostProfile.location,
+          rating: hostProfile.rating
+        }
+      };
+
+      setCar(transformedCar as CarWithHost);
     } catch (error) {
       console.error('Error fetching car details:', error);
       toast({
