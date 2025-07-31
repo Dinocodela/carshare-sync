@@ -159,9 +159,20 @@ export default function SelectHost() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 hover:underline"
                   >
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{host.rating}</span>
-                    <span className="text-muted-foreground text-sm">(45 reviews)</span>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`h-4 w-4 ${
+                            star <= Math.floor(host.rating) 
+                              ? 'fill-yellow-400 text-yellow-400' 
+                              : 'text-gray-300'
+                          }`} 
+                        />
+                      ))}
+                      <span className="font-medium ml-1">{host.rating}</span>
+                      <span className="text-muted-foreground text-sm">(45 reviews)</span>
+                    </div>
                   </a>
                 </div>
               </CardHeader>
