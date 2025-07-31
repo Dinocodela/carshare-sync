@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Star, MapPin, Car, Send } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Car, MapPin, Star, Send } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,104 +10,174 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-interface Host {
+interface CarData {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  mileage: number;
+  color: string;
+  location: string;
+  description: string | null;
+  images: string[] | null;
+  status: string;
+  created_at: string;
+  client_id: string;
+}
+
+interface HostProfile {
   id: string;
   user_id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   company_name: string;
   location: string;
+  bio: string;
   services: string[];
   rating: number;
-  bio: string;
 }
 
 export default function SelectHost() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [hosts, setHosts] = useState<Host[]>([]);
+  const [car, setCar] = useState<CarData | null>(null);
+  const [host, setHost] = useState<HostProfile | null>(null);
+  const [message, setMessage] = useState('Hi! I\'d like to request hosting services for my car. Please let me know your availability and pricing...');
   const [loading, setLoading] = useState(true);
-  const [selectedHost, setSelectedHost] = useState<string | null>(null);
-  const [message, setMessage] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const carId = searchParams.get('carId');
 
   useEffect(() => {
     if (!carId) {
-      navigate('/dashboard');
+      navigate('/my-cars');
       return;
     }
-    fetchHosts();
-  }, [carId, navigate]);
+    fetchCarAndHost();
+  }, [carId, user]);
 
-  const fetchHosts = async () => {
+  const fetchCarAndHost = async () => {
+    if (!user) return;
+
     try {
-      const { data, error } = await (supabase as any)
+      // Fetch car details
+      const { data: carData, error: carError } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', carId)
+        .eq('client_id', user.id)
+        .single();
+
+      if (carError) throw carError;
+      setCar(carData);
+
+      // Fetch Teslys host profile (the only host for now)
+      const { data: hostData, error: hostError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('role', 'host');
+        .eq('role', 'host')
+        .limit(1)
+        .single();
 
-      if (error) throw error;
-
-      // Transform database profiles to Host format
-      const hostsData: Host[] = (data || []).map((profile: any) => ({
-        id: profile.id,
-        user_id: profile.user_id,
-        name: profile.company_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Host Name',
-        company_name: profile.company_name || 'Company Name',
-        location: profile.location || 'Location not specified',
-        services: profile.services || ['General Services'],
-        rating: parseFloat(profile.rating) || 0,
-        bio: profile.bio || 'No bio available',
-      }));
-
-      setHosts(hostsData);
+      if (hostError) {
+        console.error('No host found:', hostError);
+        // Create a default Teslys profile if none exists
+        setHost({
+          id: 'default-host',
+          user_id: '1bee30cc-abe2-484a-9a8a-f9199977a3ce', // Default Teslys user ID
+          first_name: 'Teslys',
+          last_name: 'LLC',
+          company_name: 'Teslys LLC',
+          location: 'Marina del Rey, CA',
+          bio: 'We provide only car hosting for Teslas by listing them on Turo and Eon platform so they can rent out and generate money for our clients every day while they sleep. Our split is 70/30 after expenses and the only expense you incur are 20% Turo fees or 30% Eon fees and $30 car wash fee.',
+          services: ['Turo Listings', 'Eon Platform Management', 'Revenue Generation', 'Car Wash Services', 'Daily Rental Management', 'Client Revenue Optimization'],
+          rating: 5.0
+        });
+      } else {
+        setHost(hostData);
+      }
     } catch (error) {
-      console.error('Error fetching hosts:', error);
+      console.error('Error fetching data:', error);
       toast({
-        title: "Error loading hosts",
-        description: "Unable to load available hosts. Please try again.",
+        title: "Error loading car details",
+        description: "Unable to load car information. Please try again.",
         variant: "destructive",
       });
+      navigate('/my-cars');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmitRequest = async () => {
-    if (!selectedHost || !carId || !user) return;
+  const handleSendRequest = async () => {
+    if (!user || !car || !host || !message.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a message for your request.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    setSubmitting(true);
+    setIsSubmitting(true);
     try {
-      const { error } = await (supabase as any)
+      // Create the request record
+      const { data: requestData, error: requestError } = await supabase
         .from('requests')
         .insert({
-          car_id: carId,
+          car_id: car.id,
           client_id: user.id,
-          host_id: selectedHost,
-          message: message || 'Request for car hosting services',
-          status: 'pending',
-        });
+          host_id: host.user_id,
+          message: message.trim(),
+          status: 'pending'
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (requestError) throw requestError;
+
+      // Send notification email to host
+      const hostEmail = "info@teslys.com"; // Teslys email
+      
+      const emailResponse = await supabase.functions.invoke('send-host-notification', {
+        body: {
+          requestId: requestData.id,
+          hostEmail: hostEmail,
+          hostName: `${host.first_name} ${host.last_name}`,
+          clientName: user.email || 'Client',
+          carDetails: `${car.year} ${car.make} ${car.model}`,
+          message: message.trim()
+        }
+      });
+
+      if (emailResponse.error) {
+        console.error('Error sending host notification:', emailResponse.error);
+        // Don't fail the request creation, just log the email error
+      }
+
+      // Update car status to pending
+      await supabase
+        .from('cars')
+        .update({ status: 'pending' })
+        .eq('id', car.id);
 
       toast({
         title: "Request sent successfully!",
-        description: "Your hosting request has been sent. The host will review and respond soon.",
+        description: "Your hosting request has been sent to Teslys LLC. They will review and respond soon.",
       });
 
-      navigate('/dashboard');
+      navigate('/my-cars');
     } catch (error) {
-      console.error('Error submitting request:', error);
+      console.error('Error sending request:', error);
       toast({
         title: "Error sending request",
-        description: "There was an error sending your request. Please try again.",
+        description: "Please try again later.",
         variant: "destructive",
       });
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -115,7 +185,17 @@ export default function SelectHost() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-muted-foreground">Loading hosts...</div>
+          <div className="text-lg text-muted-foreground">Loading...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!car || !host) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-lg text-muted-foreground">Car or host not found</div>
         </div>
       </DashboardLayout>
     );
@@ -134,112 +214,121 @@ export default function SelectHost() {
           </p>
         </div>
 
-        <div className="grid gap-6">
-          {hosts.map((host) => (
-            <Card 
-              key={host.id} 
-              className={`cursor-pointer transition-all ${
-                selectedHost === host.user_id 
-                  ? 'ring-2 ring-primary bg-primary/5' 
-                  : 'hover:shadow-md'
-              }`}
-              onClick={() => setSelectedHost(host.user_id)}
-            >
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{host.name}</CardTitle>
-                    <CardDescription className="text-base mt-1">
-                      {host.company_name}
-                    </CardDescription>
-                  </div>
-                  <a 
-                    href="https://www.google.com/search?q=Teslys&oq=teslys+&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MggIARBFGCcYOzIGCAIQRRg8MgYIAxBFGD0yBggEEEUYPTIGCAUQRRhBMgYIBhBFGEEyBggHEEUYQdIBCDIxOTNqMGo0qAIAsAIB&sourceid=chrome&ie=UTF-8"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:underline"
-                  >
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star 
-                          key={star} 
-                          className={`h-4 w-4 ${
-                            star <= Math.floor(host.rating) 
-                              ? 'fill-yellow-400 text-yellow-400' 
-                              : 'text-gray-300'
-                          }`} 
-                        />
-                      ))}
-                      <span className="font-medium ml-1">{host.rating}</span>
-                      <span className="text-muted-foreground text-sm">(45 reviews)</span>
-                    </div>
-                  </a>
+        {/* Car Details Summary */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Your Vehicle</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              {car.images && car.images.length > 0 && (
+                <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={car.images[0]}
+                    alt={`${car.make} ${car.model}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    <span>{host.location}</span>
-                  </div>
-                  
-                  <p className="text-foreground">{host.bio}</p>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2">Services Offered:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {host.services.map((service) => (
-                        <Badge key={service} variant="secondary">
-                          {service}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              )}
+              <div>
+                <h3 className="text-lg font-semibold">{car.year} {car.make} {car.model}</h3>
+                <p className="text-muted-foreground">{car.color} • {car.mileage?.toLocaleString()} miles</p>
+                <p className="text-sm text-muted-foreground">{car.location}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {selectedHost && (
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Send className="h-5 w-5" />
-                Send Request
-              </CardTitle>
-              <CardDescription>
-                Add a message to introduce yourself and explain your needs.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Textarea
-                  placeholder="Hi! I'd like to request hosting services for my car. Please let me know your availability and pricing..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  rows={4}
-                />
-                <div className="flex gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/dashboard')}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSubmitRequest}
-                    disabled={submitting}
-                    className="flex-1"
-                  >
-                    {submitting ? 'Sending Request...' : 'Send Request'}
-                  </Button>
+        {/* Host Card - Teslys LLC */}
+        <Card className="mb-6 ring-2 ring-primary bg-primary/5">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-xl">{host.company_name}</CardTitle>
+                <CardDescription className="text-base mt-1">
+                  {host.company_name}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className={`h-4 w-4 ${
+                      star <= Math.floor(host.rating) 
+                        ? 'fill-yellow-400 text-yellow-400' 
+                        : 'text-gray-300'
+                    }`} 
+                  />
+                ))}
+                <span className="font-medium ml-1">{host.rating}</span>
+                <span className="text-muted-foreground text-sm">(45 reviews)</span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>{host.location}</span>
+              </div>
+              
+              <p className="text-foreground">{host.bio}</p>
+              
+              <div>
+                <h4 className="font-medium mb-2">Services Offered:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {host.services.map((service) => (
+                    <Badge key={service} variant="secondary">
+                      {service}
+                    </Badge>
+                  ))}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Send Request Section */}
+        <Card>
+          <CardHeader>
+            <div>
+              <h3 className="text-lg font-semibold mb-2 flex items-center">
+                <Send className="h-5 w-5 mr-2 text-primary" />
+                Send Request
+              </h3>
+              <p className="text-muted-foreground text-sm mb-4">
+                Add a message to introduce yourself and explain your needs.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Hi! I'd like to request hosting services for my car. Please let me know your availability and pricing..."
+                className="min-h-[120px]"
+              />
+              
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/my-cars')}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSendRequest}
+                  disabled={isSubmitting || !message.trim()}
+                  className="flex-1"
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Request'}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

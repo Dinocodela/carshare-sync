@@ -1,1 +1,39 @@
 project_id = "texsltzecmvqprdjxtnh"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://texsltzecmvqprdjxtnh.supabase.co"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+enable_manual_linking = false
+
+[db]
+enabled = true
+port = 54322
+major_version = 15
+
+[edge_functions]
+enabled = true
+port = 54323
+
+[functions.send-host-notification]
+verify_jwt = false
+
+[functions.send-client-confirmation]
+verify_jwt = false
+
+[storage]
+enabled = true
+port = 54324
+file_size_limit = "50MiB"
+upload_timeout = "60s"
