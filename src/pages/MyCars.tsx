@@ -189,6 +189,15 @@ export default function MyCars() {
                         >
                           Request Host
                         </Button>
+                      ) : car.status === 'pending' ? (
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          className="flex-1"
+                          disabled
+                        >
+                          Request Sent
+                        </Button>
                       ) : (
                         <Button 
                           variant="outline" 

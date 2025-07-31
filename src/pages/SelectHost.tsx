@@ -79,7 +79,8 @@ export default function SelectHost() {
           description: "This car already has a pending or active hosting request.",
           variant: "destructive",
         });
-        navigate('/my-cars');
+        // Don't redirect immediately, let user see the page
+        setTimeout(() => navigate('/my-cars'), 2000);
         return;
       }
       
