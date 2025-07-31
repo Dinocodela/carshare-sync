@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, Phone, Mail, MapPin, CheckCircle, XCircle } from 'lucide-react';
+import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +18,11 @@ interface CarWithClient {
   year: number;
   status: string;
   location: string;
+  mileage: number;
+  color: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
   client: {
     id: string;
     first_name: string;
@@ -200,7 +206,28 @@ export default function HostCarManagement() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div>
+                      {/* Enhanced Car Information */}
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Color:</span>
+                          <p className="font-medium">{car.color || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Mileage:</span>
+                          <p className="font-medium">{car.mileage ? `${car.mileage.toLocaleString()} mi` : 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Hosting Since:</span>
+                          <p className="font-medium">{new Date(car.updated_at).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Status:</span>
+                          <p className="font-medium text-green-600">Active</p>
+                        </div>
+                      </div>
+
+                      {/* Client Contact Section */}
+                      <div className="border-t pt-4">
                         <h4 className="font-medium mb-2">Client Contact</h4>
                         <div className="space-y-2">
                           <p className="text-sm">
@@ -217,14 +244,50 @@ export default function HostCarManagement() {
                           </div>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
-                        onClick={() => window.open(`tel:${car.client.phone}`)}
-                      >
-                        <Phone className="h-4 w-4 mr-2" />
-                        Call Client
-                      </Button>
+
+                      {/* Management Actions */}
+                      <div className="flex gap-2 pt-2">
+                        <Button 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => window.open(`tel:${car.client.phone}`)}
+                        >
+                          <Phone className="h-4 w-4 mr-2" />
+                          Call Client
+                        </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Settings className="h-4 w-4 mr-2" />
+                              Manage
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem>
+                              <FileText className="h-4 w-4 mr-2" />
+                              View Car Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Calendar className="h-4 w-4 mr-2" />
+                              Schedule Maintenance
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <AlertTriangle className="h-4 w-4 mr-2" />
+                              Report Issue
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                              <Mail className="h-4 w-4 mr-2" />
+                              Message Client
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/car-details/${car.id}`)}>
+                              <Car className="h-4 w-4 mr-2" />
+                              Full Car Details
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
