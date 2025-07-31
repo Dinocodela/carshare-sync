@@ -63,7 +63,7 @@ export default function MyCars() {
     const statusConfig = {
       available: { variant: 'outline' as const, label: 'Available', description: 'Ready to send hosting request' },
       pending: { variant: 'secondary' as const, label: 'Pending Review', description: 'Waiting for host response' },
-      active: { variant: 'default' as const, label: 'Active Hosting', description: 'Currently being hosted' },
+      hosted: { variant: 'default' as const, label: 'Being Hosted', description: 'Currently being hosted' },
       completed: { variant: 'outline' as const, label: 'Completed', description: 'Hosting completed' },
     };
 
@@ -198,7 +198,7 @@ export default function MyCars() {
                         >
                           Request Sent
                         </Button>
-                      ) : car.status === 'active' ? (
+                      ) : car.status === 'hosted' ? (
                         <div className="flex flex-col gap-2 w-full">
                           <div className="text-xs text-green-600 font-medium">
                             ✓ Currently being hosted
@@ -208,16 +208,9 @@ export default function MyCars() {
                               variant="outline" 
                               size="sm" 
                               className="w-full"
-                              onClick={() => {
-                                // For now, just show that hosting is active
-                                // In a real app, this would show host contact details
-                                toast({
-                                  title: "Active Hosting",
-                                  description: "Your car is currently being hosted. Check your email for host contact details.",
-                                });
-                              }}
+                              onClick={() => navigate(`/hosting-details/${car.id}`)}
                             >
-                              View Hosting Details
+                              View Host Contact
                             </Button>
                           )}
                         </div>

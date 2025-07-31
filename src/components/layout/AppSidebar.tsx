@@ -81,6 +81,11 @@ export function AppSidebar() {
           icon: Inbox,
         },
         {
+          title: "Hosted Cars",
+          url: "/host-cars",
+          icon: Car,
+        },
+        {
           title: "Settings",
           url: "#",
           icon: Settings,
