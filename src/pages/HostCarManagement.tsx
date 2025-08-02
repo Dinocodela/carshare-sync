@@ -1092,7 +1092,7 @@ export default function HostCarManagement() {
                         </div>
                         <div>
                           <span className="text-muted-foreground">Hosting Since:</span>
-                          <p className="font-medium">{new Date(car.updated_at).toLocaleDateString()}</p>
+                          <p className="font-medium">{new Date(car.created_at).toLocaleDateString()}</p>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Status:</span>
