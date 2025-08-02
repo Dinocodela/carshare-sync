@@ -15,6 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useBookingValidation } from '@/hooks/useBookingValidation';
+import { ConflictWarning } from '@/components/booking/ConflictWarning';
+import { AvailabilityCalendar } from '@/components/booking/AvailabilityCalendar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -219,6 +222,11 @@ export default function HostCarManagement() {
     },
   });
 
+  // Add booking validation hook
+  const { validateDates, isValidating } = useBookingValidation();
+  const [dateConflicts, setDateConflicts] = useState<any[]>([]);
+  const [showCalendar, setShowCalendar] = useState(false);
+
   // Auto-populate guest name and car when trip_id changes
   const watchedTripId = earningForm.watch("trip_id");
   
@@ -318,6 +326,30 @@ export default function HostCarManagement() {
       }
     }
   }, [watchedClaimTripId, expenses, earnings, claimForm]);
+
+  // Add date validation for earning form
+  const watchedCarId = earningForm.watch("car_id");
+  const watchedStartDate = earningForm.watch("earning_period_start");
+  const watchedEndDate = earningForm.watch("earning_period_end");
+
+  useEffect(() => {
+    const validateBookingDates = async () => {
+      if (watchedCarId && watchedStartDate && watchedEndDate) {
+        const result = await validateDates(
+          watchedCarId,
+          watchedStartDate,
+          watchedEndDate,
+          editingEarning?.id
+        );
+        setDateConflicts(result.conflicts);
+      } else {
+        setDateConflicts([]);
+      }
+    };
+
+    const debounceTimer = setTimeout(validateBookingDates, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [watchedCarId, watchedStartDate, watchedEndDate, validateDates, editingEarning?.id]);
 
   // Auto-populate car and guest when trip_id changes in expenses form
   const watchedExpenseTripId = expenseForm.watch("trip_id");
@@ -684,6 +716,23 @@ export default function HostCarManagement() {
       toast({
         title: "Authentication Error",
         description: "Please log in to manage earnings.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate dates before submission
+    const validationResult = await validateDates(
+      values.car_id,
+      values.earning_period_start,
+      values.earning_period_end,
+      editingEarning?.id
+    );
+
+    if (!validationResult.isValid) {
+      toast({
+        title: "Date Conflict",
+        description: "Cannot save earning due to overlapping rental periods. Please choose different dates.",
         variant: "destructive",
       });
       return;
@@ -1789,6 +1838,38 @@ export default function HostCarManagement() {
                           )}
                         />
                       </div>
+
+                      {/* Date Conflict Warning */}
+                      {dateConflicts.length > 0 && (
+                        <ConflictWarning 
+                          conflicts={dateConflicts}
+                          selectedDates={{
+                            start: earningForm.watch("earning_period_start"),
+                            end: earningForm.watch("earning_period_end")
+                          }}
+                        />
+                      )}
+
+                      {/* Calendar toggle */}
+                      {earningForm.watch("car_id") && (
+                        <div className="flex justify-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowCalendar(!showCalendar)}
+                            className="flex items-center gap-2"
+                          >
+                            <Calendar className="h-4 w-4" />
+                            {showCalendar ? 'Hide' : 'Show'} Booking Calendar
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Availability Calendar */}
+                      {showCalendar && earningForm.watch("car_id") && (
+                        <AvailabilityCalendar carId={earningForm.watch("car_id")} />
+                      )}
 
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
