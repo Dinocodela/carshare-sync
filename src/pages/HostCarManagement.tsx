@@ -552,6 +552,31 @@ export default function HostCarManagement() {
     }
   };
 
+  const onDeleteEarning = async (earningId: string) => {
+    try {
+      const { error } = await supabase
+        .from('host_earnings')
+        .delete()
+        .eq('id', earningId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Earning deleted successfully",
+        description: "The earning has been removed.",
+      });
+
+      fetchEarnings();
+    } catch (error) {
+      console.error('Error deleting earning:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete earning. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditExpense = (expense: Expense) => {
     setEditingExpense(expense);
     expenseForm.reset({
@@ -1780,16 +1805,23 @@ export default function HostCarManagement() {
                                </div>
                              )}
                            </div>
-                            <div className="text-right">
-                              <div className="flex items-start gap-2 mb-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleEditEarning(earning)}
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                              </div>
+                             <div className="text-right">
+                               <div className="flex items-start gap-2 mb-2">
+                                 <Button
+                                   variant="outline"
+                                   size="sm"
+                                   onClick={() => handleEditEarning(earning)}
+                                 >
+                                   <Edit className="h-3 w-3" />
+                                 </Button>
+                                 <Button
+                                   variant="outline"
+                                   size="sm"
+                                   onClick={() => onDeleteEarning(earning.id)}
+                                 >
+                                   <Trash className="h-3 w-3" />
+                                 </Button>
+                               </div>
                               <p className="font-bold text-xl text-green-600">${earning.amount.toFixed(2)}</p>
                               <p className="text-xs text-muted-foreground">Amount</p>
                               {earning.date_paid && (
