@@ -182,6 +182,11 @@ export default function HostCarManagement() {
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
   const [earningDialogOpen, setEarningDialogOpen] = useState(false);
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
+  
+  // Edit state management
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [editingEarning, setEditingEarning] = useState<Earning | null>(null);
+  const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
 
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
@@ -410,25 +415,17 @@ export default function HostCarManagement() {
   };
 
   const onExpenseSubmit = async (values: z.infer<typeof expenseSchema>) => {
-    // Enhanced authentication validation
     if (!user) {
-      console.error('No user found in authentication context');
       toast({
         title: "Authentication Error",
-        description: "Please log in to add expenses.",
+        description: "Please log in to manage expenses.",
         variant: "destructive",
       });
       return;
     }
 
-    // Debug authentication state
-    console.log('Current user ID:', user.id);
-    console.log('User session:', session);
-    
-    // Verify current session and get fresh auth state
     const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !currentSession) {
-      console.error('Session error or no active session:', sessionError);
       toast({
         title: "Session Error",
         description: "Your session has expired. Please log in again.",
@@ -437,11 +434,9 @@ export default function HostCarManagement() {
       return;
     }
 
-    console.log('Current auth session user ID:', currentSession.user.id);
-
     try {
       const expenseData = {
-        host_id: currentSession.user.id, // Use session user ID to ensure it matches auth.uid()
+        host_id: currentSession.user.id,
         trip_id: values.trip_id,
         car_id: values.car_id || null,
         guest_name: values.guest_name || null,
@@ -455,61 +450,103 @@ export default function HostCarManagement() {
         expense_date: values.expense_date,
       };
 
-      console.log('Attempting to insert expense with data:', expenseData);
+      if (editingExpense) {
+        // Update existing expense
+        const { error } = await supabase
+          .from('host_expenses')
+          .update(expenseData)
+          .eq('id', editingExpense.id);
 
-      const { error } = await supabase
-        .from('host_expenses')
-        .insert(expenseData);
+        if (error) throw error;
 
-      if (error) {
-        console.error('Database error details:', error);
-        throw error;
+        toast({
+          title: "Expense updated successfully",
+          description: "Your expense has been updated.",
+        });
+      } else {
+        // Create new expense
+        const { error } = await supabase
+          .from('host_expenses')
+          .insert(expenseData);
+
+        if (error) throw error;
+
+        toast({
+          title: "Expense added successfully",
+          description: "Your expense has been recorded.",
+        });
       }
 
-      console.log('Expense added successfully');
-      
-      toast({
-        title: "Expense added successfully",
-        description: "Your expense has been recorded.",
-      });
-
       setExpenseDialogOpen(false);
+      setEditingExpense(null);
       expenseForm.reset();
       fetchExpenses();
     } catch (error) {
-      console.error('Error adding expense:', error);
-      
-      // More specific error handling
+      console.error('Error managing expense:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       
       toast({
         title: "Error",
-        description: `Failed to add expense: ${errorMessage}`,
+        description: `Failed to ${editingExpense ? 'update' : 'add'} expense: ${errorMessage}`,
         variant: "destructive",
       });
     }
   };
 
+  const onDeleteExpense = async (expenseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('host_expenses')
+        .delete()
+        .eq('id', expenseId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Expense deleted successfully",
+        description: "The expense has been removed.",
+      });
+
+      fetchExpenses();
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete expense. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditExpense = (expense: Expense) => {
+    setEditingExpense(expense);
+    expenseForm.reset({
+      trip_id: expense.trip_id || '',
+      car_id: expense.car_id || '',
+      guest_name: expense.guest_name || '',
+      amount: expense.amount,
+      ev_charge_cost: expense.ev_charge_cost || 0,
+      carwash_cost: expense.carwash_cost || 0,
+      delivery_cost: expense.delivery_cost || 0,
+      toll_cost: expense.toll_cost || 0,
+      description: expense.description || '',
+      expense_date: expense.expense_date,
+    });
+    setExpenseDialogOpen(true);
+  };
+
   const onEarningSubmit = async (values: z.infer<typeof earningSchema>) => {
-    // Enhanced authentication validation
     if (!user) {
-      console.error('No user found in authentication context');
       toast({
         title: "Authentication Error",
-        description: "Please log in to add earnings.",
+        description: "Please log in to manage earnings.",
         variant: "destructive",
       });
       return;
     }
 
-    // Debug authentication state
-    console.log('Current user ID:', user.id);
-    console.log('User session:', session);
-    
-    // Verify current session and get fresh auth state
     const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
     if (sessionError || !currentSession) {
-      console.error('Session error or no active session:', sessionError);
       toast({
         title: "Session Error",
         description: "Your session has expired. Please log in again.",
@@ -518,17 +555,13 @@ export default function HostCarManagement() {
       return;
     }
 
-    console.log('Current auth session user ID:', currentSession.user.id);
-
     try {
-      // Calculate values but DON'T include generated columns in insert
       const commission = values.gross_earnings * 0.1; // 10% commission
       const hostProfit = (values.gross_earnings * values.host_profit_percentage) / 100;
       const netAmount = hostProfit - commission;
 
-      // Remove client_profit_amount and host_profit_amount - they're generated automatically by database
       const earningData = {
-        host_id: currentSession.user.id, // Use session user ID to ensure it matches auth.uid()
+        host_id: currentSession.user.id,
         car_id: values.car_id,
         trip_id: values.trip_id,
         guest_name: values.guest_name,
@@ -539,7 +572,6 @@ export default function HostCarManagement() {
         net_amount: netAmount,
         client_profit_percentage: values.client_profit_percentage,
         host_profit_percentage: values.host_profit_percentage,
-        // Note: client_profit_amount and host_profit_amount removed - they're generated columns
         payment_source: values.payment_source,
         earning_period_start: values.earning_period_start,
         earning_period_end: values.earning_period_end,
@@ -547,81 +579,146 @@ export default function HostCarManagement() {
         date_paid: values.date_paid || null,
       };
 
-      console.log('Attempting to insert earning with data:', earningData);
+      if (editingEarning) {
+        // Update existing earning
+        const { error } = await supabase
+          .from('host_earnings')
+          .update(earningData)
+          .eq('id', editingEarning.id);
 
-      const { error } = await supabase
-        .from('host_earnings')
-        .insert(earningData);
+        if (error) throw error;
 
-      if (error) {
-        console.error('Database error details:', error);
-        throw error;
+        toast({
+          title: "Earning updated successfully",
+          description: "Your earning has been updated.",
+        });
+      } else {
+        // Create new earning
+        const { error } = await supabase
+          .from('host_earnings')
+          .insert(earningData);
+
+        if (error) throw error;
+
+        toast({
+          title: "Earning recorded successfully",
+          description: "Your earning has been added to the system.",
+        });
       }
 
-      console.log('Earning added successfully');
-
-      toast({
-        title: "Earning recorded successfully",
-        description: "Your earning has been added to the system.",
-      });
-
       setEarningDialogOpen(false);
+      setEditingEarning(null);
       earningForm.reset();
       fetchEarnings();
     } catch (error) {
-      console.error('Error adding earning:', error);
-      
-      // More specific error handling
+      console.error('Error managing earning:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       
       toast({
         title: "Error",
-        description: `Failed to add earning: ${errorMessage}`,
+        description: `Failed to ${editingEarning ? 'update' : 'add'} earning: ${errorMessage}`,
         variant: "destructive",
       });
     }
+  };
+
+  const handleEditEarning = (earning: Earning) => {
+    setEditingEarning(earning);
+    earningForm.reset({
+      car_id: earning.car_id,
+      trip_id: earning.trip_id || '',
+      guest_name: earning.guest_name || '',
+      earning_type: earning.earning_type,
+      gross_earnings: earning.gross_earnings || 0,
+      payment_source: earning.payment_source || 'Turo',
+      earning_period_start: earning.earning_period_start,
+      earning_period_end: earning.earning_period_end,
+      client_profit_percentage: earning.client_profit_percentage || 70,
+      host_profit_percentage: earning.host_profit_percentage || 30,
+      payment_status: earning.payment_status,
+      date_paid: earning.date_paid || '',
+    });
+    setEarningDialogOpen(true);
   };
 
   const onClaimSubmit = async (values: z.infer<typeof claimSchema>) => {
     if (!user) return;
 
     try {
-      const { error } = await (supabase as any)
-        .from('host_claims')
-        .insert({
-          host_id: user.id,
-          car_id: values.car_id,
-          trip_id: values.trip_id,
-          claim_type: values.claim_type,
-          description: values.description,
-          accident_description: values.accident_description || null,
-          claim_amount: values.claim_amount,
-          incident_date: values.incident_date,
-          adjuster_name: values.adjuster_name || null,
-          adjuster_contact: values.adjuster_contact || null,
-          autobody_shop_name: values.autobody_shop_name || null,
-          shop_contact_info: values.shop_contact_info || null,
-          photos_taken: values.photos_taken,
+      const claimData = {
+        host_id: user.id,
+        car_id: values.car_id,
+        trip_id: values.trip_id,
+        claim_type: values.claim_type,
+        description: values.description,
+        accident_description: values.accident_description || null,
+        claim_amount: values.claim_amount,
+        incident_date: values.incident_date,
+        adjuster_name: values.adjuster_name || null,
+        adjuster_contact: values.adjuster_contact || null,
+        autobody_shop_name: values.autobody_shop_name || null,
+        shop_contact_info: values.shop_contact_info || null,
+        photos_taken: values.photos_taken,
+      };
+
+      if (editingClaim) {
+        // Update existing claim
+        const { error } = await supabase
+          .from('host_claims')
+          .update(claimData)
+          .eq('id', editingClaim.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Claim updated successfully",
+          description: "Your claim has been updated.",
         });
+      } else {
+        // Create new claim
+        const { error } = await supabase
+          .from('host_claims')
+          .insert(claimData);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Claim submitted successfully",
-        description: "Your claim has been filed for review.",
-      });
+        toast({
+          title: "Claim submitted successfully",
+          description: "Your claim has been filed for review.",
+        });
+      }
 
       setClaimDialogOpen(false);
+      setEditingClaim(null);
       claimForm.reset();
       fetchClaims();
     } catch (error) {
-      console.error('Error submitting claim:', error);
+      console.error('Error managing claim:', error);
       toast({
         title: "Error",
-        description: "Failed to submit claim. Please try again.",
+        description: `Failed to ${editingClaim ? 'update' : 'submit'} claim. Please try again.`,
         variant: "destructive",
       });
     }
+  };
+
+  const handleEditClaim = (claim: Claim) => {
+    setEditingClaim(claim);
+    claimForm.reset({
+      car_id: claim.car_id,
+      trip_id: claim.trip_id || '',
+      claim_type: claim.claim_type,
+      description: claim.description,
+      accident_description: claim.accident_description || '',
+      claim_amount: claim.claim_amount || 0,
+      incident_date: claim.incident_date,
+      adjuster_name: claim.adjuster_name || '',
+      adjuster_contact: claim.adjuster_contact || '',
+      autobody_shop_name: claim.autobody_shop_name || '',
+      shop_contact_info: claim.shop_contact_info || '',
+      photos_taken: claim.photos_taken || false,
+    });
+    setClaimDialogOpen(true);
   };
   const handleManagementAction = (action: string, car: CarWithClient) => {
     switch (action) {
@@ -866,12 +963,12 @@ export default function HostCarManagement() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add New Expense</DialogTitle>
-                    <DialogDescription>
-                      Record a new hosting-related expense.
-                    </DialogDescription>
-                  </DialogHeader>
+                      <DialogHeader>
+                        <DialogTitle>{editingExpense ? 'Edit Expense' : 'Add New Expense'}</DialogTitle>
+                        <DialogDescription>
+                          {editingExpense ? 'Update your expense details.' : 'Record a new hosting-related expense.'}
+                        </DialogDescription>
+                      </DialogHeader>
                   <Form {...expenseForm}>
                     <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
                       <FormField
@@ -1053,7 +1150,16 @@ export default function HostCarManagement() {
                         )}
                       />
                       <DialogFooter>
-                        <Button type="submit">Add Expense</Button>
+                        <Button type="button" variant="outline" onClick={() => {
+                          setExpenseDialogOpen(false);
+                          setEditingExpense(null);
+                          expenseForm.reset();
+                        }}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">
+                          {editingExpense ? 'Update Expense' : 'Add Expense'}
+                        </Button>
                       </DialogFooter>
                     </form>
                   </Form>
@@ -1076,65 +1182,81 @@ export default function HostCarManagement() {
                 {expenses.map((expense) => (
                   <Card key={expense.id}>
                      <CardContent className="p-4">
-                       <div className="flex justify-between items-start">
-                         <div>
-                           <div className="flex items-center gap-2 mb-2">
-                             <h4 className="font-medium capitalize">{expense.expense_type}</h4>
-                             {expense.trip_id && (
-                               <Badge variant="outline" className="text-xs">
-                                 Trip# {expense.trip_id}
-                               </Badge>
-                             )}
-                           </div>
-                           {expense.guest_name && (
-                             <p className="text-sm text-muted-foreground">Guest: {expense.guest_name}</p>
-                           )}
-                           <p className="text-sm text-muted-foreground">{expense.description}</p>
-                           <p className="text-sm text-muted-foreground">
-                             {new Date(expense.expense_date).toLocaleDateString()}
-                           </p>
-                           
-                           {/* Cost Breakdown */}
-                           <div className="mt-2 space-y-1">
-                             {expense.ev_charge_cost > 0 && (
-                               <div className="flex justify-between text-sm">
-                                 <span>EV Charge:</span>
-                                 <span>${expense.ev_charge_cost.toFixed(2)}</span>
-                               </div>
-                             )}
-                             {expense.carwash_cost > 0 && (
-                               <div className="flex justify-between text-sm">
-                                 <span>Carwash:</span>
-                                 <span>${expense.carwash_cost.toFixed(2)}</span>
-                               </div>
-                             )}
-                             {expense.delivery_cost > 0 && (
-                               <div className="flex justify-between text-sm">
-                                 <span>Delivery:</span>
-                                 <span>${expense.delivery_cost.toFixed(2)}</span>
-                               </div>
-                             )}
-                             {expense.toll_cost > 0 && (
-                               <div className="flex justify-between text-sm">
-                                 <span>Tolls:</span>
-                                 <span>${expense.toll_cost.toFixed(2)}</span>
-                               </div>
-                             )}
-                             {expense.amount > 0 && (
-                               <div className="flex justify-between text-sm">
-                                 <span>Other:</span>
-                                 <span>${expense.amount.toFixed(2)}</span>
-                               </div>
-                             )}
-                           </div>
-                         </div>
-                         <div className="text-right">
-                           <p className="font-bold text-lg">
-                             ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
-                           </p>
-                           <p className="text-xs text-muted-foreground">Total</p>
-                         </div>
-                       </div>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-medium capitalize">{expense.expense_type}</h4>
+                              {expense.trip_id && (
+                                <Badge variant="outline" className="text-xs">
+                                  Trip# {expense.trip_id}
+                                </Badge>
+                              )}
+                            </div>
+                            {expense.guest_name && (
+                              <p className="text-sm text-muted-foreground">Guest: {expense.guest_name}</p>
+                            )}
+                            <p className="text-sm text-muted-foreground">{expense.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(expense.expense_date).toLocaleDateString()}
+                            </p>
+                            
+                            {/* Cost Breakdown */}
+                            <div className="mt-2 space-y-1">
+                              {expense.ev_charge_cost > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span>EV Charge:</span>
+                                  <span>${expense.ev_charge_cost.toFixed(2)}</span>
+                                </div>
+                              )}
+                              {expense.carwash_cost > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span>Carwash:</span>
+                                  <span>${expense.carwash_cost.toFixed(2)}</span>
+                                </div>
+                              )}
+                              {expense.delivery_cost > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span>Delivery:</span>
+                                  <span>${expense.delivery_cost.toFixed(2)}</span>
+                                </div>
+                              )}
+                              {expense.toll_cost > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span>Tolls:</span>
+                                  <span>${expense.toll_cost.toFixed(2)}</span>
+                                </div>
+                              )}
+                              {expense.amount > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span>Other:</span>
+                                  <span>${expense.amount.toFixed(2)}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-start gap-2 mb-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditExpense(expense)}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onDeleteExpense(expense.id)}
+                              >
+                                <Trash className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <p className="font-bold text-lg">
+                              ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">Total</p>
+                          </div>
+                        </div>
                      </CardContent>
                   </Card>
                 ))}
@@ -1154,7 +1276,7 @@ export default function HostCarManagement() {
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
-                    <DialogTitle>Record New Earning</DialogTitle>
+                    <DialogTitle>{editingEarning ? 'Edit Earning' : 'Record New Earning'}</DialogTitle>
                     <DialogDescription>
                       Add a new earning record from your hosting activities.
                     </DialogDescription>
@@ -1424,7 +1546,16 @@ export default function HostCarManagement() {
                       </div>
 
                       <DialogFooter>
-                        <Button type="submit">Record Earning</Button>
+                        <Button type="button" variant="outline" onClick={() => {
+                          setEarningDialogOpen(false);
+                          setEditingEarning(null);
+                          earningForm.reset();
+                        }}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">
+                          {editingEarning ? 'Update Earning' : 'Record Earning'}
+                        </Button>
                       </DialogFooter>
                     </form>
                   </Form>
@@ -1560,16 +1691,25 @@ export default function HostCarManagement() {
                                  Related expenses: {relatedExpenses.length} item(s)
                                </div>
                              )}
-                          </div>
-                           <div className="text-right">
-                             <p className="font-bold text-xl text-green-600">${earning.amount.toFixed(2)}</p>
-                             <p className="text-xs text-muted-foreground">Amount</p>
-                             {earning.date_paid && (
-                               <p className="text-xs text-muted-foreground mt-1">
-                                 Paid: {new Date(earning.date_paid).toLocaleDateString()}
-                               </p>
-                             )}
                            </div>
+                            <div className="text-right">
+                              <div className="flex items-start gap-2 mb-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEditEarning(earning)}
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <p className="font-bold text-xl text-green-600">${earning.amount.toFixed(2)}</p>
+                              <p className="text-xs text-muted-foreground">Amount</p>
+                              {earning.date_paid && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Paid: {new Date(earning.date_paid).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
                          </div>
                        </CardContent>
                      </Card>
@@ -1592,9 +1732,9 @@ export default function HostCarManagement() {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>File New Claim</DialogTitle>
+                    <DialogTitle>{editingClaim ? 'Edit Claim' : 'File New Claim'}</DialogTitle>
                     <DialogDescription>
-                      Submit a claim for damages or incidents.
+                      {editingClaim ? 'Update your claim details.' : 'Submit a claim for damages or incidents.'}
                     </DialogDescription>
                   </DialogHeader>
                   <Form {...claimForm}>
@@ -1837,7 +1977,16 @@ export default function HostCarManagement() {
                       </div>
 
                       <DialogFooter>
-                        <Button type="submit">Submit Claim</Button>
+                        <Button type="button" variant="outline" onClick={() => {
+                          setClaimDialogOpen(false);
+                          setEditingClaim(null);
+                          claimForm.reset();
+                        }}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">
+                          {editingClaim ? 'Update Claim' : 'Submit Claim'}
+                        </Button>
                       </DialogFooter>
                     </form>
                   </Form>
@@ -1982,6 +2131,15 @@ export default function HostCarManagement() {
                             )}
                           </div>
                           <div className="text-right">
+                            <div className="flex items-start gap-2 mb-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditClaim(claim)}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
                             <p className="font-bold text-lg">${claim.claim_amount?.toFixed(2) || '0.00'}</p>
                             <p className="text-xs text-muted-foreground">Claimed</p>
                             {claim.approved_amount && (
