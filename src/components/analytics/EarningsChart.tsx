@@ -93,10 +93,10 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
                   type="monotone"
                   dataKey="earnings"
                   stroke="hsl(var(--chart-1))"
-                  strokeWidth={3}
+                  strokeWidth={5}
                   fill="url(#earningsGradient)"
-                  dot={{ fill: "hsl(var(--chart-1))", strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, strokeWidth: 2 }}
+                  dot={{ fill: "hsl(var(--chart-1))", strokeWidth: 3, r: 6 }}
+                  activeDot={{ r: 8, strokeWidth: 3, fill: "hsl(var(--chart-1))" }}
                 />
               </AreaChart>
             </ResponsiveContainer>

@@ -9,10 +9,19 @@ interface ExpenseBreakdownProps {
 }
 
 export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
-  // Group expenses by type
+  // Group expenses by type, calculating total from individual components
   const expenseByType = expenses.reduce((acc, expense) => {
-    const type = expense.expense_type || 'Other';
-    acc[type] = (acc[type] || 0) + expense.amount;
+    // Calculate total expense from individual cost components
+    const totalExpense = (expense.amount || 0) + 
+                        (expense.toll_cost || 0) + 
+                        (expense.delivery_cost || 0) + 
+                        (expense.carwash_cost || 0) + 
+                        (expense.ev_charge_cost || 0);
+    
+    if (totalExpense > 0) {
+      const type = expense.expense_type || 'Other';
+      acc[type] = (acc[type] || 0) + totalExpense;
+    }
     return acc;
   }, {} as Record<string, number>);
 

@@ -139,6 +139,7 @@ export function useClientAnalytics() {
 
       if (claimsError) throw claimsError;
       setClaims(claimsData || []);
+      console.log('Client Analytics - Claims loaded:', claimsData?.length || 0, claimsData);
 
     } catch (err) {
       console.error('Error fetching client analytics:', err);
@@ -148,7 +149,15 @@ export function useClientAnalytics() {
 
   const calculateSummary = () => {
     const totalEarnings = earnings.reduce((sum, earning) => sum + (earning.client_profit_amount || 0), 0);
-    const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    // Calculate total expenses from individual cost components
+    const totalExpenses = expenses.reduce((sum, expense) => {
+      const expenseTotal = (expense.amount || 0) + 
+                          (expense.toll_cost || 0) + 
+                          (expense.delivery_cost || 0) + 
+                          (expense.carwash_cost || 0) + 
+                          (expense.ev_charge_cost || 0);
+      return sum + expenseTotal;
+    }, 0);
     const netProfit = totalEarnings - totalExpenses;
     const totalTrips = earnings.length;
     const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;

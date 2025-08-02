@@ -8,9 +8,21 @@ import { RecentClaims } from '@/components/analytics/RecentClaims';
 import { useClientAnalytics } from '@/hooks/useClientAnalytics';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function ClientAnalytics() {
   const { earnings, expenses, claims, summary, loading, error, refetch } = useClientAnalytics();
+
+  // Auto-refresh data every 30 seconds for real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!loading) {
+        refetch();
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [loading, refetch]);
 
   if (error) {
     return (
