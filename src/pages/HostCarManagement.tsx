@@ -1372,7 +1372,7 @@ export default function HostCarManagement() {
                         <div>
                           <p className="text-sm text-muted-foreground">Total Earnings</p>
                           <p className="text-2xl font-bold text-green-600">
-                            ${earnings.reduce((sum, e) => sum + e.net_amount, 0).toFixed(2)}
+                            ${earnings.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
                           </p>
                         </div>
                         <DollarSign className="h-8 w-8 text-green-600" />
@@ -1385,7 +1385,7 @@ export default function HostCarManagement() {
                         <div>
                           <p className="text-sm text-muted-foreground">Pending Payments</p>
                           <p className="text-2xl font-bold text-yellow-600">
-                            ${earnings.filter(e => e.payment_status === 'pending').reduce((sum, e) => sum + e.net_amount, 0).toFixed(2)}
+                            ${earnings.filter(e => e.payment_status === 'pending').reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
                           </p>
                         </div>
                         <Clock className="h-8 w-8 text-yellow-600" />
