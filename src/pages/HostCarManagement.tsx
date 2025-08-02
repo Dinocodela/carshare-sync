@@ -186,6 +186,7 @@ export default function HostCarManagement() {
   // Edit state management
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [editingEarning, setEditingEarning] = useState<Earning | null>(null);
+  const [selectedTripExpenses, setSelectedTripExpenses] = useState<number>(0);
   const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
 
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
@@ -229,6 +230,11 @@ export default function HostCarManagement() {
         
         console.log('Matching expense found:', expenseWithData);
         
+        // Calculate total expenses for this trip
+        const tripExpenses = expenses.filter(expense => expense.trip_id === watchedTripId);
+        const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+        setSelectedTripExpenses(totalExpenses);
+        
         if (expenseWithData) {
           // Auto-populate guest name if available
           if (expenseWithData.guest_name) {
@@ -250,7 +256,11 @@ export default function HostCarManagement() {
             earningForm.trigger('car_id');
           }
         } else if (watchedTripId) {
-          // Clear fields if no matching expense found
+          // Clear fields if no matching expense found but still calculate expenses
+          const tripExpenses = expenses.filter(expense => expense.trip_id === watchedTripId);
+          const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+          setSelectedTripExpenses(totalExpenses);
+          
           earningForm.setValue("guest_name", "", { shouldValidate: true });
           earningForm.setValue("car_id", "", { shouldValidate: true });
         }
@@ -580,9 +590,14 @@ export default function HostCarManagement() {
     }
 
     try {
-      const commission = values.gross_earnings * 0.1; // 10% commission
-      const hostProfit = (values.gross_earnings * values.host_profit_percentage) / 100;
-      const netAmount = hostProfit - commission;
+      const grossEarnings = Number(values.gross_earnings);
+      
+      // Calculate net earnings by deducting expenses for this trip
+      const netEarnings = grossEarnings - selectedTripExpenses;
+      
+      // Apply profit split to NET earnings (after expenses)
+      const clientProfit = (netEarnings * Number(values.client_profit_percentage)) / 100;
+      const hostProfit = (netEarnings * Number(values.host_profit_percentage)) / 100;
 
       const earningData = {
         host_id: currentSession.user.id,
@@ -590,12 +605,14 @@ export default function HostCarManagement() {
         trip_id: values.trip_id,
         guest_name: values.guest_name,
         earning_type: values.earning_type,
-        amount: hostProfit,
-        gross_earnings: values.gross_earnings,
-        commission: commission,
-        net_amount: netAmount,
-        client_profit_percentage: values.client_profit_percentage,
-        host_profit_percentage: values.host_profit_percentage,
+        amount: grossEarnings,
+        gross_earnings: grossEarnings,
+        commission: 0,
+        net_amount: hostProfit,
+        client_profit_amount: clientProfit,
+        host_profit_amount: hostProfit,
+        client_profit_percentage: Number(values.client_profit_percentage),
+        host_profit_percentage: Number(values.host_profit_percentage),
         payment_source: values.payment_source,
         earning_period_start: values.earning_period_start,
         earning_period_end: values.earning_period_end,
@@ -1457,7 +1474,7 @@ export default function HostCarManagement() {
                         />
                       </div>
 
-                      <FormField
+                       <FormField
                         control={earningForm.control}
                         name="gross_earnings"
                         render={({ field }) => (
@@ -1476,6 +1493,36 @@ export default function HostCarManagement() {
                           </FormItem>
                         )}
                       />
+
+                      {/* Calculation Breakdown */}
+                      {earningForm.watch("gross_earnings") > 0 && (
+                        <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                          <h4 className="font-medium text-sm">Profit Calculation</h4>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between">
+                              <span>Gross Earnings:</span>
+                              <span>${Number(earningForm.watch("gross_earnings") || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-red-600">
+                              <span>Trip Expenses:</span>
+                              <span>-${selectedTripExpenses.toFixed(2)}</span>
+                            </div>
+                            <hr className="my-1" />
+                            <div className="flex justify-between font-medium">
+                              <span>Net Earnings:</span>
+                              <span>${(Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-blue-600">
+                              <span>Client Profit ({earningForm.watch("client_profit_percentage")}%):</span>
+                              <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("client_profit_percentage"))) / 100).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-green-600">
+                              <span>Host Profit ({earningForm.watch("host_profit_percentage")}%):</span>
+                              <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("host_profit_percentage"))) / 100).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
