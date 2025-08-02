@@ -1362,10 +1362,10 @@ export default function HostCarManagement() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-muted-foreground">This Month</p>
-                          <p className="text-2xl font-bold text-blue-600">
-                            ${earnings.filter(e => new Date(e.earning_period_start).getMonth() === new Date().getMonth())
-                              .reduce((sum, e) => sum + e.net_amount, 0).toFixed(2)}
-                          </p>
+                           <p className="text-2xl font-bold text-blue-600">
+                             ${earnings.filter(e => new Date(e.earning_period_start).getMonth() === new Date().getMonth())
+                               .reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
+                           </p>
                         </div>
                         <Calendar className="h-8 w-8 text-blue-600" />
                       </div>
@@ -1412,9 +1412,9 @@ export default function HostCarManagement() {
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-bold text-xl text-green-600">${earning.net_amount.toFixed(2)}</p>
-                            <p className="text-xs text-muted-foreground">Net Amount</p>
+                           <div className="text-right">
+                             <p className="font-bold text-xl text-green-600">${earning.amount.toFixed(2)}</p>
+                             <p className="text-xs text-muted-foreground">Amount</p>
                             {earning.date_paid && (
                               <p className="text-xs text-muted-foreground mt-1">
                                 Paid: {new Date(earning.date_paid).toLocaleDateString()}
