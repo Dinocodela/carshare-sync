@@ -835,6 +835,42 @@ export default function HostCarManagement() {
     });
     setClaimDialogOpen(true);
   };
+
+  const handleUpdateClaimStatus = async (claimId: string, newStatus: string) => {
+    try {
+      const updateData: any = {
+        claim_status: newStatus,
+        updated_at: new Date().toISOString()
+      };
+
+      // Set approval_date when status becomes approved
+      if (newStatus === 'approved') {
+        updateData.approval_date = new Date().toISOString().split('T')[0];
+      }
+
+      const { error } = await supabase
+        .from('host_claims')
+        .update(updateData)
+        .eq('id', claimId);
+
+      if (error) throw error;
+
+      // Refresh the claims data
+      fetchClaims();
+      
+      toast({
+        title: "Status Updated",
+        description: `Claim status has been updated to ${newStatus}.`,
+      });
+    } catch (error) {
+      console.error('Error updating claim status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update claim status.",
+        variant: "destructive"
+      });
+    }
+  };
   const handleManagementAction = (action: string, car: CarWithClient) => {
     switch (action) {
       case 'view-details':
@@ -2336,6 +2372,20 @@ export default function HostCarManagement() {
                           </div>
                           <div className="text-right">
                             <div className="flex items-start gap-2 mb-2">
+                              <Select
+                                value={claim.claim_status}
+                                onValueChange={(status) => handleUpdateClaimStatus(claim.id, status)}
+                              >
+                                <SelectTrigger className="w-32 h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="approved">Approved</SelectItem>
+                                  <SelectItem value="denied">Denied</SelectItem>
+                                  <SelectItem value="closed">Closed</SelectItem>
+                                </SelectContent>
+                              </Select>
                               <Button
                                 variant="outline"
                                 size="sm"
