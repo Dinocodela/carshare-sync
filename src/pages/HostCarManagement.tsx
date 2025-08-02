@@ -139,8 +139,8 @@ const earningSchema = z.object({
   payment_source: z.string().min(1, "Payment source is required"),
   earning_period_start: z.string().min(1, "Start date is required"),
   earning_period_end: z.string().min(1, "End date is required"),
-  client_profit_percentage: z.number().min(0).max(100).default(30),
-  host_profit_percentage: z.number().min(0).max(100).default(70),
+  client_profit_percentage: z.number().min(0).max(100).default(70),
+  host_profit_percentage: z.number().min(0).max(100).default(30),
   payment_status: z.string().min(1, "Payment status is required"),
   date_paid: z.string().optional(),
 });
@@ -195,8 +195,8 @@ export default function HostCarManagement() {
       payment_source: "Turo",
       earning_period_start: new Date().toISOString().split('T')[0],
       earning_period_end: new Date().toISOString().split('T')[0],
-      client_profit_percentage: 30,
-      host_profit_percentage: 70,
+      client_profit_percentage: 70,
+      host_profit_percentage: 30,
       payment_status: "pending",
     },
   });
