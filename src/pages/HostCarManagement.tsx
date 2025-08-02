@@ -122,7 +122,6 @@ interface Claim {
 const expenseSchema = z.object({
   car_id: z.string().optional(),
   guest_name: z.string().optional(),
-  expense_type: z.string().min(1, "Expense type is required"),
   amount: z.number().min(0, "Amount must be 0 or greater").optional(),
   ev_charge_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
   carwash_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
@@ -179,7 +178,6 @@ export default function HostCarManagement() {
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
-      expense_type: "",
       amount: 0,
       description: "",
       expense_date: new Date().toISOString().split('T')[0],
@@ -370,7 +368,7 @@ export default function HostCarManagement() {
           host_id: user.id,
           car_id: values.car_id || null,
           guest_name: values.guest_name || null,
-          expense_type: values.expense_type,
+          expense_type: "general",
           amount: values.amount || 0,
           ev_charge_cost: values.ev_charge_cost || 0,
           carwash_cost: values.carwash_cost || 0,
@@ -760,31 +758,6 @@ export default function HostCarManagement() {
                                     {car.year} {car.make} {car.model}
                                   </SelectItem>
                                 ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={expenseForm.control}
-                        name="expense_type"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Expense Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select expense type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="fuel">Fuel</SelectItem>
-                                <SelectItem value="maintenance">Maintenance</SelectItem>
-                                <SelectItem value="repairs">Repairs</SelectItem>
-                                <SelectItem value="insurance">Insurance</SelectItem>
-                                <SelectItem value="cleaning">Cleaning</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
