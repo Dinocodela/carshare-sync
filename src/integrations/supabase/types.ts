@@ -92,6 +92,7 @@ export type Database = {
           id: string
           incident_date: string
           notes: string | null
+          payment_source: string | null
           payout_amount: number | null
           photos_taken: boolean | null
           post_repair_inspection: boolean | null
@@ -99,6 +100,7 @@ export type Database = {
           repair_status: string | null
           shop_contact_info: string | null
           supporting_documents: string[] | null
+          trip_id: string | null
           updated_at: string
         }
         Insert: {
@@ -127,6 +129,7 @@ export type Database = {
           id?: string
           incident_date: string
           notes?: string | null
+          payment_source?: string | null
           payout_amount?: number | null
           photos_taken?: boolean | null
           post_repair_inspection?: boolean | null
@@ -134,6 +137,7 @@ export type Database = {
           repair_status?: string | null
           shop_contact_info?: string | null
           supporting_documents?: string[] | null
+          trip_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -162,6 +166,7 @@ export type Database = {
           id?: string
           incident_date?: string
           notes?: string | null
+          payment_source?: string | null
           payout_amount?: number | null
           photos_taken?: boolean | null
           post_repair_inspection?: boolean | null
@@ -169,6 +174,7 @@ export type Database = {
           repair_status?: string | null
           shop_contact_info?: string | null
           supporting_documents?: string[] | null
+          trip_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -204,6 +210,7 @@ export type Database = {
           payment_date: string | null
           payment_source: string | null
           payment_status: string
+          trip_id: string | null
           updated_at: string
         }
         Insert: {
@@ -228,6 +235,7 @@ export type Database = {
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
+          trip_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -252,6 +260,7 @@ export type Database = {
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
+          trip_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -282,6 +291,7 @@ export type Database = {
           receipt_urls: string[] | null
           toll_cost: number | null
           total_expenses: number | null
+          trip_id: string | null
           updated_at: string
         }
         Insert: {
@@ -301,6 +311,7 @@ export type Database = {
           receipt_urls?: string[] | null
           toll_cost?: number | null
           total_expenses?: number | null
+          trip_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -320,6 +331,7 @@ export type Database = {
           receipt_urls?: string[] | null
           toll_cost?: number | null
           total_expenses?: number | null
+          trip_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -426,7 +438,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_earning_date_conflicts: {
+        Args: {
+          p_car_id: string
+          p_start_date: string
+          p_end_date: string
+          p_exclude_id?: string
+        }
+        Returns: boolean
+      }
+      get_conflicting_earnings: {
+        Args: { p_car_id: string; p_start_date: string; p_end_date: string }
+        Returns: {
+          id: string
+          trip_id: string
+          earning_period_start: string
+          earning_period_end: string
+          guest_name: string
+          amount: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
