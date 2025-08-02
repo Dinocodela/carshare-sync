@@ -301,6 +301,55 @@ export default function HostCarManagement() {
       }
     }
   }, [watchedClaimTripId, expenses, claimForm]);
+
+  // Auto-populate car and guest when trip_id changes in expenses form
+  const watchedExpenseTripId = expenseForm.watch("trip_id");
+  
+  useEffect(() => {
+    if (watchedExpenseTripId && expenses.length > 0) {
+      // Find existing data for this trip
+      const existingExpense = expenses.find(expense => 
+        expense.trip_id === watchedExpenseTripId
+      );
+      
+      if (existingExpense) {
+        // Auto-populate car if available
+        if (existingExpense.car_id) {
+          expenseForm.setValue("car_id", existingExpense.car_id, { 
+            shouldValidate: true, 
+            shouldDirty: true 
+          });
+        }
+        
+        // Auto-populate guest name if available
+        if (existingExpense.guest_name) {
+          expenseForm.setValue("guest_name", existingExpense.guest_name, { 
+            shouldValidate: true, 
+            shouldDirty: true 
+          });
+        }
+      }
+    }
+  }, [watchedExpenseTripId, expenses, expenseForm]);
+
+  // Auto-populate trip ID when car is selected in claims form
+  const watchedClaimCarId = claimForm.watch("car_id");
+  
+  useEffect(() => {
+    if (watchedClaimCarId && !editingClaim) {
+      // Find the most recent trip for this car
+      const carExpenses = expenses
+        .filter(expense => expense.car_id === watchedClaimCarId && expense.trip_id)
+        .sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
+      
+      if (carExpenses.length > 0 && carExpenses[0].trip_id) {
+        claimForm.setValue("trip_id", carExpenses[0].trip_id, { 
+          shouldValidate: true, 
+          shouldDirty: true 
+        });
+      }
+    }
+  }, [watchedClaimCarId, expenses, claimForm, editingClaim]);
   useEffect(() => {
     fetchHostedCars();
     fetchExpenses();
@@ -1055,8 +1104,15 @@ export default function HostCarManagement() {
                         name="car_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Car</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormLabel className="flex items-center gap-2">
+                              Car
+                              {field.value && (
+                                <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                  Auto-filled
+                                </Badge>
+                              )}
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select a car (optional)" />
@@ -1079,7 +1135,14 @@ export default function HostCarManagement() {
                         name="guest_name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Guest Name</FormLabel>
+                            <FormLabel className="flex items-center gap-2">
+                              Guest Name
+                              {field.value && (
+                                <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                  Auto-filled
+                                </Badge>
+                              )}
+                            </FormLabel>
                             <FormControl>
                               <Input placeholder="Enter guest name" {...field} />
                             </FormControl>
@@ -1922,7 +1985,14 @@ export default function HostCarManagement() {
 
                           return (
                             <FormItem>
-                              <FormLabel>Trip# (Optional)</FormLabel>
+                              <FormLabel className="flex items-center gap-2">
+                                Trip# (Optional)
+                                {field.value && (
+                                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                    Auto-filled
+                                  </Badge>
+                                )}
+                              </FormLabel>
                               <FormControl>
                                 <div className="space-y-2">
                                   {availableTripIds.length > 0 && (
