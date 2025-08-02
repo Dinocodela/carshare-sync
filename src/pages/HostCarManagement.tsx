@@ -296,16 +296,28 @@ export default function HostCarManagement() {
   
   useEffect(() => {
     if (watchedClaimTripId) {
-      // Find the guest name associated with this trip_id from expenses
-      const expenseWithGuest = expenses.find(expense => 
-        expense.trip_id === watchedClaimTripId && expense.guest_name
+      // Find the guest name from expenses first
+      const expenseWithData = expenses.find(expense => 
+        expense.trip_id === watchedClaimTripId
       );
       
-      if (expenseWithGuest && expenseWithGuest.guest_name) {
-        claimForm.setValue("guest_name", expenseWithGuest.guest_name);
+      // Then check earnings for both guest name and payment source
+      const earningWithData = earnings.find(earning => 
+        earning.trip_id === watchedClaimTripId
+      );
+      
+      // Auto-populate guest name (check both expenses and earnings)
+      const guestName = expenseWithData?.guest_name || earningWithData?.guest_name;
+      if (guestName) {
+        claimForm.setValue("guest_name", guestName);
+      }
+      
+      // Auto-populate payment source (only available in earnings)
+      if (earningWithData?.payment_source) {
+        claimForm.setValue("payment_source", earningWithData.payment_source);
       }
     }
-  }, [watchedClaimTripId, expenses, claimForm]);
+  }, [watchedClaimTripId, expenses, earnings, claimForm]);
 
   // Auto-populate car and guest when trip_id changes in expenses form
   const watchedExpenseTripId = expenseForm.watch("trip_id");
@@ -2143,8 +2155,15 @@ export default function HostCarManagement() {
                            control={claimForm.control}
                            name="payment_source"
                            render={({ field }) => (
-                             <FormItem>
-                               <FormLabel>Payment Source (Optional)</FormLabel>
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                  Payment Source (Optional)
+                                  {field.value && field.value !== "Turo" && (
+                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                      Auto-filled
+                                    </Badge>
+                                  )}
+                                </FormLabel>
                                <Select onValueChange={field.onChange} defaultValue={field.value}>
                                  <FormControl>
                                    <SelectTrigger>
