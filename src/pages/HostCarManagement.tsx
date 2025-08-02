@@ -209,18 +209,26 @@ export default function HostCarManagement() {
     },
   });
 
-  // Auto-populate guest name when trip_id changes
+  // Auto-populate guest name and car when trip_id changes
   const watchedTripId = earningForm.watch("trip_id");
   
   useEffect(() => {
     if (watchedTripId) {
-      // Find the guest name associated with this trip_id from expenses
-      const expenseWithGuest = expenses.find(expense => 
-        expense.trip_id === watchedTripId && expense.guest_name
+      // Find the expense associated with this trip_id
+      const expenseWithData = expenses.find(expense => 
+        expense.trip_id === watchedTripId
       );
       
-      if (expenseWithGuest && expenseWithGuest.guest_name) {
-        earningForm.setValue("guest_name", expenseWithGuest.guest_name);
+      if (expenseWithData) {
+        // Auto-populate guest name if available
+        if (expenseWithData.guest_name) {
+          earningForm.setValue("guest_name", expenseWithData.guest_name);
+        }
+        
+        // Auto-populate car if available
+        if (expenseWithData.car_id) {
+          earningForm.setValue("car_id", expenseWithData.car_id);
+        }
       }
     }
   }, [watchedTripId, expenses, earningForm]);
