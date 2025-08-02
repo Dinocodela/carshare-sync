@@ -18,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+
 interface CarWithClient {
   id: string;
   make: string;
@@ -497,7 +498,8 @@ export default function HostCarManagement() {
     }
   };
 
-  const onExpenseSubmit = async (values: z.infer<typeof expenseSchema>) => {
+
+  const onExpenseSubmit = async (values: any) => {
     if (!user) {
       toast({
         title: "Authentication Error",
@@ -558,6 +560,23 @@ export default function HostCarManagement() {
           title: "Expense added successfully",
           description: "Your expense has been recorded.",
         });
+      }
+
+      // Sync guest name across earnings and expenses for the same trip
+      if (values.trip_id && values.guest_name) {
+        try {
+          // Update earnings with the same trip_id to sync guest names
+          const { error: syncError } = await (supabase as any)
+            .from('host_earnings')
+            .update({ guest_name: values.guest_name })
+            .eq('trip_id', values.trip_id)
+            .eq('host_id', currentSession.user.id);
+          
+          if (syncError) console.error('Sync error:', syncError);
+          else console.log(`Synced guest name "${values.guest_name}" for trip ${values.trip_id}`);
+        } catch (syncError) {
+          console.error('Error syncing trip data:', syncError);
+        }
       }
 
       setExpenseDialogOpen(false);
@@ -644,7 +663,7 @@ export default function HostCarManagement() {
     setExpenseDialogOpen(true);
   };
 
-  const onEarningSubmit = async (values: z.infer<typeof earningSchema>) => {
+  const onEarningSubmit = async (values: any) => {
     if (!user) {
       toast({
         title: "Authentication Error",
@@ -720,6 +739,23 @@ export default function HostCarManagement() {
           title: "Earning recorded successfully",
           description: "Your earning has been added to the system.",
         });
+      }
+
+      // Sync guest name across earnings and expenses for the same trip
+      if (values.trip_id && values.guest_name) {
+        try {
+          // Update expenses with the same trip_id to sync guest names
+          const { error: syncError } = await (supabase as any)
+            .from('host_expenses')
+            .update({ guest_name: values.guest_name })
+            .eq('trip_id', values.trip_id)
+            .eq('host_id', currentSession.user.id);
+          
+          if (syncError) console.error('Sync error:', syncError);
+          else console.log(`Synced guest name "${values.guest_name}" for trip ${values.trip_id}`);
+        } catch (syncError) {
+          console.error('Error syncing trip data:', syncError);
+        }
       }
 
       setEarningDialogOpen(false);
