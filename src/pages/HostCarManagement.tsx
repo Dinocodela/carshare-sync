@@ -1477,8 +1477,15 @@ export default function HostCarManagement() {
                           name="car_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Car</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormLabel className="flex items-center gap-2">
+                                Car
+                                {field.value && (
+                                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                    Auto-filled
+                                  </Badge>
+                                )}
+                              </FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select a car" />
@@ -1501,7 +1508,14 @@ export default function HostCarManagement() {
                           name="guest_name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Guest Name</FormLabel>
+                              <FormLabel className="flex items-center gap-2">
+                                Guest Name
+                                {field.value && (
+                                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                    Auto-filled
+                                  </Badge>
+                                )}
+                              </FormLabel>
                               <FormControl>
                                 <Input placeholder="Enter guest name" {...field} />
                               </FormControl>
