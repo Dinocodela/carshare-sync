@@ -159,7 +159,7 @@ const earningSchema = z.object({
 const claimSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
   trip_id: z.string().optional(),
-  guest_name: z.string().optional(),
+  guest_name: z.string().min(1, "Guest name is required"),
   payment_source: z.string().min(1, "Payment source is required"),
   claim_type: z.string().min(1, "Claim type is required"),
   description: z.string().min(1, "Description is required"),
@@ -2218,7 +2218,7 @@ export default function HostCarManagement() {
                            render={({ field }) => (
                              <FormItem>
                                <FormLabel className="flex items-center gap-2">
-                                 Guest Name (Optional)
+                                 Guest Name
                                  {field.value && (
                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
                                      Auto-filled
