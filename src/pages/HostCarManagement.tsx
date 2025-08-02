@@ -218,23 +218,47 @@ export default function HostCarManagement() {
   const watchedTripId = earningForm.watch("trip_id");
   
   useEffect(() => {
-    if (watchedTripId) {
-      // Find the expense associated with this trip_id
-      const expenseWithData = expenses.find(expense => 
-        expense.trip_id === watchedTripId
-      );
-      
-      if (expenseWithData) {
-        // Auto-populate guest name if available
-        if (expenseWithData.guest_name) {
-          earningForm.setValue("guest_name", expenseWithData.guest_name);
-        }
+    console.log('Trip ID changed:', watchedTripId, 'Expenses loaded:', expenses.length);
+    
+    if (watchedTripId && expenses.length > 0) {
+      // Use setTimeout to ensure form state is ready
+      const timer = setTimeout(() => {
+        const expenseWithData = expenses.find(expense => 
+          expense.trip_id === watchedTripId
+        );
         
-        // Auto-populate car if available
-        if (expenseWithData.car_id) {
-          earningForm.setValue("car_id", expenseWithData.car_id);
+        console.log('Matching expense found:', expenseWithData);
+        
+        if (expenseWithData) {
+          // Auto-populate guest name if available
+          if (expenseWithData.guest_name) {
+            earningForm.setValue("guest_name", expenseWithData.guest_name, { 
+              shouldValidate: true, 
+              shouldDirty: true 
+            });
+          }
+          
+          // Auto-populate car if available
+          if (expenseWithData.car_id) {
+            console.log('Setting car_id to:', expenseWithData.car_id);
+            earningForm.setValue("car_id", expenseWithData.car_id, { 
+              shouldValidate: true, 
+              shouldDirty: true,
+              shouldTouch: true 
+            });
+            // Force form to re-render the car field
+            earningForm.trigger('car_id');
+          }
+        } else if (watchedTripId) {
+          // Clear fields if no matching expense found
+          earningForm.setValue("guest_name", "", { shouldValidate: true });
+          earningForm.setValue("car_id", "", { shouldValidate: true });
         }
-      }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    } else if (watchedTripId && expenses.length === 0) {
+      console.log('Trip ID provided but expenses not loaded yet');
     }
   }, [watchedTripId, expenses, earningForm]);
 
