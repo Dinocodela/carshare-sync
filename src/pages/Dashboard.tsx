@@ -165,9 +165,6 @@ export default function Dashboard() {
                     <Car className="h-4 w-4 mr-2" />
                     View My Cars
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    Track Service History
-                  </Button>
                 </CardContent>
               </Card>
             </>
