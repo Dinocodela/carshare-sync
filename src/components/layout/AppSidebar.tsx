@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, ChevronUp, Home, LogOut, Plus, Settings, User2, Inbox } from 'lucide-react';
+import { Car, ChevronUp, Home, LogOut, Plus, Settings, User2, Inbox, BarChart3 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,6 +56,11 @@ export function AppSidebar() {
     if (userRole === 'client') {
       return [
         ...baseItems,
+        {
+          title: "Analytics",
+          url: "/client-analytics",
+          icon: BarChart3,
+        },
         {
           title: "My Cars",
           url: "/my-cars",

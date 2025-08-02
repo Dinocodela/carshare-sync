@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCars, useHostCars } from '@/hooks/useCars';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Plus, Car, Users, FileText, TrendingUp } from 'lucide-react';
+import { Plus, Car, Users, FileText, TrendingUp, BarChart3 } from 'lucide-react';
 
 interface Profile {
   role: 'client' | 'host';
@@ -164,6 +164,10 @@ export default function Dashboard() {
                   <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigate('/my-cars')}>
                     <Car className="h-4 w-4 mr-2" />
                     View My Cars
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigate('/client-analytics')}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    View Analytics
                   </Button>
                 </CardContent>
               </Card>
