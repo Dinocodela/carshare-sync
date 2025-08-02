@@ -195,6 +195,7 @@ export default function HostCarManagement() {
     resolver: zodResolver(earningSchema),
     defaultValues: {
       car_id: "",
+      trip_id: "",
       guest_name: "",
       earning_type: "hosting",
       gross_earnings: 0,
@@ -206,6 +207,22 @@ export default function HostCarManagement() {
       payment_status: "pending",
     },
   });
+
+  // Auto-populate guest name when trip_id changes
+  const watchedTripId = earningForm.watch("trip_id");
+  
+  useEffect(() => {
+    if (watchedTripId) {
+      // Find the guest name associated with this trip_id from expenses
+      const expenseWithGuest = expenses.find(expense => 
+        expense.trip_id === watchedTripId && expense.guest_name
+      );
+      
+      if (expenseWithGuest && expenseWithGuest.guest_name) {
+        earningForm.setValue("guest_name", expenseWithGuest.guest_name);
+      }
+    }
+  }, [watchedTripId, expenses, earningForm]);
 
   const claimForm = useForm<z.infer<typeof claimSchema>>({
     resolver: zodResolver(claimSchema),
