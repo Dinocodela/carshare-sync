@@ -745,7 +745,7 @@ export default function HostCarManagement() {
                         name="car_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Car (Optional)</FormLabel>
+                            <FormLabel>Car</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
@@ -769,7 +769,7 @@ export default function HostCarManagement() {
                         name="guest_name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Guest Name (Optional)</FormLabel>
+                            <FormLabel>Guest Name</FormLabel>
                             <FormControl>
                               <Input placeholder="Enter guest name" {...field} />
                             </FormControl>
@@ -884,7 +884,7 @@ export default function HostCarManagement() {
                         name="description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Description (Optional)</FormLabel>
+                            <FormLabel>Description</FormLabel>
                             <FormControl>
                               <Textarea placeholder="Describe the expense..." {...field} />
                             </FormControl>
