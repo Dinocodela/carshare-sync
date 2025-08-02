@@ -164,7 +164,8 @@ export default function HostCarManagement() {
     toast
   } = useToast();
   const {
-    user
+    user,
+    session
   } = useAuth();
   const [cars, setCars] = useState<CarWithClient[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -359,27 +360,63 @@ export default function HostCarManagement() {
   };
 
   const onExpenseSubmit = async (values: z.infer<typeof expenseSchema>) => {
-    if (!user) return;
+    // Enhanced authentication validation
+    if (!user) {
+      console.error('No user found in authentication context');
+      toast({
+        title: "Authentication Error",
+        description: "Please log in to add expenses.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Debug authentication state
+    console.log('Current user ID:', user.id);
+    console.log('User session:', session);
+    
+    // Verify current session and get fresh auth state
+    const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !currentSession) {
+      console.error('Session error or no active session:', sessionError);
+      toast({
+        title: "Session Error",
+        description: "Your session has expired. Please log in again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('Current auth session user ID:', currentSession.user.id);
 
     try {
-      const { error } = await (supabase as any)
+      const expenseData = {
+        host_id: currentSession.user.id, // Use session user ID to ensure it matches auth.uid()
+        car_id: values.car_id || null,
+        guest_name: values.guest_name || null,
+        expense_type: "general",
+        amount: values.amount || 0,
+        ev_charge_cost: values.ev_charge_cost || 0,
+        carwash_cost: values.carwash_cost || 0,
+        delivery_cost: values.delivery_cost || 0,
+        toll_cost: values.toll_cost || 0,
+        description: values.description || null,
+        expense_date: values.expense_date,
+      };
+
+      console.log('Attempting to insert expense with data:', expenseData);
+
+      const { error } = await supabase
         .from('host_expenses')
-        .insert({
-          host_id: user.id,
-          car_id: values.car_id || null,
-          guest_name: values.guest_name || null,
-          expense_type: "general",
-          amount: values.amount || 0,
-          ev_charge_cost: values.ev_charge_cost || 0,
-          carwash_cost: values.carwash_cost || 0,
-          delivery_cost: values.delivery_cost || 0,
-          toll_cost: values.toll_cost || 0,
-          description: values.description || null,
-          expense_date: values.expense_date,
-        });
+        .insert(expenseData);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error details:', error);
+        throw error;
+      }
 
+      console.log('Expense added successfully');
+      
       toast({
         title: "Expense added successfully",
         description: "Your expense has been recorded.",
@@ -390,9 +427,13 @@ export default function HostCarManagement() {
       fetchExpenses();
     } catch (error) {
       console.error('Error adding expense:', error);
+      
+      // More specific error handling
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
       toast({
         title: "Error",
-        description: "Failed to add expense. Please try again.",
+        description: `Failed to add expense: ${errorMessage}`,
         variant: "destructive",
       });
     }
