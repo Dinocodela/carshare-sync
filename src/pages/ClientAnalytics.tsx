@@ -3,12 +3,14 @@ import { SummaryCards } from '@/components/analytics/SummaryCards';
 import { EarningsChart } from '@/components/analytics/EarningsChart';
 import { RecentTrips } from '@/components/analytics/RecentTrips';
 import { ExpenseBreakdown } from '@/components/analytics/ExpenseBreakdown';
+import { ClaimsSummary } from '@/components/analytics/ClaimsSummary';
+import { RecentClaims } from '@/components/analytics/RecentClaims';
 import { useClientAnalytics } from '@/hooks/useClientAnalytics';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
 export default function ClientAnalytics() {
-  const { earnings, expenses, summary, loading, error, refetch } = useClientAnalytics();
+  const { earnings, expenses, claims, summary, loading, error, refetch } = useClientAnalytics();
 
   if (error) {
     return (
@@ -50,12 +52,17 @@ export default function ClientAnalytics() {
 
         <SummaryCards summary={summary} loading={loading} />
 
+        <ClaimsSummary claims={claims} loading={loading} />
+
         <div className="grid gap-6 lg:grid-cols-2">
           <EarningsChart earnings={earnings} />
           <ExpenseBreakdown expenses={expenses} />
         </div>
 
-        <RecentTrips earnings={earnings} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <RecentTrips earnings={earnings} />
+          <RecentClaims claims={claims} />
+        </div>
       </div>
     </DashboardLayout>
   );

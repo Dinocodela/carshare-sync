@@ -42,6 +42,20 @@ export interface ClientExpense {
   created_at: string;
 }
 
+export interface ClientClaim {
+  id: string;
+  car_id: string;
+  host_id: string;
+  claim_type: string;
+  claim_amount: number | null;
+  approved_amount: number | null;
+  claim_status: string;
+  incident_date: string;
+  created_at: string;
+  trip_id?: string | null;
+  description: string;
+}
+
 export interface AnalyticsSummary {
   totalEarnings: number;
   totalExpenses: number;
@@ -49,12 +63,16 @@ export interface AnalyticsSummary {
   activeDays: number;
   totalTrips: number;
   averagePerTrip: number;
+  totalClaims: number;
+  pendingClaims: number;
+  approvedClaimsAmount: number;
 }
 
 export function useClientAnalytics() {
   const { user } = useAuth();
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
+  const [claims, setClaims] = useState<ClientClaim[]>([]);
   const [summary, setSummary] = useState<AnalyticsSummary>({
     totalEarnings: 0,
     totalExpenses: 0,
@@ -62,11 +80,14 @@ export function useClientAnalytics() {
     activeDays: 0,
     totalTrips: 0,
     averagePerTrip: 0,
+    totalClaims: 0,
+    pendingClaims: 0,
+    approvedClaimsAmount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchClientEarnings = async () => {
+  const fetchClientAnalytics = async () => {
     if (!user) return;
 
     try {
@@ -82,6 +103,8 @@ export function useClientAnalytics() {
 
       if (!userCars || userCars.length === 0) {
         setEarnings([]);
+        setExpenses([]);
+        setClaims([]);
         return;
       }
 
@@ -107,6 +130,16 @@ export function useClientAnalytics() {
       if (expensesError) throw expensesError;
       setExpenses(expensesData || []);
 
+      // Get claims for user's cars
+      const { data: claimsData, error: claimsError } = await supabase
+        .from('host_claims')
+        .select('*')
+        .in('car_id', carIds)
+        .order('created_at', { ascending: false });
+
+      if (claimsError) throw claimsError;
+      setClaims(claimsData || []);
+
     } catch (err) {
       console.error('Error fetching client analytics:', err);
       setError('Failed to load analytics data');
@@ -128,6 +161,13 @@ export function useClientAnalytics() {
     );
     const activeDays = uniqueDates.size;
 
+    // Calculate claims summary
+    const totalClaims = claims.length;
+    const pendingClaims = claims.filter(claim => claim.claim_status === 'pending').length;
+    const approvedClaimsAmount = claims
+      .filter(claim => claim.claim_status === 'approved')
+      .reduce((sum, claim) => sum + (claim.approved_amount || claim.claim_amount || 0), 0);
+
     setSummary({
       totalEarnings,
       totalExpenses,
@@ -135,13 +175,16 @@ export function useClientAnalytics() {
       activeDays,
       totalTrips,
       averagePerTrip,
+      totalClaims,
+      pendingClaims,
+      approvedClaimsAmount,
     });
   };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      await fetchClientEarnings();
+      await fetchClientAnalytics();
       setLoading(false);
     };
 
@@ -150,15 +193,16 @@ export function useClientAnalytics() {
 
   useEffect(() => {
     calculateSummary();
-  }, [earnings, expenses]);
+  }, [earnings, expenses, claims]);
 
   const refetch = () => {
-    fetchClientEarnings();
+    fetchClientAnalytics();
   };
 
   return {
     earnings,
     expenses,
+    claims,
     summary,
     loading,
     error,

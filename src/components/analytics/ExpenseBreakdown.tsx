@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { ClientExpense } from '@/hooks/useClientAnalytics';
+import { Receipt } from 'lucide-react';
 
 interface ExpenseBreakdownProps {
   expenses: ClientExpense[];
@@ -21,11 +22,11 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
   }));
 
   const COLORS = [
-    'hsl(var(--primary))',
-    'hsl(var(--secondary))',
-    'hsl(var(--accent))',
-    'hsl(var(--muted))',
-    'hsl(var(--destructive))',
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-4))',
+    'hsl(var(--chart-5))',
   ];
 
   const chartConfig = {
@@ -37,52 +38,76 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
   const totalExpenses = chartData.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Expense Breakdown</CardTitle>
+    <Card className="relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-600/5" />
+      <CardHeader className="relative">
+        <CardTitle className="flex items-center gap-2">
+          <div className="p-2 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg">
+            <Receipt className="h-4 w-4" />
+          </div>
+          Expense Breakdown
+        </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         {chartData.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No expenses recorded yet.
+          <div className="h-[250px] flex items-center justify-center text-muted-foreground">
+            <div className="text-center">
+              <Receipt className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No expenses recorded yet.</p>
+              <p className="text-sm mt-1">Expenses will appear here when your hosts log them.</p>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
-            <ChartContainer config={chartConfig} className="h-[200px]">
+            <ChartContainer config={chartConfig} className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={chartData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
+                    outerRadius={85}
+                    innerRadius={25}
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
                   >
                     {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS[index % COLORS.length]}
+                        stroke="white"
+                        strokeWidth={2}
+                      />
                     ))}
                   </Pie>
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
-                    formatter={(value) => [`$${value}`, 'Amount']}
+                    formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </ChartContainer>
             
-            <div className="space-y-2">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-sm font-medium border-t pt-3">
+                <span>Total Expenses</span>
+                <span className="text-lg">${totalExpenses.toFixed(2)}</span>
+              </div>
               {chartData.map((item, index) => (
                 <div key={item.name} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <div 
-                      className="w-3 h-3 rounded-full" 
+                      className="w-4 h-4 rounded-full shadow-sm" 
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span>{item.name}</span>
+                    <span className="font-medium">{item.name}</span>
                   </div>
-                  <div className="font-medium">
-                    ${item.value.toFixed(2)} ({((item.value / totalExpenses) * 100).toFixed(1)}%)
+                  <div className="text-right">
+                    <div className="font-medium">${item.value.toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {((item.value / totalExpenses) * 100).toFixed(1)}%
+                    </div>
                   </div>
                 </div>
               ))}
