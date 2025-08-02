@@ -2109,107 +2109,107 @@ export default function HostCarManagement() {
                       {editingClaim ? 'Update your claim details.' : 'Submit a claim for damages or incidents.'}
                     </DialogDescription>
                   </DialogHeader>
-                  <Form {...claimForm}>
-                    <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={claimForm.control}
-                          name="car_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Car</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a car" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {cars.map((car) => (
-                                    <SelectItem key={car.id} value={car.id}>
-                                      {car.year} {car.make} {car.model}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={claimForm.control}
-                          name="claim_type"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Claim Type</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select claim type" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="damage">Physical Damage</SelectItem>
-                                  <SelectItem value="theft">Theft</SelectItem>
-                                  <SelectItem value="accident">Accident</SelectItem>
-                                  <SelectItem value="vandalism">Vandalism</SelectItem>
-                                  <SelectItem value="mechanical">Mechanical Issues</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                   <Form {...claimForm}>
+                     <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
+                       <FormField
+                         control={claimForm.control}
+                         name="trip_id"
+                         render={({ field }) => {
+                           const selectedCar = cars.find(c => c.id === claimForm.watch("car_id"));
+                           const availableTripIds = selectedCar 
+                             ? [...new Set(expenses.filter(e => e.car_id === selectedCar.id && e.trip_id).map(e => e.trip_id))]
+                             : [];
 
-                      <FormField
-                        control={claimForm.control}
-                        name="trip_id"
-                        render={({ field }) => {
-                          const selectedCar = cars.find(c => c.id === claimForm.watch("car_id"));
-                          const availableTripIds = selectedCar 
-                            ? [...new Set(expenses.filter(e => e.car_id === selectedCar.id && e.trip_id).map(e => e.trip_id))]
-                            : [];
+                           return (
+                             <FormItem>
+                               <FormLabel className="flex items-center gap-2">
+                                 Trip#
+                                 {field.value && (
+                                   <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                     Auto-filled
+                                   </Badge>
+                                 )}
+                               </FormLabel>
+                               <FormControl>
+                                 <div className="space-y-2">
+                                   {availableTripIds.length > 0 && (
+                                     <Select value={field.value} onValueChange={field.onChange}>
+                                       <SelectTrigger>
+                                         <SelectValue placeholder="Select existing trip ID" />
+                                       </SelectTrigger>
+                                       <SelectContent>
+                                         {availableTripIds.map((tripId) => (
+                                           <SelectItem key={tripId} value={tripId || ""}>
+                                             {tripId}
+                                           </SelectItem>
+                                         ))}
+                                       </SelectContent>
+                                     </Select>
+                                   )}
+                                   <Input
+                                     placeholder="Or enter new trip ID"
+                                     value={field.value}
+                                     onChange={field.onChange}
+                                   />
+                                 </div>
+                               </FormControl>
+                               <FormMessage />
+                             </FormItem>
+                           );
+                         }}
+                        />
 
-                          return (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                Trip#
-                                {field.value && (
-                                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                                    Auto-filled
-                                  </Badge>
-                                )}
-                              </FormLabel>
-                              <FormControl>
-                                <div className="space-y-2">
-                                  {availableTripIds.length > 0 && (
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select existing trip ID" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {availableTripIds.map((tripId) => (
-                                          <SelectItem key={tripId} value={tripId || ""}>
-                                            {tripId}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  )}
-                                  <Input
-                                    placeholder="Or enter new trip ID"
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                       />
+                       <div className="grid grid-cols-2 gap-4">
+                         <FormField
+                           control={claimForm.control}
+                           name="car_id"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Car</FormLabel>
+                               <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                 <FormControl>
+                                   <SelectTrigger>
+                                     <SelectValue placeholder="Select a car" />
+                                   </SelectTrigger>
+                                 </FormControl>
+                                 <SelectContent>
+                                   {cars.map((car) => (
+                                     <SelectItem key={car.id} value={car.id}>
+                                       {car.year} {car.make} {car.model}
+                                     </SelectItem>
+                                   ))}
+                                 </SelectContent>
+                               </Select>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+                         <FormField
+                           control={claimForm.control}
+                           name="claim_type"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Claim Type</FormLabel>
+                               <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                 <FormControl>
+                                   <SelectTrigger>
+                                     <SelectValue placeholder="Select claim type" />
+                                   </SelectTrigger>
+                                 </FormControl>
+                                 <SelectContent>
+                                   <SelectItem value="damage">Physical Damage</SelectItem>
+                                   <SelectItem value="theft">Theft</SelectItem>
+                                   <SelectItem value="accident">Accident</SelectItem>
+                                   <SelectItem value="vandalism">Vandalism</SelectItem>
+                                   <SelectItem value="mechanical">Mechanical Issues</SelectItem>
+                                   <SelectItem value="other">Other</SelectItem>
+                                 </SelectContent>
+                               </Select>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+                       </div>
 
                        <div className="grid grid-cols-2 gap-4">
                          <FormField
