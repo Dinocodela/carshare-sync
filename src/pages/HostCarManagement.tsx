@@ -564,6 +564,7 @@ export default function HostCarManagement() {
       setEditingExpense(null);
       expenseForm.reset();
       fetchExpenses();
+      fetchEarnings(); // Refresh earnings to sync guest names and trip data
     } catch (error) {
       console.error('Error managing expense:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -725,6 +726,7 @@ export default function HostCarManagement() {
       setEditingEarning(null);
       earningForm.reset();
       fetchEarnings();
+      fetchExpenses(); // Refresh expenses to sync guest names and trip data
     } catch (error) {
       console.error('Error managing earning:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
