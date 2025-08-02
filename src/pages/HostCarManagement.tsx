@@ -160,10 +160,10 @@ const claimSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
   trip_id: z.string().optional(),
   guest_name: z.string().optional(),
-  payment_source: z.string().optional(),
+  payment_source: z.string().min(1, "Payment source is required"),
   claim_type: z.string().min(1, "Claim type is required"),
   description: z.string().min(1, "Description is required"),
-  accident_description: z.string().optional(),
+  accident_description: z.string().min(1, "Detailed accident description is required"),
   claim_amount: z.number().min(0.01, "Amount must be greater than 0"),
   incident_date: z.string().min(1, "Incident date is required"),
   adjuster_name: z.string().optional(),
@@ -2238,7 +2238,7 @@ export default function HostCarManagement() {
                            render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="flex items-center gap-2">
-                                  Payment Source (Optional)
+                                  Payment Source
                                   {field.value && field.value !== "Turo" && (
                                     <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
                                       Auto-filled
@@ -2299,7 +2299,7 @@ export default function HostCarManagement() {
                         name="accident_description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Detailed Accident Description (Optional)</FormLabel>
+                            <FormLabel>Detailed Accident Description</FormLabel>
                             <FormControl>
                               <Textarea placeholder="Provide additional details about the accident..." {...field} />
                             </FormControl>
