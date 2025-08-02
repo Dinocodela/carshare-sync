@@ -120,8 +120,6 @@ interface Claim {
 }
 
 const expenseSchema = z.object({
-  car_id: z.string().optional(),
-  guest_name: z.string().optional(),
   expense_type: z.string().min(1, "Expense type is required"),
   amount: z.number().min(0, "Amount must be 0 or greater").optional(),
   ev_charge_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
@@ -368,8 +366,6 @@ export default function HostCarManagement() {
         .from('host_expenses')
         .insert({
           host_id: user.id,
-          car_id: values.car_id || null,
-          guest_name: values.guest_name || null,
           expense_type: values.expense_type,
           amount: values.amount || 0,
           ev_charge_cost: values.ev_charge_cost || 0,
@@ -744,30 +740,6 @@ export default function HostCarManagement() {
                     <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
                       <FormField
                         control={expenseForm.control}
-                        name="car_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Car (Optional)</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a car" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {cars.map((car) => (
-                                  <SelectItem key={car.id} value={car.id}>
-                                    {car.year} {car.make} {car.model}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={expenseForm.control}
                         name="expense_type"
                         render={({ field }) => (
                           <FormItem>
@@ -787,19 +759,6 @@ export default function HostCarManagement() {
                                 <SelectItem value="other">Other</SelectItem>
                               </SelectContent>
                             </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={expenseForm.control}
-                        name="guest_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Guest Name (Optional)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter guest name" {...field} />
-                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
