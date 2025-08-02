@@ -2496,7 +2496,11 @@ export default function HostCarManagement() {
 
                 {/* Claims List */}
                 <div className="grid gap-4">
-                  {claims.map((claim) => (
+                  {claims.map((claim) => {
+                    // Find the car for this claim
+                    const claimCar = cars.find(car => car.id === claim.car_id);
+                    
+                    return (
                     <Card key={claim.id}>
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
@@ -2513,6 +2517,30 @@ export default function HostCarManagement() {
                                 <Badge variant="outline">
                                   Trip# {claim.trip_id}
                                 </Badge>
+                              )}
+                            </div>
+                            
+                            {/* Trip Details */}
+                            <div className="flex flex-wrap items-center gap-2 text-sm">
+                              {claimCar && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-muted-foreground">Car:</span>
+                                  <span className="font-medium">{claimCar.year} {claimCar.make} {claimCar.model}</span>
+                                </div>
+                              )}
+                              {claim.guest_name && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-muted-foreground">•</span>
+                                  <span className="text-muted-foreground">Guest:</span>
+                                  <span className="font-medium">{claim.guest_name}</span>
+                                </div>
+                              )}
+                              {claim.payment_source && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-muted-foreground">•</span>
+                                  <span className="text-muted-foreground">Source:</span>
+                                  <span className="font-medium">{claim.payment_source}</span>
+                                </div>
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground">{claim.description}</p>
@@ -2606,11 +2634,12 @@ export default function HostCarManagement() {
                                 <p className="text-xs text-muted-foreground">Paid Out</p>
                               </div>
                             )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                           </div>
+                         </div>
+                       </CardContent>
+                     </Card>
+                    );
+                  })}
                 </div>
               </div>
             )}
