@@ -1403,10 +1403,6 @@ export default function HostCarManagement() {
                                 <p className="font-medium">${earning.gross_earnings?.toFixed(2) || '0.00'}</p>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Commission:</span>
-                                <p className="font-medium">${earning.commission.toFixed(2)}</p>
-                              </div>
-                              <div>
                                 <span className="text-muted-foreground">Client Profit ({earning.client_profit_percentage}%):</span>
                                 <p className="font-medium">${earning.client_profit_amount?.toFixed(2) || '0.00'}</p>
                               </div>
