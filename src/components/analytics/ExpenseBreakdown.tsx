@@ -9,26 +9,22 @@ interface ExpenseBreakdownProps {
 }
 
 export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
-  // Group expenses by type, calculating total from individual components
-  const expenseByType = expenses.reduce((acc, expense) => {
-    // Calculate total expense from individual cost components
-    const totalExpense = (expense.amount || 0) + 
-                        (expense.toll_cost || 0) + 
-                        (expense.delivery_cost || 0) + 
-                        (expense.carwash_cost || 0) + 
-                        (expense.ev_charge_cost || 0);
-    
-    if (totalExpense > 0) {
-      const type = expense.expense_type || 'Other';
-      acc[type] = (acc[type] || 0) + totalExpense;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  // Group expenses by individual cost components instead of expense_type
+  const expenseCategories = {
+    "Toll Costs": expenses.reduce((sum, exp) => sum + (exp.toll_cost || 0), 0),
+    "Delivery Costs": expenses.reduce((sum, exp) => sum + (exp.delivery_cost || 0), 0),
+    "Car Wash": expenses.reduce((sum, exp) => sum + (exp.carwash_cost || 0), 0),
+    "EV Charging": expenses.reduce((sum, exp) => sum + (exp.ev_charge_cost || 0), 0),
+    "Other Expenses": expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0)
+  };
 
-  const chartData = Object.entries(expenseByType).map(([type, amount]) => ({
-    name: type,
-    value: amount,
-  }));
+  // Filter out categories with zero amounts and create chart data
+  const chartData = Object.entries(expenseCategories)
+    .filter(([_, amount]) => amount > 0)
+    .map(([category, amount]) => ({
+      name: category,
+      value: amount,
+    }));
 
   const COLORS = [
     'hsl(var(--chart-1))',
