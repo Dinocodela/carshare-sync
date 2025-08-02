@@ -212,6 +212,7 @@ export default function HostCarManagement() {
     defaultValues: {
       car_id: "",
       claim_type: "",
+      trip_id: "",
       description: "",
       claim_amount: 0,
       incident_date: new Date().toISOString().split('T')[0],
@@ -1609,6 +1610,47 @@ export default function HostCarManagement() {
 
                       <FormField
                         control={claimForm.control}
+                        name="trip_id"
+                        render={({ field }) => {
+                          const selectedCar = cars.find(c => c.id === claimForm.watch("car_id"));
+                          const availableTripIds = selectedCar 
+                            ? [...new Set(expenses.filter(e => e.car_id === selectedCar.id && e.trip_id).map(e => e.trip_id))]
+                            : [];
+
+                          return (
+                            <FormItem>
+                              <FormLabel>Trip# (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="space-y-2">
+                                  {availableTripIds.length > 0 && (
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select existing trip ID" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {availableTripIds.map((tripId) => (
+                                          <SelectItem key={tripId} value={tripId || ""}>
+                                            {tripId}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                  <Input
+                                    placeholder="Or enter new trip ID"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+
+                      <FormField
+                        control={claimForm.control}
                         name="incident_date"
                         render={({ field }) => (
                           <FormItem>
@@ -1841,6 +1883,11 @@ export default function HostCarManagement() {
                               }>
                                 {claim.claim_status}
                               </Badge>
+                              {claim.trip_id && (
+                                <Badge variant="outline">
+                                  Trip# {claim.trip_id}
+                                </Badge>
+                              )}
                             </div>
                             <p className="text-sm text-muted-foreground">{claim.description}</p>
                             {claim.accident_description && (
