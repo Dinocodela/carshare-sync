@@ -137,7 +137,7 @@ const expenseSchema = z.object({
 
 const earningSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
-  trip_id: z.string().optional(),
+  trip_id: z.string().min(1, "Trip# is required"),
   guest_name: z.string().min(1, "Guest name is required"),
   earning_type: z.string().min(1, "Earning type is required"),
   gross_earnings: z.number().min(0.01, "Amount must be greater than 0"),
@@ -1034,7 +1034,14 @@ export default function HostCarManagement() {
                      <CardContent className="p-4">
                        <div className="flex justify-between items-start">
                          <div>
-                           <h4 className="font-medium capitalize">{expense.expense_type}</h4>
+                           <div className="flex items-center gap-2 mb-2">
+                             <h4 className="font-medium capitalize">{expense.expense_type}</h4>
+                             {expense.trip_id && (
+                               <Badge variant="outline" className="text-xs">
+                                 Trip# {expense.trip_id}
+                               </Badge>
+                             )}
+                           </div>
                            {expense.guest_name && (
                              <p className="text-sm text-muted-foreground">Guest: {expense.guest_name}</p>
                            )}
@@ -1113,15 +1120,44 @@ export default function HostCarManagement() {
                       <FormField
                         control={earningForm.control}
                         name="trip_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Trip#</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter Trip ID (optional)" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        render={({ field }) => {
+                          // Get unique trip_ids from expenses
+                          const existingTripIds = [...new Set(expenses.filter(e => e.trip_id).map(e => e.trip_id))] as string[];
+                          
+                          return (
+                            <FormItem>
+                              <FormLabel>Trip# *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select existing Trip# or enter new" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {existingTripIds.map((tripId) => {
+                                    const tripExpenses = expenses.filter(e => e.trip_id === tripId);
+                                    const totalExpenses = tripExpenses.reduce((sum, e) => 
+                                      sum + (e.total_expenses || e.amount), 0
+                                    );
+                                    return (
+                                      <SelectItem key={tripId} value={tripId}>
+                                        {tripId} (Expenses: ${totalExpenses.toFixed(2)})
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                              <div className="mt-2">
+                                <Input 
+                                  placeholder="Or enter new Trip ID" 
+                                  value={field.value} 
+                                  onChange={field.onChange}
+                                />
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
                       />
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
@@ -1410,17 +1446,32 @@ export default function HostCarManagement() {
 
                 {/* Earnings List */}
                 <div className="grid gap-4">
-                  {earnings.map((earning) => (
-                    <Card key={earning.id}>
+                   {earnings.map((earning) => {
+                     // Calculate related expenses for this trip
+                     const relatedExpenses = earning.trip_id 
+                       ? expenses.filter(e => e.trip_id === earning.trip_id)
+                       : [];
+                     const totalExpenses = relatedExpenses.reduce((sum, e) => 
+                       sum + (e.total_expenses || e.amount), 0
+                     );
+                     const netProfit = earning.amount - totalExpenses;
+                     
+                     return (
+                     <Card key={earning.id}>
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium capitalize">{earning.earning_type}</h4>
-                              <Badge variant={earning.payment_status === 'paid' ? 'default' : 'secondary'}>
-                                {earning.payment_status}
-                              </Badge>
-                            </div>
+                             <div className="flex items-center gap-2 flex-wrap">
+                               <h4 className="font-medium capitalize">{earning.earning_type}</h4>
+                               {earning.trip_id && (
+                                 <Badge variant="outline" className="text-xs">
+                                   Trip# {earning.trip_id}
+                                 </Badge>
+                               )}
+                               <Badge variant={earning.payment_status === 'paid' ? 'default' : 'secondary'}>
+                                 {earning.payment_status}
+                               </Badge>
+                             </div>
                             {earning.guest_name && (
                               <p className="text-sm text-muted-foreground">Guest: {earning.guest_name}</p>
                             )}
@@ -1431,36 +1482,56 @@ export default function HostCarManagement() {
                               Source: {earning.payment_source}
                             </p>
                             
-                            {/* Profit Breakdown */}
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-muted-foreground">Gross Earnings:</span>
-                                <p className="font-medium">${earning.gross_earnings?.toFixed(2) || '0.00'}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Client Profit ({earning.client_profit_percentage}%):</span>
-                                <p className="font-medium">${earning.client_profit_amount?.toFixed(2) || '0.00'}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Host Profit ({earning.host_profit_percentage}%):</span>
-                                <p className="font-medium">${earning.host_profit_amount?.toFixed(2) || '0.00'}</p>
-                              </div>
-                            </div>
+                             {/* Profit Breakdown */}
+                             <div className="grid grid-cols-2 gap-4 text-sm">
+                               <div>
+                                 <span className="text-muted-foreground">Gross Earnings:</span>
+                                 <p className="font-medium">${earning.gross_earnings?.toFixed(2) || '0.00'}</p>
+                               </div>
+                               <div>
+                                 <span className="text-muted-foreground">Client Profit ({earning.client_profit_percentage}%):</span>
+                                 <p className="font-medium">${earning.client_profit_amount?.toFixed(2) || '0.00'}</p>
+                               </div>
+                               <div>
+                                 <span className="text-muted-foreground">Host Profit ({earning.host_profit_percentage}%):</span>
+                                 <p className="font-medium">${earning.host_profit_amount?.toFixed(2) || '0.00'}</p>
+                               </div>
+                               {earning.trip_id && totalExpenses > 0 && (
+                                 <>
+                                   <div>
+                                     <span className="text-muted-foreground">Total Expenses:</span>
+                                     <p className="font-medium text-red-600">-${totalExpenses.toFixed(2)}</p>
+                                   </div>
+                                   <div>
+                                     <span className="text-muted-foreground">Net Profit:</span>
+                                     <p className={`font-medium ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                       ${netProfit.toFixed(2)}
+                                     </p>
+                                   </div>
+                                 </>
+                               )}
+                             </div>
+                             {earning.trip_id && relatedExpenses.length > 0 && (
+                               <div className="text-xs text-muted-foreground">
+                                 Related expenses: {relatedExpenses.length} item(s)
+                               </div>
+                             )}
                           </div>
                            <div className="text-right">
                              <p className="font-bold text-xl text-green-600">${earning.amount.toFixed(2)}</p>
                              <p className="text-xs text-muted-foreground">Amount</p>
-                            {earning.date_paid && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Paid: {new Date(earning.date_paid).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                             {earning.date_paid && (
+                               <p className="text-xs text-muted-foreground mt-1">
+                                 Paid: {new Date(earning.date_paid).toLocaleDateString()}
+                               </p>
+                             )}
+                           </div>
+                         </div>
+                       </CardContent>
+                     </Card>
+                     );
+                   })}
+                 </div>
               </div>
             )}
           </TabsContent>
