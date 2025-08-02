@@ -232,7 +232,7 @@ export default function HostCarManagement() {
         
         // Calculate total expenses for this trip
         const tripExpenses = expenses.filter(expense => expense.trip_id === watchedTripId);
-        const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+        const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.total_expenses || 0), 0);
         setSelectedTripExpenses(totalExpenses);
         
         if (expenseWithData) {
@@ -258,7 +258,7 @@ export default function HostCarManagement() {
         } else if (watchedTripId) {
           // Clear fields if no matching expense found but still calculate expenses
           const tripExpenses = expenses.filter(expense => expense.trip_id === watchedTripId);
-          const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+          const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.total_expenses || 0), 0);
           setSelectedTripExpenses(totalExpenses);
           
           earningForm.setValue("guest_name", "", { shouldValidate: true });
