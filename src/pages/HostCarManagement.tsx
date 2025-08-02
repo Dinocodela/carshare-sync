@@ -503,7 +503,7 @@ export default function HostCarManagement() {
         .from('host_expenses')
         .select('*')
         .eq('host_id', user.id)
-        .order('expense_date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setExpenses(data || []);
@@ -1469,7 +1469,7 @@ export default function HostCarManagement() {
                             )}
                             <p className="text-sm text-muted-foreground">{expense.description}</p>
                             <p className="text-sm text-muted-foreground">
-                              {new Date(expense.expense_date).toLocaleDateString()}
+                              {new Date(expense.created_at).toLocaleDateString()}
                             </p>
                             
                             {/* Cost Breakdown */}
