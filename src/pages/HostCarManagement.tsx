@@ -634,6 +634,8 @@ export default function HostCarManagement() {
         gross_earnings: grossEarnings,
         commission: 0,
         net_amount: hostProfit,
+        client_profit_amount: clientProfit,
+        host_profit_amount: hostProfit,
         client_profit_percentage: Number(values.client_profit_percentage),
         host_profit_percentage: Number(values.host_profit_percentage),
         payment_source: values.payment_source,
