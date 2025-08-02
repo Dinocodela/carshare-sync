@@ -42,6 +42,7 @@ interface Expense {
   id: string;
   host_id: string;
   car_id: string | null;
+  trip_id?: string;
   guest_name?: string;
   expense_type: string;
   amount: number;
@@ -62,6 +63,7 @@ interface Earning {
   id: string;
   host_id: string;
   car_id: string;
+  trip_id?: string;
   guest_name?: string;
   earning_type: string;
   amount: number;
@@ -86,6 +88,7 @@ interface Claim {
   id: string;
   host_id: string;
   car_id: string;
+  trip_id?: string;
   claim_type: string;
   description: string;
   claim_amount: number | null;
@@ -120,6 +123,7 @@ interface Claim {
 }
 
 const expenseSchema = z.object({
+  trip_id: z.string().min(1, "Trip# is required"),
   car_id: z.string().optional(),
   guest_name: z.string().optional(),
   amount: z.number().min(0, "Amount must be 0 or greater").optional(),
@@ -133,6 +137,7 @@ const expenseSchema = z.object({
 
 const earningSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
+  trip_id: z.string().optional(),
   guest_name: z.string().min(1, "Guest name is required"),
   earning_type: z.string().min(1, "Earning type is required"),
   gross_earnings: z.number().min(0.01, "Amount must be greater than 0"),
@@ -147,6 +152,7 @@ const earningSchema = z.object({
 
 const claimSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
+  trip_id: z.string().optional(),
   claim_type: z.string().min(1, "Claim type is required"),
   description: z.string().min(1, "Description is required"),
   accident_description: z.string().optional(),
@@ -392,6 +398,7 @@ export default function HostCarManagement() {
     try {
       const expenseData = {
         host_id: currentSession.user.id, // Use session user ID to ensure it matches auth.uid()
+        trip_id: values.trip_id,
         car_id: values.car_id || null,
         guest_name: values.guest_name || null,
         expense_type: "general",
@@ -479,6 +486,7 @@ export default function HostCarManagement() {
       const earningData = {
         host_id: currentSession.user.id, // Use session user ID to ensure it matches auth.uid()
         car_id: values.car_id,
+        trip_id: values.trip_id,
         guest_name: values.guest_name,
         earning_type: values.earning_type,
         amount: hostProfit,
@@ -539,6 +547,7 @@ export default function HostCarManagement() {
         .insert({
           host_id: user.id,
           car_id: values.car_id,
+          trip_id: values.trip_id,
           claim_type: values.claim_type,
           description: values.description,
           accident_description: values.accident_description || null,
@@ -823,6 +832,19 @@ export default function HostCarManagement() {
                     <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
                       <FormField
                         control={expenseForm.control}
+                        name="trip_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Trip# *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter Trip ID" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={expenseForm.control}
                         name="car_id"
                         render={({ field }) => (
                           <FormItem>
@@ -830,7 +852,7 @@ export default function HostCarManagement() {
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select a car" />
+                                  <SelectValue placeholder="Select a car (optional)" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -1088,6 +1110,19 @@ export default function HostCarManagement() {
                   </DialogHeader>
                   <Form {...earningForm}>
                     <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
+                      <FormField
+                        control={earningForm.control}
+                        name="trip_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Trip#</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter Trip ID (optional)" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
                           control={earningForm.control}
