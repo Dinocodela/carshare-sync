@@ -440,37 +440,73 @@ export default function HostCarManagement() {
   };
 
   const onEarningSubmit = async (values: z.infer<typeof earningSchema>) => {
-    if (!user) return;
+    // Enhanced authentication validation
+    if (!user) {
+      console.error('No user found in authentication context');
+      toast({
+        title: "Authentication Error",
+        description: "Please log in to add earnings.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Debug authentication state
+    console.log('Current user ID:', user.id);
+    console.log('User session:', session);
+    
+    // Verify current session and get fresh auth state
+    const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !currentSession) {
+      console.error('Session error or no active session:', sessionError);
+      toast({
+        title: "Session Error",
+        description: "Your session has expired. Please log in again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('Current auth session user ID:', currentSession.user.id);
 
     try {
-      const clientProfit = (values.gross_earnings * values.client_profit_percentage) / 100;
-      const hostProfit = (values.gross_earnings * values.host_profit_percentage) / 100;
+      // Calculate values but DON'T include generated columns in insert
       const commission = values.gross_earnings * 0.1; // 10% commission
+      const hostProfit = (values.gross_earnings * values.host_profit_percentage) / 100;
       const netAmount = hostProfit - commission;
 
-      const { error } = await (supabase as any)
-        .from('host_earnings')
-        .insert({
-          host_id: user.id,
-          car_id: values.car_id,
-          guest_name: values.guest_name,
-          earning_type: values.earning_type,
-          amount: hostProfit,
-          gross_earnings: values.gross_earnings,
-          commission: commission,
-          net_amount: netAmount,
-          client_profit_percentage: values.client_profit_percentage,
-          host_profit_percentage: values.host_profit_percentage,
-          client_profit_amount: clientProfit,
-          host_profit_amount: hostProfit,
-          payment_source: values.payment_source,
-          earning_period_start: values.earning_period_start,
-          earning_period_end: values.earning_period_end,
-          payment_status: values.payment_status,
-          date_paid: values.date_paid || null,
-        });
+      // Remove client_profit_amount and host_profit_amount - they're generated automatically by database
+      const earningData = {
+        host_id: currentSession.user.id, // Use session user ID to ensure it matches auth.uid()
+        car_id: values.car_id,
+        guest_name: values.guest_name,
+        earning_type: values.earning_type,
+        amount: hostProfit,
+        gross_earnings: values.gross_earnings,
+        commission: commission,
+        net_amount: netAmount,
+        client_profit_percentage: values.client_profit_percentage,
+        host_profit_percentage: values.host_profit_percentage,
+        // Note: client_profit_amount and host_profit_amount removed - they're generated columns
+        payment_source: values.payment_source,
+        earning_period_start: values.earning_period_start,
+        earning_period_end: values.earning_period_end,
+        payment_status: values.payment_status,
+        date_paid: values.date_paid || null,
+      };
 
-      if (error) throw error;
+      console.log('Attempting to insert earning with data:', earningData);
+
+      const { error } = await supabase
+        .from('host_earnings')
+        .insert(earningData);
+
+      if (error) {
+        console.error('Database error details:', error);
+        throw error;
+      }
+
+      console.log('Earning added successfully');
 
       toast({
         title: "Earning recorded successfully",
@@ -482,9 +518,13 @@ export default function HostCarManagement() {
       fetchEarnings();
     } catch (error) {
       console.error('Error adding earning:', error);
+      
+      // More specific error handling
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
       toast({
         title: "Error",
-        description: "Failed to add earning. Please try again.",
+        description: `Failed to add earning: ${errorMessage}`,
         variant: "destructive",
       });
     }
