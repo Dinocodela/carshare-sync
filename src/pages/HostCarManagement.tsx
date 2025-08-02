@@ -153,6 +153,7 @@ const earningSchema = z.object({
 const claimSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
   trip_id: z.string().optional(),
+  guest_name: z.string().optional(),
   claim_type: z.string().min(1, "Claim type is required"),
   description: z.string().min(1, "Description is required"),
   accident_description: z.string().optional(),
@@ -230,12 +231,29 @@ export default function HostCarManagement() {
       car_id: "",
       claim_type: "",
       trip_id: "",
+      guest_name: "",
       description: "",
       claim_amount: 0,
       incident_date: new Date().toISOString().split('T')[0],
       photos_taken: false,
     },
   });
+
+  // Auto-populate guest name when trip_id changes in claims form
+  const watchedClaimTripId = claimForm.watch("trip_id");
+  
+  useEffect(() => {
+    if (watchedClaimTripId) {
+      // Find the guest name associated with this trip_id from expenses
+      const expenseWithGuest = expenses.find(expense => 
+        expense.trip_id === watchedClaimTripId && expense.guest_name
+      );
+      
+      if (expenseWithGuest && expenseWithGuest.guest_name) {
+        claimForm.setValue("guest_name", expenseWithGuest.guest_name);
+      }
+    }
+  }, [watchedClaimTripId, expenses, claimForm]);
   useEffect(() => {
     fetchHostedCars();
     fetchExpenses();
