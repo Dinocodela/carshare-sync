@@ -1293,7 +1293,24 @@ export default function HostCarManagement() {
               <h3 className="text-lg font-medium">Earnings</h3>
               <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button onClick={() => {
+                    console.log('Opening new earning dialog');
+                    setEditingEarning(null);
+                    earningForm.reset({
+                      car_id: '',
+                      trip_id: '',
+                      guest_name: '',
+                      earning_type: 'hosting',
+                      gross_earnings: 0,
+                      payment_source: 'Turo',
+                      earning_period_start: '',
+                      earning_period_end: '',
+                      client_profit_percentage: 70,
+                      host_profit_percentage: 30,
+                      payment_status: 'pending',
+                      date_paid: '',
+                    });
+                  }}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Earning
                   </Button>
