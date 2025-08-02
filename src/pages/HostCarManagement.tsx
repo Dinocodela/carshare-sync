@@ -90,6 +90,8 @@ interface Claim {
   host_id: string;
   car_id: string;
   trip_id?: string;
+  guest_name?: string;
+  payment_source?: string;
   claim_type: string;
   description: string;
   claim_amount: number | null;
@@ -155,6 +157,7 @@ const claimSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
   trip_id: z.string().optional(),
   guest_name: z.string().optional(),
+  payment_source: z.string().optional(),
   claim_type: z.string().min(1, "Claim type is required"),
   description: z.string().min(1, "Description is required"),
   accident_description: z.string().optional(),
@@ -280,6 +283,7 @@ export default function HostCarManagement() {
       claim_type: "",
       trip_id: "",
       guest_name: "",
+      payment_source: "Turo",
       description: "",
       claim_amount: 0,
       incident_date: new Date().toISOString().split('T')[0],
@@ -802,6 +806,8 @@ export default function HostCarManagement() {
         host_id: user.id,
         car_id: values.car_id,
         trip_id: values.trip_id,
+        guest_name: values.guest_name || null,
+        payment_source: values.payment_source || null,
         claim_type: values.claim_type,
         description: values.description,
         accident_description: values.accident_description || null,
@@ -860,6 +866,8 @@ export default function HostCarManagement() {
     claimForm.reset({
       car_id: claim.car_id,
       trip_id: claim.trip_id || '',
+      guest_name: claim.guest_name || '',
+      payment_source: claim.payment_source || 'Turo',
       claim_type: claim.claim_type,
       description: claim.description,
       accident_description: claim.accident_description || '',
@@ -2108,11 +2116,59 @@ export default function HostCarManagement() {
                             </FormItem>
                           );
                         }}
-                      />
+                       />
 
-                      <FormField
-                        control={claimForm.control}
-                        name="incident_date"
+                       <div className="grid grid-cols-2 gap-4">
+                         <FormField
+                           control={claimForm.control}
+                           name="guest_name"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel className="flex items-center gap-2">
+                                 Guest Name (Optional)
+                                 {field.value && (
+                                   <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                     Auto-filled
+                                   </Badge>
+                                 )}
+                               </FormLabel>
+                               <FormControl>
+                                 <Input placeholder="Guest name" {...field} />
+                               </FormControl>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+                         <FormField
+                           control={claimForm.control}
+                           name="payment_source"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Payment Source (Optional)</FormLabel>
+                               <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                 <FormControl>
+                                   <SelectTrigger>
+                                     <SelectValue placeholder="Select payment source" />
+                                   </SelectTrigger>
+                                 </FormControl>
+                                 <SelectContent>
+                                   <SelectItem value="Turo">Turo</SelectItem>
+                                   <SelectItem value="Eon">Eon</SelectItem>
+                                   <SelectItem value="GetAround">GetAround</SelectItem>
+                                   <SelectItem value="Private">Private</SelectItem>
+                                   <SelectItem value="Insurance">Insurance</SelectItem>
+                                   <SelectItem value="Other">Other</SelectItem>
+                                 </SelectContent>
+                               </Select>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+                       </div>
+
+                       <FormField
+                         control={claimForm.control}
+                         name="incident_date"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Incident Date</FormLabel>
