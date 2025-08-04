@@ -182,6 +182,18 @@ const formatCarDisplayName = (car: CarWithClient) => {
   return `${model} - ${last5VIN} - ${licensePlate}`;
 };
 
+// Helper function to format detailed car info
+const formatDetailedCarInfo = (car: CarWithClient) => (
+  <div className="grid grid-cols-2 gap-2 text-sm">
+    <div><span className="text-muted-foreground">Make:</span> {car.make || 'N/A'}</div>
+    <div><span className="text-muted-foreground">Model:</span> {car.model || 'N/A'}</div>
+    <div><span className="text-muted-foreground">Year:</span> {car.year || 'N/A'}</div>
+    <div><span className="text-muted-foreground">Color:</span> {car.color || 'N/A'}</div>
+    <div><span className="text-muted-foreground">License:</span> {car.license_plate || 'N/A'}</div>
+    <div><span className="text-muted-foreground">VIN:</span> {car.vin_number || 'N/A'}</div>
+  </div>
+);
+
 export default function HostCarManagement() {
   const navigate = useNavigate();
   const {
@@ -1508,9 +1520,20 @@ export default function HostCarManagement() {
                                   <span>${expense.amount.toFixed(2)}</span>
                                 </div>
                               )}
-                            </div>
-                          </div>
-                          <div className="text-right">
+                             </div>
+                             
+                             {/* Car Details */}
+                             {(() => {
+                               const expenseCar = cars.find(car => car.id === expense.car_id);
+                               return expenseCar ? (
+                                 <div className="border-t mt-3 pt-3">
+                                   <p className="text-sm font-medium mb-2">Vehicle Details:</p>
+                                   {formatDetailedCarInfo(expenseCar)}
+                                 </div>
+                               ) : null;
+                             })()}
+                           </div>
+                           <div className="text-right">
                             <div className="flex items-start gap-2 mb-2">
                               <Button
                                 variant="outline"
@@ -2059,9 +2082,20 @@ export default function HostCarManagement() {
                                <div className="text-xs text-muted-foreground">
                                  Related expenses: {relatedExpenses.length} item(s)
                                </div>
-                             )}
-                           </div>
-                             <div className="text-right">
+                              )}
+                              
+                              {/* Car Details */}
+                              {(() => {
+                                const earningCar = cars.find(car => car.id === earning.car_id);
+                                return earningCar ? (
+                                  <div className="border-t mt-3 pt-3">
+                                    <p className="text-sm font-medium mb-2">Vehicle Details:</p>
+                                    {formatDetailedCarInfo(earningCar)}
+                                  </div>
+                                ) : null;
+                              })()}
+                            </div>
+                              <div className="text-right">
                                <div className="flex items-start gap-2 mb-2">
                                  <Button
                                    variant="outline"
@@ -2524,29 +2558,30 @@ export default function HostCarManagement() {
                               )}
                             </div>
                             
-                            {/* Trip Details */}
-                            <div className="flex flex-wrap items-center gap-2 text-sm">
-                              {claimCar && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-muted-foreground">Car:</span>
-                                  <span className="font-medium">{formatCarDisplayName(claimCar)}</span>
-                                </div>
-                              )}
-                              {claim.guest_name && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-muted-foreground">•</span>
-                                  <span className="text-muted-foreground">Guest:</span>
-                                  <span className="font-medium">{claim.guest_name}</span>
-                                </div>
-                              )}
-                              {claim.payment_source && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-muted-foreground">•</span>
-                                  <span className="text-muted-foreground">Source:</span>
-                                  <span className="font-medium">{claim.payment_source}</span>
-                                </div>
-                              )}
-                            </div>
+                             {/* Trip Details */}
+                             <div className="flex flex-wrap items-center gap-2 text-sm">
+                               {claim.guest_name && (
+                                 <div className="flex items-center gap-1">
+                                   <span className="text-muted-foreground">Guest:</span>
+                                   <span className="font-medium">{claim.guest_name}</span>
+                                 </div>
+                               )}
+                               {claim.payment_source && (
+                                 <div className="flex items-center gap-1">
+                                   <span className="text-muted-foreground">•</span>
+                                   <span className="text-muted-foreground">Source:</span>
+                                   <span className="font-medium">{claim.payment_source}</span>
+                                 </div>
+                               )}
+                             </div>
+                             
+                             {/* Car Details */}
+                             {claimCar && (
+                               <div className="border-t mt-3 pt-3">
+                                 <p className="text-sm font-medium mb-2">Vehicle Details:</p>
+                                 {formatDetailedCarInfo(claimCar)}
+                               </div>
+                             )}
                             <p className="text-sm text-muted-foreground">{claim.description}</p>
                             {claim.accident_description && (
                               <p className="text-sm text-muted-foreground">
