@@ -22,8 +22,8 @@ const carSchema = z.object({
   mileage: z.number().min(0, 'Mileage must be positive'),
   color: z.string().min(1, 'Color is required'),
   location: z.string().min(1, 'Location is required'),
-  license_plate: z.string().optional(),
-  vin_number: z.string().optional(),
+  license_plate: z.string().min(1, 'License plate is required'),
+  vin_number: z.string().min(1, 'VIN number is required'),
   description: z.string().optional(),
 });
 
@@ -352,7 +352,7 @@ export default function EditCar() {
                     name="license_plate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>License Plate</FormLabel>
+                        <FormLabel>License Plate *</FormLabel>
                         <FormControl>
                           <Input placeholder="ABC-1234" {...field} />
                         </FormControl>
@@ -365,7 +365,7 @@ export default function EditCar() {
                     name="vin_number"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>VIN Number</FormLabel>
+                        <FormLabel>VIN Number *</FormLabel>
                         <FormControl>
                           <Input placeholder="1HGBH41JXMN109186" {...field} />
                         </FormControl>
