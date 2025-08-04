@@ -97,6 +97,16 @@ export default function AddCar() {
   const onSubmit = async (data: CarFormData) => {
     if (!user) return;
     
+    // Validate that at least one image is uploaded
+    if (selectedImages.length === 0) {
+      toast({
+        title: "Images Required",
+        description: "Please upload at least one image of your car.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       // Insert car data
@@ -335,7 +345,7 @@ export default function AddCar() {
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-foreground">
-                      Car Images (Optional - Max 5)
+                      Car Images * (Min 1, Max 5)
                     </label>
                     <p className="text-sm text-muted-foreground">
                       Upload photos of your car to help hosts better understand your vehicle.
