@@ -1121,7 +1121,9 @@ export default function HostCarManagement() {
                         <h4 className="font-medium mb-2">Client Contact</h4>
                         <div className="space-y-2">
                           <p className="text-sm">
-                            <strong>Name:</strong> {car.client.first_name} {car.client.last_name}
+                            <strong>Name:</strong> {car.client.first_name && car.client.last_name 
+                              ? `${car.client.first_name} ${car.client.last_name}`
+                              : 'Name not available'}
                           </p>
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-muted-foreground" />
@@ -1196,7 +1198,9 @@ export default function HostCarManagement() {
                         <h4 className="font-medium mb-2">Client Contact</h4>
                         <div className="space-y-2">
                           <p className="text-sm">
-                            <strong>Name:</strong> {car.client.first_name} {car.client.last_name}
+                            <strong>Name:</strong> {car.client.first_name && car.client.last_name 
+                              ? `${car.client.first_name} ${car.client.last_name}`
+                              : 'Name not available'}
                           </p>
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-muted-foreground" />
