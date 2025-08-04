@@ -255,7 +255,7 @@ export default function EditCar() {
                     name="make"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Make</FormLabel>
+                        <FormLabel>Make *</FormLabel>
                         <FormControl>
                           <Input placeholder="Toyota" {...field} />
                         </FormControl>
@@ -268,7 +268,7 @@ export default function EditCar() {
                     name="model"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Model</FormLabel>
+                        <FormLabel>Model *</FormLabel>
                         <FormControl>
                           <Input placeholder="Camry" {...field} />
                         </FormControl>
@@ -284,7 +284,7 @@ export default function EditCar() {
                     name="year"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Year</FormLabel>
+                        <FormLabel>Year *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -302,7 +302,7 @@ export default function EditCar() {
                     name="mileage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mileage</FormLabel>
+                        <FormLabel>Mileage *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -323,7 +323,7 @@ export default function EditCar() {
                     name="color"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Color</FormLabel>
+                        <FormLabel>Color *</FormLabel>
                         <FormControl>
                           <Input placeholder="Silver" {...field} />
                         </FormControl>
@@ -336,7 +336,7 @@ export default function EditCar() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Location</FormLabel>
+                        <FormLabel>Location *</FormLabel>
                         <FormControl>
                           <Input placeholder="New York, NY" {...field} />
                         </FormControl>

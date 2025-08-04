@@ -180,7 +180,7 @@ export default function AddCar() {
                     name="make"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Make</FormLabel>
+                        <FormLabel>Make *</FormLabel>
                         <FormControl>
                           <Input placeholder="Toyota" {...field} />
                         </FormControl>
@@ -193,7 +193,7 @@ export default function AddCar() {
                     name="model"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Model</FormLabel>
+                        <FormLabel>Model *</FormLabel>
                         <FormControl>
                           <Input placeholder="Camry" {...field} />
                         </FormControl>
@@ -209,7 +209,7 @@ export default function AddCar() {
                     name="year"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Year</FormLabel>
+                        <FormLabel>Year *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
