@@ -22,6 +22,8 @@ const carSchema = z.object({
   mileage: z.number().min(0, 'Mileage must be positive'),
   color: z.string().min(1, 'Color is required'),
   location: z.string().min(1, 'Location is required'),
+  license_plate: z.string().optional(),
+  vin_number: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -76,6 +78,8 @@ export default function EditCar() {
         mileage: data.mileage || 0,
         color: data.color,
         location: data.location,
+        license_plate: data.license_plate || '',
+        vin_number: data.vin_number || '',
         description: data.description || '',
       });
 
@@ -148,7 +152,15 @@ export default function EditCar() {
       const { error } = await supabase
         .from('cars')
         .update({
-          ...data,
+          make: data.make,
+          model: data.model,
+          year: data.year,
+          mileage: data.mileage,
+          color: data.color,
+          location: data.location,
+          license_plate: data.license_plate,
+          vin_number: data.vin_number,
+          description: data.description,
           images: allImages.length > 0 ? allImages : null,
           updated_at: new Date().toISOString(),
         })
@@ -327,6 +339,35 @@ export default function EditCar() {
                         <FormLabel>Location</FormLabel>
                         <FormControl>
                           <Input placeholder="New York, NY" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="license_plate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>License Plate</FormLabel>
+                        <FormControl>
+                          <Input placeholder="ABC-1234" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="vin_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>VIN Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="1HGBH41JXMN109186" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

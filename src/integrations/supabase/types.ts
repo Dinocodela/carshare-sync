@@ -23,12 +23,14 @@ export type Database = {
           host_id: string | null
           id: string
           images: string[] | null
+          license_plate: string | null
           location: string | null
           make: string
           mileage: number | null
           model: string
           status: string
           updated_at: string
+          vin_number: string | null
           year: number
         }
         Insert: {
@@ -39,12 +41,14 @@ export type Database = {
           host_id?: string | null
           id?: string
           images?: string[] | null
+          license_plate?: string | null
           location?: string | null
           make: string
           mileage?: number | null
           model: string
           status?: string
           updated_at?: string
+          vin_number?: string | null
           year: number
         }
         Update: {
@@ -55,12 +59,14 @@ export type Database = {
           host_id?: string | null
           id?: string
           images?: string[] | null
+          license_plate?: string | null
           location?: string | null
           make?: string
           mileage?: number | null
           model?: string
           status?: string
           updated_at?: string
+          vin_number?: string | null
           year?: number
         }
         Relationships: []
