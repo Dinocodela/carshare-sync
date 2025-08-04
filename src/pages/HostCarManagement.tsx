@@ -981,10 +981,7 @@ export default function HostCarManagement() {
   const handleManagementAction = (action: string, car: CarWithClient) => {
     switch (action) {
       case 'view-details':
-        toast({
-          title: "Car Details",
-          description: `Viewing details for ${car.year} ${car.make} ${car.model}`
-        });
+        navigate(`/cars/${car.id}/view`);
         break;
       case 'schedule-maintenance':
         toast({
