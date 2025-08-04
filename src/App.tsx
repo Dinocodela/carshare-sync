@@ -19,6 +19,7 @@ import HostingDetails from "./pages/HostingDetails";
 import HostCarManagement from "./pages/HostCarManagement";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
+import HostAnalytics from "./pages/HostAnalytics";
 import ScheduleMaintenance from "./pages/ScheduleMaintenance";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/register/host" element={<RegisterHost />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/client-analytics" element={<ClientAnalytics />} />
+            <Route path="/host-analytics" element={<HostAnalytics />} />
             <Route path="/add-car" element={<AddCar />} />
             <Route path="/select-host" element={<SelectHost />} />
             <Route path="/my-cars" element={<MyCars />} />

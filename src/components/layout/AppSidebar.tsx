@@ -81,6 +81,11 @@ export function AppSidebar() {
       return [
         ...baseItems,
         {
+          title: "Analytics",
+          url: "/host-analytics",
+          icon: BarChart3,
+        },
+        {
           title: "Host Requests",
           url: "/host-requests",
           icon: Inbox,
