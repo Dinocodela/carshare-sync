@@ -32,6 +32,8 @@ interface CarWithClient {
   mileage: number;
   color: string;
   description: string;
+  vin_number: string | null;
+  license_plate: string | null;
   created_at: string;
   updated_at: string;
   client: {
@@ -172,6 +174,14 @@ const claimSchema = z.object({
   shop_contact_info: z.string().optional(),
   photos_taken: z.boolean().default(false),
 });
+// Helper function to format car display name
+const formatCarDisplayName = (car: CarWithClient) => {
+  const model = car.model || 'Unknown Model';
+  const last5VIN = car.vin_number ? car.vin_number.slice(-5) : 'N/A';
+  const licensePlate = car.license_plate || 'N/A';
+  return `${model} - ${last5VIN} - ${licensePlate}`;
+};
+
 export default function HostCarManagement() {
   const navigate = useNavigate();
   const {
@@ -1064,7 +1074,7 @@ export default function HostCarManagement() {
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-lg">
-                            {car.year} {car.make} {car.model}
+                            {formatCarDisplayName(car)}
                           </CardTitle>
                           <CardDescription>
                             Location: {car.location}
@@ -1160,7 +1170,7 @@ export default function HostCarManagement() {
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-lg">
-                            {car.year} {car.make} {car.model}
+                            {formatCarDisplayName(car)}
                           </CardTitle>
                           <CardDescription>
                             Location: {car.location}
@@ -1258,7 +1268,7 @@ export default function HostCarManagement() {
                               <SelectContent>
                                 {cars.map((car) => (
                                   <SelectItem key={car.id} value={car.id}>
-                                    {car.year} {car.make} {car.model}
+                                    {formatCarDisplayName(car)}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -1631,7 +1641,7 @@ export default function HostCarManagement() {
                                 <SelectContent>
                                   {cars.map((car) => (
                                     <SelectItem key={car.id} value={car.id}>
-                                      {car.year} {car.make} {car.model}
+                                      {formatCarDisplayName(car)}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -2168,9 +2178,9 @@ export default function HostCarManagement() {
                                  </FormControl>
                                  <SelectContent>
                                    {cars.map((car) => (
-                                     <SelectItem key={car.id} value={car.id}>
-                                       {car.year} {car.make} {car.model}
-                                     </SelectItem>
+                                      <SelectItem key={car.id} value={car.id}>
+                                        {formatCarDisplayName(car)}
+                                      </SelectItem>
                                    ))}
                                  </SelectContent>
                                </Select>
@@ -2519,7 +2529,7 @@ export default function HostCarManagement() {
                               {claimCar && (
                                 <div className="flex items-center gap-1">
                                   <span className="text-muted-foreground">Car:</span>
-                                  <span className="font-medium">{claimCar.year} {claimCar.make} {claimCar.model}</span>
+                                  <span className="font-medium">{formatCarDisplayName(claimCar)}</span>
                                 </div>
                               )}
                               {claim.guest_name && (
