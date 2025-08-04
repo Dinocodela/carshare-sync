@@ -9,7 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const RegisterClient = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     password: '',
@@ -40,7 +41,8 @@ const RegisterClient = () => {
         formData.password,
         'client',
         {
-          name: formData.name,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
           phone: formData.phone,
         }
       );
@@ -85,17 +87,31 @@ const RegisterClient = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                placeholder="Enter your full name"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                  placeholder="First name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Last name"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
