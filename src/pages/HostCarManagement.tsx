@@ -984,10 +984,7 @@ export default function HostCarManagement() {
         navigate(`/cars/${car.id}/view`);
         break;
       case 'schedule-maintenance':
-        toast({
-          title: "Schedule Maintenance",
-          description: "Maintenance scheduling feature coming soon!"
-        });
+        navigate(`/cars/${car.id}/schedule-maintenance`);
         break;
       case 'report-issue':
         toast({

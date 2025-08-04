@@ -19,6 +19,7 @@ import HostingDetails from "./pages/HostingDetails";
 import HostCarManagement from "./pages/HostCarManagement";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
+import ScheduleMaintenance from "./pages/ScheduleMaintenance";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/host-car-management" element={<HostCarManagement />} />
             <Route path="/cars/:id/view" element={<CarDetails />} />
             <Route path="/cars/:id/edit" element={<EditCar />} />
+            <Route path="/cars/:id/schedule-maintenance" element={<ScheduleMaintenance />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

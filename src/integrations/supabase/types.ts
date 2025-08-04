@@ -350,6 +350,60 @@ export type Database = {
           },
         ]
       }
+      maintenance_schedules: {
+        Row: {
+          actual_cost: number | null
+          car_id: string
+          completion_date: string | null
+          created_at: string
+          estimated_cost: number | null
+          host_id: string
+          id: string
+          maintenance_type: string
+          notes: string | null
+          provider_contact: string | null
+          provider_name: string | null
+          scheduled_date: string
+          scheduled_time: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          car_id: string
+          completion_date?: string | null
+          created_at?: string
+          estimated_cost?: number | null
+          host_id: string
+          id?: string
+          maintenance_type: string
+          notes?: string | null
+          provider_contact?: string | null
+          provider_name?: string | null
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          actual_cost?: number | null
+          car_id?: string
+          completion_date?: string | null
+          created_at?: string
+          estimated_cost?: number | null
+          host_id?: string
+          id?: string
+          maintenance_type?: string
+          notes?: string | null
+          provider_contact?: string | null
+          provider_name?: string | null
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bio: string | null
