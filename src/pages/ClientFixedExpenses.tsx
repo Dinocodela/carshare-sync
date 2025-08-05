@@ -11,10 +11,27 @@ import { Car, DollarSign, Plus, TrendingDown, TrendingUp } from 'lucide-react';
 export default function ClientFixedExpenses() {
   const [selectedCarId, setSelectedCarId] = useState<string>('');
   const { cars, loading: carsLoading } = useCars();
-  const { getMonthlyFixedCosts } = useClientCarExpenses();
+  const { getMonthlyFixedCosts, expenses, loading: expensesLoading } = useClientCarExpenses();
 
+  // Auto-select first car if available and none selected
   const clientCars = cars.filter(car => car.client_id);
+  
+  // Add debugging
+  console.log('ClientFixedExpenses Debug:', {
+    cars: clientCars.length,
+    expenses: expenses.length,
+    selectedCarId,
+    carsLoading,
+    expensesLoading
+  });
+
   const selectedCar = clientCars.find(car => car.id === selectedCarId);
+
+  // Auto-select first car with expenses or first car if none selected
+  if (!selectedCarId && clientCars.length > 0 && !carsLoading) {
+    const carWithExpenses = clientCars.find(car => getMonthlyFixedCosts(car.id) > 0);
+    setSelectedCarId(carWithExpenses?.id || clientCars[0].id);
+  }
 
   const totalMonthlyFixed = clientCars.reduce((total, car) => {
     return total + getMonthlyFixedCosts(car.id);

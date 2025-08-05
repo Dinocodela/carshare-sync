@@ -14,6 +14,7 @@ interface FixedExpenseFormProps {
   carName: string;
   onClose: () => void;
   onSuccess?: () => void;
+  editExpense?: any; // Add support for editing existing expenses
 }
 
 const EXPENSE_TYPES = [
@@ -31,12 +32,22 @@ const FREQUENCIES = [
   { value: 'yearly', label: 'Yearly' },
 ];
 
-export function FixedExpenseForm({ carId, carName, onClose, onSuccess }: FixedExpenseFormProps) {
+export function FixedExpenseForm({ carId, carName, onClose, onSuccess, editExpense }: FixedExpenseFormProps) {
   const [loading, setLoading] = useState(false);
-  const { createExpense } = useClientCarExpenses();
+  const { createExpense, updateExpense } = useClientCarExpenses();
   
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CreateClientCarExpenseData>({
-    defaultValues: {
+    defaultValues: editExpense ? {
+      car_id: carId,
+      expense_type: editExpense.expense_type,
+      amount: editExpense.amount,
+      frequency: editExpense.frequency,
+      provider_name: editExpense.provider_name || '',
+      policy_number: editExpense.policy_number || '',
+      start_date: editExpense.start_date,
+      end_date: editExpense.end_date || '',
+      notes: editExpense.notes || '',
+    } : {
       car_id: carId,
       frequency: 'monthly',
       start_date: new Date().toISOString().split('T')[0],
@@ -49,7 +60,12 @@ export function FixedExpenseForm({ carId, carName, onClose, onSuccess }: FixedEx
   const onSubmit = async (data: CreateClientCarExpenseData) => {
     setLoading(true);
     try {
-      const success = await createExpense(data);
+      let success;
+      if (editExpense) {
+        success = await updateExpense(editExpense.id, data);
+      } else {
+        success = await createExpense(data);
+      }
       if (success) {
         onSuccess?.();
         onClose();
@@ -62,7 +78,9 @@ export function FixedExpenseForm({ carId, carName, onClose, onSuccess }: FixedEx
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-xl">Add Fixed Expense for {carName}</CardTitle>
+        <CardTitle className="text-xl">
+          {editExpense ? 'Edit' : 'Add'} Fixed Expense for {carName}
+        </CardTitle>
         <Button variant="ghost" size="sm" onClick={onClose}>
           <X className="h-4 w-4" />
         </Button>
@@ -72,7 +90,10 @@ export function FixedExpenseForm({ carId, carName, onClose, onSuccess }: FixedEx
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="expense_type">Expense Type</Label>
-              <Select onValueChange={(value) => setValue('expense_type', value)}>
+              <Select 
+                defaultValue={editExpense?.expense_type} 
+                onValueChange={(value) => setValue('expense_type', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select expense type" />
                 </SelectTrigger>
@@ -91,7 +112,10 @@ export function FixedExpenseForm({ carId, carName, onClose, onSuccess }: FixedEx
 
             <div>
               <Label htmlFor="frequency">Frequency</Label>
-              <Select defaultValue="monthly" onValueChange={(value) => setValue('frequency', value as any)}>
+              <Select 
+                defaultValue={editExpense?.frequency || "monthly"} 
+                onValueChange={(value) => setValue('frequency', value as any)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -191,7 +215,7 @@ export function FixedExpenseForm({ carId, carName, onClose, onSuccess }: FixedEx
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Expense'}
+              {loading ? (editExpense ? 'Updating...' : 'Adding...') : (editExpense ? 'Update Expense' : 'Add Expense')}
             </Button>
           </div>
         </form>

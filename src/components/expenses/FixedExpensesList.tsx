@@ -13,6 +13,7 @@ interface FixedExpensesListProps {
 
 export function FixedExpensesList({ carId, carName }: FixedExpensesListProps) {
   const [showForm, setShowForm] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<any>(null);
   const { expenses, getExpensesByCarId, getMonthlyFixedCosts, deleteExpense, loading } = useClientCarExpenses();
   
   const carExpenses = getExpensesByCarId(carId);
@@ -22,6 +23,16 @@ export function FixedExpensesList({ carId, carName }: FixedExpensesListProps) {
     if (window.confirm('Are you sure you want to delete this expense?')) {
       await deleteExpense(expenseId);
     }
+  };
+
+  const handleEdit = (expense: any) => {
+    setEditingExpense(expense);
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingExpense(null);
   };
 
   const formatAmount = (amount: number, frequency: string) => {
@@ -44,8 +55,9 @@ export function FixedExpensesList({ carId, carName }: FixedExpensesListProps) {
       <FixedExpenseForm
         carId={carId}
         carName={carName}
-        onClose={() => setShowForm(false)}
-        onSuccess={() => setShowForm(false)}
+        editExpense={editingExpense}
+        onClose={handleCloseForm}
+        onSuccess={handleCloseForm}
       />
     );
   }
@@ -108,7 +120,11 @@ export function FixedExpensesList({ carId, carName }: FixedExpensesListProps) {
                   </p>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleEdit(expense)}
+                  >
                     <Edit2 className="h-4 w-4" />
                   </Button>
                   <Button 
