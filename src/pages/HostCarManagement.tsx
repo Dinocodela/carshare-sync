@@ -2680,129 +2680,161 @@ export default function HostCarManagement() {
                   </DialogHeader>
                    <Form {...claimForm}>
                      <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
-                        <FormField
-                          control={claimForm.control}
-                          name="trip_id"
-                          render={({ field }) => {
-                            const selectedCar = cars.find(c => c.id === claimForm.watch("car_id"));
-                            const availableTripIds = selectedCar 
-                              ? [...new Set(expenses
-                                  .filter(e => e.car_id === selectedCar.id && e.trip_id && e.trip_id.trim() !== '')
-                                  .map(e => e.trip_id)
-                                  .filter(Boolean))]
-                              : [];
-
-                            // Debug logging for trip ID availability
-                            console.log('🎯 Trip ID Field Render:', {
-                              selectedCarId: selectedCar?.id,
-                              carMake: selectedCar?.make,
-                              availableTripIds,
-                              currentFieldValue: field.value,
-                              expensesLoading: loading
-                            });
-
-                            return (
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={claimForm.control}
+                            name="car_id"
+                            render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  Trip#
-                                  {field.value && (
-                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                                      Auto-filled
-                                    </Badge>
-                                  )}
-                                </FormLabel>
-                                <FormControl>
-                                  <div className="space-y-2">
-                                    {loading ? (
-                                      <div className="text-sm text-muted-foreground">Loading trip IDs...</div>
-                                    ) : selectedCar ? (
-                                      availableTripIds.length > 0 ? (
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select existing trip ID" />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            {availableTripIds.map((tripId) => (
-                                              <SelectItem key={tripId} value={tripId}>
-                                                {tripId}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      ) : (
-                                        <div className="text-sm text-muted-foreground">
-                                          No existing trip IDs found for this car
-                                        </div>
-                                      )
-                                    ) : (
-                                      <div className="text-sm text-muted-foreground">
-                                        Please select a car first to see available trip IDs
-                                      </div>
-                                    )}
-                                    <Input
-                                      placeholder={selectedCar && availableTripIds.length > 0 ? "Or enter new trip ID" : "Enter trip ID"}
-                                     value={field.value}
-                                     onChange={field.onChange}
-                                   />
-                                 </div>
-                               </FormControl>
-                               <FormMessage />
-                             </FormItem>
-                           );
-                         }}
-                        />
+                                <FormLabel>Car *</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a car" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-popover border shadow-md z-50">
+                                    {cars.map((car) => (
+                                       <SelectItem key={car.id} value={car.id}>
+                                         {formatCarDisplayName(car)}
+                                       </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={claimForm.control}
+                            name="claim_type"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Claim Type *</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select claim type" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-popover border shadow-md z-50">
+                                    <SelectItem value="damage">Physical Damage</SelectItem>
+                                    <SelectItem value="theft">Theft</SelectItem>
+                                    <SelectItem value="accident">Accident</SelectItem>
+                                    <SelectItem value="vandalism">Vandalism</SelectItem>
+                                    <SelectItem value="mechanical">Mechanical Issues</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
 
-                       <div className="grid grid-cols-2 gap-4">
                          <FormField
                            control={claimForm.control}
-                           name="car_id"
-                           render={({ field }) => (
-                             <FormItem>
-                               <FormLabel>Car</FormLabel>
-                               <Select onValueChange={field.onChange} defaultValue={field.value}>
+                           name="trip_id"
+                           render={({ field }) => {
+                             const selectedCarId = claimForm.watch("car_id");
+                             const selectedCar = cars.find(c => c.id === selectedCarId);
+                             
+                             // Get ALL trip IDs initially, then filter by car if selected
+                             const allTripIds = [...new Set(expenses
+                               .filter(e => e.trip_id && e.trip_id.trim() !== '')
+                               .map(e => e.trip_id)
+                               .filter(Boolean))] as string[];
+                             
+                             // If car is selected, filter trip IDs for that car
+                             const availableTripIds = selectedCarId 
+                               ? [...new Set(expenses
+                                   .filter(e => e.car_id === selectedCarId && e.trip_id && e.trip_id.trim() !== '')
+                                   .map(e => e.trip_id)
+                                   .filter(Boolean))] as string[]
+                               : allTripIds;
+
+                             // Debug logging for trip ID availability
+                             console.log('🎯 Trip ID Field Render:', {
+                               selectedCarId,
+                               selectedCar: selectedCar ? formatCarDisplayName(selectedCar) : 'None',
+                               totalExpenses: expenses.length,
+                               allTripIds: allTripIds.length,
+                               availableTripIds: availableTripIds.length,
+                               tripIds: availableTripIds,
+                               currentFieldValue: field.value,
+                               expensesLoading: loading
+                             });
+
+                             return (
+                               <FormItem>
+                                 <FormLabel className="flex items-center gap-2">
+                                   Trip ID
+                                   {field.value && (
+                                     <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                       Auto-filled
+                                     </Badge>
+                                   )}
+                                 </FormLabel>
                                  <FormControl>
-                                   <SelectTrigger>
-                                     <SelectValue placeholder="Select a car" />
-                                   </SelectTrigger>
+                                   <div className="space-y-2">
+                                     {loading ? (
+                                       <div className="flex items-center gap-2">
+                                         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                         <span className="text-sm text-muted-foreground">Loading trip IDs...</span>
+                                       </div>
+                                     ) : availableTripIds.length > 0 ? (
+                                       <Select value={field.value} onValueChange={field.onChange}>
+                                         <SelectTrigger>
+                                           <SelectValue placeholder={
+                                             selectedCarId 
+                                               ? `Select trip ID (${availableTripIds.length} for this car)` 
+                                               : `Select trip ID (${availableTripIds.length} total)`
+                                           } />
+                                         </SelectTrigger>
+                                         <SelectContent className="bg-popover border shadow-md z-50">
+                                           {availableTripIds.map((tripId) => {
+                                             // Find expense details for this trip
+                                             const tripExpense = expenses.find(e => e.trip_id === tripId);
+                                             const tripCar = tripExpense ? cars.find(c => c.id === tripExpense.car_id) : null;
+                                             
+                                             return (
+                                               <SelectItem key={tripId} value={tripId}>
+                                                 {tripId}
+                                                 {!selectedCarId && tripCar && (
+                                                   <span className="ml-2 text-xs text-muted-foreground">
+                                                     ({formatCarDisplayName(tripCar)})
+                                                   </span>
+                                                 )}
+                                               </SelectItem>
+                                             );
+                                           })}
+                                         </SelectContent>
+                                       </Select>
+                                     ) : selectedCarId ? (
+                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
+                                         No existing trip IDs found for this car. You can enter a new one below.
+                                       </div>
+                                     ) : (
+                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
+                                         No trip IDs found in expenses. You can enter a new one below.
+                                       </div>
+                                     )}
+                                     <Input
+                                       placeholder={
+                                         availableTripIds.length > 0 
+                                           ? "Or enter new trip ID" 
+                                           : "Enter trip ID"
+                                       }
+                                       value={field.value}
+                                       onChange={field.onChange}
+                                     />
+                                   </div>
                                  </FormControl>
-                                 <SelectContent>
-                                   {cars.map((car) => (
-                                      <SelectItem key={car.id} value={car.id}>
-                                        {formatCarDisplayName(car)}
-                                      </SelectItem>
-                                   ))}
-                                 </SelectContent>
-                               </Select>
-                               <FormMessage />
-                             </FormItem>
-                           )}
+                                 <FormMessage />
+                               </FormItem>
+                             );
+                           }}
                          />
-                         <FormField
-                           control={claimForm.control}
-                           name="claim_type"
-                           render={({ field }) => (
-                             <FormItem>
-                               <FormLabel>Claim Type</FormLabel>
-                               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                 <FormControl>
-                                   <SelectTrigger>
-                                     <SelectValue placeholder="Select claim type" />
-                                   </SelectTrigger>
-                                 </FormControl>
-                                 <SelectContent>
-                                   <SelectItem value="damage">Physical Damage</SelectItem>
-                                   <SelectItem value="theft">Theft</SelectItem>
-                                   <SelectItem value="accident">Accident</SelectItem>
-                                   <SelectItem value="vandalism">Vandalism</SelectItem>
-                                   <SelectItem value="mechanical">Mechanical Issues</SelectItem>
-                                   <SelectItem value="other">Other</SelectItem>
-                                 </SelectContent>
-                               </Select>
-                               <FormMessage />
-                             </FormItem>
-                           )}
-                         />
-                       </div>
 
                        <div className="grid grid-cols-2 gap-4">
                          <FormField
