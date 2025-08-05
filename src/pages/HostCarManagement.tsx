@@ -495,10 +495,13 @@ export default function HostCarManagement() {
   const activeFiltersCount = Object.values(expenseFilters).filter(value => value && value !== 'all').length;
 
   useEffect(() => {
-    fetchHostedCars();
-    fetchExpenses();
-    fetchEarnings();
-    fetchClaims();
+    console.log('useEffect triggered, user:', user?.id);
+    if (user) {
+      fetchHostedCars();
+      fetchExpenses(true);
+      fetchEarnings();
+      fetchClaims();
+    }
   }, [user]);
   const fetchHostedCars = async () => {
     if (!user) return;
@@ -591,23 +594,38 @@ export default function HostCarManagement() {
   };
 
   const fetchExpenses = async (showLoading = false) => {
-    if (!user) return;
+    console.log('fetchExpenses called, user:', user?.id);
+    if (!user) {
+      console.log('No user found, returning early');
+      return;
+    }
     
     try {
       if (showLoading) setExpensesLoading(true);
       
-      const { data, error } = await (supabase as any)
+      console.log('Making supabase query for expenses...');
+      const { data, error } = await supabase
         .from('host_expenses')
         .select('*')
         .eq('host_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('Supabase query result:', { data, error });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
-      console.log('Fetched expenses data:', data);
+      console.log('Setting expenses data:', data);
       setExpenses(data || []);
     } catch (error) {
       console.error('Error fetching expenses:', error);
+      toast({
+        title: "Error loading expenses",
+        description: "Unable to load expenses. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       if (showLoading) setExpensesLoading(false);
     }
@@ -1323,6 +1341,10 @@ export default function HostCarManagement() {
           </TabsContent>
 
           <TabsContent value="expenses" className="space-y-4">
+            {(() => {
+              console.log('Rendering expenses tab, expenses:', expenses, 'loading:', expensesLoading, 'user:', user?.id);
+              return null;
+            })()}
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Expenses</h3>
               <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
@@ -1664,7 +1686,13 @@ export default function HostCarManagement() {
               </CardContent>
             </Card>
 
-            {expenses.length === 0 ? (
+            {expensesLoading ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <div className="text-lg text-muted-foreground">Loading expenses...</div>
+                </CardContent>
+              </Card>
+            ) : expenses.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
                   <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -1672,6 +1700,9 @@ export default function HostCarManagement() {
                   <p className="text-muted-foreground">
                     Start tracking your hosting expenses.
                   </p>
+                  <Button onClick={() => fetchExpenses(true)} className="mt-4">
+                    Refresh Expenses
+                  </Button>
                 </CardContent>
               </Card>
             ) : filteredExpenses.length === 0 ? (
