@@ -231,6 +231,22 @@ export default function HostCarManagement() {
     dateRange: 'all'
   });
 
+  // Filter state for earnings
+  const [earningsFilters, setEarningsFilters] = useState({
+    carId: 'all',
+    paymentSource: 'all',
+    paymentStatus: 'all',
+    dateRange: 'all'
+  });
+
+  // Filter state for claims
+  const [claimsFilters, setClaimsFilters] = useState({
+    carId: 'all',
+    claimStatus: 'all',
+    claimType: 'all',
+    dateRange: 'all'
+  });
+
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
@@ -491,8 +507,122 @@ export default function HostCarManagement() {
     });
   };
 
+  const clearEarningsFilters = () => {
+    setEarningsFilters({
+      carId: 'all',
+      paymentSource: 'all',
+      paymentStatus: 'all',
+      dateRange: 'all'
+    });
+  };
+
+  const clearClaimsFilters = () => {
+    setClaimsFilters({
+      carId: 'all',
+      claimStatus: 'all',
+      claimType: 'all',
+      dateRange: 'all'
+    });
+  };
+
+  // Filtered earnings based on filters
+  const filteredEarnings = useMemo(() => {
+    let filtered = [...earnings];
+
+    // Filter by car
+    if (earningsFilters.carId && earningsFilters.carId !== 'all') {
+      filtered = filtered.filter(earning => earning.car_id === earningsFilters.carId);
+    }
+
+    // Filter by payment source
+    if (earningsFilters.paymentSource && earningsFilters.paymentSource !== 'all') {
+      filtered = filtered.filter(earning => earning.payment_source === earningsFilters.paymentSource);
+    }
+
+    // Filter by payment status
+    if (earningsFilters.paymentStatus && earningsFilters.paymentStatus !== 'all') {
+      filtered = filtered.filter(earning => earning.payment_status === earningsFilters.paymentStatus);
+    }
+
+    // Filter by date range
+    if (earningsFilters.dateRange !== 'all') {
+      const today = new Date();
+      let filterDate = new Date();
+      
+      switch (earningsFilters.dateRange) {
+        case 'today':
+          filterDate.setHours(0, 0, 0, 0);
+          filtered = filtered.filter(earning => {
+            const earningDate = new Date(earning.earning_period_start);
+            earningDate.setHours(0, 0, 0, 0);
+            return earningDate.getTime() === filterDate.getTime();
+          });
+          break;
+        case 'week':
+          filterDate.setDate(today.getDate() - 7);
+          filtered = filtered.filter(earning => new Date(earning.earning_period_start) >= filterDate);
+          break;
+        case 'month':
+          filterDate.setMonth(today.getMonth() - 1);
+          filtered = filtered.filter(earning => new Date(earning.earning_period_start) >= filterDate);
+          break;
+      }
+    }
+
+    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [earnings, earningsFilters]);
+
+  // Filtered claims based on filters
+  const filteredClaims = useMemo(() => {
+    let filtered = [...claims];
+
+    // Filter by car
+    if (claimsFilters.carId && claimsFilters.carId !== 'all') {
+      filtered = filtered.filter(claim => claim.car_id === claimsFilters.carId);
+    }
+
+    // Filter by claim status
+    if (claimsFilters.claimStatus && claimsFilters.claimStatus !== 'all') {
+      filtered = filtered.filter(claim => claim.claim_status === claimsFilters.claimStatus);
+    }
+
+    // Filter by claim type
+    if (claimsFilters.claimType && claimsFilters.claimType !== 'all') {
+      filtered = filtered.filter(claim => claim.claim_type === claimsFilters.claimType);
+    }
+
+    // Filter by date range
+    if (claimsFilters.dateRange !== 'all') {
+      const today = new Date();
+      let filterDate = new Date();
+      
+      switch (claimsFilters.dateRange) {
+        case 'today':
+          filterDate.setHours(0, 0, 0, 0);
+          filtered = filtered.filter(claim => {
+            const claimDate = new Date(claim.incident_date);
+            claimDate.setHours(0, 0, 0, 0);
+            return claimDate.getTime() === filterDate.getTime();
+          });
+          break;
+        case 'week':
+          filterDate.setDate(today.getDate() - 7);
+          filtered = filtered.filter(claim => new Date(claim.incident_date) >= filterDate);
+          break;
+        case 'month':
+          filterDate.setMonth(today.getMonth() - 1);
+          filtered = filtered.filter(claim => new Date(claim.incident_date) >= filterDate);
+          break;
+      }
+    }
+
+    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [claims, claimsFilters]);
+
   // Count active filters
   const activeFiltersCount = Object.values(expenseFilters).filter(value => value && value !== 'all').length;
+  const activeEarningsFiltersCount = Object.values(earningsFilters).filter(value => value && value !== 'all').length;
+  const activeClaimsFiltersCount = Object.values(claimsFilters).filter(value => value && value !== 'all').length;
 
   useEffect(() => {
     console.log('useEffect triggered, user:', user?.id);
@@ -2211,6 +2341,116 @@ export default function HostCarManagement() {
               </Dialog>
             </div>
 
+            {/* Earnings Filters */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Filter Earnings</h4>
+                    {activeEarningsFiltersCount > 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={clearEarningsFilters}
+                        className="h-8"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Clear Filters
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Car Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Car</Label>
+                      <Select value={earningsFilters.carId} onValueChange={(value) => 
+                        setEarningsFilters(prev => ({ ...prev, carId: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All cars" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All cars</SelectItem>
+                          {cars.map((car) => (
+                            <SelectItem key={car.id} value={car.id}>
+                              {formatCarDisplayName(car)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Payment Source Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Payment Source</Label>
+                      <Select value={earningsFilters.paymentSource} onValueChange={(value) => 
+                        setEarningsFilters(prev => ({ ...prev, paymentSource: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All sources" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All sources</SelectItem>
+                          <SelectItem value="Turo">Turo</SelectItem>
+                          <SelectItem value="Eon">Eon</SelectItem>
+                          <SelectItem value="GetAround">GetAround</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Payment Status Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Payment Status</Label>
+                      <Select value={earningsFilters.paymentStatus} onValueChange={(value) => 
+                        setEarningsFilters(prev => ({ ...prev, paymentStatus: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All statuses</SelectItem>
+                          <SelectItem value="paid">Paid</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Date Range Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                      <Select value={earningsFilters.dateRange} onValueChange={(value) => 
+                        setEarningsFilters(prev => ({ ...prev, dateRange: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All time</SelectItem>
+                          <SelectItem value="today">Today</SelectItem>
+                          <SelectItem value="week">This Week</SelectItem>
+                          <SelectItem value="month">This Month</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Results Summary */}
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {filteredEarnings.length} of {earnings.length} earnings
+                    </p>
+                    {activeEarningsFiltersCount > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        {activeEarningsFiltersCount === 1 ? '1 filter applied' : `${activeEarningsFiltersCount} filters applied`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {earnings.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
@@ -2219,6 +2459,19 @@ export default function HostCarManagement() {
                   <p className="text-muted-foreground">
                     Start tracking your hosting earnings.
                   </p>
+                </CardContent>
+              </Card>
+            ) : filteredEarnings.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No earnings match your filters</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Try adjusting your filters to see more results.
+                  </p>
+                  <Button variant="outline" onClick={clearEarningsFilters}>
+                    Clear Filters
+                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -2269,7 +2522,7 @@ export default function HostCarManagement() {
 
                 {/* Earnings List */}
                 <div className="grid gap-4">
-                   {earnings.map((earning) => {
+                   {filteredEarnings.map((earning) => {
                      // Calculate related expenses for this trip
                      const relatedExpenses = earning.trip_id 
                        ? expenses.filter(e => e.trip_id === earning.trip_id)
@@ -2725,6 +2978,118 @@ export default function HostCarManagement() {
               </Dialog>
             </div>
 
+            {/* Claims Filters */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Filter Claims</h4>
+                    {activeClaimsFiltersCount > 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={clearClaimsFilters}
+                        className="h-8"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Clear Filters
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Car Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Car</Label>
+                      <Select value={claimsFilters.carId} onValueChange={(value) => 
+                        setClaimsFilters(prev => ({ ...prev, carId: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All cars" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All cars</SelectItem>
+                          {cars.map((car) => (
+                            <SelectItem key={car.id} value={car.id}>
+                              {formatCarDisplayName(car)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Claim Status Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Claim Status</Label>
+                      <Select value={claimsFilters.claimStatus} onValueChange={(value) => 
+                        setClaimsFilters(prev => ({ ...prev, claimStatus: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All statuses</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="approved">Approved</SelectItem>
+                          <SelectItem value="denied">Denied</SelectItem>
+                          <SelectItem value="processing">Processing</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Claim Type Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Claim Type</Label>
+                      <Select value={claimsFilters.claimType} onValueChange={(value) => 
+                        setClaimsFilters(prev => ({ ...prev, claimType: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All types" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All types</SelectItem>
+                          <SelectItem value="damage">Damage</SelectItem>
+                          <SelectItem value="accident">Accident</SelectItem>
+                          <SelectItem value="theft">Theft</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Date Range Filter */}
+                    <div>
+                      <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                      <Select value={claimsFilters.dateRange} onValueChange={(value) => 
+                        setClaimsFilters(prev => ({ ...prev, dateRange: value }))
+                      }>
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder="All time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All time</SelectItem>
+                          <SelectItem value="today">Today</SelectItem>
+                          <SelectItem value="week">This Week</SelectItem>
+                          <SelectItem value="month">This Month</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Results Summary */}
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {filteredClaims.length} of {claims.length} claims
+                    </p>
+                    {activeClaimsFiltersCount > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        {activeClaimsFiltersCount === 1 ? '1 filter applied' : `${activeClaimsFiltersCount} filters applied`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {claims.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
@@ -2733,6 +3098,19 @@ export default function HostCarManagement() {
                   <p className="text-muted-foreground">
                     File claims for damages or incidents here.
                   </p>
+                </CardContent>
+              </Card>
+            ) : filteredClaims.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No claims match your filters</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Try adjusting your filters to see more results.
+                  </p>
+                  <Button variant="outline" onClick={clearClaimsFilters}>
+                    Clear Filters
+                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -2793,7 +3171,7 @@ export default function HostCarManagement() {
 
                 {/* Claims List */}
                 <div className="grid gap-4">
-                  {claims.map((claim) => {
+                  {filteredClaims.map((claim) => {
                     // Find the car for this claim
                     const claimCar = cars.find(car => car.id === claim.car_id);
                     
