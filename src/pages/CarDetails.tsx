@@ -31,6 +31,7 @@ export default function CarDetails() {
   const { user } = useAuth();
   const [car, setCar] = useState<CarData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<'client' | 'host' | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -44,23 +45,44 @@ export default function CarDetails() {
     console.log('Fetching car with ID:', id, 'for user:', user.id);
 
     try {
-      const { data, error } = await supabase
+      // First, try to fetch as client (car owner)
+      const { data: clientCar, error: clientError } = await supabase
         .from('cars')
         .select('*')
         .eq('id', id)
         .eq('client_id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
-      
-      if (!data) {
-        console.log('No car found with ID:', id, 'for user:', user.id);
-        setCar(null);
+      if (clientError) throw clientError;
+
+      if (clientCar) {
+        console.log('Car found as client:', clientCar);
+        setCar(clientCar);
+        setUserRole('client');
         return;
       }
-      
-      console.log('Car found:', data);
-      setCar(data);
+
+      // If not found as client, try to fetch as host
+      const { data: hostCar, error: hostError } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', id)
+        .eq('host_id', user.id)
+        .maybeSingle();
+
+      if (hostError) throw hostError;
+
+      if (hostCar) {
+        console.log('Car found as host:', hostCar);
+        setCar(hostCar);
+        setUserRole('host');
+        return;
+      }
+
+      // Car not found in either context
+      console.log('No car found with ID:', id, 'for user:', user.id);
+      setCar(null);
+      setUserRole(null);
     } catch (error) {
       console.error('Error fetching car:', error);
       toast({
@@ -114,13 +136,15 @@ export default function CarDetails() {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" onClick={() => navigate('/my-cars')}>
+          <Button variant="outline" onClick={() => navigate(userRole === 'host' ? '/host-car-management' : '/my-cars')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to My Cars
+            {userRole === 'host' ? 'Back to Hosted Cars' : 'Back to My Cars'}
           </Button>
           <div className="flex items-center gap-2">
             <Car className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Car Details</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              {userRole === 'host' ? 'Hosted Car Details' : 'Car Details'}
+            </h1>
           </div>
         </div>
 
@@ -243,12 +267,30 @@ export default function CarDetails() {
                 <CardTitle>Actions</CardTitle>
               </CardHeader>
               <CardContent>
-                <Button 
-                  className="w-full" 
-                  onClick={() => navigate(`/cars/${car.id}/edit`)}
-                >
-                  Edit Car Details
-                </Button>
+                {userRole === 'client' ? (
+                  <Button 
+                    className="w-full" 
+                    onClick={() => navigate(`/cars/${car.id}/edit`)}
+                  >
+                    Edit Car Details
+                  </Button>
+                ) : (
+                  <div className="space-y-2">
+                    <Button 
+                      className="w-full" 
+                      onClick={() => navigate('/host-analytics')}
+                    >
+                      View Analytics
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="w-full" 
+                      onClick={() => navigate('/schedule-maintenance')}
+                    >
+                      Schedule Maintenance
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
