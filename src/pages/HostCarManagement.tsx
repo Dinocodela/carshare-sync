@@ -436,20 +436,42 @@ export default function HostCarManagement() {
   const watchedClaimCarId = claimForm.watch("car_id");
   
   useEffect(() => {
-    if (watchedClaimCarId && !editingClaim) {
-      // Find the most recent trip for this car
+    console.log('🔍 Claims Trip ID Debug:', {
+      watchedClaimCarId,
+      editingClaim,
+      expensesLoaded: !loading,
+      totalExpenses: expenses.length,
+      expensesWithTripIds: expenses.filter(e => e.trip_id && e.trip_id.trim() !== '').length
+    });
+
+    if (watchedClaimCarId && !editingClaim && !loading) {
+      // Find expenses for this car with trip IDs
       const carExpenses = expenses
-        .filter(expense => expense.car_id === watchedClaimCarId && expense.trip_id)
+        .filter(expense => {
+          const hasCarMatch = expense.car_id === watchedClaimCarId;
+          const hasTripId = expense.trip_id && expense.trip_id.trim() !== '';
+          return hasCarMatch && hasTripId;
+        })
         .sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
       
+      console.log('🚗 Car expenses with trip IDs:', {
+        carId: watchedClaimCarId,
+        foundExpenses: carExpenses.length,
+        tripIds: carExpenses.map(e => e.trip_id),
+        latestTripId: carExpenses[0]?.trip_id
+      });
+
       if (carExpenses.length > 0 && carExpenses[0].trip_id) {
         claimForm.setValue("trip_id", carExpenses[0].trip_id, { 
           shouldValidate: true, 
           shouldDirty: true 
         });
+        console.log('✅ Auto-populated trip ID:', carExpenses[0].trip_id);
+      } else {
+        console.log('❌ No trip IDs found for car:', watchedClaimCarId);
       }
     }
-  }, [watchedClaimCarId, expenses, claimForm, editingClaim]);
+  }, [watchedClaimCarId, expenses, claimForm, editingClaim, loading]);
 
   // Filtered expenses based on current filters
   const filteredExpenses = useMemo(() => {
@@ -2658,11 +2680,11 @@ export default function HostCarManagement() {
                   </DialogHeader>
                    <Form {...claimForm}>
                      <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
-                       <FormField
-                         control={claimForm.control}
-                         name="trip_id"
-                         render={({ field }) => {
-                           const selectedCar = cars.find(c => c.id === claimForm.watch("car_id"));
+                        <FormField
+                          control={claimForm.control}
+                          name="trip_id"
+                          render={({ field }) => {
+                            const selectedCar = cars.find(c => c.id === claimForm.watch("car_id"));
                             const availableTripIds = selectedCar 
                               ? [...new Set(expenses
                                   .filter(e => e.car_id === selectedCar.id && e.trip_id && e.trip_id.trim() !== '')
@@ -2670,34 +2692,55 @@ export default function HostCarManagement() {
                                   .filter(Boolean))]
                               : [];
 
-                           return (
-                             <FormItem>
-                               <FormLabel className="flex items-center gap-2">
-                                 Trip#
-                                 {field.value && (
-                                   <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                                     Auto-filled
-                                   </Badge>
-                                 )}
-                               </FormLabel>
-                               <FormControl>
-                                 <div className="space-y-2">
-                                   {availableTripIds.length > 0 && (
-                                     <Select value={field.value} onValueChange={field.onChange}>
-                                       <SelectTrigger>
-                                         <SelectValue placeholder="Select existing trip ID" />
-                                       </SelectTrigger>
-                                       <SelectContent>
-                                         {availableTripIds.map((tripId) => (
-                                            <SelectItem key={tripId} value={tripId}>
-                                              {tripId}
-                                            </SelectItem>
-                                         ))}
-                                       </SelectContent>
-                                     </Select>
-                                   )}
-                                   <Input
-                                     placeholder="Or enter new trip ID"
+                            // Debug logging for trip ID availability
+                            console.log('🎯 Trip ID Field Render:', {
+                              selectedCarId: selectedCar?.id,
+                              carMake: selectedCar?.make,
+                              availableTripIds,
+                              currentFieldValue: field.value,
+                              expensesLoading: loading
+                            });
+
+                            return (
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                  Trip#
+                                  {field.value && (
+                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                      Auto-filled
+                                    </Badge>
+                                  )}
+                                </FormLabel>
+                                <FormControl>
+                                  <div className="space-y-2">
+                                    {loading ? (
+                                      <div className="text-sm text-muted-foreground">Loading trip IDs...</div>
+                                    ) : selectedCar ? (
+                                      availableTripIds.length > 0 ? (
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select existing trip ID" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {availableTripIds.map((tripId) => (
+                                              <SelectItem key={tripId} value={tripId}>
+                                                {tripId}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      ) : (
+                                        <div className="text-sm text-muted-foreground">
+                                          No existing trip IDs found for this car
+                                        </div>
+                                      )
+                                    ) : (
+                                      <div className="text-sm text-muted-foreground">
+                                        Please select a car first to see available trip IDs
+                                      </div>
+                                    )}
+                                    <Input
+                                      placeholder={selectedCar && availableTripIds.length > 0 ? "Or enter new trip ID" : "Enter trip ID"}
                                      value={field.value}
                                      onChange={field.onChange}
                                    />
