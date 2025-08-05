@@ -19,6 +19,7 @@ import HostingDetails from "./pages/HostingDetails";
 import HostCarManagement from "./pages/HostCarManagement";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
+import ClientFixedExpenses from "./pages/ClientFixedExpenses";
 import HostAnalytics from "./pages/HostAnalytics";
 import ScheduleMaintenance from "./pages/ScheduleMaintenance";
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/cars/:id/view" element={<CarDetails />} />
             <Route path="/cars/:id/edit" element={<EditCar />} />
             <Route path="/cars/:id/schedule-maintenance" element={<ScheduleMaintenance />} />
+            <Route path="/client-fixed-expenses" element={<ClientFixedExpenses />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

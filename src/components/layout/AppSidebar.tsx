@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, ChevronUp, Home, LogOut, Plus, Settings, User2, Inbox, BarChart3 } from 'lucide-react';
+import { Car, ChevronUp, Home, LogOut, Plus, Settings, User2, Inbox, BarChart3, Receipt } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -65,6 +65,11 @@ export function AppSidebar() {
           title: "My Cars",
           url: "/my-cars",
           icon: Car,
+        },
+        {
+          title: "Fixed Expenses",
+          url: "/client-fixed-expenses",
+          icon: Receipt,
         },
         {
           title: "Add Car",
