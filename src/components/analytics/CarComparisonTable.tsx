@@ -32,7 +32,7 @@ export function CarComparisonTable({
   onViewDetails, 
   onManageStatus 
 }: CarComparisonTableProps) {
-  const [sortField, setSortField] = useState<SortField>('netProfit');
+  const [sortField, setSortField] = useState<SortField>('profitMargin');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const handleSort = (field: SortField) => {
@@ -96,7 +96,6 @@ export function CarComparisonTable({
         <TableHeader>
           <TableRow>
             <TableHead>Vehicle</TableHead>
-            <SortableHeader field="netProfit">Net Profit</SortableHeader>
             <SortableHeader field="profitMargin">Margin %</SortableHeader>
             <SortableHeader field="totalTrips">Trips</SortableHeader>
             <SortableHeader field="utilizationRate">Utilization</SortableHeader>
@@ -115,17 +114,6 @@ export function CarComparisonTable({
                   <p className="text-xs text-muted-foreground">
                     {car.activeDays} active days • Avg ${car.averagePerTrip.toFixed(0)}/trip
                   </p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className={`flex items-center ${
-                  car.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'
-                }`}>
-                  {car.netProfit >= 0 ? 
-                    <TrendingUp className="h-4 w-4 mr-1" /> : 
-                    <TrendingDown className="h-4 w-4 mr-1" />
-                  }
-                  <span className="font-semibold">${car.netProfit.toFixed(2)}</span>
                 </div>
               </TableCell>
               <TableCell>

@@ -66,24 +66,13 @@ export function CarPerformanceCard({
       
       <CardContent className="space-y-4">
         {/* Financial Metrics */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Net Profit</p>
-            <p className={`text-xl font-bold flex items-center ${
-              performance.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'
-            }`}>
-              {performance.netProfit >= 0 ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
-              ${performance.netProfit.toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Profit Margin</p>
-            <p className={`text-xl font-bold ${
-              performance.profitMargin >= 0 ? 'text-emerald-600' : 'text-red-600'
-            }`}>
-              {performance.profitMargin.toFixed(1)}%
-            </p>
-          </div>
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">Profit Margin</p>
+          <p className={`text-xl font-bold ${
+            performance.profitMargin >= 0 ? 'text-emerald-600' : 'text-red-600'
+          }`}>
+            {performance.profitMargin.toFixed(1)}%
+          </p>
         </div>
 
         {/* Performance Metrics */}

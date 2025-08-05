@@ -19,8 +19,8 @@ interface PerCarSummaryCardsProps {
 export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsProps) {
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
-        {[...Array(8)].map((_, i) => (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+        {[...Array(7)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Loading...</CardTitle>
@@ -41,14 +41,6 @@ export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsP
       icon: DollarSign,
       description: 'Total profit from this vehicle',
       gradient: 'from-emerald-500 to-emerald-600'
-    },
-    {
-      title: 'Net Profit',
-      value: `$${performance.netProfit.toFixed(2)}`,
-      icon: TrendingUp,
-      description: 'Earnings minus expenses',
-      valueClass: performance.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600',
-      gradient: performance.netProfit >= 0 ? 'from-emerald-500 to-green-600' : 'from-red-500 to-red-600'
     },
     {
       title: 'Profit Margin',
@@ -100,7 +92,7 @@ export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsP
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
       {cards.map((card, index) => (
         <Card key={index} className="relative overflow-hidden">
           <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-5`} />
