@@ -84,7 +84,7 @@ export default function ClientAnalytics() {
           <div>
             <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
             <p className="text-muted-foreground">
-              Track your vehicle's performance and earnings
+              Track your vehicle's performance and earnings. For expense management, visit <button onClick={() => window.location.href = '/host-car-management'} className="text-primary underline">Hosted Cars Management</button>
             </p>
           </div>
           <div className="flex items-center space-x-4">
