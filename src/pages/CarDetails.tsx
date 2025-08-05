@@ -41,15 +41,25 @@ export default function CarDetails() {
   const fetchCar = async () => {
     if (!user || !id) return;
 
+    console.log('Fetching car with ID:', id, 'for user:', user.id);
+
     try {
       const { data, error } = await supabase
         .from('cars')
         .select('*')
         .eq('id', id)
         .eq('client_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      
+      if (!data) {
+        console.log('No car found with ID:', id, 'for user:', user.id);
+        setCar(null);
+        return;
+      }
+      
+      console.log('Car found:', data);
       setCar(data);
     } catch (error) {
       console.error('Error fetching car:', error);
@@ -58,7 +68,6 @@ export default function CarDetails() {
         description: "Unable to load car details. Please try again.",
         variant: "destructive",
       });
-      navigate('/my-cars');
     } finally {
       setLoading(false);
     }
