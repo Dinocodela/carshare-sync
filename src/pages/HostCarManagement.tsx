@@ -226,8 +226,8 @@ export default function HostCarManagement() {
 
   // Filter state for expenses
   const [expenseFilters, setExpenseFilters] = useState({
-    carId: '',
-    paymentSource: '',
+    carId: 'all',
+    paymentSource: 'all',
     dateRange: 'all'
   });
 
@@ -440,12 +440,12 @@ export default function HostCarManagement() {
     let filtered = [...expenses];
 
     // Filter by car
-    if (expenseFilters.carId) {
+    if (expenseFilters.carId && expenseFilters.carId !== 'all') {
       filtered = filtered.filter(expense => expense.car_id === expenseFilters.carId);
     }
 
     // Filter by payment source (via earnings with matching trip_id)
-    if (expenseFilters.paymentSource) {
+    if (expenseFilters.paymentSource && expenseFilters.paymentSource !== 'all') {
       const matchingTripIds = earnings
         .filter(earning => earning.payment_source === expenseFilters.paymentSource)
         .map(earning => earning.trip_id)
@@ -485,8 +485,8 @@ export default function HostCarManagement() {
   // Clear all filters
   const clearFilters = () => {
     setExpenseFilters({
-      carId: '',
-      paymentSource: '',
+      carId: 'all',
+      paymentSource: 'all',
       dateRange: 'all'
     });
   };
@@ -1612,7 +1612,7 @@ export default function HostCarManagement() {
                         <SelectValue placeholder="All cars" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All cars</SelectItem>
+                        <SelectItem value="all">All cars</SelectItem>
                         {cars.map((car) => (
                           <SelectItem key={car.id} value={car.id}>
                             {formatCarDisplayName(car)}
@@ -1633,7 +1633,7 @@ export default function HostCarManagement() {
                         <SelectValue placeholder="All sources" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All sources</SelectItem>
+                        <SelectItem value="all">All sources</SelectItem>
                         <SelectItem value="Turo">Turo</SelectItem>
                         <SelectItem value="Eon">Eon</SelectItem>
                         <SelectItem value="GetAround">GetAround</SelectItem>
@@ -1857,7 +1857,10 @@ export default function HostCarManagement() {
                         name="trip_id"
                         render={({ field }) => {
                           // Get unique trip_ids from expenses
-                          const existingTripIds = [...new Set(expenses.filter(e => e.trip_id).map(e => e.trip_id))] as string[];
+                          const existingTripIds = [...new Set(expenses
+                            .filter(e => e.trip_id && e.trip_id.trim() !== '')
+                            .map(e => e.trip_id)
+                            .filter(Boolean))] as string[];
                           
                           return (
                             <FormItem>
