@@ -121,8 +121,11 @@ export function usePerCarAnalytics(selectedCarId?: string) {
       const carExpenses = allData.expenses.filter(e => e.car_id === car.id);
       const carClaims = allData.claims.filter(c => c.car_id === car.id);
 
-      const totalEarnings = carEarnings.reduce((sum, e) => sum + (e.client_profit_amount || 0), 0);
-      const totalExpenses = carExpenses.reduce((sum, e) => {
+      // totalEarnings is already net of operational expenses (client_profit_amount)
+      const netEarningsFromTrips = carEarnings.reduce((sum, e) => sum + (e.client_profit_amount || 0), 0);
+      
+      // Operational expenses (for reference, but not deducted since client_profit_amount is already net)
+      const totalOperationalExpenses = carExpenses.reduce((sum, e) => {
         return sum + (e.amount || 0) + (e.toll_cost || 0) + (e.delivery_cost || 0) + 
                (e.carwash_cost || 0) + (e.ev_charge_cost || 0);
       }, 0);
@@ -130,11 +133,14 @@ export function usePerCarAnalytics(selectedCarId?: string) {
       // Get monthly fixed costs for this car
       const monthlyFixedCosts = getMonthlyFixedCosts(car.id);
       
-      const netProfit = totalEarnings - totalExpenses;
-      const trueNetProfit = netProfit - monthlyFixedCosts;
-      const profitMargin = totalEarnings > 0 ? (trueNetProfit / totalEarnings) * 100 : 0;
+      // True Net Profit = Net Earnings From Trips - Monthly Fixed Costs
+      const trueNetProfit = netEarningsFromTrips - monthlyFixedCosts;
+      
+      // Keep netProfit for backward compatibility (same as trueNetProfit now)
+      const netProfit = trueNetProfit;
+      const profitMargin = netEarningsFromTrips > 0 ? (trueNetProfit / netEarningsFromTrips) * 100 : 0;
       const totalTrips = carEarnings.length;
-      const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;
+      const averagePerTrip = totalTrips > 0 ? netEarningsFromTrips / totalTrips : 0;
       
       // Calculate active days
       const uniqueDates = new Set(
@@ -205,8 +211,8 @@ export function usePerCarAnalytics(selectedCarId?: string) {
         car_model: car.model,
         car_year: car.year,
         car_status: car.status,
-        totalEarnings,
-        totalExpenses,
+        totalEarnings: netEarningsFromTrips,
+        totalExpenses: totalOperationalExpenses,
         monthlyFixedCosts,
         trueNetProfit,
         netProfit,
