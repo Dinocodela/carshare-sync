@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ClientEarning, ClientExpense, ClientClaim } from './useClientAnalytics';
+import { useClientCarExpenses } from './useClientCarExpenses';
 
 export interface CarPerformance {
   car_id: string;
@@ -11,7 +12,9 @@ export interface CarPerformance {
   car_status: string;
   totalEarnings: number;
   totalExpenses: number;
-  netProfit: number;
+  monthlyFixedCosts: number;
+  trueNetProfit: number;
+  netProfit: number; // Keep for backward compatibility
   profitMargin: number;
   totalTrips: number;
   averagePerTrip: number;
@@ -24,6 +27,7 @@ export interface CarPerformance {
   recommendationReason: string;
   roi: number;
   riskScore: number;
+  breakEvenTrips: number;
 }
 
 export interface CarAnalyticsData {
@@ -34,6 +38,7 @@ export interface CarAnalyticsData {
 
 export function usePerCarAnalytics(selectedCarId?: string) {
   const { user } = useAuth();
+  const { getMonthlyFixedCosts } = useClientCarExpenses();
   const [cars, setCars] = useState<any[]>([]);
   const [allData, setAllData] = useState<{
     earnings: ClientEarning[];
@@ -122,8 +127,12 @@ export function usePerCarAnalytics(selectedCarId?: string) {
                (e.carwash_cost || 0) + (e.ev_charge_cost || 0);
       }, 0);
       
+      // Get monthly fixed costs for this car
+      const monthlyFixedCosts = getMonthlyFixedCosts(car.id);
+      
       const netProfit = totalEarnings - totalExpenses;
-      const profitMargin = totalEarnings > 0 ? (netProfit / totalEarnings) * 100 : 0;
+      const trueNetProfit = netProfit - monthlyFixedCosts;
+      const profitMargin = totalEarnings > 0 ? (trueNetProfit / totalEarnings) * 100 : 0;
       const totalTrips = carEarnings.length;
       const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;
       
@@ -160,25 +169,31 @@ export function usePerCarAnalytics(selectedCarId?: string) {
       const grossEarnings = carEarnings.reduce((sum, e) => sum + (e.gross_earnings || 0), 0);
       const roi = grossEarnings > 0 ? (netProfit / grossEarnings) * 100 : 0;
 
-      // Calculate risk score based on claims and profitability
+      // Calculate break-even trips needed to cover monthly fixed costs
+      const breakEvenTrips = averagePerTrip > 0 ? Math.ceil(monthlyFixedCosts / averagePerTrip) : 0;
+
+      // Calculate risk score based on claims and profitability (now using true net profit)
       const claimsRisk = Math.min((totalClaims * 20), 50); // Max 50 points for claims
-      const profitabilityRisk = netProfit < 0 ? 30 : Math.max(0, 30 - profitMargin); // Up to 30 points
+      const profitabilityRisk = trueNetProfit < 0 ? 30 : Math.max(0, 30 - profitMargin); // Up to 30 points
       const utilizationRisk = Math.max(0, 20 - utilizationRate * 0.2); // Up to 20 points
       const riskScore = Math.min(100, claimsRisk + profitabilityRisk + utilizationRisk);
 
-      // Generate recommendation
+      // Generate recommendation (now considering fixed costs)
       let recommendation: CarPerformance['recommendation'] = 'keep_active';
       let recommendationReason = '';
 
-      if (riskScore > 70 || netProfit < -500) {
+      if (riskScore > 70 || trueNetProfit < -500) {
         recommendation = 'return';
-        recommendationReason = 'High risk and significant losses. Consider returning this vehicle.';
+        recommendationReason = 'High risk and significant losses including fixed costs. Consider returning this vehicle.';
       } else if (riskScore > 50 || (profitMargin < 10 && utilizationRate < 30)) {
         recommendation = 'monitor';
         recommendationReason = 'Moderate risk or low performance. Monitor closely and consider improvements.';
-      } else if (utilizationRate < 50 && netProfit > 0) {
+      } else if (utilizationRate < 50 && trueNetProfit > 0) {
         recommendation = 'optimize';
         recommendationReason = 'Good profitability but low utilization. Optimize pricing or availability.';
+      } else if (trueNetProfit < 0 && breakEvenTrips > totalTrips) {
+        recommendation = 'monitor';
+        recommendationReason = `Not covering fixed costs. Need ${breakEvenTrips} trips/month to break even.`;
       } else {
         recommendation = 'keep_active';
         recommendationReason = 'Good performance. Continue current strategy.';
@@ -192,6 +207,8 @@ export function usePerCarAnalytics(selectedCarId?: string) {
         car_status: car.status,
         totalEarnings,
         totalExpenses,
+        monthlyFixedCosts,
+        trueNetProfit,
         netProfit,
         profitMargin,
         totalTrips,
@@ -204,7 +221,8 @@ export function usePerCarAnalytics(selectedCarId?: string) {
         recommendation,
         recommendationReason,
         roi,
-        riskScore
+        riskScore,
+        breakEvenTrips
       };
     });
   }, [cars, allData]);

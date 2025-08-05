@@ -71,6 +71,54 @@ export type Database = {
         }
         Relationships: []
       }
+      client_car_expenses: {
+        Row: {
+          amount: number
+          car_id: string
+          client_id: string
+          created_at: string
+          end_date: string | null
+          expense_type: string
+          frequency: string
+          id: string
+          notes: string | null
+          policy_number: string | null
+          provider_name: string | null
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          car_id: string
+          client_id: string
+          created_at?: string
+          end_date?: string | null
+          expense_type: string
+          frequency?: string
+          id?: string
+          notes?: string | null
+          policy_number?: string | null
+          provider_name?: string | null
+          start_date?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          car_id?: string
+          client_id?: string
+          created_at?: string
+          end_date?: string | null
+          expense_type?: string
+          frequency?: string
+          id?: string
+          notes?: string | null
+          policy_number?: string | null
+          provider_name?: string | null
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       host_claims: {
         Row: {
           accident_description: string | null

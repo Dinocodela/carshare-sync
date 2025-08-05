@@ -43,6 +43,21 @@ export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsP
       gradient: 'from-emerald-500 to-emerald-600'
     },
     {
+      title: 'Fixed Costs',
+      value: `$${performance.monthlyFixedCosts.toFixed(2)}`,
+      icon: TrendingDown,
+      description: 'Monthly fixed expenses',
+      gradient: 'from-orange-500 to-red-600'
+    },
+    {
+      title: 'True Net Profit',
+      value: `$${performance.trueNetProfit.toFixed(2)}`,
+      icon: TrendingUp,
+      description: 'Profit after all costs',
+      valueClass: performance.trueNetProfit >= 0 ? 'text-emerald-600' : 'text-red-600',
+      gradient: performance.trueNetProfit >= 0 ? 'from-emerald-500 to-green-600' : 'from-red-500 to-red-600'
+    },
+    {
       title: 'Profit Margin',
       value: `${performance.profitMargin.toFixed(1)}%`,
       icon: Target,
