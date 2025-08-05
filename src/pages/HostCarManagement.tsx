@@ -1120,11 +1120,11 @@ export default function HostCarManagement() {
                       <div className="border-t pt-4">
                         <h4 className="font-medium mb-2">Client Contact</h4>
                         <div className="space-y-2">
-                          <p className="text-sm">
-                            <strong>Name:</strong> {car.client.first_name && car.client.last_name 
-                              ? `${car.client.first_name} ${car.client.last_name}`
-                              : 'Name not available'}
-                          </p>
+                           <p className="text-sm">
+                             <strong>Name:</strong> {car.client.first_name || car.client.last_name 
+                               ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
+                               : 'Name not available'}
+                           </p>
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-muted-foreground" />
                             <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
@@ -1197,11 +1197,11 @@ export default function HostCarManagement() {
                       <div>
                         <h4 className="font-medium mb-2">Client Contact</h4>
                         <div className="space-y-2">
-                          <p className="text-sm">
-                            <strong>Name:</strong> {car.client.first_name && car.client.last_name 
-                              ? `${car.client.first_name} ${car.client.last_name}`
-                              : 'Name not available'}
-                          </p>
+                           <p className="text-sm">
+                             <strong>Name:</strong> {car.client.first_name || car.client.last_name 
+                               ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
+                               : 'Name not available'}
+                           </p>
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-muted-foreground" />
                             <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
