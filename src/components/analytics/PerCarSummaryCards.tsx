@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   DollarSign, 
   TrendingUp, 
+  TrendingDown,
   Calendar, 
   Car, 
   FileText, 
