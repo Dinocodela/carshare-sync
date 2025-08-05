@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle, DollarSign, Plus, Edit, Trash, Clock } from 'lucide-react';
+import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle, DollarSign, Plus, Edit, Trash, Clock, Filter, X } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -218,6 +220,13 @@ export default function HostCarManagement() {
   const [selectedTripExpenses, setSelectedTripExpenses] = useState<number>(0);
   const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
 
+  // Filter state for expenses
+  const [expenseFilters, setExpenseFilters] = useState({
+    carId: '',
+    paymentSource: '',
+    dateRange: 'all'
+  });
+
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
@@ -421,6 +430,66 @@ export default function HostCarManagement() {
       }
     }
   }, [watchedClaimCarId, expenses, claimForm, editingClaim]);
+
+  // Filtered expenses based on current filters
+  const filteredExpenses = useMemo(() => {
+    let filtered = [...expenses];
+
+    // Filter by car
+    if (expenseFilters.carId) {
+      filtered = filtered.filter(expense => expense.car_id === expenseFilters.carId);
+    }
+
+    // Filter by payment source (via earnings with matching trip_id)
+    if (expenseFilters.paymentSource) {
+      const matchingTripIds = earnings
+        .filter(earning => earning.payment_source === expenseFilters.paymentSource)
+        .map(earning => earning.trip_id)
+        .filter(Boolean);
+      
+      filtered = filtered.filter(expense => 
+        expense.trip_id && matchingTripIds.includes(expense.trip_id)
+      );
+    }
+
+    // Filter by date range
+    if (expenseFilters.dateRange !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      filtered = filtered.filter(expense => {
+        const expenseDate = new Date(expense.created_at);
+        
+        switch (expenseFilters.dateRange) {
+          case 'today':
+            return expenseDate >= today;
+          case 'week':
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return expenseDate >= weekAgo;
+          case 'month':
+            const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return expenseDate >= monthAgo;
+          default:
+            return true;
+        }
+      });
+    }
+
+    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [expenses, earnings, expenseFilters]);
+
+  // Clear all filters
+  const clearFilters = () => {
+    setExpenseFilters({
+      carId: '',
+      paymentSource: '',
+      dateRange: 'all'
+    });
+  };
+
+  // Count active filters
+  const activeFiltersCount = Object.values(expenseFilters).filter(value => value && value !== 'all').length;
+
   useEffect(() => {
     fetchHostedCars();
     fetchExpenses();
@@ -1459,6 +1528,119 @@ export default function HostCarManagement() {
               </Dialog>
             </div>
 
+            {/* Expense Filters */}
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4" />
+                    <CardTitle className="text-base">Filters</CardTitle>
+                    {activeFiltersCount > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        {activeFiltersCount} active
+                      </Badge>
+                    )}
+                  </div>
+                  {activeFiltersCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="h-8 px-2"
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Car Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Car</Label>
+                    <Select 
+                      value={expenseFilters.carId} 
+                      onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, carId: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="All cars" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All cars</SelectItem>
+                        {cars.map((car) => (
+                          <SelectItem key={car.id} value={car.id}>
+                            {formatCarDisplayName(car)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Payment Source Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Payment Source</Label>
+                    <Select 
+                      value={expenseFilters.paymentSource} 
+                      onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, paymentSource: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="All sources" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All sources</SelectItem>
+                        <SelectItem value="Turo">Turo</SelectItem>
+                        <SelectItem value="Eon">Eon</SelectItem>
+                        <SelectItem value="GetAround">GetAround</SelectItem>
+                        <SelectItem value="Private">Private</SelectItem>
+                        <SelectItem value="Insurance">Insurance</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Date Range Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Added Recently</Label>
+                    <RadioGroup 
+                      value={expenseFilters.dateRange} 
+                      onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, dateRange: value }))}
+                      className="flex flex-wrap gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="all" />
+                        <Label htmlFor="all" className="text-sm">All</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="today" id="today" />
+                        <Label htmlFor="today" className="text-sm">Today</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="week" id="week" />
+                        <Label htmlFor="week" className="text-sm">This Week</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="month" id="month" />
+                        <Label htmlFor="month" className="text-sm">This Month</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+
+                {/* Results Summary */}
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {filteredExpenses.length} of {expenses.length} expenses
+                  </p>
+                  {activeFiltersCount > 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      {activeFiltersCount === 1 ? '1 filter applied' : `${activeFiltersCount} filters applied`}
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {expenses.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
@@ -1469,9 +1651,22 @@ export default function HostCarManagement() {
                   </p>
                 </CardContent>
               </Card>
+            ) : filteredExpenses.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No expenses match your filters</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Try adjusting your filters to see more results.
+                  </p>
+                  <Button variant="outline" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
               <div className="grid gap-4">
-                {expenses.map((expense) => (
+                {filteredExpenses.map((expense) => (
                   <Card key={expense.id}>
                      <CardContent className="p-4">
                         <div className="flex justify-between items-start">
