@@ -220,6 +220,10 @@ export default function HostCarManagement() {
   const [selectedTripExpenses, setSelectedTripExpenses] = useState<number>(0);
   const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
 
+  // Loading states for better UX
+  const [earningsLoading, setEarningsLoading] = useState(false);
+  const [expensesLoading, setExpensesLoading] = useState(false);
+
   // Filter state for expenses
   const [expenseFilters, setExpenseFilters] = useState({
     carId: '',
@@ -586,10 +590,12 @@ export default function HostCarManagement() {
     }
   };
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = async (showLoading = false) => {
     if (!user) return;
     
     try {
+      if (showLoading) setExpensesLoading(true);
+      
       const { data, error } = await (supabase as any)
         .from('host_expenses')
         .select('*')
@@ -597,16 +603,22 @@ export default function HostCarManagement() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Fetched expenses data:', data);
       setExpenses(data || []);
     } catch (error) {
       console.error('Error fetching expenses:', error);
+    } finally {
+      if (showLoading) setExpensesLoading(false);
     }
   };
 
-  const fetchEarnings = async () => {
+  const fetchEarnings = async (showLoading = false) => {
     if (!user) return;
     
     try {
+      if (showLoading) setEarningsLoading(true);
+      
       const { data, error } = await (supabase as any)
         .from('host_earnings')
         .select('*')
@@ -614,9 +626,13 @@ export default function HostCarManagement() {
         .order('earning_period_start', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Fetched earnings data:', data);
       setEarnings(data || []);
     } catch (error) {
       console.error('Error fetching earnings:', error);
+    } finally {
+      if (showLoading) setEarningsLoading(false);
     }
   };
 
@@ -917,8 +933,15 @@ export default function HostCarManagement() {
       setEarningDialogOpen(false);
       setEditingEarning(null);
       earningForm.reset();
-      fetchEarnings();
-      fetchExpenses(); // Refresh expenses to sync guest names and trip data
+      
+      // Add a small delay and force refresh with loading states
+      setTimeout(async () => {
+        await Promise.all([
+          fetchEarnings(true),
+          fetchExpenses(true)
+        ]);
+        console.log('Earnings and expenses refreshed after update');
+      }, 300);
     } catch (error) {
       console.error('Error managing earning:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
