@@ -2407,9 +2407,12 @@ export default function HostCarManagement() {
                          name="trip_id"
                          render={({ field }) => {
                            const selectedCar = cars.find(c => c.id === claimForm.watch("car_id"));
-                           const availableTripIds = selectedCar 
-                             ? [...new Set(expenses.filter(e => e.car_id === selectedCar.id && e.trip_id).map(e => e.trip_id))]
-                             : [];
+                            const availableTripIds = selectedCar 
+                              ? [...new Set(expenses
+                                  .filter(e => e.car_id === selectedCar.id && e.trip_id && e.trip_id.trim() !== '')
+                                  .map(e => e.trip_id)
+                                  .filter(Boolean))]
+                              : [];
 
                            return (
                              <FormItem>
@@ -2430,9 +2433,9 @@ export default function HostCarManagement() {
                                        </SelectTrigger>
                                        <SelectContent>
                                          {availableTripIds.map((tripId) => (
-                                           <SelectItem key={tripId} value={tripId || ""}>
-                                             {tripId}
-                                           </SelectItem>
+                                            <SelectItem key={tripId} value={tripId}>
+                                              {tripId}
+                                            </SelectItem>
                                          ))}
                                        </SelectContent>
                                      </Select>
