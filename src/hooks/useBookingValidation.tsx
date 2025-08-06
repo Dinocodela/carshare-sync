@@ -20,18 +20,18 @@ export interface ValidationResult {
 export function useBookingValidation() {
   const [isValidating, setIsValidating] = useState(false);
 
-  const validateDates = useCallback(async (
+  const validateDateTimes = useCallback(async (
     carId: string,
-    startDate: string,
-    endDate: string,
+    startDateTime: string,
+    endDateTime: string,
     excludeId?: string
   ): Promise<ValidationResult> => {
-    if (!carId || !startDate || !endDate) {
+    if (!carId || !startDateTime || !endDateTime) {
       return { isValid: false, conflicts: [], error: 'Missing required parameters' };
     }
 
-    if (new Date(startDate) > new Date(endDate)) {
-      return { isValid: false, conflicts: [], error: 'Start date must be before end date' };
+    if (new Date(startDateTime) > new Date(endDateTime)) {
+      return { isValid: false, conflicts: [], error: 'Start time must be before end time' };
     }
 
     setIsValidating(true);
@@ -40,8 +40,8 @@ export function useBookingValidation() {
       // Call the database function to check for conflicts
       const { data, error } = await supabase.rpc('get_conflicting_earnings', {
         p_car_id: carId,
-        p_start_date: startDate,
-        p_end_date: endDate
+        p_start_date: startDateTime,
+        p_end_date: endDateTime
       });
 
       if (error) {
@@ -74,15 +74,15 @@ export function useBookingValidation() {
 
   const checkAvailability = useCallback(async (
     carId: string,
-    startDate: string,
-    endDate: string
+    startDateTime: string,
+    endDateTime: string
   ): Promise<boolean> => {
-    const result = await validateDates(carId, startDate, endDate);
+    const result = await validateDateTimes(carId, startDateTime, endDateTime);
     return result.isValid;
-  }, [validateDates]);
+  }, [validateDateTimes]);
 
   return {
-    validateDates,
+    validateDateTimes,
     checkAvailability,
     isValidating
   };

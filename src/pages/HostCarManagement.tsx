@@ -152,8 +152,10 @@ const earningSchema = z.object({
   earning_type: z.string().min(1, "Earning type is required"),
   gross_earnings: z.number().min(0.01, "Amount must be greater than 0"),
   payment_source: z.string().min(1, "Payment source is required"),
-  earning_period_start: z.string().min(1, "Start date is required"),
-  earning_period_end: z.string().min(1, "End date is required"),
+  earning_period_start_date: z.string().min(1, "Start date is required"),
+  earning_period_start_time: z.string().min(1, "Start time is required"),
+  earning_period_end_date: z.string().min(1, "End date is required"),
+  earning_period_end_time: z.string().min(1, "End time is required"),
   client_profit_percentage: z.number().min(0).max(100).default(70),
   host_profit_percentage: z.number().min(0).max(100).default(30),
   payment_status: z.string().min(1, "Payment status is required"),
@@ -265,8 +267,10 @@ export default function HostCarManagement() {
       earning_type: "hosting",
       gross_earnings: 0,
       payment_source: "Turo",
-      earning_period_start: new Date().toISOString().split('T')[0],
-      earning_period_end: new Date().toISOString().split('T')[0],
+      earning_period_start_date: new Date().toISOString().split('T')[0],
+      earning_period_start_time: "09:00",
+      earning_period_end_date: new Date().toISOString().split('T')[0],
+      earning_period_end_time: "17:00",
       client_profit_percentage: 70,
       host_profit_percentage: 30,
       payment_status: "pending",
@@ -380,8 +384,10 @@ export default function HostCarManagement() {
 
   // Add date validation for earning form
   const watchedCarId = earningForm.watch("car_id");
-  const watchedStartDate = earningForm.watch("earning_period_start");
-  const watchedEndDate = earningForm.watch("earning_period_end");
+  const watchedStartDate = earningForm.watch("earning_period_start_date");
+  const watchedStartTime = earningForm.watch("earning_period_start_time");
+  const watchedEndDate = earningForm.watch("earning_period_end_date");
+  const watchedEndTime = earningForm.watch("earning_period_end_time");
 
   useEffect(() => {
     const validateBookingDates = async () => {
