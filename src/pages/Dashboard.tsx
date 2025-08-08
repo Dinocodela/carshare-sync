@@ -153,7 +153,7 @@ export default function Dashboard() {
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                   <CardDescription>
-                    Get started with Telsys
+                    Get started with TESLYS
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">

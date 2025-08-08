@@ -87,7 +87,7 @@ const RegisterHost = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">Join Telsys</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary">Join TESLYS</CardTitle>
           <CardDescription>Create your host account</CardDescription>
         </CardHeader>
         <CardContent>

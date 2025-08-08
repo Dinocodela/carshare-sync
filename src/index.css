@@ -17,7 +17,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Telsys brand colors - blue/teal theme */
+    /* TESLYS brand colors - blue/teal theme */
     --primary: 190 90% 40%;
     --primary-foreground: 0 0% 100%;
 
@@ -73,7 +73,7 @@ All colors MUST be HSL.
     --popover: 220 15% 10%;
     --popover-foreground: 0 0% 95%;
 
-    /* Telsys dark theme */
+    /* TESLYS dark theme */
     --primary: 190 90% 55%;
     --primary-foreground: 220 15% 8%;
 
