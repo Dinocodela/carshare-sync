@@ -278,7 +278,7 @@ export default function HostCarManagement() {
   });
 
   // Add booking validation hook
-  const { validateDates, isValidating } = useBookingValidation();
+  const { validateDateTimes, isValidating } = useBookingValidation();
   const [dateConflicts, setDateConflicts] = useState<any[]>([]);
   const [showCalendar, setShowCalendar] = useState(false);
 
@@ -391,11 +391,13 @@ export default function HostCarManagement() {
 
   useEffect(() => {
     const validateBookingDates = async () => {
-      if (watchedCarId && watchedStartDate && watchedEndDate) {
-        const result = await validateDates(
+      if (watchedCarId && watchedStartDate && watchedStartTime && watchedEndDate && watchedEndTime) {
+        const startDateTime = `${watchedStartDate}T${watchedStartTime}:00`;
+        const endDateTime = `${watchedEndDate}T${watchedEndTime}:00`;
+        const result = await validateDateTimes(
           watchedCarId,
-          watchedStartDate,
-          watchedEndDate,
+          startDateTime,
+          endDateTime,
           editingEarning?.id
         );
         setDateConflicts(result.conflicts);
@@ -406,7 +408,7 @@ export default function HostCarManagement() {
 
     const debounceTimer = setTimeout(validateBookingDates, 500);
     return () => clearTimeout(debounceTimer);
-  }, [watchedCarId, watchedStartDate, watchedEndDate, validateDates, editingEarning?.id]);
+  }, [watchedCarId, watchedStartDate, watchedStartTime, watchedEndDate, watchedEndTime, validateDateTimes, editingEarning?.id]);
 
   // Auto-populate car and guest when trip_id changes in expenses form
   const watchedExpenseTripId = expenseForm.watch("trip_id");
@@ -1005,10 +1007,12 @@ export default function HostCarManagement() {
     }
 
     // Validate dates before submission
-    const validationResult = await validateDates(
+    const startDateTime = `${values.earning_period_start_date}T${values.earning_period_start_time}:00`;
+    const endDateTime = `${values.earning_period_end_date}T${values.earning_period_end_time}:00`;
+    const validationResult = await validateDateTimes(
       values.car_id,
-      values.earning_period_start,
-      values.earning_period_end,
+      startDateTime,
+      endDateTime,
       editingEarning?.id
     );
 
@@ -1139,8 +1143,10 @@ export default function HostCarManagement() {
       earning_type: earning.earning_type,
       gross_earnings: earning.gross_earnings || 0,
       payment_source: earning.payment_source || 'Turo',
-      earning_period_start: earning.earning_period_start,
-      earning_period_end: earning.earning_period_end,
+      earning_period_start_date: earning.earning_period_start.split('T')[0],
+      earning_period_start_time: earning.earning_period_start.split('T')[1]?.slice(0, 5) || '',
+      earning_period_end_date: earning.earning_period_end.split('T')[0],
+      earning_period_end_time: earning.earning_period_end.split('T')[1]?.slice(0, 5) || '',
       client_profit_percentage: earning.client_profit_percentage || 70,
       host_profit_percentage: earning.host_profit_percentage || 30,
       payment_status: earning.payment_status,
@@ -1989,8 +1995,10 @@ export default function HostCarManagement() {
                       earning_type: 'hosting',
                       gross_earnings: 0,
                       payment_source: 'Turo',
-                      earning_period_start: '',
-                      earning_period_end: '',
+                      earning_period_start_date: '',
+                      earning_period_start_time: '',
+                      earning_period_end_date: '',
+                      earning_period_end_time: '',
                       client_profit_percentage: 70,
                       host_profit_percentage: 30,
                       payment_status: 'pending',
@@ -2254,10 +2262,10 @@ export default function HostCarManagement() {
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
                           control={earningForm.control}
-                          name="earning_period_start"
+                          name="earning_period_start_date"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Period Start</FormLabel>
+                              <FormLabel>Start Date</FormLabel>
                               <FormControl>
                                 <Input type="date" {...field} />
                               </FormControl>
@@ -2267,12 +2275,41 @@ export default function HostCarManagement() {
                         />
                         <FormField
                           control={earningForm.control}
-                          name="earning_period_end"
+                          name="earning_period_start_time"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Period End</FormLabel>
+                              <FormLabel>Start Time</FormLabel>
+                              <FormControl>
+                                <Input type="time" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={earningForm.control}
+                          name="earning_period_end_date"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>End Date</FormLabel>
                               <FormControl>
                                 <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={earningForm.control}
+                          name="earning_period_end_time"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>End Time</FormLabel>
+                              <FormControl>
+                                <Input type="time" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -2285,8 +2322,8 @@ export default function HostCarManagement() {
                         <ConflictWarning 
                           conflicts={dateConflicts}
                           selectedDates={{
-                            start: earningForm.watch("earning_period_start"),
-                            end: earningForm.watch("earning_period_end")
+                            start: `${earningForm.watch("earning_period_start_date")}T${earningForm.watch("earning_period_start_time")}:00`,
+                            end: `${earningForm.watch("earning_period_end_date")}T${earningForm.watch("earning_period_end_time")}:00`
                           }}
                         />
                       )}
