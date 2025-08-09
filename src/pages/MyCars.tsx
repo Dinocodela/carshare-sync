@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, Plus, Eye, Edit, CheckCircle2 } from 'lucide-react';
+import { Car, Plus, Eye, Edit } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useCars } from '@/hooks/useCars';
@@ -102,7 +103,7 @@ export default function MyCars() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {cars.map((car) => (
-              <Card key={car.id} className="hover:shadow-md transition-shadow">
+              <Card key={car.id} className="h-full flex flex-col hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
@@ -126,32 +127,42 @@ export default function MyCars() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1">
                   <div className="space-y-4">
-                    {car.images && car.images.length > 0 && (
-                      <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                        <img
-                          src={car.images[0]}
-                          alt={`${car.make} ${car.model}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
+                    <div className="rounded-lg overflow-hidden bg-muted">
+                      <AspectRatio ratio={16 / 9}>
+                        {car.images && car.images.length > 0 ? (
+                          <img
+                            src={car.images[0]}
+                            alt={`${car.year} ${car.make} ${car.model}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <Car className="h-6 w-6" aria-hidden="true" />
+                          </div>
+                        )}
+                      </AspectRatio>
+                    </div>
                     
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
                         <strong>Location:</strong> {car.location}
                       </p>
-                      {car.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          <strong>Description:</strong> {car.description}
-                        </p>
-                      )}
+                        {car.description && (
+                          <p className="text-sm text-muted-foreground max-h-12 overflow-hidden">
+                            <strong>Description:</strong> {car.description}
+                          </p>
+                        )}
                       <p className="text-xs text-muted-foreground">
                         Added {new Date(car.created_at).toLocaleDateString()}
                       </p>
                     </div>
 
+                  </div>
+                </CardContent>
+                <CardFooter className="mt-auto pt-0">
+                  <div className="w-full flex flex-col gap-2">
                     <div className="flex gap-2">
                       <Button 
                         variant="outline" 
@@ -162,55 +173,8 @@ export default function MyCars() {
                         <Eye className="h-3 w-3 mr-1" />
                         View
                       </Button>
-
                       {!(car as any).is_shared && (
                         <>
-                          {car.status === 'available' ? (
-                            <Button 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={() => navigate(`/select-host?carId=${car.id}`)}
-                            >
-                              Request Hosting
-                            </Button>
-                          ) : car.status === 'pending' ? (
-                            <Button 
-                              variant="secondary" 
-                              size="sm" 
-                              className="flex-1"
-                              disabled
-                            >
-                              Request Sent
-                            </Button>
-                          ) : car.status === 'hosted' ? (
-                            <div className="flex flex-col gap-1 flex-1 min-w-0">
-                              <div className="flex items-center gap-1 text-xs text-primary font-medium">
-                                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                                <span>Currently being hosted</span>
-                              </div>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full"
-                                onClick={() => navigate(`/hosting-details/${car.id}`)}
-                                disabled={!car.host_id}
-                                title={!car.host_id ? 'Host details unavailable' : undefined}
-                              >
-                                View Host Contact
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={() => navigate(`/cars/${car.id}/edit`)}
-                            >
-                              <Edit className="h-3 w-3 mr-1" />
-                              Edit
-                            </Button>
-                          )}
-
                           <Button 
                             variant="outline" 
                             size="sm"
@@ -218,17 +182,68 @@ export default function MyCars() {
                           >
                             Share
                           </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setManageAccessCarId(car.id)}
+                          >
+                            Manage Access
+                          </Button>
                         </>
                       )}
                     </div>
+                    {!(car as any).is_shared && (
+                      <>
+                        {car.status === 'available' ? (
+                          <Button 
+                            size="sm" 
+                            className="w-full"
+                            onClick={() => navigate(`/select-host?carId=${car.id}`)}
+                          >
+                            Request Hosting
+                          </Button>
+                        ) : car.status === 'pending' ? (
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="w-full"
+                            disabled
+                          >
+                            Request Sent
+                          </Button>
+                        ) : car.status === 'hosted' ? (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full"
+                            onClick={() => navigate(`/hosting-details/${car.id}`)}
+                            disabled={!car.host_id}
+                            title={!car.host_id ? 'Host details unavailable' : undefined}
+                          >
+                            View Host Contact
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full"
+                            onClick={() => navigate(`/cars/${car.id}/edit`)}
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Edit
+                          </Button>
+                        )}
+                      </>
+                    )}
                   </div>
-                </CardContent>
+                </CardFooter>
               </Card>
             ))}
           </div>
         )}
       </div>
       <ShareCarDialog carId={shareCarId} open={!!shareCarId} onOpenChange={(open) => setShareCarId(open ? shareCarId : null)} />
+      <ManageCarAccessDialog carId={manageAccessCarId} open={!!manageAccessCarId} onOpenChange={(open) => setManageAccessCarId(open ? manageAccessCarId : null)} />
     </DashboardLayout>
   );
 }
