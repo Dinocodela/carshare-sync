@@ -7,6 +7,7 @@ import { FixedExpensesList } from '@/components/expenses/FixedExpensesList';
 import { useCars } from '@/hooks/useCars';
 import { useClientCarExpenses } from '@/hooks/useClientCarExpenses';
 import { Car, DollarSign, Plus, TrendingDown, TrendingUp } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function ClientFixedExpenses() {
   const [selectedCarId, setSelectedCarId] = useState<string>('');

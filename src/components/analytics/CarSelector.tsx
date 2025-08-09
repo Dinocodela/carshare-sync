@@ -1,5 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Car } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface CarSelectorProps {
   cars: any[];

@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useCars } from '@/hooks/useCars';
 import { ShareCarDialog } from '@/components/cars/ShareCarDialog';
+import { ManageCarAccessDialog } from '@/components/cars/ManageCarAccessDialog';
 
 interface CarData {
   id: string;
@@ -31,6 +32,7 @@ export default function MyCars() {
   const { user } = useAuth();
   const { cars, loading } = useCars();
   const [shareCarId, setShareCarId] = useState<string | null>(null);
+  const [manageAccessCarId, setManageAccessCarId] = useState<string | null>(null);
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
