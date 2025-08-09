@@ -22,6 +22,7 @@ import ClientAnalytics from "./pages/ClientAnalytics";
 import ClientFixedExpenses from "./pages/ClientFixedExpenses";
 import HostAnalytics from "./pages/HostAnalytics";
 import ScheduleMaintenance from "./pages/ScheduleMaintenance";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/cars/:id/edit" element={<EditCar />} />
             <Route path="/cars/:id/schedule-maintenance" element={<ScheduleMaintenance />} />
             <Route path="/client-fixed-expenses" element={<ClientFixedExpenses />} />
+            <Route path="/settings" element={<Settings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

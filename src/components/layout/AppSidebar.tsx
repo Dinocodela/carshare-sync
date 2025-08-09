@@ -78,7 +78,7 @@ export function AppSidebar() {
         },
         {
           title: "Settings",
-          url: "#",
+          url: "/settings",
           icon: Settings,
         }
       ];
@@ -102,7 +102,7 @@ export function AppSidebar() {
         },
         {
           title: "Settings",
-          url: "#",
+          url: "/settings",
           icon: Settings,
         }
       ];
