@@ -13,10 +13,10 @@ export default function ClientFixedExpenses() {
   const { cars, loading: carsLoading } = useCars();
   const { getMonthlyFixedCosts, expenses, loading: expensesLoading } = useClientCarExpenses();
 
-  // Auto-select first car if available and none selected
-  const clientCars = cars.filter(car => car.client_id);
+  // Use all accessible cars (owned + shared)
+  const accessibleCars = cars;
+  const clientCars = accessibleCars;
   
-  // Add debugging
   console.log('ClientFixedExpenses Debug:', {
     cars: clientCars.length,
     expenses: expenses.length,
@@ -130,6 +130,7 @@ export default function ClientFixedExpenses() {
           <FixedExpensesList
             carId={selectedCar.id}
             carName={`${selectedCar.year} ${selectedCar.make} ${selectedCar.model}`}
+            readOnly={Boolean((selectedCar as any).is_shared)}
           />
         )}
 

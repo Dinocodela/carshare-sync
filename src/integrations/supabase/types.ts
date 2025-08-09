@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      car_access: {
+        Row: {
+          car_id: string
+          created_at: string
+          granted_by: string
+          id: string
+          permission: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          granted_by: string
+          id?: string
+          permission?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          granted_by?: string
+          id?: string
+          permission?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_access_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cars: {
         Row: {
           client_id: string | null

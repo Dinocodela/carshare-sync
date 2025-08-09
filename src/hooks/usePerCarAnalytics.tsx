@@ -59,21 +59,40 @@ export function usePerCarAnalytics(selectedCarId?: string) {
       setError(null);
       setLoading(true);
       
-      // First get user's cars with details
-      const { data: userCars, error: carsError } = await supabase
+      // Get owned cars
+      const { data: ownedCars, error: carsError } = await supabase
         .from('cars')
         .select('*')
         .eq('client_id', user.id);
-
       if (carsError) throw carsError;
-      setCars(userCars || []);
 
-      if (!userCars || userCars.length === 0) {
+      // Get shared car ids
+      const { data: access, error: accessErr } = await supabase
+        .from('car_access')
+        .select('car_id, permission')
+        .eq('user_id', user.id);
+      if (accessErr) throw accessErr;
+
+      let sharedCars: any[] = [];
+      const sharedIds = (access || []).map((a: any) => a.car_id).filter((id: string) => !(ownedCars || []).some((c: any) => c.id === id));
+      if (sharedIds.length > 0) {
+        const { data: sharedData, error: sharedErr } = await supabase
+          .from('cars')
+          .select('*')
+          .in('id', sharedIds);
+        if (sharedErr) throw sharedErr;
+        sharedCars = sharedData || [];
+      }
+
+      const allCars = [ ...(ownedCars || []), ...sharedCars ];
+      setCars(allCars);
+
+      if (allCars.length === 0) {
         setAllData({ earnings: [], expenses: [], claims: [] });
         return;
       }
 
-      const carIds = userCars.map(car => car.id);
+      const carIds = allCars.map(car => car.id);
 
       // Get all analytics data
       const [earningsResult, expensesResult, claimsResult] = await Promise.all([

@@ -17,7 +17,11 @@ export interface Car {
   host_id: string | null;
   created_at: string;
   updated_at: string;
+  // Sharing metadata (not stored in DB row directly)
+  is_shared?: boolean;
+  share_permission?: 'viewer' | 'editor';
 }
+
 
 export interface Request {
   id: string;
@@ -37,7 +41,7 @@ export function useCars() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCars = async () => {
+  const fetchAccessibleCars = async () => {
     if (!user) {
       setCars([]);
       return;
@@ -45,16 +49,48 @@ export function useCars() {
 
     try {
       setError(null);
-      const { data, error: fetchError } = await (supabase as any)
+      // Owned cars
+      const { data: owned, error: ownedErr } = await (supabase as any)
         .from('cars')
         .select('*')
         .eq('client_id', user.id)
         .order('created_at', { ascending: false });
+      if (ownedErr) throw ownedErr;
 
-      if (fetchError) throw fetchError;
-      setCars(data || []);
+      // Shared cars via car_access
+      const { data: access, error: accessErr } = await (supabase as any)
+        .from('car_access')
+        .select('car_id, permission')
+        .eq('user_id', user.id);
+      if (accessErr) throw accessErr;
+
+      let sharedCars: Car[] = [];
+      if (access && access.length > 0) {
+        const sharedIds = access
+          .map((a: any) => a.car_id)
+          .filter((id: string) => !(owned || []).some((c: any) => c.id === id));
+
+        if (sharedIds.length > 0) {
+          const { data: sharedData, error: sharedErr } = await (supabase as any)
+            .from('cars')
+            .select('*')
+            .in('id', sharedIds);
+          if (sharedErr) throw sharedErr;
+
+          const permMap: Record<string, 'viewer' | 'editor'> = {};
+          access.forEach((a: any) => { permMap[a.car_id] = a.permission; });
+
+          sharedCars = (sharedData || []).map((c: any) => ({
+            ...c,
+            is_shared: true,
+            share_permission: permMap[c.id],
+          }));
+        }
+      }
+
+      setCars([...(owned || []), ...sharedCars]);
     } catch (err) {
-      console.error('Error fetching cars:', err);
+      console.error('Error fetching accessible cars:', err);
       setError('Failed to load cars');
     }
   };
@@ -83,7 +119,7 @@ export function useCars() {
 
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchCars(), fetchRequests()]);
+    await Promise.all([fetchAccessibleCars(), fetchRequests()]);
     setLoading(false);
   };
 

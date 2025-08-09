@@ -35,6 +35,9 @@ verify_jwt = false
 [functions.send-client-commission-paid]
 verify_jwt = false
 
+[functions.share-car-access]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Car, Plus, Eye, Edit, CheckCircle2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useCars } from '@/hooks/useCars';
+import { ShareCarDialog } from '@/components/cars/ShareCarDialog';
 
 interface CarData {
   id: string;
@@ -28,36 +29,8 @@ export default function MyCars() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [cars, setCars] = useState<CarData[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchCars();
-  }, [user]);
-
-  const fetchCars = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await (supabase as any)
-        .from('cars')
-        .select('*')
-        .eq('client_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setCars(data || []);
-    } catch (error) {
-      console.error('Error fetching cars:', error);
-      toast({
-        title: "Error loading cars",
-        description: "Unable to load your cars. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { cars, loading } = useCars();
+  const [shareCarId, setShareCarId] = useState<string | null>(null);
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -131,9 +104,14 @@ export default function MyCars() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg">
-                        {car.year} {car.make} {car.model}
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">
+                          {car.year} {car.make} {car.model}
+                        </CardTitle>
+                        {(car as any).is_shared && (
+                          <Badge variant="secondary">Shared</Badge>
+                        )}
+                      </div>
                       <CardDescription className="mt-1">
                         {car.color} • {car.mileage.toLocaleString()} miles
                       </CardDescription>
@@ -182,50 +160,63 @@ export default function MyCars() {
                         <Eye className="h-3 w-3 mr-1" />
                         View
                       </Button>
-                      {car.status === 'available' ? (
-                        <Button 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => navigate(`/select-host?carId=${car.id}`)}
-                        >
-                          Request Hosting
-                        </Button>
-                      ) : car.status === 'pending' ? (
-                        <Button 
-                          variant="secondary" 
-                          size="sm" 
-                          className="flex-1"
-                          disabled
-                        >
-                          Request Sent
-                        </Button>
-                      ) : car.status === 'hosted' ? (
-                        <div className="flex flex-col gap-1 flex-1 min-w-0">
-                          <div className="flex items-center gap-1 text-xs text-primary font-medium">
-                            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                            <span>Currently being hosted</span>
-                          </div>
+
+                      {!(car as any).is_shared && (
+                        <>
+                          {car.status === 'available' ? (
+                            <Button 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => navigate(`/select-host?carId=${car.id}`)}
+                            >
+                              Request Hosting
+                            </Button>
+                          ) : car.status === 'pending' ? (
+                            <Button 
+                              variant="secondary" 
+                              size="sm" 
+                              className="flex-1"
+                              disabled
+                            >
+                              Request Sent
+                            </Button>
+                          ) : car.status === 'hosted' ? (
+                            <div className="flex flex-col gap-1 flex-1 min-w-0">
+                              <div className="flex items-center gap-1 text-xs text-primary font-medium">
+                                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                                <span>Currently being hosted</span>
+                              </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full"
+                                onClick={() => navigate(`/hosting-details/${car.id}`)}
+                                disabled={!car.host_id}
+                                title={!car.host_id ? 'Host details unavailable' : undefined}
+                              >
+                                View Host Contact
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => navigate(`/cars/${car.id}/edit`)}
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                          )}
+
                           <Button 
                             variant="outline" 
-                            size="sm" 
-                            className="w-full"
-                            onClick={() => navigate(`/hosting-details/${car.id}`)}
-                            disabled={!car.host_id}
-                            title={!car.host_id ? 'Host details unavailable' : undefined}
+                            size="sm"
+                            onClick={() => setShareCarId(car.id)}
                           >
-                            View Host Contact
+                            Share
                           </Button>
-                        </div>
-                      ) : (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => navigate(`/cars/${car.id}/edit`)}
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Edit
-                        </Button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -235,6 +226,7 @@ export default function MyCars() {
           </div>
         )}
       </div>
+      <ShareCarDialog carId={shareCarId} open={!!shareCarId} onOpenChange={(open) => setShareCarId(open ? shareCarId : null)} />
     </DashboardLayout>
   );
 }

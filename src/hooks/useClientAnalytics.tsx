@@ -93,24 +93,29 @@ export function useClientAnalytics() {
     try {
       setError(null);
       
-      // First get user's cars
-      const { data: userCars, error: carsError } = await supabase
+      // Get accessible cars: owned + shared
+      const { data: ownedCars, error: carsError } = await supabase
         .from('cars')
         .select('id')
         .eq('client_id', user.id);
-
       if (carsError) throw carsError;
 
-      if (!userCars || userCars.length === 0) {
+      const { data: access, error: accessErr } = await supabase
+        .from('car_access')
+        .select('car_id')
+        .eq('user_id', user.id);
+      if (accessErr) throw accessErr;
+
+      const ownedIds = (ownedCars || []).map((c: any) => c.id);
+      const sharedIds = (access || []).map((a: any) => a.car_id);
+      const carIds = Array.from(new Set([...ownedIds, ...sharedIds]));
+
+      if (carIds.length === 0) {
         setEarnings([]);
         setExpenses([]);
         setClaims([]);
         return;
       }
-
-      const carIds = userCars.map(car => car.id);
-
-      // Get earnings for user's cars
       const { data: earningsData, error: earningsError } = await supabase
         .from('host_earnings')
         .select('*')

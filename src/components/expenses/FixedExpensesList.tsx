@@ -9,9 +9,10 @@ import { FixedExpenseForm } from './FixedExpenseForm';
 interface FixedExpensesListProps {
   carId: string;
   carName: string;
+  readOnly?: boolean;
 }
 
-export function FixedExpensesList({ carId, carName }: FixedExpensesListProps) {
+export function FixedExpensesList({ carId, carName, readOnly = false }: FixedExpensesListProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<any>(null);
   const { expenses, getExpensesByCarId, getMonthlyFixedCosts, deleteExpense, loading } = useClientCarExpenses();
@@ -71,10 +72,12 @@ export function FixedExpensesList({ carId, carName }: FixedExpensesListProps) {
             <DollarSign className="h-4 w-4" />
             <span>${monthlyTotal.toFixed(2)}/month total</span>
           </div>
-          <Button onClick={() => setShowForm(true)} size="sm">
-            <Plus className="h-4 w-4 mr-1" />
-            Add Expense
-          </Button>
+          {!readOnly && (
+            <Button onClick={() => setShowForm(true)} size="sm">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Expense
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -119,23 +122,25 @@ export function FixedExpensesList({ carId, carName }: FixedExpensesListProps) {
                     {expense.end_date && ` - ${new Date(expense.end_date).toLocaleDateString()}`}
                   </p>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleEdit(expense)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => handleDelete(expense.id)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                {!readOnly && (
+                  <div className="flex items-center space-x-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleEdit(expense)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleDelete(expense.id)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

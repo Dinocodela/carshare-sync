@@ -48,7 +48,6 @@ export function useClientCarExpenses() {
       const { data, error: fetchError } = await supabase
         .from('client_car_expenses')
         .select('*')
-        .eq('client_id', user.id)
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
