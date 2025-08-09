@@ -32,6 +32,9 @@ verify_jwt = false
 [functions.send-client-confirmation]
 verify_jwt = false
 
+[functions.send-client-commission-paid]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324

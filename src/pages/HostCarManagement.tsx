@@ -1067,11 +1067,15 @@ export default function HostCarManagement() {
       };
 
       if (editingEarning) {
+        const wasPaidBefore = editingEarning.payment_status === 'paid';
+
         // Update existing earning
-        const { error } = await supabase
+        const { error, data: updated } = await supabase
           .from('host_earnings')
           .update(earningData)
-          .eq('id', editingEarning.id);
+          .eq('id', editingEarning.id)
+          .select('id, payment_status')
+          .maybeSingle();
 
         if (error) throw error;
 
@@ -1079,11 +1083,36 @@ export default function HostCarManagement() {
           title: "Earning updated successfully",
           description: "Your earning has been updated.",
         });
+
+        if (values.payment_status === 'paid' && !wasPaidBefore) {
+          try {
+            const { error: notifyError } = await supabase.functions.invoke('send-client-commission-paid', {
+              body: { earningId: editingEarning.id },
+            });
+            if (notifyError) {
+              console.error('Commission email failed:', notifyError);
+              toast({
+                title: "Notification failed",
+                description: "Payment saved, but email to client failed.",
+                variant: "destructive",
+              });
+            } else {
+              toast({
+                title: "Client notified",
+                description: "Commission payment email sent.",
+              });
+            }
+          } catch (e) {
+            console.error('Commission email exception:', e);
+          }
+        }
       } else {
         // Create new earning
-        const { error } = await supabase
+        const { error, data: inserted } = await supabase
           .from('host_earnings')
-          .insert(earningData);
+          .insert(earningData)
+          .select('id, payment_status')
+          .maybeSingle();
 
         if (error) throw error;
 
@@ -1091,6 +1120,29 @@ export default function HostCarManagement() {
           title: "Earning recorded successfully",
           description: "Your earning has been added to the system.",
         });
+
+        if (inserted?.payment_status === 'paid' && inserted?.id) {
+          try {
+            const { error: notifyError } = await supabase.functions.invoke('send-client-commission-paid', {
+              body: { earningId: inserted.id },
+            });
+            if (notifyError) {
+              console.error('Commission email failed:', notifyError);
+              toast({
+                title: "Notification failed",
+                description: "Payment saved, but email to client failed.",
+                variant: "destructive",
+              });
+            } else {
+              toast({
+                title: "Client notified",
+                description: "Commission payment email sent.",
+              });
+            }
+          } catch (e) {
+            console.error('Commission email exception:', e);
+          }
+        }
       }
 
       // Sync guest name across earnings and expenses for the same trip
