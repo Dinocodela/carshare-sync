@@ -95,9 +95,27 @@ export default function ScheduleMaintenance() {
         throw error;
       }
 
+      // Send notification to client
+      try {
+        await supabase.functions.invoke('send-maintenance-notification', {
+          body: {
+            carId: carId,
+            maintenanceType: data.maintenance_type,
+            scheduledDate: format(data.scheduled_date, 'yyyy-MM-dd'),
+            scheduledTime: data.scheduled_time,
+            provider: data.provider_name || 'TBD',
+            estimatedCost: data.estimated_cost,
+            notes: data.notes
+          }
+        });
+      } catch (emailError) {
+        console.error('Error sending maintenance notification:', emailError);
+        // Don't fail the whole operation if email fails
+      }
+
       toast({
         title: "Success",
-        description: "Maintenance has been scheduled successfully",
+        description: "Maintenance has been scheduled and client notified successfully",
       });
 
       navigate('/my-cars');

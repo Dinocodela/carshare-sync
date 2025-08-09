@@ -96,15 +96,31 @@ export default function HostingDetails() {
   };
 
   const handleReturnRequest = async () => {
-    if (!car) return;
+    if (!car || !user) return;
 
     try {
+      // Update car status
       const { error } = await supabase
         .from('cars')
         .update({ status: 'ready_for_return' })
         .eq('id', car.id);
 
       if (error) throw error;
+
+      // Send notification to host
+      try {
+        await supabase.functions.invoke('send-host-return-request', {
+          body: {
+            carId: car.id,
+            hostUserId: car.host.id,
+            clientId: user.id,
+            message: `I would like to arrange the return of my ${car.year} ${car.make} ${car.model}. Please contact me to coordinate pickup details.`
+          }
+        });
+      } catch (emailError) {
+        console.error('Error sending host notification:', emailError);
+        // Don't fail the whole operation if email fails
+      }
 
       toast({
         title: "Return requested",

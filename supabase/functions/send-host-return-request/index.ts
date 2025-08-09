@@ -10,15 +10,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface HostNotificationRequest {
-  requestId: string;
-  hostEmail: string;
-  hostName: string;
-  clientName: string;
-  clientPhone?: string;
-  clientEmail?: string;
-  carDetails: string;
-  message: string;
+interface ReturnRequestNotification {
+  carId: string;
+  hostUserId: string;
+  clientId: string;
+  message?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -28,23 +24,59 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { requestId, hostEmail, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
+    const { carId, hostUserId, clientId, message }: ReturnRequestNotification = await req.json();
 
-    console.log("Sending host notification email for request:", requestId);
+    console.log("Sending return request notification for car:", carId);
+
+    // Initialize Supabase admin client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Get host and client details
+    const [hostResponse, clientResponse, carResponse] = await Promise.all([
+      supabase.auth.admin.getUserById(hostUserId),
+      supabase.auth.admin.getUserById(clientId),
+      supabase
+        .from('cars')
+        .select('make, model, year')
+        .eq('id', carId)
+        .single()
+    ]);
+
+    if (hostResponse.error || !hostResponse.data.user?.email) {
+      throw new Error('Host not found or missing email');
+    }
+
+    if (clientResponse.error || !clientResponse.data.user) {
+      throw new Error('Client not found');
+    }
+
+    if (carResponse.error || !carResponse.data) {
+      throw new Error('Car not found');
+    }
+
+    const hostEmail = hostResponse.data.user.email;
+    const hostName = hostResponse.data.user.user_metadata?.first_name || 'Host';
+    const clientName = `${clientResponse.data.user.user_metadata?.first_name || ''} ${clientResponse.data.user.user_metadata?.last_name || ''}`.trim() || 'Client';
+    const clientPhone = clientResponse.data.user.user_metadata?.phone;
+    const clientEmail = clientResponse.data.user.email;
+    const carDetails = `${carResponse.data.year} ${carResponse.data.make} ${carResponse.data.model}`;
 
     const emailResponse = await resend.emails.send({
       from: "TESLYS Platform <notifications@resend.dev>",
       to: [hostEmail],
-      subject: "New Car Hosting Request",
+      subject: "Car Return Request",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 16px;">
-            New Hosting Request
+            Car Return Request
           </h1>
           
           <p>Hi ${hostName},</p>
           
-          <p>You have received a new car hosting request from <strong>${clientName}</strong>.</p>
+          <p><strong>${clientName}</strong> has requested to return the car they're currently hosting.</p>
           
           <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #374151;">Client Contact Information:</h3>
@@ -57,17 +89,19 @@ const handler = async (req: Request): Promise<Response> => {
             <h3 style="margin-top: 20px; color: #374151;">Car Details:</h3>
             <p style="margin: 8px 0;"><strong>Vehicle:</strong> ${carDetails}</p>
             
+            ${message ? `
             <h3 style="color: #374151;">Client Message:</h3>
             <p style="background-color: white; padding: 16px; border-radius: 6px; border-left: 4px solid #2563eb; margin: 0;">
               ${message}
             </p>
+            ` : ''}
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <p>Please log in to your dashboard to review and respond to this request.</p>
+            <p>Please coordinate with the client to arrange the car return.</p>
             <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || 'https://yourapp.com'}/dashboard" 
                style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-              Review Request
+              View Dashboard
             </a>
           </div>
           
@@ -85,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Host notification email sent successfully:", emailResponse);
+    console.log("Return request notification sent successfully:", emailResponse);
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
@@ -95,7 +129,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-host-notification function:", error);
+    console.error("Error in send-host-return-request function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

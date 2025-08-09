@@ -58,7 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
     const subject = isAccepted ? "Your Car Hosting Request Has Been Accepted!" : "Update on Your Car Hosting Request";
     
     const emailResponse = await resend.emails.send({
-      from: "CarHost Platform <notifications@resend.dev>",
+      from: "TESLYS Platform <notifications@resend.dev>",
       to: [clientEmail],
       subject,
       html: `
@@ -117,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           <p style="color: #6b7280; font-size: 14px;">
             Best regards,<br>
-            The CarHost Platform Team
+            The TESLYS Platform Team
           </p>
           
           <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
