@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { Car, Plus, Eye, Edit, CheckCircle2 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,6 +64,7 @@ export default function MyCars() {
       available: { variant: 'outline' as const, label: 'Available', description: 'Ready to send hosting request' },
       pending: { variant: 'secondary' as const, label: 'Pending Review', description: 'Waiting for host response' },
       hosted: { variant: 'default' as const, label: 'Being Hosted', description: 'Currently being hosted' },
+      ready_for_return: { variant: 'secondary' as const, label: 'Ready for Return', description: 'Awaiting pickup/return' },
       completed: { variant: 'outline' as const, label: 'Completed', description: 'Hosting completed' },
     };
 
@@ -199,20 +200,21 @@ export default function MyCars() {
                           Request Sent
                         </Button>
                       ) : car.status === 'hosted' ? (
-                        <div className="flex flex-col gap-2 w-full">
-                          <div className="text-xs text-green-600 font-medium">
-                            ✓ Currently being hosted
+                        <div className="flex flex-col gap-1 flex-1 min-w-0">
+                          <div className="flex items-center gap-1 text-xs text-primary font-medium">
+                            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                            <span>Currently being hosted</span>
                           </div>
-                          {car.host_id && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="w-full"
-                              onClick={() => navigate(`/hosting-details/${car.id}`)}
-                            >
-                              View Host Contact
-                            </Button>
-                          )}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full"
+                            onClick={() => navigate(`/hosting-details/${car.id}`)}
+                            disabled={!car.host_id}
+                            title={!car.host_id ? 'Host details unavailable' : undefined}
+                          >
+                            View Host Contact
+                          </Button>
                         </div>
                       ) : (
                         <Button 
