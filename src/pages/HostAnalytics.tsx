@@ -28,12 +28,14 @@ const transformEarningsForDisplay = (hostEarnings: any[]) =>
   hostEarnings.map(earning => ({
     ...earning,
     host_id: earning.host_id || '',
-    commission: 0,
+    commission: earning.commission ?? 0,
+    // For host view, treat host's share as the primary/net amount
     net_amount: earning.host_profit_amount,
     gross_earnings: earning.amount,
-    client_profit_percentage: 70,
-    host_profit_percentage: 30,
-    client_profit_amount: earning.amount - earning.host_profit_amount,
+    // Map host share into the expected fields so UI shows 30%
+    client_profit_percentage: earning.host_profit_percentage ?? 30,
+    host_profit_percentage: earning.host_profit_percentage ?? 30,
+    client_profit_amount: earning.host_profit_amount,
   }));
 
 const transformExpensesForDisplay = (hostExpenses: any[]) =>
