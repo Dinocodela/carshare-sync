@@ -1379,23 +1379,32 @@ export default function HostCarManagement() {
         </div>
 
         <Tabs defaultValue="active" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="active">
-              Active ({activeHostedCars.length})
-            </TabsTrigger>
-            <TabsTrigger value="returns">
-              Returns ({readyForReturnCars.length})
-            </TabsTrigger>
-            <TabsTrigger value="expenses">
-              Expenses ({expenses.length})
-            </TabsTrigger>
-            <TabsTrigger value="earnings">
-              Earnings ({earnings.length})
-            </TabsTrigger>
-            <TabsTrigger value="claims">
-              Claims ({claims.length})
-            </TabsTrigger>
-          </TabsList>
+          <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
+            <div className="overflow-x-auto">
+              <TabsList className="flex w-full min-w-max gap-2 px-2 py-1">
+                <TabsTrigger value="active" className="gap-2">
+                  <span>Active</span>
+                  <Badge variant="secondary">{activeHostedCars.length}</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="returns" className="gap-2">
+                  <span>Returns</span>
+                  <Badge variant="secondary">{readyForReturnCars.length}</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="expenses" className="gap-2">
+                  <span>Expenses</span>
+                  <Badge variant="secondary">{expenses.length}</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="earnings" className="gap-2">
+                  <span>Earnings</span>
+                  <Badge variant="secondary">{earnings.length}</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="claims" className="gap-2">
+                  <span>Claims</span>
+                  <Badge variant="secondary">{claims.length}</Badge>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
 
           <TabsContent value="active" className="space-y-4">
             {activeHostedCars.length === 0 ? <Card>
