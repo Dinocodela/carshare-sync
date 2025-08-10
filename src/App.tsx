@@ -23,6 +23,7 @@ import ClientFixedExpenses from "./pages/ClientFixedExpenses";
 import HostAnalytics from "./pages/HostAnalytics";
 import ScheduleMaintenance from "./pages/ScheduleMaintenance";
 import Settings from "./pages/Settings";
+import AuthCallbackHandler from "./components/auth/AuthCallbackHandler";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AuthCallbackHandler />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
