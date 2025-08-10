@@ -34,8 +34,15 @@ export function ShareCarDialog({ carId, open, onOpenChange }: ShareCarDialogProp
 
     setLoading(true);
     try {
+      const { data: sessionResult } = await supabase.auth.getSession();
+      const accessToken = sessionResult.session?.access_token;
+      if (!accessToken) {
+        toast({ title: 'Not signed in', description: 'You must be signed in to share access.', variant: 'destructive' });
+        return;
+      }
       const { data, error } = await supabase.functions.invoke('share-car-access', {
         body: { carId, email, permission },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (error) {

@@ -34,16 +34,23 @@ serve(async (req: Request) => {
       });
     }
 
+    // Extract and validate Authorization header
+    const authHeader = req.headers.get('Authorization') ?? req.headers.get('authorization') ?? '';
+    if (!/^Bearer\s+/i.test(authHeader)) {
+      return new Response(JSON.stringify({ error: 'Missing or invalid Authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const jwt = authHeader.replace(/^Bearer\s+/i, '');
+
     // Client for verifying the caller (uses the JWT from the request)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
-      }
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const { data: authData, error: authError } = await supabase.auth.getUser(jwt);
     if (authError || !authData?.user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
