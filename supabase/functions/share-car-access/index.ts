@@ -87,32 +87,87 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { data: targetUser, error: getUserError } = await supabaseAdmin.auth.admin.getUserByEmail(email);
-    if (getUserError || !targetUser?.user) {
+    // Find target user by email using Admin API (list + filter)
+    const { data: usersList, error: listUsersError } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+
+    if (listUsersError) {
+      console.error('Error listing users:', listUsersError);
+      return new Response(JSON.stringify({ error: 'Failed to lookup user' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const target = usersList?.users?.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
+
+    if (!target) {
       return new Response(JSON.stringify({ error: 'No user found with that email' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const targetUserId = targetUser.user.id;
+    const targetUserId = target.id;
 
-    // Upsert car access
-    const { data: upsertData, error: upsertError } = await supabaseAdmin
+    console.log('Granting access', { carId, targetUserId, permission, granted_by: callerId });
+
+    // Check if access already exists
+    const { data: existingAccess, error: selectError } = await supabaseAdmin
       .from('car_access')
-      .upsert({ car_id: carId, user_id: targetUserId, permission, granted_by: callerId }, { onConflict: 'car_id,user_id' })
-      .select()
+      .select('id, car_id, user_id, permission')
+      .eq('car_id', carId)
+      .eq('user_id', targetUserId)
       .maybeSingle();
 
-    if (upsertError) {
-      console.error('Error upserting car_access:', upsertError);
-      return new Response(JSON.stringify({ error: 'Failed to grant access' }), {
+    if (selectError && selectError.code !== 'PGRST116') {
+      console.error('Error checking existing car_access:', selectError);
+      return new Response(JSON.stringify({ error: 'Failed to check existing access' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ success: true, access: upsertData }), {
+    let accessRow;
+
+    if (existingAccess) {
+      const { data: updated, error: updateError } = await supabaseAdmin
+        .from('car_access')
+        .update({ permission, granted_by: callerId, updated_at: new Date().toISOString() })
+        .eq('id', existingAccess.id)
+        .select()
+        .maybeSingle();
+
+      if (updateError) {
+        console.error('Error updating car_access:', updateError);
+        return new Response(JSON.stringify({ error: 'Failed to update access' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      accessRow = updated;
+    } else {
+      const { data: inserted, error: insertError } = await supabaseAdmin
+        .from('car_access')
+        .insert({ car_id: carId, user_id: targetUserId, permission, granted_by: callerId })
+        .select()
+        .maybeSingle();
+
+      if (insertError) {
+        console.error('Error inserting car_access:', insertError);
+        return new Response(JSON.stringify({ error: 'Failed to grant access' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      accessRow = inserted;
+    }
+
+    return new Response(JSON.stringify({ success: true, access: accessRow }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
