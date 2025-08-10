@@ -31,7 +31,7 @@ export default function CarDetails() {
   const { user } = useAuth();
   const [car, setCar] = useState<CarData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<'client' | 'host' | null>(null);
+  const [userRole, setUserRole] = useState<'client' | 'host' | 'shared' | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -79,16 +79,50 @@ export default function CarDetails() {
         return;
       }
 
-      // Car not found in either context
-      console.log('No car found with ID:', id, 'for user:', user.id);
+      // If not owner or host, check shared access
+      const { data: sharedAccess, error: sharedError } = await supabase
+        .from('car_access')
+        .select('id, permission')
+        .eq('car_id', id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (sharedError && (sharedError as any).code !== 'PGRST116') {
+        throw sharedError;
+      }
+
+      if (sharedAccess) {
+        const { data: sharedCar, error: carFetchError } = await supabase
+          .from('cars')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (carFetchError) throw carFetchError;
+
+        if (sharedCar) {
+          console.log('Car found via shared access:', sharedCar);
+          setCar(sharedCar);
+          setUserRole('shared');
+          return;
+        }
+      }
+
+      // No access found
+      console.log('No access to car with ID:', id, 'for user:', user.id);
       setCar(null);
       setUserRole(null);
+      toast({
+        title: 'Access denied',
+        description: 'You do not have access to view this car.',
+        variant: 'destructive',
+      });
     } catch (error) {
       console.error('Error fetching car:', error);
       toast({
-        title: "Error loading car",
-        description: "Unable to load car details. Please try again.",
-        variant: "destructive",
+        title: 'Error loading car',
+        description: 'Unable to load car details. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -126,7 +160,7 @@ export default function CarDetails() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-muted-foreground">Car not found</div>
+          <div className="text-lg text-muted-foreground">Car not found or you don&apos;t have access</div>
         </div>
       </DashboardLayout>
     );
@@ -143,7 +177,11 @@ export default function CarDetails() {
           <div className="flex items-center gap-2">
             <Car className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">
-              {userRole === 'host' ? 'Hosted Car Details' : 'Car Details'}
+              {userRole === 'host'
+                ? 'Hosted Car Details'
+                : userRole === 'shared'
+                ? 'Shared Car Details'
+                : 'Car Details'}
             </h1>
           </div>
         </div>
@@ -274,7 +312,7 @@ export default function CarDetails() {
                   >
                     Edit Car Details
                   </Button>
-                ) : (
+                ) : userRole === 'host' ? (
                   <div className="space-y-2">
                     <Button 
                       className="w-full" 
@@ -289,6 +327,10 @@ export default function CarDetails() {
                     >
                       Schedule Maintenance
                     </Button>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    You have read-only shared access to this car.
                   </div>
                 )}
               </CardContent>
