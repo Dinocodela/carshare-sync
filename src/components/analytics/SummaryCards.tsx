@@ -1,14 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, Calendar, Car, FileText, AlertTriangle } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Car, FileText, AlertTriangle, Info, Receipt } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AnalyticsSummary } from '@/hooks/useClientAnalytics';
-
 interface SummaryCardsProps {
-  summary: AnalyticsSummary;
+  summary: AnalyticsSummary & { totalExpenses?: number };
   loading?: boolean;
   hideNetProfit?: boolean;
+  replaceNetProfitWithTotalExpenses?: boolean;
+  tooltips?: {
+    totalEarnings?: string;
+    netProfit?: string;
+    totalExpenses?: string;
+  };
 }
 
-export function SummaryCards({ summary, loading, hideNetProfit }: SummaryCardsProps) {
+export function SummaryCards({ summary, loading, hideNetProfit, replaceNetProfitWithTotalExpenses, tooltips }: SummaryCardsProps) {
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -72,27 +78,74 @@ export function SummaryCards({ summary, loading, hideNetProfit }: SummaryCardsPr
     }
   ];
 
+  // Replace Net Profit with Total Expenses if requested
+  let displayCards = cards;
+  if (replaceNetProfitWithTotalExpenses) {
+    displayCards = cards.map((c) =>
+      c.title === 'Net Profit'
+        ? {
+            title: 'Total Expenses',
+            value: `$${(summary.totalExpenses ?? 0).toFixed(2)}`,
+            icon: Receipt,
+            description: 'All recorded expenses',
+            valueClass: 'text-red-600',
+            gradient: 'from-red-500 to-red-600',
+          }
+        : c
+    );
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      {(hideNetProfit ? cards.filter((c) => c.title !== 'Net Profit') : cards).map((card, index) => (
-        <Card key={index} className="relative overflow-hidden">
-          <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-5`} />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
-            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-            <div className={`p-2 rounded-full bg-gradient-to-br ${card.gradient} text-white shadow-lg`}>
-              <card.icon className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent className="relative">
-            <div className={`text-2xl font-bold ${card.valueClass || ''}`}>
-              {card.value}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {card.description}
-            </p>
-          </CardContent>
-        </Card>
-      ))}
+      {(hideNetProfit ? displayCards.filter((c) => c.title !== 'Net Profit') : displayCards).map((card, index) => {
+        const tooltipText = card.title === 'Total Earnings'
+          ? tooltips?.totalEarnings
+          : card.title === 'Net Profit'
+          ? tooltips?.netProfit
+          : card.title === 'Total Expenses'
+          ? tooltips?.totalExpenses
+          : undefined;
+
+        return (
+          <Card key={index} className="relative overflow-hidden">
+            <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-5`} />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+                {tooltipText && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label={`Info about ${card.title}`}
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          <Info className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        {tooltipText}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+              <div className={`p-2 rounded-full bg-gradient-to-br ${card.gradient} text-white shadow-lg`}>
+                <card.icon className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className={`text-2xl font-bold ${card.valueClass || ''}`}>
+                {card.value}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {card.description}
+              </p>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }

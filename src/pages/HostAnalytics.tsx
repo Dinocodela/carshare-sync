@@ -85,7 +85,13 @@ export default function HostAnalytics() {
       </DashboardLayout>
     );
   }
-
+  const uiSummary = transformSummaryForDisplay(summary);
+  const grossTotal = (earnings || []).reduce((acc: number, e: any) => acc + (e?.amount ?? e?.gross_earnings ?? 0), 0);
+  const hostPct = grossTotal > 0 ? Math.round((uiSummary.totalEarnings / grossTotal) * 100) : 0;
+  const tooltips = {
+    totalEarnings: `Sum of your host share (~${hostPct}% of gross) across all trips. Gross: $${grossTotal.toFixed(2)} • Your share: $${uiSummary.totalEarnings.toFixed(2)}`,
+    totalExpenses: `Sum of all expenses you’ve recorded across your vehicles. Total: $${(uiSummary.totalExpenses ?? 0).toFixed(2)}`
+  };
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -102,7 +108,7 @@ export default function HostAnalytics() {
           </Button>
         </div>
 
-        <SummaryCards summary={transformSummaryForDisplay(summary)} loading={loading} />
+        <SummaryCards summary={uiSummary} loading={loading} replaceNetProfitWithTotalExpenses tooltips={tooltips} />
 
         <ClaimsSummary claims={transformClaimsForDisplay(claims)} loading={loading} />
 
