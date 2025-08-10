@@ -33,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending host notification email for request:", requestId);
 
     const emailResponse = await resend.emails.send({
-      from: "TESLYS Platform <notifications@resend.dev>",
+      from: "TESLYS Platform <support@dinocodela.com>",
       to: [hostEmail],
       subject: "New Car Hosting Request",
       html: `
@@ -84,6 +84,17 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse.error) {
+      console.error("Resend error in send-host-notification:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     console.log("Host notification email sent successfully:", emailResponse);
 

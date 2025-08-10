@@ -65,7 +65,7 @@ const handler = async (req: Request): Promise<Response> => {
     const carDetails = `${carResponse.data.year} ${carResponse.data.make} ${carResponse.data.model}`;
 
     const emailResponse = await resend.emails.send({
-      from: "TESLYS Platform <notifications@resend.dev>",
+      from: "TESLYS Platform <support@dinocodela.com>",
       to: [hostEmail],
       subject: "Car Return Request",
       html: `
@@ -83,7 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="color: #374151; line-height: 1.6;">
               <p style="margin: 8px 0;"><strong>Client:</strong> ${clientName}</p>
               ${clientPhone ? `<p style="margin: 8px 0;"><strong>Phone:</strong> <a href="tel:${clientPhone}" style="color: #2563eb;">${clientPhone}</a></p>` : ''}
-              ${clientEmail ? `<p style="margin: 8px 0;"><strong>Email:</strong> <a href="mailto:${clientEmail}" style="color: #2563eb;">${clientEmail}</a></p>` : ''}
+              ${clientEmail ? `<p style=\"margin: 8px 0;\"><strong>Email:</strong> <a href=\"mailto:${clientEmail}\" style=\"color: #2563eb;\">${clientEmail}</a></p>` : ''}
             </div>
             
             <h3 style="margin-top: 20px; color: #374151;">Car Details:</h3>
@@ -118,6 +118,17 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse.error) {
+      console.error("Resend error in send-host-return-request:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     console.log("Return request notification sent successfully:", emailResponse);
 

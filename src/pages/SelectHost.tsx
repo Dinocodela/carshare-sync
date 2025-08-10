@@ -189,21 +189,25 @@ export default function SelectHost() {
         }
       });
 
-      if (emailResponse.error) {
-        console.error('Error sending host notification:', emailResponse.error);
-        // Don't fail the request creation, just log the email error
-      }
-
-      // Update car status to pending
+      // Update car status to pending regardless of email result
       await supabase
         .from('cars')
         .update({ status: 'pending' })
         .eq('id', car.id);
 
-      toast({
-        title: "Request sent successfully!",
-        description: "Your hosting request has been sent to Teslys LLC. They will review and respond soon.",
-      });
+      if (emailResponse.error) {
+        console.error('Error sending host notification:', emailResponse.error);
+        toast({
+          title: "Request created, but email not sent",
+          description: "We couldn't email the host. They'll still see your request in their dashboard.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Request sent successfully!",
+          description: "Your hosting request has been sent to Teslys LLC. They will review and respond soon.",
+        });
+      }
 
       navigate('/my-cars');
     } catch (error) {

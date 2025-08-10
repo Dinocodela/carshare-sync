@@ -111,7 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
     const subject = `Commission Payment Completed${earning.trip_id ? ` - Trip #${earning.trip_id}` : ''}`;
 
     const emailResponse = await resend.emails.send({
-      from: "TESLYS Platform <notifications@resend.dev>",
+      from: "TESLYS Platform <support@dinocodela.com>",
       to: [clientEmail],
       subject,
       html: `
@@ -152,6 +152,14 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse.error) {
+      console.error("Resend error in send-client-commission-paid:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     console.log("Commission paid email sent successfully:", emailResponse);
 

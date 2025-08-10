@@ -66,7 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const emailResponse = await resend.emails.send({
-      from: "TESLYS Platform <notifications@resend.dev>",
+      from: "TESLYS Platform <support@dinocodela.com>",
       to: [clientEmail],
       subject: `Maintenance Scheduled for Your ${carResponse.data.make} ${carResponse.data.model}`,
       html: `
@@ -121,6 +121,17 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse.error) {
+      console.error("Resend error in send-maintenance-notification:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     console.log("Maintenance notification sent successfully:", emailResponse);
 

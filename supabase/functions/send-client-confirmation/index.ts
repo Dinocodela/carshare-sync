@@ -58,7 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
     const subject = isAccepted ? "Your Car Hosting Request Has Been Accepted!" : "Update on Your Car Hosting Request";
     
     const emailResponse = await resend.emails.send({
-      from: "TESLYS Platform <notifications@resend.dev>",
+      from: "TESLYS Platform <support@dinocodela.com>",
       to: [clientEmail],
       subject,
       html: `
@@ -94,7 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
                 <p style="margin: 8px 0;"><strong>Host:</strong> ${hostName}</p>
                 <p style="margin: 8px 0;"><strong>Company:</strong> ${hostCompany}</p>
                 ${hostPhone ? `<p style="margin: 8px 0;"><strong>Phone:</strong> <a href="tel:${hostPhone}" style="color: #2563eb;">${hostPhone}</a></p>` : ''}
-                ${hostEmail ? `<p style="margin: 8px 0;"><strong>Email:</strong> <a href="mailto:${hostEmail}" style="color: #2563eb;">${hostEmail}</a></p>` : ''}
+                ${hostEmail ? `<p style=\"margin: 8px 0;\"><strong>Email:</strong> <a href=\"mailto:${hostEmail}\" style=\"color: #2563eb;\">${hostEmail}</a></p>` : ''}
               </div>
               
               <h3 style="margin-top: 20px; color: #059669;">Next Steps:</h3>
@@ -126,6 +126,17 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse.error) {
+      console.error("Resend error in send-client-confirmation:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     console.log("Client confirmation email sent successfully:", emailResponse);
 
