@@ -1007,8 +1007,10 @@ export default function HostCarManagement() {
     }
 
     // Validate dates before submission
-    const startDateTime = `${values.earning_period_start_date}T${values.earning_period_start_time}:00`;
-    const endDateTime = `${values.earning_period_end_date}T${values.earning_period_end_time}:00`;
+    const startDateTimeLocal = `${values.earning_period_start_date}T${values.earning_period_start_time}:00`;
+    const endDateTimeLocal = `${values.earning_period_end_date}T${values.earning_period_end_time}:00`;
+    const startDateTime = new Date(startDateTimeLocal).toISOString();
+    const endDateTime = new Date(endDateTimeLocal).toISOString();
     const validationResult = await validateDateTimes(
       values.car_id,
       startDateTime,
@@ -1018,10 +1020,12 @@ export default function HostCarManagement() {
 
     if (!validationResult.isValid) {
       toast({
-        title: "Date Conflict",
-        description: "Cannot save earning due to overlapping rental periods. Please choose different dates.",
+        title: validationResult.error ? "Validation error" : "Date conflict",
+        description: validationResult.error ?? "This car is already booked during the selected period. Please choose different dates.",
         variant: "destructive",
       });
+      setDateConflicts(validationResult.conflicts || []);
+      setShowCalendar(true);
       return;
     }
 
@@ -1060,8 +1064,8 @@ export default function HostCarManagement() {
         client_profit_percentage: Number(values.client_profit_percentage),
         host_profit_percentage: Number(values.host_profit_percentage),
         payment_source: values.payment_source,
-        earning_period_start: values.earning_period_start,
-        earning_period_end: values.earning_period_end,
+        earning_period_start: startDateTime,
+        earning_period_end: endDateTime,
         payment_status: values.payment_status,
         date_paid: values.date_paid || null,
       };

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+
 
 export interface ConflictingEarning {
   id: string;
@@ -56,11 +56,6 @@ export function useBookingValidation() {
 
       const isValid = conflicts.length === 0;
 
-      if (!isValid) {
-        toast.error('Date conflict detected', {
-          description: `This car is already booked during the selected period`
-        });
-      }
 
       return { isValid, conflicts };
     } catch (err) {
