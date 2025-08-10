@@ -37,7 +37,32 @@ export function ShareCarDialog({ carId, open, onOpenChange }: ShareCarDialogProp
       const { data, error } = await supabase.functions.invoke('share-car-access', {
         body: { carId, email, permission },
       });
-      if (error) throw error as any;
+
+      if (error) {
+        // Try to extract detailed error info returned by the Edge Function
+        const status = (error as any)?.context?.responseStatus ?? (error as any)?.status;
+        let detailedDescription: string | undefined;
+        try {
+          const responseText = (error as any)?.context?.responseText;
+          if (responseText) {
+            const parsed = JSON.parse(responseText);
+            detailedDescription = parsed?.error || parsed?.message;
+          }
+        } catch (_) {
+          // ignore JSON parse errors
+        }
+
+        const fallback = (error as any)?.message || 'Failed to share access';
+        const description = detailedDescription
+          || (status === 404 ? 'No user found with that email. Ask them to sign up first.'
+              : status === 403 ? 'Only the car owner can share access.'
+              : status === 401 ? 'You must be signed in to share access.'
+              : fallback);
+
+        console.error('share-car-access error:', error);
+        toast({ title: 'Share failed', description, variant: 'destructive' });
+        return;
+      }
 
       toast({ title: 'Access granted', description: `Shared with ${email} as ${permission}.` });
       reset();
@@ -49,7 +74,6 @@ export function ShareCarDialog({ carId, open, onOpenChange }: ShareCarDialogProp
       setLoading(false);
     }
   };
-
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
       <DialogContent>
