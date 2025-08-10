@@ -1,6 +1,17 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+// Normalize date-time strings to unambiguous ISO 8601 (UTC) format
+function toISO(value: string): string {
+  try {
+    // If it already contains a timezone (Z or +hh:mm/-hh:mm), toISOString() will normalize to UTC
+    // If it is local time without TZ, this will convert local time to UTC to avoid RPC ambiguity
+    return new Date(value).toISOString();
+  } catch {
+    return value;
+  }
+}
+
 
 export interface ConflictingEarning {
   id: string;
@@ -37,11 +48,14 @@ export function useBookingValidation() {
     setIsValidating(true);
     
     try {
+      // Normalize inputs to avoid RPC overload ambiguity
+      const pStart = toISO(startDateTime);
+      const pEnd = toISO(endDateTime);
       // Call the database function to check for conflicts
       const { data, error } = await supabase.rpc('get_conflicting_earnings', {
         p_car_id: carId,
-        p_start_date: startDateTime,
-        p_end_date: endDateTime
+        p_start_date: pStart,
+        p_end_date: pEnd
       });
 
       if (error) {

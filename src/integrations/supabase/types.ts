@@ -585,25 +585,16 @@ export type Database = {
     }
     Functions: {
       check_earning_date_conflicts: {
-        Args:
-          | {
-              p_car_id: string
-              p_start_date: string
-              p_end_date: string
-              p_exclude_id?: string
-            }
-          | {
-              p_car_id: string
-              p_start_date: string
-              p_end_date: string
-              p_exclude_id?: string
-            }
+        Args: {
+          p_car_id: string
+          p_start_date: string
+          p_end_date: string
+          p_exclude_id?: string
+        }
         Returns: boolean
       }
       get_conflicting_earnings: {
-        Args:
-          | { p_car_id: string; p_start_date: string; p_end_date: string }
-          | { p_car_id: string; p_start_date: string; p_end_date: string }
+        Args: { p_car_id: string; p_start_date: string; p_end_date: string }
         Returns: {
           id: string
           trip_id: string
