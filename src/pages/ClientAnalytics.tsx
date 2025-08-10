@@ -123,7 +123,7 @@ export default function ClientAnalytics() {
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-6">
-            <SummaryCards summary={summary} loading={loading} />
+            <SummaryCards summary={summary} loading={loading} hideNetProfit />
             <ClaimsSummary claims={claims} loading={loading} />
             <div className="grid gap-6 lg:grid-cols-2">
               <EarningsChart earnings={earnings} />

@@ -5,13 +5,14 @@ import { AnalyticsSummary } from '@/hooks/useClientAnalytics';
 interface SummaryCardsProps {
   summary: AnalyticsSummary;
   loading?: boolean;
+  hideNetProfit?: boolean;
 }
 
-export function SummaryCards({ summary, loading }: SummaryCardsProps) {
+export function SummaryCards({ summary, loading, hideNetProfit }: SummaryCardsProps) {
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {[...Array(6)].map((_, i) => (
+        {[...Array(hideNetProfit ? 5 : 6)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Loading...</CardTitle>
@@ -73,7 +74,7 @@ export function SummaryCards({ summary, loading }: SummaryCardsProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      {cards.map((card, index) => (
+      {(hideNetProfit ? cards.filter((c) => c.title !== 'Net Profit') : cards).map((card, index) => (
         <Card key={index} className="relative overflow-hidden">
           <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-5`} />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
