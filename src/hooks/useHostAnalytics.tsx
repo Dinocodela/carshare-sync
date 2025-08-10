@@ -162,7 +162,7 @@ export function useHostAnalytics() {
     const activeHostingDays = uniqueDates.size;
 
     // Calculate expense metrics
-    const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount ?? 0) + (e.delivery_cost ?? 0) + (e.toll_cost ?? 0) + (e.ev_charge_cost ?? 0) + (e.carwash_cost ?? 0), 0);
 
     // Calculate net profit
     const netProfit = totalEarnings - totalExpenses;
