@@ -26,6 +26,24 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
       value: amount,
     }));
 
+  const ABBREVIATIONS: Record<string, string> = {
+    "Toll Costs": "TC",
+    "Delivery Costs": "DC",
+    "Car Wash": "CW",
+    "EV Charging": "EV",
+    "Other Expenses": "OE",
+  };
+
+  const getInitials = (label: string) => {
+    if (ABBREVIATIONS[label]) return ABBREVIATIONS[label];
+    return label
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
+  };
+
   const COLORS = [
     'hsl(var(--chart-1))',
     'hsl(var(--chart-2))',
@@ -74,6 +92,7 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
                       tickLine={false}
                       axisLine={false}
                       tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => getInitials(String(value))}
                     />
                     <YAxis 
                       type="number"
@@ -87,7 +106,7 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
                       formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
                       labelFormatter={(label) => `${label}`}
                     />
-                    <Bar dataKey="value">
+                    <Bar dataKey="value" barSize={14}>
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
