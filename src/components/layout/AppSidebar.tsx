@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Car, ChevronUp, Home, LogOut, Plus, Settings, User2, Inbox, BarChart3, Receipt } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Car, Home, Plus, Settings, Inbox, BarChart3 } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -12,8 +12,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
 } from '@/components/ui/sidebar';
 
 interface Profile {
@@ -23,7 +21,7 @@ interface Profile {
 }
 
 export function AppSidebar() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [userRole, setUserRole] = useState<'client' | 'host' | null>(null);
 
   useEffect(() => {
@@ -67,11 +65,6 @@ export function AppSidebar() {
           icon: Car,
         },
         {
-          title: "Fixed Expenses",
-          url: "/client-fixed-expenses",
-          icon: Receipt,
-        },
-        {
           title: "Add Car",
           url: "/add-car",
           icon: Plus,
@@ -111,9 +104,6 @@ export function AppSidebar() {
     return baseItems;
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   const menuItems = getMenuItems();
 
@@ -137,17 +127,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleSignOut}>
-              <User2 />
-              <span>{user?.email}</span>
-              <ChevronUp className="ml-auto" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 }

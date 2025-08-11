@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { BottomNavBar } from './BottomNavBar';
 
@@ -36,9 +36,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1">
-          <header className="h-12 flex items-center border-b bg-background px-4">
-            <SidebarTrigger />
-          </header>
+          <header className="h-12 border-b bg-background px-4" />
           <main className="flex-1 p-6 pb-20 md:pb-6 pb-safe-bottom">
             {children}
           </main>

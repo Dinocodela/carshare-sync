@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, BarChart3, Car, Settings } from "lucide-react";
+import { Home, BarChart3, Car, Settings, Inbox, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -34,6 +34,7 @@ export function BottomNavBar() {
         ...base,
         { title: "Analytics", url: "/client-analytics", icon: BarChart3 },
         { title: "My Cars", url: "/my-cars", icon: Car },
+        { title: "Add Car", url: "/add-car", icon: Plus },
         { title: "Settings", url: "/settings", icon: Settings },
       ];
     }
@@ -41,6 +42,7 @@ export function BottomNavBar() {
       return [
         ...base,
         { title: "Analytics", url: "/host-analytics", icon: BarChart3 },
+        { title: "Host Requests", url: "/host-requests", icon: Inbox },
         { title: "Hosted", url: "/host-car-management", icon: Car },
         { title: "Settings", url: "/settings", icon: Settings },
       ];
@@ -54,9 +56,9 @@ export function BottomNavBar() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-background border-t md:hidden">
-      <ul className="grid grid-cols-4">
-        {items.slice(0, 4).map((item) => (
-          <li key={item.title} className="flex">
+      <ul className="flex items-stretch overflow-x-auto px-2 gap-2">
+        {items.map((item) => (
+          <li key={item.title} className="shrink-0 flex">
             <NavLink to={item.url} end className={getLinkClass} aria-label={item.title}>
               <item.icon className="h-5 w-5" />
               <span className="text-[11px] leading-none">{item.title}</span>

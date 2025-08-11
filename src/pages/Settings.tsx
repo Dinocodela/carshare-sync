@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { NotificationsCard } from "@/components/NotificationsCard";
+import { useNavigate } from "react-router-dom";
 
 interface Profile {
   user_id: string;
@@ -25,8 +26,9 @@ interface Profile {
 }
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -264,6 +266,20 @@ export default function Settings() {
                   <div className="flex justify-end">
                     <Button variant="outline" onClick={handlePasswordChange} disabled={pwdLoading}>{pwdLoading ? "Updating…" : "Update password"}</Button>
                   </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <section aria-labelledby="actions-section">
+              <Card>
+                <CardHeader>
+                  <CardTitle id="actions-section">Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {role === "client" && (
+                    <Button variant="secondary" className="w-full" onClick={() => navigate("/client-fixed-expenses")}>Manage Fixed Expenses</Button>
+                  )}
+                  <Button variant="destructive" className="w-full" onClick={async () => { await signOut(); navigate("/login"); }}>Sign Out</Button>
                 </CardContent>
               </Card>
             </section>
