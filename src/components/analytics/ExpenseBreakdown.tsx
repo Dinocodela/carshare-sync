@@ -74,7 +74,7 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
                     outerRadius={85}
                     innerRadius={25}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={false}
                     labelLine={false}
                   >
                     {chartData.map((entry, index) => (

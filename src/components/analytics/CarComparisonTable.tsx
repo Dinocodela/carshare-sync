@@ -91,85 +91,160 @@ export function CarComparisonTable({
   );
 
   return (
-    <div className="rounded-md border overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Vehicle</TableHead>
-            <SortableHeader field="profitMargin">Margin %</SortableHeader>
-            <SortableHeader field="totalTrips">Trips</SortableHeader>
-            <SortableHeader field="utilizationRate">Utilization</SortableHeader>
-            <SortableHeader field="riskScore">Risk Score</SortableHeader>
-            <SortableHeader field="recommendation">Recommendation</SortableHeader>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedData.map((car) => (
-            <TableRow key={car.car_id}>
-              <TableCell className="font-medium">
-                <div>
-                  <p className="font-semibold">{car.car_year} {car.car_make} {car.car_model}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {car.activeDays} active days • Avg ${car.averagePerTrip.toFixed(0)}/trip
-                  </p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <span className={`font-medium ${
+    <>
+      {/* Mobile: Stacked cards */}
+      <div className="space-y-3 md:hidden">
+        {sortedData.map((car) => (
+          <div key={car.car_id} className="rounded-md border p-4 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-semibold truncate">{car.car_year} {car.car_make} {car.car_model}</p>
+                <p className="text-xs text-muted-foreground">
+                  {car.activeDays} active days • Avg ${car.averagePerTrip.toFixed(0)}/trip
+                </p>
+              </div>
+              <Badge variant={car.car_status === 'available' ? 'default' : 'secondary'}>
+                {car.car_status}
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground">Margin %</p>
+                <p className={`font-medium ${
                   car.profitMargin >= 0 ? 'text-success' : 'text-destructive'
                 }`}>
                   {car.profitMargin.toFixed(1)}%
-                </span>
-              </TableCell>
-              <TableCell>{car.totalTrips}</TableCell>
-              <TableCell>
-                <span className={`font-medium ${
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Trips</p>
+                <p className="font-medium">{car.totalTrips}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Utilization</p>
+                <p className={`font-medium ${
                   car.utilizationRate >= 50 ? 'text-success' : 
                   car.utilizationRate >= 25 ? 'text-warning' : 'text-destructive'
                 }`}>
                   {car.utilizationRate.toFixed(1)}%
-                </span>
-              </TableCell>
-              <TableCell>
-                <span className={`font-medium ${
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Risk</p>
+                <p className={`font-medium ${
                   car.riskScore < 30 ? 'text-success' :
                   car.riskScore < 60 ? 'text-warning' : 'text-destructive'
                 }`}>
                   {car.riskScore.toFixed(0)}
-                </span>
-              </TableCell>
-              <TableCell>
-                {getRecommendationBadge(car.recommendation)}
-              </TableCell>
-              <TableCell>
-                <Badge variant={car.car_status === 'available' ? 'default' : 'secondary'}>
-                  {car.car_status}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onViewDetails?.(car.car_id)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onManageStatus?.(car.car_id)}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>{getRecommendationBadge(car.recommendation)}</div>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onViewDetails?.(car.car_id)}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onManageStatus?.(car.car_id)}
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: Table */}
+      <div className="hidden md:block rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Vehicle</TableHead>
+              <SortableHeader field="profitMargin">Margin %</SortableHeader>
+              <SortableHeader field="totalTrips">Trips</SortableHeader>
+              <SortableHeader field="utilizationRate">Utilization</SortableHeader>
+              <SortableHeader field="riskScore">Risk Score</SortableHeader>
+              <SortableHeader field="recommendation">Recommendation</SortableHeader>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {sortedData.map((car) => (
+              <TableRow key={car.car_id}>
+                <TableCell className="font-medium">
+                  <div>
+                    <p className="font-semibold">{car.car_year} {car.car_make} {car.car_model}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {car.activeDays} active days • Avg ${car.averagePerTrip.toFixed(0)}/trip
+                    </p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className={`font-medium ${
+                    car.profitMargin >= 0 ? 'text-success' : 'text-destructive'
+                  }`}>
+                    {car.profitMargin.toFixed(1)}%
+                  </span>
+                </TableCell>
+                <TableCell>{car.totalTrips}</TableCell>
+                <TableCell>
+                  <span className={`font-medium ${
+                    car.utilizationRate >= 50 ? 'text-success' : 
+                    car.utilizationRate >= 25 ? 'text-warning' : 'text-destructive'
+                  }`}>
+                    {car.utilizationRate.toFixed(1)}%
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className={`font-medium ${
+                    car.riskScore < 30 ? 'text-success' :
+                    car.riskScore < 60 ? 'text-warning' : 'text-destructive'
+                  }`}>
+                    {car.riskScore.toFixed(0)}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {getRecommendationBadge(car.recommendation)}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={car.car_status === 'available' ? 'default' : 'secondary'}>
+                    {car.car_status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onViewDetails?.(car.car_id)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onManageStatus?.(car.car_id)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }
