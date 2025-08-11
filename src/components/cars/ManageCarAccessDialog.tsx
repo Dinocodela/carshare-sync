@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Sheet, SheetContent, SheetHeader as SheetHead, SheetTitle as SheetTit, SheetDescription as SheetDesc } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ManageCarAccessDialogProps {
   carId: string | null;
@@ -29,6 +31,7 @@ type Profile = {
 
 export function ManageCarAccessDialog({ carId, open, onOpenChange }: ManageCarAccessDialogProps) {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
   const [access, setAccess] = useState<AccessRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
@@ -131,7 +134,7 @@ export function ManageCarAccessDialog({ carId, open, onOpenChange }: ManageCarAc
             ) : (
               <ul className="divide-y">
                 {access.map((row) => (
-                  <li key={row.id} className="p-4 flex items-center gap-3 justify-between">
+                  <li key={row.id} className="p-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium truncate max-w-[220px]">{displayName(row.user_id)}</span>

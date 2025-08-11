@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Sheet, SheetContent, SheetHeader as SheetHead, SheetTitle as SheetTit, SheetDescription as SheetDesc } from '@/components/ui/sheet';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ShareCarDialogProps {
   carId: string | null;
@@ -18,6 +20,7 @@ export function ShareCarDialog({ carId, open, onOpenChange }: ShareCarDialogProp
   const [permission, setPermission] = useState<'viewer'|'editor'>('viewer');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const reset = () => {
     setEmail('');
@@ -82,35 +85,68 @@ export function ShareCarDialog({ carId, open, onOpenChange }: ShareCarDialogProp
     }
   };
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Share vehicle access</DialogTitle>
-          <DialogDescription>Grant another client access to this car's data.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Client email</Label>
-            <Input id="email" type="email" placeholder="client@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+    isMobile ? (
+      <Sheet open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
+        <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
+          <SheetHead>
+            <SheetTit>Share vehicle access</SheetTit>
+            <SheetDesc>Grant another client access to this car's data.</SheetDesc>
+          </SheetHead>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Client email</Label>
+              <Input id="email" type="email" placeholder="client@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Permission</Label>
+              <Select value={permission} onValueChange={(v) => setPermission(v as 'viewer'|'editor')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select permission" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="viewer">Viewer (read-only)</SelectItem>
+                  <SelectItem value="editor">Editor (can modify fixed expenses)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="pt-2 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
+              <Button onClick={handleShare} disabled={loading || !carId}>{loading ? 'Sharing...' : 'Share'}</Button>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label>Permission</Label>
-            <Select value={permission} onValueChange={(v) => setPermission(v as 'viewer'|'editor')}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select permission" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="viewer">Viewer (read-only)</SelectItem>
-                <SelectItem value="editor">Editor (can modify fixed expenses)</SelectItem>
-              </SelectContent>
-            </Select>
+        </SheetContent>
+      </Sheet>
+    ) : (
+      <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share vehicle access</DialogTitle>
+            <DialogDescription>Grant another client access to this car's data.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Client email</Label>
+              <Input id="email" type="email" placeholder="client@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Permission</Label>
+              <Select value={permission} onValueChange={(v) => setPermission(v as 'viewer'|'editor')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select permission" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="viewer">Viewer (read-only)</SelectItem>
+                  <SelectItem value="editor">Editor (can modify fixed expenses)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
-          <Button onClick={handleShare} disabled={loading || !carId}>{loading ? 'Sharing...' : 'Share'}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
+            <Button onClick={handleShare} disabled={loading || !carId}>{loading ? 'Sharing...' : 'Share'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
   );
 }
