@@ -87,7 +87,7 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
                       formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
                       labelFormatter={(label) => `${label}`}
                     />
-                    <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    <Bar dataKey="value">
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}

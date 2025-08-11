@@ -141,8 +141,8 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
                   ]}
                   labelFormatter={(value, payload) => payload?.[0]?.payload?.fullMonth ?? String(value)}
                 />
-                <Bar dataKey="paid" stackId="a" fill="hsl(var(--chart-1))" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="upcoming" stackId="a" fill="hsl(var(--chart-2))" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="paid" stackId="a" fill="hsl(var(--chart-1))" />
+                <Bar dataKey="upcoming" stackId="a" fill="hsl(var(--chart-2))" />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
