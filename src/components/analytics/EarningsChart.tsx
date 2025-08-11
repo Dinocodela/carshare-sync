@@ -46,13 +46,17 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
     const key = format(d, 'yyyy-MM');
     const shortLabel = format(d, 'MMM');
     const fullLabel = format(d, 'MMMM yyyy');
+    const monthFull = format(d, 'MMMM');
+    const monthInitial = monthFull.charAt(0);
 
     const values = aggregated[key] || { paid: 0, upcoming: 0, trips: 0 };
 
     return {
       key,
-      month: shortLabel, // used on X axis
-      fullMonth: fullLabel, // used in tooltip
+      month: shortLabel, // short label (MMM)
+      monthFull, // full month name for desktop axis
+      monthInitial, // single-letter label for mobile axis
+      fullMonth: fullLabel, // used in tooltip (MMMM yyyy)
       paid: values.paid,
       upcoming: values.upcoming,
       trips: values.trips,
@@ -105,7 +109,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
           </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-[260px] sm:h-[350px]">
-            <BarChart data={chartData} margin={{ top: 20, right: 24, left: 10, bottom: isMobile ? 28 : 18 }} barCategoryGap={isMobile ? '40%' : '25%'}>
+            <BarChart data={chartData} margin={{ top: 20, right: 24, left: 10, bottom: isMobile ? 36 : 18 }} barCategoryGap={isMobile ? '40%' : '25%'}>
               <CartesianGrid 
                 strokeDasharray="2 4" 
                 stroke="hsl(var(--border))" 
@@ -113,14 +117,14 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
                 vertical={false}
               />
               <XAxis 
-                dataKey="month" 
+                dataKey={isMobile ? 'monthInitial' : 'monthFull'} 
                 interval={0}
                 fontSize={11}
                 fontWeight={500}
                 tickLine={false}
                 axisLine={false}
                 tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                tickMargin={12}
+                tickMargin={isMobile ? 16 : 12}
               />
               <YAxis 
                 fontSize={11}
