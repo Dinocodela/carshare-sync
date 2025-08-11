@@ -19,18 +19,44 @@ self.addEventListener('push', (event) => {
   );
 });
 
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification?.data?.url || '/';
+  const targetUrl = (event.notification && event.notification.data && event.notification.data.url) || '/';
   event.waitUntil(
     (async () => {
-      const allClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-      let client = allClients.find((c) => 'focus' in c);
-      if (client) {
-        client.focus();
-        (client as WindowClient).navigate(targetUrl);
-      } else if (clients.openWindow) {
-        await clients.openWindow(targetUrl);
+      try {
+        const allClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+        let client = null;
+        for (const c of allClients) {
+          if ('focus' in c) {
+            client = c;
+            break;
+          }
+        }
+        if (client) {
+          if (typeof client.focus === 'function') {
+            await client.focus();
+          }
+          if (typeof client.navigate === 'function') {
+            await client.navigate(targetUrl);
+          } else if (typeof clients.openWindow === 'function') {
+            await clients.openWindow(targetUrl);
+          }
+        } else if (typeof clients.openWindow === 'function') {
+          await clients.openWindow(targetUrl);
+        }
+      } catch (e) {
+        if (typeof clients.openWindow === 'function') {
+          await clients.openWindow(targetUrl);
+        }
       }
     })()
   );
