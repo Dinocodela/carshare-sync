@@ -9,6 +9,7 @@ import { useHostAnalytics } from '@/hooks/useHostAnalytics';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { useEffect } from 'react';
+import { PageContainer } from '@/components/layout/PageContainer';
 
 // Transform host data to match component interfaces
 const transformSummaryForDisplay = (hostSummary: any) => ({
@@ -94,34 +95,36 @@ export default function HostAnalytics() {
   };
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Host Analytics Dashboard</h1>
-            <p className="text-muted-foreground">
-              Track your hosting performance and profitability
-            </p>
+      <PageContainer>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Host Analytics Dashboard</h1>
+              <p className="text-muted-foreground">
+                Track your hosting performance and profitability
+              </p>
+            </div>
+            <Button onClick={refetch} variant="outline" size="sm" disabled={loading}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
-          <Button onClick={refetch} variant="outline" size="sm" disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+
+          <SummaryCards summary={uiSummary} loading={loading} replaceNetProfitWithTotalExpenses tooltips={tooltips} />
+
+          <ClaimsSummary claims={transformClaimsForDisplay(claims)} loading={loading} />
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <EarningsChart earnings={transformEarningsForDisplay(earnings)} />
+            <ExpenseBreakdown expenses={transformExpensesForDisplay(expenses)} />
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <RecentTrips earnings={transformEarningsForDisplay(earnings)} />
+            <RecentClaims claims={transformClaimsForDisplay(claims)} />
+          </div>
         </div>
-
-        <SummaryCards summary={uiSummary} loading={loading} replaceNetProfitWithTotalExpenses tooltips={tooltips} />
-
-        <ClaimsSummary claims={transformClaimsForDisplay(claims)} loading={loading} />
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <EarningsChart earnings={transformEarningsForDisplay(earnings)} />
-          <ExpenseBreakdown expenses={transformExpensesForDisplay(expenses)} />
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <RecentTrips earnings={transformEarningsForDisplay(earnings)} />
-          <RecentClaims claims={transformClaimsForDisplay(claims)} />
-        </div>
-      </div>
+      </PageContainer>
     </DashboardLayout>
   );
 }

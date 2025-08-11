@@ -61,6 +61,12 @@ All colors MUST be HSL.
     --chart-3: 170 80% 45%;
     --chart-4: 210 75% 60%;
     --chart-5: 180 70% 65%;
+
+    /* Semantic status colors */
+    --success: 152 69% 35%;
+    --success-foreground: 0 0% 100%;
+    --warning: 37 92% 50%;
+    --warning-foreground: 0 0% 15%;
   }
 
   .dark {
@@ -107,6 +113,12 @@ All colors MUST be HSL.
     --chart-3: 170 75% 55%;
     --chart-4: 210 70% 70%;
     --chart-5: 180 65% 75%;
+
+    /* Semantic status colors (dark) */
+    --success: 152 69% 45%;
+    --success-foreground: 220 15% 8%;
+    --warning: 37 92% 55%;
+    --warning-foreground: 220 15% 10%;
   }
 }
 
@@ -118,4 +130,18 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  /* Safe area helpers */
+  .pb-safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 0px);
+  }
+  .pt-safe-top {
+    padding-top: calc(env(safe-area-inset-top) + 0px);
+  }
+
+  /* Semantic utility classes (if needed outside Tailwind theme) */
+  .text-success { color: hsl(var(--success)); }
+  .text-warning { color: hsl(var(--warning)); }
 }

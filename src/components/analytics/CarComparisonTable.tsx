@@ -91,7 +91,7 @@ export function CarComparisonTable({
   );
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -118,7 +118,7 @@ export function CarComparisonTable({
               </TableCell>
               <TableCell>
                 <span className={`font-medium ${
-                  car.profitMargin >= 0 ? 'text-emerald-600' : 'text-red-600'
+                  car.profitMargin >= 0 ? 'text-success' : 'text-destructive'
                 }`}>
                   {car.profitMargin.toFixed(1)}%
                 </span>
@@ -126,16 +126,16 @@ export function CarComparisonTable({
               <TableCell>{car.totalTrips}</TableCell>
               <TableCell>
                 <span className={`font-medium ${
-                  car.utilizationRate >= 50 ? 'text-emerald-600' : 
-                  car.utilizationRate >= 25 ? 'text-amber-600' : 'text-red-600'
+                  car.utilizationRate >= 50 ? 'text-success' : 
+                  car.utilizationRate >= 25 ? 'text-warning' : 'text-destructive'
                 }`}>
                   {car.utilizationRate.toFixed(1)}%
                 </span>
               </TableCell>
               <TableCell>
                 <span className={`font-medium ${
-                  car.riskScore < 30 ? 'text-emerald-600' :
-                  car.riskScore < 60 ? 'text-amber-600' : 'text-red-600'
+                  car.riskScore < 30 ? 'text-success' :
+                  car.riskScore < 60 ? 'text-warning' : 'text-destructive'
                 }`}>
                   {car.riskScore.toFixed(0)}
                 </span>
