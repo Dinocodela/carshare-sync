@@ -289,7 +289,7 @@ export default function HostCarManagement() {
   const watchedTripId = earningForm.watch("trip_id");
   
   useEffect(() => {
-    console.log('Trip ID changed:', watchedTripId, 'Expenses loaded:', expenses.length);
+    
     
     if (watchedTripId && expenses.length > 0) {
       // Use setTimeout to ensure form state is ready
@@ -298,7 +298,7 @@ export default function HostCarManagement() {
           expense.trip_id === watchedTripId
         );
         
-        console.log('Matching expense found:', expenseWithData);
+        
         
         // Calculate total expenses for this trip
         const tripExpenses = expenses.filter(expense => expense.trip_id === watchedTripId);
@@ -316,7 +316,7 @@ export default function HostCarManagement() {
           
           // Auto-populate car if available
           if (expenseWithData.car_id) {
-            console.log('Setting car_id to:', expenseWithData.car_id);
+            
             earningForm.setValue("car_id", expenseWithData.car_id, { 
               shouldValidate: true, 
               shouldDirty: true,
@@ -338,7 +338,7 @@ export default function HostCarManagement() {
 
       return () => clearTimeout(timer);
     } else if (watchedTripId && expenses.length === 0) {
-      console.log('Trip ID provided but expenses not loaded yet');
+      
     }
   }, [watchedTripId, expenses, earningForm]);
 
@@ -447,13 +447,6 @@ export default function HostCarManagement() {
   const watchedClaimCarId = claimForm.watch("car_id");
   
   useEffect(() => {
-    console.log('🔍 Claims Trip ID Debug:', {
-      watchedClaimCarId,
-      editingClaim,
-      expensesLoaded: !loading,
-      totalExpenses: expenses.length,
-      expensesWithTripIds: expenses.filter(e => e.trip_id && e.trip_id.trim() !== '').length
-    });
 
     if (watchedClaimCarId && !editingClaim && !loading) {
       // Find expenses for this car with trip IDs
@@ -465,21 +458,15 @@ export default function HostCarManagement() {
         })
         .sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
       
-      console.log('🚗 Car expenses with trip IDs:', {
-        carId: watchedClaimCarId,
-        foundExpenses: carExpenses.length,
-        tripIds: carExpenses.map(e => e.trip_id),
-        latestTripId: carExpenses[0]?.trip_id
-      });
 
       if (carExpenses.length > 0 && carExpenses[0].trip_id) {
         claimForm.setValue("trip_id", carExpenses[0].trip_id, { 
           shouldValidate: true, 
           shouldDirty: true 
         });
-        console.log('✅ Auto-populated trip ID:', carExpenses[0].trip_id);
+        
       } else {
-        console.log('❌ No trip IDs found for car:', watchedClaimCarId);
+        
       }
     }
   }, [watchedClaimCarId, expenses, claimForm, editingClaim, loading]);
@@ -658,7 +645,7 @@ export default function HostCarManagement() {
   const activeClaimsFiltersCount = Object.values(claimsFilters).filter(value => value && value !== 'all').length;
 
   useEffect(() => {
-    console.log('useEffect triggered, user:', user?.id);
+    
     if (user) {
       fetchHostedCars();
       fetchExpenses(true);
@@ -757,30 +744,30 @@ export default function HostCarManagement() {
   };
 
   const fetchExpenses = async (showLoading = false) => {
-    console.log('fetchExpenses called, user:', user?.id);
+    
     if (!user) {
-      console.log('No user found, returning early');
+      
       return;
     }
     
     try {
       if (showLoading) setExpensesLoading(true);
       
-      console.log('Making supabase query for expenses...');
+      
       const { data, error } = await supabase
         .from('host_expenses')
         .select('*')
         .eq('host_id', user.id)
         .order('created_at', { ascending: false });
 
-      console.log('Supabase query result:', { data, error });
+      
 
       if (error) {
         console.error('Supabase error:', error);
         throw error;
       }
       
-      console.log('Setting expenses data:', data);
+      
       setExpenses(data || []);
     } catch (error) {
       console.error('Error fetching expenses:', error);
@@ -808,7 +795,7 @@ export default function HostCarManagement() {
 
       if (error) throw error;
       
-      console.log('Fetched earnings data:', data);
+      
       setEarnings(data || []);
     } catch (error) {
       console.error('Error fetching earnings:', error);
@@ -909,7 +896,6 @@ export default function HostCarManagement() {
             .eq('host_id', currentSession.user.id);
           
           if (syncError) console.error('Sync error:', syncError);
-          else console.log(`Synced guest name "${values.guest_name}" for trip ${values.trip_id}`);
         } catch (syncError) {
           console.error('Error syncing trip data:', syncError);
         }
@@ -1163,7 +1149,7 @@ export default function HostCarManagement() {
             .eq('host_id', currentSession.user.id);
           
           if (syncError) console.error('Sync error:', syncError);
-          else console.log(`Synced guest name "${values.guest_name}" for trip ${values.trip_id}`);
+          
         } catch (syncError) {
           console.error('Error syncing trip data:', syncError);
         }
@@ -1179,7 +1165,7 @@ export default function HostCarManagement() {
           fetchEarnings(true),
           fetchExpenses(true)
         ]);
-        console.log('Earnings and expenses refreshed after update');
+        
       }, 300);
     } catch (error) {
       console.error('Error managing earning:', error);
@@ -1822,8 +1808,215 @@ export default function HostCarManagement() {
                         </DialogHeader>
                     <Form {...expenseForm}>
                       <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
-                        {/* ... keep existing code (expense form fields) */}
-                        {/* We retain the original content for desktop to avoid duplication here */}
+                        <FormField
+                          control={expenseForm.control}
+                          name="trip_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Trip# *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter Trip ID" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={expenseForm.control}
+                          name="car_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                Car
+                                {field.value && (
+                                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                    Auto-filled
+                                  </Badge>
+                                )}
+                              </FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a car (optional)" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {cars.map((car) => (
+                                    <SelectItem key={car.id} value={car.id}>
+                                      {formatCarDisplayName(car)}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={expenseForm.control}
+                          name="guest_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                Guest Name
+                                {field.value && (
+                                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                    Auto-filled
+                                  </Badge>
+                                )}
+                              </FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter guest name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div className="space-y-4">
+                          <h4 className="font-medium">Cost Breakdown</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField
+                              control={expenseForm.control}
+                              name="ev_charge_cost"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>EV Charge Cost</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={expenseForm.control}
+                              name="carwash_cost"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Carwash Cost</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={expenseForm.control}
+                              name="delivery_cost"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Delivery Cost</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={expenseForm.control}
+                              name="toll_cost"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Toll Cost</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          
+                          <FormField
+                            control={expenseForm.control}
+                            name="amount"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Other Expenses</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    inputMode="decimal"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <FormField
+                          control={expenseForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description</FormLabel>
+                              <FormControl>
+                                <Textarea placeholder="Describe the expense..." {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={expenseForm.control}
+                          name="expense_date"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Date</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="pt-2 flex justify-end gap-2">
+                          <Button type="button" variant="outline" onClick={() => {
+                            setExpenseDialogOpen(false);
+                            setEditingExpense(null);
+                            expenseForm.reset();
+                          }}>
+                            Cancel
+                          </Button>
+                          <Button type="submit">
+                            {editingExpense ? 'Update Expense' : 'Add Expense'}
+                          </Button>
+                        </div>
                       </form>
                     </Form>
                   </DialogContent>
@@ -2081,7 +2274,6 @@ export default function HostCarManagement() {
                 <>
                   <Button onClick={() => {
                     setEarningDialogOpen(true);
-                    console.log('Opening new earning dialog');
                     setEditingEarning(null);
                     earningForm.reset({
                       car_id: '',
@@ -2499,7 +2691,7 @@ export default function HostCarManagement() {
                 <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
                   <DialogTrigger asChild>
                     <Button onClick={() => {
-                      console.log('Opening new earning dialog');
+                      
                       setEditingEarning(null);
                       earningForm.reset({
                         car_id: '',
@@ -2531,7 +2723,385 @@ export default function HostCarManagement() {
                     </DialogHeader>
                     <Form {...earningForm}>
                       <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
-                        {/* ... keep existing code (earning form fields) */}
+                        <FormField
+                          control={earningForm.control}
+                          name="trip_id"
+                          render={({ field }) => {
+                            const existingTripIds = [...new Set(expenses
+                              .filter(e => e.trip_id && e.trip_id.trim() !== '')
+                              .map(e => e.trip_id)
+                              .filter(Boolean))] as string[];
+                            return (
+                              <FormItem>
+                                <FormLabel>Trip# *</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select existing Trip# or enter new" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {existingTripIds.map((tripId) => {
+                                      const tripExpenses = expenses.filter(e => e.trip_id === tripId);
+                                      const totalExpenses = tripExpenses.reduce((sum, e) => 
+                                        sum + (e.total_expenses || e.amount), 0
+                                      );
+                                      return (
+                                        <SelectItem key={tripId} value={tripId}>
+                                          {tripId} (Expenses: ${totalExpenses.toFixed(2)})
+                                        </SelectItem>
+                                      );
+                                    })}
+                                  </SelectContent>
+                                </Select>
+                                <div className="mt-2">
+                                  <Input 
+                                    placeholder="Or enter new Trip ID" 
+                                    value={field.value} 
+                                    onChange={field.onChange}
+                                  />
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={earningForm.control}
+                            name="car_id"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                  Car
+                                  {field.value && (
+                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                      Auto-filled
+                                    </Badge>
+                                  )}
+                                </FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a car" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {cars.map((car) => (
+                                      <SelectItem key={car.id} value={car.id}>
+                                        {formatCarDisplayName(car)}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={earningForm.control}
+                            name="guest_name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                  Guest Name
+                                  {field.value && (
+                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                      Auto-filled
+                                    </Badge>
+                                  )}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter guest name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={earningForm.control}
+                            name="earning_type"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Earning Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select earning type" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="hosting">Hosting</SelectItem>
+                                    <SelectItem value="delivery">Delivery</SelectItem>
+                                    <SelectItem value="subscription">Subscription</SelectItem>
+                                    <SelectItem value="bonus">Bonus</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={earningForm.control}
+                            name="payment_source"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Payment Source</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select payment source" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Turo">Turo</SelectItem>
+                                    <SelectItem value="Eon">Eon</SelectItem>
+                                    <SelectItem value="GetAround">GetAround</SelectItem>
+                                    <SelectItem value="Private">Private</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <FormField
+                          control={earningForm.control}
+                          name="gross_earnings"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Gross Earnings</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  inputMode="decimal"
+                                  step="0.01"
+                                  placeholder="0.00"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {earningForm.watch("gross_earnings") > 0 && (
+                          <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                            <h4 className="font-medium text-sm">Profit Calculation</h4>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex justify-between">
+                                <span>Gross Earnings:</span>
+                                <span>${Number(earningForm.watch("gross_earnings") || 0).toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between text-red-600">
+                                <span>Trip Expenses:</span>
+                                <span>-${selectedTripExpenses.toFixed(2)}</span>
+                              </div>
+                              <hr className="my-1" />
+                              <div className="flex justify-between font-medium">
+                                <span>Net Earnings:</span>
+                                <span>${(Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses).toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between text-blue-600">
+                                <span>Client Profit ({earningForm.watch("client_profit_percentage")}%):</span>
+                                <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("client_profit_percentage"))) / 100).toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between text-green-600">
+                                <span>Host Profit ({earningForm.watch("host_profit_percentage")}%):</span>
+                                <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("host_profit_percentage"))) / 100).toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={earningForm.control}
+                            name="client_profit_percentage"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Client Profit %</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    inputMode="decimal"
+                                    step="1"
+                                    placeholder="30"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 30)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={earningForm.control}
+                            name="host_profit_percentage"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Host Profit %</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    inputMode="decimal"
+                                    step="1"
+                                    placeholder="70"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 70)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={earningForm.control}
+                            name="earning_period_start_date"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Start Date</FormLabel>
+                                <FormControl>
+                                  <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={earningForm.control}
+                            name="earning_period_start_time"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Start Time</FormLabel>
+                                <FormControl>
+                                  <Input type="time" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={earningForm.control}
+                            name="earning_period_end_date"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>End Date</FormLabel>
+                                <FormControl>
+                                  <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={earningForm.control}
+                            name="earning_period_end_time"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>End Time</FormLabel>
+                                <FormControl>
+                                  <Input type="time" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {dateConflicts.length > 0 && (
+                          <ConflictWarning 
+                            conflicts={dateConflicts}
+                            selectedDates={{
+                              start: `${earningForm.watch("earning_period_start_date")}T${earningForm.watch("earning_period_start_time")}:00`,
+                              end: `${earningForm.watch("earning_period_end_date")}T${earningForm.watch("earning_period_end_time")}:00`
+                            }}
+                          />
+                        )}
+
+                        {earningForm.watch("car_id") && (
+                          <div className="flex justify-center">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowCalendar(!showCalendar)}
+                              className="flex items-center gap-2"
+                            >
+                              <Calendar className="h-4 w-4" />
+                              {showCalendar ? 'Hide' : 'Show'} Booking Calendar
+                            </Button>
+                          </div>
+                        )}
+
+                        {showCalendar && earningForm.watch("car_id") && (
+                          <AvailabilityCalendar carId={earningForm.watch("car_id")} />
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={earningForm.control}
+                            name="payment_status"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Payment Status</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select payment status" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="paid">Paid</SelectItem>
+                                    <SelectItem value="processing">Processing</SelectItem>
+                                    <SelectItem value="failed">Failed</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={earningForm.control}
+                            name="date_paid"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Date Paid (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="pt-2 flex justify-end gap-2">
+                          <Button type="button" variant="outline" onClick={() => {
+                            setEarningDialogOpen(false);
+                            setEditingEarning(null);
+                            earningForm.reset();
+                          }}>
+                            Cancel
+                          </Button>
+                          <Button type="submit">
+                            {editingEarning ? 'Update Earning' : 'Record Earning'}
+                          </Button>
+                        </div>
                       </form>
                     </Form>
                   </DialogContent>
@@ -3215,7 +3785,345 @@ export default function HostCarManagement() {
                     </DialogHeader>
                      <Form {...claimForm}>
                        <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
-                         {/* ... keep existing code (claim form fields) */}
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                           <FormField
+                             control={claimForm.control}
+                             name="car_id"
+                             render={({ field }) => (
+                               <FormItem>
+                                 <FormLabel>Car *</FormLabel>
+                                 <Select onValueChange={field.onChange} value={field.value}>
+                                   <FormControl>
+                                     <SelectTrigger>
+                                       <SelectValue placeholder="Select a car" />
+                                     </SelectTrigger>
+                                   </FormControl>
+                                   <SelectContent className="bg-popover border shadow-md z-50">
+                                     {cars.map((car) => (
+                                        <SelectItem key={car.id} value={car.id}>
+                                          {formatCarDisplayName(car)}
+                                        </SelectItem>
+                                     ))}
+                                   </SelectContent>
+                                 </Select>
+                                 <FormMessage />
+                               </FormItem>
+                             )}
+                           />
+                           <FormField
+                             control={claimForm.control}
+                             name="claim_type"
+                             render={({ field }) => (
+                               <FormItem>
+                                 <FormLabel>Claim Type *</FormLabel>
+                                 <Select onValueChange={field.onChange} value={field.value}>
+                                   <FormControl>
+                                     <SelectTrigger>
+                                       <SelectValue placeholder="Select claim type" />
+                                     </SelectTrigger>
+                                   </FormControl>
+                                   <SelectContent className="bg-popover border shadow-md z-50">
+                                     <SelectItem value="damage">Physical Damage</SelectItem>
+                                     <SelectItem value="theft">Theft</SelectItem>
+                                     <SelectItem value="accident">Accident</SelectItem>
+                                     <SelectItem value="vandalism">Vandalism</SelectItem>
+                                     <SelectItem value="mechanical">Mechanical Issues</SelectItem>
+                                     <SelectItem value="other">Other</SelectItem>
+                                   </SelectContent>
+                                 </Select>
+                                 <FormMessage />
+                               </FormItem>
+                             )}
+                           />
+                         </div>
+
+                         <FormField
+                           control={claimForm.control}
+                           name="trip_id"
+                           render={({ field }) => {
+                             const selectedCarId = claimForm.watch("car_id");
+                             const allTripIds = [...new Set(expenses
+                               .filter(e => e.trip_id && e.trip_id.trim() !== '')
+                               .map(e => e.trip_id)
+                               .filter(Boolean))] as string[];
+                             const availableTripIds = selectedCarId 
+                               ? [...new Set(expenses
+                                   .filter(e => e.car_id === selectedCarId && e.trip_id && e.trip_id.trim() !== '')
+                                   .map(e => e.trip_id)
+                                   .filter(Boolean))] as string[]
+                               : allTripIds;
+                             return (
+                               <FormItem>
+                                 <FormLabel className="flex items-center gap-2">
+                                   Trip ID
+                                   {field.value && (
+                                     <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                       Auto-filled
+                                     </Badge>
+                                   )}
+                                 </FormLabel>
+                                 <FormControl>
+                                   <div className="space-y-2">
+                                     {loading ? (
+                                       <div className="flex items-center gap-2">
+                                         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                         <span className="text-sm text-muted-foreground">Loading trip IDs...</span>
+                                       </div>
+                                     ) : availableTripIds.length > 0 ? (
+                                       <Select value={field.value} onValueChange={field.onChange}>
+                                         <SelectTrigger>
+                                           <SelectValue placeholder={
+                                             selectedCarId 
+                                               ? `Select trip ID (${availableTripIds.length} for this car)` 
+                                               : `Select trip ID (${availableTripIds.length} total)`
+                                           } />
+                                         </SelectTrigger>
+                                         <SelectContent className="bg-popover border shadow-md z-50">
+                                           {availableTripIds.map((tripId) => (
+                                             <SelectItem key={tripId} value={tripId}>
+                                               {tripId}
+                                             </SelectItem>
+                                           ))}
+                                         </SelectContent>
+                                       </Select>
+                                     ) : selectedCarId ? (
+                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
+                                         No existing trip IDs found for this car. You can enter a new one below.
+                                       </div>
+                                     ) : (
+                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
+                                         No trip IDs found in expenses. You can enter a new one below.
+                                       </div>
+                                     )}
+                                     <Input
+                                       placeholder={
+                                         availableTripIds.length > 0 
+                                           ? "Or enter new trip ID" 
+                                           : "Enter trip ID"
+                                       }
+                                       value={field.value}
+                                       onChange={field.onChange}
+                                     />
+                                   </div>
+                                 </FormControl>
+                                 <FormMessage />
+                               </FormItem>
+                             );
+                           }}
+                         />
+
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                           <FormField
+                             control={claimForm.control}
+                             name="guest_name"
+                             render={({ field }) => (
+                               <FormItem>
+                                 <FormLabel className="flex items-center gap-2">
+                                   Guest Name
+                                   {field.value && (
+                                     <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                       Auto-filled
+                                     </Badge>
+                                   )}
+                                 </FormLabel>
+                                 <FormControl>
+                                   <Input placeholder="Guest name" {...field} />
+                                 </FormControl>
+                                 <FormMessage />
+                               </FormItem>
+                             )}
+                           />
+                           <FormField
+                             control={claimForm.control}
+                             name="payment_source"
+                             render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="flex items-center gap-2">
+                                    Payment Source
+                                    {field.value && field.value !== "Turo" && (
+                                      <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                        Auto-filled
+                                      </Badge>
+                                    )}
+                                  </FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select payment source" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="Turo">Turo</SelectItem>
+                                      <SelectItem value="Eon">Eon</SelectItem>
+                                      <SelectItem value="GetAround">GetAround</SelectItem>
+                                      <SelectItem value="Private">Private</SelectItem>
+                                      <SelectItem value="Insurance">Insurance</SelectItem>
+                                      <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                             )}
+                           />
+                         </div>
+
+                         <FormField
+                           control={claimForm.control}
+                           name="incident_date"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Incident Date</FormLabel>
+                               <FormControl>
+                                 <Input type="date" {...field} />
+                               </FormControl>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+
+                         <FormField
+                           control={claimForm.control}
+                           name="description"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Incident Description</FormLabel>
+                               <FormControl>
+                                 <Textarea placeholder="Describe what happened..." {...field} />
+                               </FormControl>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+
+                         <FormField
+                           control={claimForm.control}
+                           name="accident_description"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Detailed Accident Description</FormLabel>
+                               <FormControl>
+                                 <Textarea placeholder="Provide additional details about the accident..." {...field} />
+                               </FormControl>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+
+                         <FormField
+                           control={claimForm.control}
+                           name="claim_amount"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Estimated Claim Amount</FormLabel>
+                               <FormControl>
+                                 <Input
+                                   type="number"
+                                   inputMode="decimal"
+                                   step="0.01"
+                                   placeholder="0.00"
+                                   {...field}
+                                   onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                 />
+                               </FormControl>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+
+                         <div className="space-y-4">
+                           <h4 className="font-medium">Insurance & Repair Information</h4>
+                           
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             <FormField
+                               control={claimForm.control}
+                               name="adjuster_name"
+                               render={({ field }) => (
+                                 <FormItem>
+                                   <FormLabel>Adjuster Name (Optional)</FormLabel>
+                                   <FormControl>
+                                     <Input placeholder="Enter adjuster name" {...field} />
+                                   </FormControl>
+                                   <FormMessage />
+                                 </FormItem>
+                               )}
+                             />
+                             <FormField
+                               control={claimForm.control}
+                               name="adjuster_contact"
+                               render={({ field }) => (
+                                 <FormItem>
+                                   <FormLabel>Adjuster Contact (Optional)</FormLabel>
+                                   <FormControl>
+                                     <Input placeholder="Phone or email" {...field} />
+                                   </FormControl>
+                                   <FormMessage />
+                                 </FormItem>
+                               )}
+                             />
+                           </div>
+
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             <FormField
+                               control={claimForm.control}
+                               name="autobody_shop_name"
+                               render={({ field }) => (
+                                 <FormItem>
+                                   <FormLabel>Auto Body Shop (Optional)</FormLabel>
+                                   <FormControl>
+                                     <Input placeholder="Shop name" {...field} />
+                                   </FormControl>
+                                   <FormMessage />
+                                 </FormItem>
+                               )}
+                             />
+                             <FormField
+                               control={claimForm.control}
+                               name="shop_contact_info"
+                               render={({ field }) => (
+                                 <FormItem>
+                                   <FormLabel>Shop Contact (Optional)</FormLabel>
+                                   <FormControl>
+                                     <Input placeholder="Phone or address" {...field} />
+                                   </FormControl>
+                                   <FormMessage />
+                                 </FormItem>
+                               )}
+                             />
+                           </div>
+
+                           <FormField
+                             control={claimForm.control}
+                             name="photos_taken"
+                             render={({ field }) => (
+                               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                 <FormControl>
+                                   <input
+                                     type="checkbox"
+                                     checked={field.value}
+                                     onChange={field.onChange}
+                                     className="h-4 w-4"
+                                   />
+                                 </FormControl>
+                                 <div className="space-y-1 leading-none">
+                                   <FormLabel>Photos taken of damage/incident</FormLabel>
+                                 </div>
+                               </FormItem>
+                             )}
+                           />
+                         </div>
+
+                         <div className="pt-2 flex justify-end gap-2">
+                           <Button type="button" variant="outline" onClick={() => {
+                             setClaimDialogOpen(false);
+                             setEditingClaim(null);
+                             claimForm.reset();
+                           }}>
+                             Cancel
+                           </Button>
+                           <Button type="submit">
+                             {editingClaim ? 'Update Claim' : 'Submit Claim'}
+                           </Button>
+                         </div>
                        </form>
                      </Form>
                   </DialogContent>
