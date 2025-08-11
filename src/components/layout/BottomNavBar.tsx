@@ -52,16 +52,16 @@ export function BottomNavBar() {
   })();
 
   const getLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `${isActive ? "text-primary" : "text-muted-foreground"} flex flex-col items-center justify-center gap-1 py-2`;
+    `${isActive ? "text-primary" : "text-muted-foreground"} flex flex-col items-center justify-center gap-1 py-2 w-full h-full`;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-background border-t md:hidden h-bottom-nav pb-safe-bottom">
-      <ul className="flex items-stretch overflow-x-auto px-2 gap-2">
+      <ul className="grid h-full w-full px-2" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((item) => (
-          <li key={item.title} className="shrink-0 flex">
+          <li key={item.title} className="min-w-0">
             <NavLink to={item.url} end className={getLinkClass} aria-label={item.title}>
               <item.icon className="h-5 w-5" />
-              <span className="text-[11px] leading-none">{item.title}</span>
+              <span className="text-[11px] leading-none truncate max-w-full">{item.title}</span>
             </NavLink>
           </li>
         ))}
