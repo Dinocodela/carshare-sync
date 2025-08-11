@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { ClientEarning } from '@/hooks/useClientAnalytics';
 import { format, parseISO } from 'date-fns';
 import { TrendingUp } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EarningsChartProps {
   earnings: ClientEarning[];
@@ -12,6 +13,7 @@ interface EarningsChartProps {
 export function EarningsChart({ earnings }: EarningsChartProps) {
   // Build a fixed 2025 timeline with all 12 months and merge earnings (Paid vs Upcoming)
   const targetYear = 2025;
+  const isMobile = useIsMobile();
 
   // Aggregate earnings only for the target year
   const aggregated = earnings.reduce((acc, earning) => {
@@ -103,48 +105,46 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
           </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-[260px] sm:h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 24, left: 8, bottom: 12 }}>
-                <CartesianGrid 
-                  strokeDasharray="2 4" 
-                  stroke="hsl(var(--border))" 
-                  opacity={0.4}
-                  vertical={false}
-                />
-                <XAxis 
-                  dataKey="month" 
-                  interval={0}
-                  fontSize={11}
-                  fontWeight={500}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  tickMargin={10}
-                />
-                <YAxis 
-                  fontSize={11}
-                  fontWeight={500}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `$${value.toLocaleString()}`}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  tickMargin={10}
-                  width={60}
-                />
-                <ChartTooltip 
-                  content={<ChartTooltipContent 
-                    className="rounded-xl border-0 bg-background/95 backdrop-blur-sm shadow-2xl ring-1 ring-border/50"
-                  />}
-                  formatter={(value, name) => [
-                    `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    name === 'paid' ? 'Paid' : 'Upcoming'
-                  ]}
-                  labelFormatter={(value, payload) => payload?.[0]?.payload?.fullMonth ?? String(value)}
-                />
-                <Bar dataKey="paid" stackId="a" fill="hsl(var(--chart-1))" />
-                <Bar dataKey="upcoming" stackId="a" fill="hsl(var(--chart-2))" />
-              </BarChart>
-            </ResponsiveContainer>
+            <BarChart data={chartData} margin={{ top: 20, right: 24, left: 10, bottom: isMobile ? 28 : 18 }} barCategoryGap={isMobile ? '40%' : '25%'}>
+              <CartesianGrid 
+                strokeDasharray="2 4" 
+                stroke="hsl(var(--border))" 
+                opacity={0.4}
+                vertical={false}
+              />
+              <XAxis 
+                dataKey="month" 
+                interval={0}
+                fontSize={11}
+                fontWeight={500}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                tickMargin={12}
+              />
+              <YAxis 
+                fontSize={11}
+                fontWeight={500}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                tickMargin={10}
+                width={60}
+              />
+              <ChartTooltip 
+                content={<ChartTooltipContent 
+                  className="rounded-xl border-0 bg-background/95 backdrop-blur-sm shadow-2xl ring-1 ring-border/50"
+                />}
+                formatter={(value, name) => [
+                  `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                  name === 'paid' ? 'Paid' : 'Upcoming'
+                ]}
+                labelFormatter={(value, payload) => payload?.[0]?.payload?.fullMonth ?? String(value)}
+              />
+              <Bar dataKey="paid" stackId="a" fill="hsl(var(--chart-1))" barSize={isMobile ? 8 : 14} />
+              <Bar dataKey="upcoming" stackId="a" fill="hsl(var(--chart-2))" barSize={isMobile ? 8 : 14} />
+            </BarChart>
           </ChartContainer>
         )}
       </CardContent>

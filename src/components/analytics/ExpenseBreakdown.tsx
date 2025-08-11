@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell } from 'recharts';
 import { ClientExpense } from '@/hooks/useClientAnalytics';
 import { Receipt } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ExpenseBreakdownProps {
   expenses: ClientExpense[];
@@ -59,6 +60,7 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
   };
 
   const totalExpenses = chartData.reduce((sum, item) => sum + item.value, 0);
+  const isMobile = useIsMobile();
 
   return (
     <Card className="relative overflow-hidden">
@@ -82,37 +84,35 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            <ChartContainer config={chartConfig} className="h-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 8, right: 16, left: 16, bottom: 16 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
-                    <XAxis 
-                      dataKey="name"
-                      type="category"
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                      tickFormatter={(value) => getInitials(String(value))}
-                    />
-                    <YAxis 
-                      type="number"
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                      tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
-                    />
-                    <ChartTooltip 
-                      content={<ChartTooltipContent />}
-                      formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
-                      labelFormatter={(label) => `${label}`}
-                    />
-                    <Bar dataKey="value" barSize={14}>
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-              </ResponsiveContainer>
+            <ChartContainer config={chartConfig} className="h-[220px] sm:h-[260px]">
+              <BarChart data={chartData} margin={{ top: 8, right: 16, left: 12, bottom: isMobile ? 24 : 16 }} barCategoryGap={isMobile ? '35%' : '25%'}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis 
+                  dataKey="name"
+                  type="category"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  tickFormatter={(value) => getInitials(String(value))}
+                />
+                <YAxis 
+                  type="number"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
+                />
+                <ChartTooltip 
+                  content={<ChartTooltipContent />}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
+                  labelFormatter={(label) => `${label}`}
+                />
+                <Bar dataKey="value" barSize={isMobile ? 12 : 16}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
             </ChartContainer>
             
             <div className="space-y-3">
