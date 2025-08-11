@@ -12,7 +12,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 w-full items-center justify-start overflow-x-auto flex-nowrap rounded-md bg-muted p-1 text-muted-foreground",
+      "inline-flex h-10 w-full items-center justify-start overflow-x-auto flex-nowrap rounded-md bg-muted p-1 text-muted-foreground scroll-smooth snap-x snap-mandatory gap-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
       className
     )}
     {...props}
@@ -23,11 +23,19 @@ TabsList.displayName = TabsPrimitive.List.displayName
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
+>(({ className, onClick, onFocus, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
+    onClick={(e) => {
+      onClick?.(e);
+      try { e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch {}
+    }}
+    onFocus={(e) => {
+      onFocus?.(e);
+      try { e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch {}
+    }}
     className={cn(
-      "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-sm px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm snap-start",
       className
     )}
     {...props}

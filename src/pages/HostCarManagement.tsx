@@ -1370,41 +1370,43 @@ export default function HostCarManagement() {
   }
   return <DashboardLayout>
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Car className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Hosted Cars Management</h1>
+        <div className="mb-4 md:mb-6">
+          <div className="flex items-center gap-2 mb-1 md:mb-2">
+            <Car className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Hosted Cars Management</h1>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground hidden sm:block">
             Manage cars you're currently hosting and process returns.
           </p>
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
           <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
-            <div className="overflow-x-auto">
-              <TabsList className="flex w-full min-w-max gap-2 px-2 py-1">
-                <TabsTrigger value="active" className="gap-2">
+            <div className="relative">
+              <TabsList className="flex w-full min-w-max gap-2 px-2 py-1 snap-x snap-mandatory">
+                <TabsTrigger value="active" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
                   <span>Active</span>
                   <Badge variant="secondary">{activeHostedCars.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="returns" className="gap-2">
+                <TabsTrigger value="returns" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
                   <span>Returns</span>
                   <Badge variant="secondary">{readyForReturnCars.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="expenses" className="gap-2">
+                <TabsTrigger value="expenses" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
                   <span>Expenses</span>
                   <Badge variant="secondary">{expenses.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="earnings" className="gap-2">
+                <TabsTrigger value="earnings" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
                   <span>Earnings</span>
                   <Badge variant="secondary">{earnings.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="claims" className="gap-2">
+                <TabsTrigger value="claims" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
                   <span>Claims</span>
                   <Badge variant="secondary">{claims.length}</Badge>
                 </TabsTrigger>
               </TabsList>
+              <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-10 w-6 bg-gradient-to-r from-background to-transparent" />
+              <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-10 w-6 bg-gradient-to-l from-background to-transparent" />
             </div>
 
             {/* Quick filter chips for mobile */}
