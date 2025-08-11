@@ -2327,12 +2327,15 @@ export default function HostCarManagement() {
                              {/* Car Details */}
                              {(() => {
                                const expenseCar = cars.find(car => car.id === expense.car_id);
-                               return expenseCar ? (
+                               if (!expenseCar) return null;
+                               return (
                                  <div className="border-t mt-3 pt-3">
                                    <p className="text-sm font-medium mb-2">Vehicle Details:</p>
                                    {formatDetailedCarInfo(expenseCar)}
-                            </div>
-                          </div>
+                                 </div>
+                               );
+                             })()}
+                           </div>
                           <div className="text-right">
                             <div className="flex items-start gap-2 mb-2">
                               <DropdownMenu>
