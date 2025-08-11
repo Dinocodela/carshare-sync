@@ -85,25 +85,28 @@ export default function ClientAnalytics() {
       <PageContainer>
         <SEO title="Client Analytics | TESLYS" description="Track vehicle performance, earnings, expenses, and claims in your TESLYS client analytics dashboard." />
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
               <p className="text-muted-foreground">
                 Track your vehicle's performance and earnings. For expense management, visit <Link to="/host-car-management" className="text-primary underline">Hosted Cars Management</Link>
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <CarSelector 
-                cars={cars}
-                selectedCarId={selectedCarId}
-                onCarSelect={setSelectedCarId}
-                loading={perCarLoading}
-              />
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+              <div className="w-full sm:w-auto">
+                <CarSelector 
+                  cars={cars}
+                  selectedCarId={selectedCarId}
+                  onCarSelect={setSelectedCarId}
+                  loading={perCarLoading}
+                />
+              </div>
               <Button 
                 onClick={handleRefresh} 
                 variant="outline" 
                 size="sm" 
                 disabled={loading || perCarLoading}
+                className="w-full sm:w-auto"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${(loading || perCarLoading) ? 'animate-spin' : ''}`} />
                 Refresh
@@ -112,16 +115,16 @@ export default function ClientAnalytics() {
           </div>
 
           <Tabs defaultValue="portfolio" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="portfolio" className="flex items-center space-x-2">
+            <TabsList className="w-full overflow-x-auto sm:grid sm:grid-cols-3">
+              <TabsTrigger value="portfolio" className="flex items-center space-x-2 whitespace-nowrap">
                 <BarChart3 className="h-4 w-4" />
                 <span>Portfolio Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="per-car" className="flex items-center space-x-2">
+              <TabsTrigger value="per-car" className="flex items-center space-x-2 whitespace-nowrap">
                 <Car className="h-4 w-4" />
                 <span>Per-Car Analysis</span>
               </TabsTrigger>
-              <TabsTrigger value="comparison" className="flex items-center space-x-2">
+              <TabsTrigger value="comparison" className="flex items-center space-x-2 whitespace-nowrap">
                 <BarChart3 className="h-4 w-4" />
                 <span>Car Comparison</span>
               </TabsTrigger>

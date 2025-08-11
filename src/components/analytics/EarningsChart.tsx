@@ -58,7 +58,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
       </CardHeader>
       <CardContent className="relative">
         {chartData.length === 0 ? (
-          <div className="h-[350px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[260px] sm:h-[350px] flex items-center justify-center text-muted-foreground">
             <div className="text-center space-y-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl"></div>
@@ -73,7 +73,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
             </div>
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="h-[350px]">
+          <ChartContainer config={chartConfig} className="h-[260px] sm:h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
                 <defs>

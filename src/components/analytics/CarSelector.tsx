@@ -23,7 +23,7 @@ export function CarSelector({ cars, selectedCarId, onCarSelect, loading }: CarSe
     <div className="flex items-center space-x-2">
       <Car className="h-4 w-4 text-muted-foreground" />
       <Select value={selectedCarId || "all"} onValueChange={(value) => onCarSelect(value === "all" ? undefined : value)}>
-        <SelectTrigger className="w-64">
+        <SelectTrigger className="w-full sm:w-64">
           <SelectValue placeholder="Select a car" />
         </SelectTrigger>
         <SelectContent>
