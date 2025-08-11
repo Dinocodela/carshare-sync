@@ -115,16 +115,16 @@ export default function ClientAnalytics() {
           </div>
 
           <Tabs defaultValue="portfolio" className="space-y-6">
-            <TabsList className="w-full overflow-x-auto sm:grid sm:grid-cols-3">
-              <TabsTrigger value="portfolio" className="flex items-center space-x-2 whitespace-nowrap">
+            <TabsList className="w-full !h-auto min-h-10 flex flex-wrap gap-1 sm:grid sm:grid-cols-3">
+              <TabsTrigger value="portfolio" className="flex flex-1 min-w-0 items-center justify-center text-center space-x-2 !whitespace-normal sm:whitespace-nowrap">
                 <BarChart3 className="h-4 w-4" />
                 <span>Portfolio Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="per-car" className="flex items-center space-x-2 whitespace-nowrap">
+              <TabsTrigger value="per-car" className="flex flex-1 min-w-0 items-center justify-center text-center space-x-2 !whitespace-normal sm:whitespace-nowrap">
                 <Car className="h-4 w-4" />
                 <span>Per-Car Analysis</span>
               </TabsTrigger>
-              <TabsTrigger value="comparison" className="flex items-center space-x-2 whitespace-nowrap">
+              <TabsTrigger value="comparison" className="flex flex-1 min-w-0 items-center justify-center text-center space-x-2 !whitespace-normal sm:whitespace-nowrap">
                 <BarChart3 className="h-4 w-4" />
                 <span>Car Comparison</span>
               </TabsTrigger>
