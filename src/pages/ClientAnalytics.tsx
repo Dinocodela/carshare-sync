@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, BarChart3, Car } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { Link } from 'react-router-dom';
+import { SEO } from '@/components/SEO';
 
 export default function ClientAnalytics() {
   const { earnings, expenses, claims, summary, loading, error, refetch } = useClientAnalytics();
@@ -81,12 +83,13 @@ export default function ClientAnalytics() {
   return (
     <DashboardLayout>
       <PageContainer>
+        <SEO title="Client Analytics | TESLYS" description="Track vehicle performance, earnings, expenses, and claims in your TESLYS client analytics dashboard." />
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
               <p className="text-muted-foreground">
-                Track your vehicle's performance and earnings. For expense management, visit <button onClick={() => window.location.href = '/host-car-management'} className="text-primary underline">Hosted Cars Management</button>
+                Track your vehicle's performance and earnings. For expense management, visit <Link to="/host-car-management" className="text-primary underline">Hosted Cars Management</Link>
               </p>
             </div>
             <div className="flex items-center space-x-4">
