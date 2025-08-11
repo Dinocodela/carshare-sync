@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetHeader as SheetHead, SheetTitle as SheetTit, SheetDescription as SheetDesc } from '@/components/ui/sheet';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -233,6 +234,9 @@ export default function HostCarManagement() {
   const [expenseFiltersOpen, setExpenseFiltersOpen] = useState(false);
   const [earningsFiltersOpen, setEarningsFiltersOpen] = useState(false);
   const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
+
+  // Active tab state for conditional mobile UI
+  const [tab, setTab] = useState<'active' | 'returns' | 'expenses' | 'earnings' | 'claims'>('active');
 
   // Filter state for expenses
   const [expenseFilters, setExpenseFilters] = useState({
@@ -1376,7 +1380,7 @@ export default function HostCarManagement() {
           </p>
         </div>
 
-        <Tabs defaultValue="active" className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
           <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
             <div className="overflow-x-auto">
               <TabsList className="flex w-full min-w-max gap-2 px-2 py-1">
@@ -1402,6 +1406,59 @@ export default function HostCarManagement() {
                 </TabsTrigger>
               </TabsList>
             </div>
+
+            {/* Quick filter chips for mobile */}
+            {isMobile && tab === 'expenses' && (
+              <div className="overflow-x-auto px-2 py-2 border-t">
+                <div className="flex gap-2">
+                  <Button size="sm" variant={expenseFilters.dateRange==='7d' ? 'default' : 'secondary'} onClick={() => setExpenseFilters(prev => ({...prev, dateRange: '7d'}))}>7d</Button>
+                  <Button size="sm" variant={expenseFilters.dateRange==='30d' ? 'default' : 'secondary'} onClick={() => setExpenseFilters(prev => ({...prev, dateRange: '30d'}))}>30d</Button>
+                  <Button size="sm" variant={expenseFilters.dateRange==='90d' ? 'default' : 'secondary'} onClick={() => setExpenseFilters(prev => ({...prev, dateRange: '90d'}))}>90d</Button>
+                  <Button size="sm" variant={expenseFilters.dateRange==='all' ? 'default' : 'secondary'} onClick={() => setExpenseFilters(prev => ({...prev, dateRange: 'all'}))}>All</Button>
+                  <Button size="sm" variant="ghost" onClick={clearFilters}>
+                    <X className="h-4 w-4 mr-1" /> Clear
+                  </Button>
+                </div>
+              </div>
+            )}
+            {isMobile && tab === 'earnings' && (
+              <div className="overflow-x-auto px-2 py-2 border-t">
+                <div className="flex gap-2">
+                  <Button size="sm" variant={earningsFilters.paymentStatus==='pending' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'pending'}))}>Pending</Button>
+                  <Button size="sm" variant={earningsFilters.paymentStatus==='paid' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'paid'}))}>Paid</Button>
+                  <Button size="sm" variant={earningsFilters.paymentStatus==='all' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'all'}))}>All</Button>
+                  <div className="mx-2 w-px bg-border" />
+                  <Button size="sm" variant={earningsFilters.dateRange==='7d' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, dateRange: '7d'}))}>7d</Button>
+                  <Button size="sm" variant={earningsFilters.dateRange==='30d' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, dateRange: '30d'}))}>30d</Button>
+                  <Button size="sm" variant={earningsFilters.dateRange==='all' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, dateRange: 'all'}))}>All</Button>
+                  <Button size="sm" variant="ghost" onClick={clearEarningsFilters}>
+                    <X className="h-4 w-4 mr-1" /> Clear
+                  </Button>
+                </div>
+              </div>
+            )}
+            {isMobile && tab === 'claims' && (
+              <div className="overflow-x-auto px-2 py-2 border-t">
+                <div className="flex gap-2">
+                  <Button size="sm" variant={claimsFilters.claimStatus==='pending' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'pending'}))}>Pending</Button>
+                  <Button size="sm" variant={claimsFilters.claimStatus==='closed' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'closed'}))}>Closed</Button>
+                  <Button size="sm" variant={claimsFilters.claimStatus==='all' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'all'}))}>All</Button>
+                  <div className="mx-2 w-px bg-border" />
+                  <Button size="sm" variant={claimsFilters.dateRange==='7d' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: '7d'}))}>7d</Button>
+                  <Button size="sm" variant={claimsFilters.dateRange==='30d' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: '30d'}))}>30d</Button>
+                  <Button size="sm" variant={claimsFilters.dateRange==='all' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: 'all'}))}>All</Button>
+                  <Button size="sm" variant="ghost" onClick={clearClaimsFilters}>
+                    <X className="h-4 w-4 mr-1" /> Clear
+                  </Button>
+                </div>
+              </div>
+            )}
+            {/* Floating Action Button for mobile */}
+            {isMobile && tab === 'expenses' && (
+              <Button className="fixed right-4 bottom-20 rounded-full shadow-lg md:hidden" onClick={() => setExpenseDialogOpen(true)}>
+                <Plus className="h-5 w-5 mr-2" /> Add Expense
+              </Button>
+            )}
           </div>
 
           <TabsContent value="active" className="space-y-4">
@@ -1429,43 +1486,52 @@ export default function HostCarManagement() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {/* Enhanced Car Information */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Color:</span>
-                          <p className="font-medium">{car.color || 'N/A'}</p>
+                      <Collapsible defaultOpen={!isMobile}>
+                        <div className="flex justify-end md:hidden">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm">Details</Button>
+                          </CollapsibleTrigger>
                         </div>
-                        <div>
-                          <span className="text-muted-foreground">Mileage:</span>
-                          <p className="font-medium">{car.mileage ? `${car.mileage.toLocaleString()} mi` : 'N/A'}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Hosting Since:</span>
-                          <p className="font-medium">{new Date(car.created_at).toLocaleDateString()}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Status:</span>
-                          <p className="font-medium text-green-600">Active</p>
-                        </div>
-                      </div>
-
-                      {/* Client Contact Section */}
-                      <div className="border-t pt-4">
-                        <h4 className="font-medium mb-2">Client Contact</h4>
-                        <div className="space-y-2">
-                           <p className="text-sm">
-                             <strong>Name:</strong> {car.client.first_name || car.client.last_name 
-                               ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
-                               : 'Name not available'}
-                           </p>
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4 text-muted-foreground" />
-                            <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
-                              {car.client.phone}
-                            </a>
+                        <CollapsibleContent className="space-y-4">
+                          {/* Enhanced Car Information */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Color:</span>
+                              <p className="font-medium">{car.color || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Mileage:</span>
+                              <p className="font-medium">{car.mileage ? `${car.mileage.toLocaleString()} mi` : 'N/A'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Hosting Since:</span>
+                              <p className="font-medium">{new Date(car.created_at).toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Status:</span>
+                              <p className="font-medium text-green-600">Active</p>
+                            </div>
                           </div>
-                        </div>
-                      </div>
+
+                          {/* Client Contact Section */}
+                          <div className="border-t pt-4">
+                            <h4 className="font-medium mb-2">Client Contact</h4>
+                            <div className="space-y-2">
+                               <p className="text-sm">
+                                 <strong>Name:</strong> {car.client.first_name || car.client.last_name 
+                                   ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
+                                   : 'Name not available'}
+                               </p>
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
+                                  {car.client.phone}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
 
                       {/* Management Actions */}
                       <div className="flex flex-col sm:flex-row gap-2 pt-2">
@@ -1527,22 +1593,31 @@ export default function HostCarManagement() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div>
-                        <h4 className="font-medium mb-2">Client Contact</h4>
-                        <div className="space-y-2">
-                           <p className="text-sm">
-                             <strong>Name:</strong> {car.client.first_name || car.client.last_name 
-                               ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
-                               : 'Name not available'}
-                           </p>
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4 text-muted-foreground" />
-                            <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
-                              {car.client.phone}
-                            </a>
-                          </div>
+                      <Collapsible defaultOpen={!isMobile}>
+                        <div className="flex justify-end md:hidden">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm">Details</Button>
+                          </CollapsibleTrigger>
                         </div>
-                      </div>
+                        <CollapsibleContent>
+                          <div>
+                            <h4 className="font-medium mb-2">Client Contact</h4>
+                            <div className="space-y-2">
+                               <p className="text-sm">
+                                 <strong>Name:</strong> {car.client.first_name || car.client.last_name 
+                                   ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
+                                   : 'Name not available'}
+                               </p>
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
+                                  {car.client.phone}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
                       <div className="space-y-2">
                         <p className="text-sm text-orange-600 font-medium">
                           ⚠ Client has requested car return
