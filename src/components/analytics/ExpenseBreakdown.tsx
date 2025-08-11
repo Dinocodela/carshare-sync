@@ -66,34 +66,33 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
           <div className="space-y-4">
             <ChartContainer config={chartConfig} className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} layout="vertical" margin={{ top: 8, right: 16, left: 16, bottom: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.4} />
-                  <XAxis 
-                    type="number"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                    tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
-                  />
-                  <YAxis 
-                    dataKey="name"
-                    type="category"
-                    width={100}
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <ChartTooltip 
-                    content={<ChartTooltipContent />}
-                    formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
-                    labelFormatter={(label) => `${label}`}
-                  />
-                  <Bar dataKey="value" radius={[6, 6, 6, 6]}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
+                  <BarChart data={chartData} margin={{ top: 8, right: 16, left: 16, bottom: 16 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
+                    <XAxis 
+                      dataKey="name"
+                      type="category"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis 
+                      type="number"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
+                    />
+                    <ChartTooltip 
+                      content={<ChartTooltipContent />}
+                      formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
+                      labelFormatter={(label) => `${label}`}
+                    />
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
             
