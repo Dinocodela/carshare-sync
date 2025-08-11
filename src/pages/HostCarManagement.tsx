@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle, DollarSign, Plus, Edit, Trash, Clock, Filter, X } from 'lucide-react';
+import { Car, Phone, Mail, MapPin, CheckCircle, XCircle, Settings, Calendar, FileText, AlertTriangle, DollarSign, Plus, Edit, Trash, Clock, Filter, X, MoreVertical } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -228,6 +228,11 @@ export default function HostCarManagement() {
   // Loading states for better UX
   const [earningsLoading, setEarningsLoading] = useState(false);
   const [expensesLoading, setExpensesLoading] = useState(false);
+
+  // Mobile filters sheet state
+  const [expenseFiltersOpen, setExpenseFiltersOpen] = useState(false);
+  const [earningsFiltersOpen, setEarningsFiltersOpen] = useState(false);
+  const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
 
   // Filter state for expenses
   const [expenseFilters, setExpenseFilters] = useState({
@@ -1790,6 +1795,97 @@ export default function HostCarManagement() {
                       </Form>
                     </SheetContent>
                   </Sheet>
+
+                  {/* Mobile Filters Button */}
+                  <Button variant="outline" onClick={() => setExpenseFiltersOpen(true)} className="mt-2">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
+                    {activeFiltersCount > 0 && (
+                      <Badge variant="secondary" className="ml-2">{activeFiltersCount}</Badge>
+                    )}
+                  </Button>
+                  <Sheet open={expenseFiltersOpen} onOpenChange={setExpenseFiltersOpen}>
+                    <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
+                      <SheetHead>
+                        <SheetTit>Expense Filters</SheetTit>
+                        <SheetDesc>Refine the list of expenses.</SheetDesc>
+                      </SheetHead>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Filter className="h-4 w-4" />
+                            <span className="text-sm font-medium">Filters</span>
+                            {activeFiltersCount > 0 && <Badge variant="secondary" className="text-xs">{activeFiltersCount} active</Badge>}
+                          </div>
+                          {activeFiltersCount > 0 && (
+                            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2">
+                              <X className="h-3 w-3 mr-1" />
+                              Clear
+                            </Button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Car</Label>
+                            <Select value={expenseFilters.carId} onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, carId: value }))}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="All cars" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All cars</SelectItem>
+                                {cars.map((car) => (
+                                  <SelectItem key={car.id} value={car.id}>
+                                    {formatCarDisplayName(car)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Payment Source</Label>
+                            <Select value={expenseFilters.paymentSource} onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, paymentSource: value }))}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="All sources" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All sources</SelectItem>
+                                <SelectItem value="Turo">Turo</SelectItem>
+                                <SelectItem value="Eon">Eon</SelectItem>
+                                <SelectItem value="GetAround">GetAround</SelectItem>
+                                <SelectItem value="Private">Private</SelectItem>
+                                <SelectItem value="Insurance">Insurance</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Added Recently</Label>
+                            <RadioGroup value={expenseFilters.dateRange} onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, dateRange: value }))} className="flex flex-wrap gap-4">
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="all" id="m-all" />
+                                <Label htmlFor="m-all" className="text-sm">All</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="today" id="m-today" />
+                                <Label htmlFor="m-today" className="text-sm">Today</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="week" id="m-week" />
+                                <Label htmlFor="m-week" className="text-sm">This Week</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="month" id="m-month" />
+                                <Label htmlFor="m-month" className="text-sm">This Month</Label>
+                              </div>
+                            </RadioGroup>
+                          </div>
+                        </div>
+                        <div className="pt-2 flex justify-end">
+                          <Button onClick={() => setExpenseFiltersOpen(false)}>Apply</Button>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
                 </>
               ) : (
                 <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
@@ -2025,117 +2121,119 @@ export default function HostCarManagement() {
             </div>
 
             {/* Expense Filters */}
-            <Card>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4" />
-                    <CardTitle className="text-base">Filters</CardTitle>
+            {!isMobile && (
+              <Card>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4" />
+                      <CardTitle className="text-base">Filters</CardTitle>
+                      {activeFiltersCount > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {activeFiltersCount} active
+                        </Badge>
+                      )}
+                    </div>
                     {activeFiltersCount > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        {activeFiltersCount} active
-                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearFilters}
+                        className="h-8 px-2"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Clear
+                      </Button>
                     )}
                   </div>
-                  {activeFiltersCount > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={clearFilters}
-                      className="h-8 px-2"
-                    >
-                      <X className="h-3 w-3 mr-1" />
-                      Clear
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Car Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Car</Label>
-                    <Select 
-                      value={expenseFilters.carId} 
-                      onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, carId: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="All cars" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All cars</SelectItem>
-                        {cars.map((car) => (
-                          <SelectItem key={car.id} value={car.id}>
-                            {formatCarDisplayName(car)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Car Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Car</Label>
+                      <Select 
+                        value={expenseFilters.carId} 
+                        onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, carId: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All cars" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All cars</SelectItem>
+                          {cars.map((car) => (
+                            <SelectItem key={car.id} value={car.id}>
+                              {formatCarDisplayName(car)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Payment Source Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Payment Source</Label>
+                      <Select 
+                        value={expenseFilters.paymentSource} 
+                        onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, paymentSource: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All sources" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All sources</SelectItem>
+                          <SelectItem value="Turo">Turo</SelectItem>
+                          <SelectItem value="Eon">Eon</SelectItem>
+                          <SelectItem value="GetAround">GetAround</SelectItem>
+                          <SelectItem value="Private">Private</SelectItem>
+                          <SelectItem value="Insurance">Insurance</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Date Range Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Added Recently</Label>
+                      <RadioGroup 
+                        value={expenseFilters.dateRange} 
+                        onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, dateRange: value }))}
+                        className="flex flex-wrap gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="all" id="all" />
+                          <Label htmlFor="all" className="text-sm">All</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="today" id="today" />
+                          <Label htmlFor="today" className="text-sm">Today</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="week" id="week" />
+                          <Label htmlFor="week" className="text-sm">This Week</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="month" id="month" />
+                          <Label htmlFor="month" className="text-sm">This Month</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
                   </div>
 
-                  {/* Payment Source Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Payment Source</Label>
-                    <Select 
-                      value={expenseFilters.paymentSource} 
-                      onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, paymentSource: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="All sources" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All sources</SelectItem>
-                        <SelectItem value="Turo">Turo</SelectItem>
-                        <SelectItem value="Eon">Eon</SelectItem>
-                        <SelectItem value="GetAround">GetAround</SelectItem>
-                        <SelectItem value="Private">Private</SelectItem>
-                        <SelectItem value="Insurance">Insurance</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Date Range Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Added Recently</Label>
-                    <RadioGroup 
-                      value={expenseFilters.dateRange} 
-                      onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, dateRange: value }))}
-                      className="flex flex-wrap gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="all" id="all" />
-                        <Label htmlFor="all" className="text-sm">All</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="today" id="today" />
-                        <Label htmlFor="today" className="text-sm">Today</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="week" id="week" />
-                        <Label htmlFor="week" className="text-sm">This Week</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="month" id="month" />
-                        <Label htmlFor="month" className="text-sm">This Month</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-
-                {/* Results Summary */}
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {filteredExpenses.length} of {expenses.length} expenses
-                  </p>
-                  {activeFiltersCount > 0 && (
+                  {/* Results Summary */}
+                  <div className="flex items-center justify-between pt-2 border-t">
                     <p className="text-sm text-muted-foreground">
-                      {activeFiltersCount === 1 ? '1 filter applied' : `${activeFiltersCount} filters applied`}
+                      Showing {filteredExpenses.length} of {expenses.length} expenses
                     </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    {activeFiltersCount > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        {activeFiltersCount === 1 ? '1 filter applied' : `${activeFiltersCount} filters applied`}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {expensesLoading ? (
               <Card>
@@ -2173,9 +2271,9 @@ export default function HostCarManagement() {
               <div className="grid gap-4">
                 {filteredExpenses.map((expense) => (
                   <Card key={expense.id}>
-                     <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
                             <div className="flex items-center gap-2 mb-2">
                               <h4 className="font-medium capitalize">{expense.expense_type}</h4>
                               {expense.trip_id && (
@@ -2233,26 +2331,26 @@ export default function HostCarManagement() {
                                  <div className="border-t mt-3 pt-3">
                                    <p className="text-sm font-medium mb-2">Vehicle Details:</p>
                                    {formatDetailedCarInfo(expenseCar)}
-                                 </div>
-                               ) : null;
-                             })()}
-                           </div>
-                           <div className="text-right">
+                            </div>
+                          </div>
+                          <div className="text-right">
                             <div className="flex items-start gap-2 mb-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditExpense(expense)}
-                              >
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => onDeleteExpense(expense.id)}
-                              >
-                                <Trash className="h-3 w-3" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEditExpense(expense)}>
+                                    <Edit className="h-3 w-3 mr-2" /> Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem onClick={() => onDeleteExpense(expense.id)} className="text-destructive">
+                                    <Trash className="h-3 w-3 mr-2" /> Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                             <p className="font-bold text-lg">
                               ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
@@ -2686,6 +2784,88 @@ export default function HostCarManagement() {
                       </Form>
                     </SheetContent>
                   </Sheet>
+
+                  {/* Mobile Filters Button */}
+                  <Button variant="outline" onClick={() => setEarningsFiltersOpen(true)} className="mt-2">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
+                    {activeEarningsFiltersCount > 0 && (
+                      <Badge variant="secondary" className="ml-2">{activeEarningsFiltersCount}</Badge>
+                    )}
+                  </Button>
+                  <Sheet open={earningsFiltersOpen} onOpenChange={setEarningsFiltersOpen}>
+                    <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
+                      <SheetHead>
+                        <SheetTit>Earnings Filters</SheetTit>
+                        <SheetDesc>Refine the list of earnings.</SheetDesc>
+                      </SheetHead>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 gap-4">
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Car</Label>
+                            <Select value={earningsFilters.carId} onValueChange={(value) => setEarningsFilters(prev => ({ ...prev, carId: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All cars" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All cars</SelectItem>
+                                {cars.map((car) => (
+                                  <SelectItem key={car.id} value={car.id}>
+                                    {formatCarDisplayName(car)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Payment Source</Label>
+                            <Select value={earningsFilters.paymentSource} onValueChange={(value) => setEarningsFilters(prev => ({ ...prev, paymentSource: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All sources" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All sources</SelectItem>
+                                <SelectItem value="Turo">Turo</SelectItem>
+                                <SelectItem value="Eon">Eon</SelectItem>
+                                <SelectItem value="GetAround">GetAround</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Payment Status</Label>
+                            <Select value={earningsFilters.paymentStatus} onValueChange={(value) => setEarningsFilters(prev => ({ ...prev, paymentStatus: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All statuses" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="paid">Paid</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                            <Select value={earningsFilters.dateRange} onValueChange={(value) => setEarningsFilters(prev => ({ ...prev, dateRange: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All time</SelectItem>
+                                <SelectItem value="today">Today</SelectItem>
+                                <SelectItem value="week">This Week</SelectItem>
+                                <SelectItem value="month">This Month</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="pt-2 flex justify-end">
+                          <Button onClick={() => setEarningsFiltersOpen(false)}>Apply</Button>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
                 </>
               ) : (
                 <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
@@ -3110,114 +3290,115 @@ export default function HostCarManagement() {
             </div>
 
             {/* Earnings Filters */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Filter Earnings</h4>
-                    {activeEarningsFiltersCount > 0 && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={clearEarningsFilters}
-                        className="h-8"
-                      >
-                        <X className="h-3 w-3 mr-1" />
-                        Clear Filters
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Car Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Car</Label>
-                      <Select value={earningsFilters.carId} onValueChange={(value) => 
-                        setEarningsFilters(prev => ({ ...prev, carId: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All cars" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All cars</SelectItem>
-                          {cars.map((car) => (
-                            <SelectItem key={car.id} value={car.id}>
-                              {formatCarDisplayName(car)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+            {!isMobile && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Filter Earnings</h4>
+                      {activeEarningsFiltersCount > 0 && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={clearEarningsFilters}
+                          className="h-8"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Clear Filters
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {/* Car Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Car</Label>
+                        <Select value={earningsFilters.carId} onValueChange={(value) => 
+                          setEarningsFilters(prev => ({ ...prev, carId: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All cars" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All cars</SelectItem>
+                            {cars.map((car) => (
+                              <SelectItem key={car.id} value={car.id}>
+                                {formatCarDisplayName(car)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Payment Source Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Payment Source</Label>
+                        <Select value={earningsFilters.paymentSource} onValueChange={(value) => 
+                          setEarningsFilters(prev => ({ ...prev, paymentSource: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All sources" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All sources</SelectItem>
+                            <SelectItem value="Turo">Turo</SelectItem>
+                            <SelectItem value="Eon">Eon</SelectItem>
+                            <SelectItem value="GetAround">GetAround</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Payment Status Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Payment Status</Label>
+                        <Select value={earningsFilters.paymentStatus} onValueChange={(value) => 
+                          setEarningsFilters(prev => ({ ...prev, paymentStatus: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All statuses" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All statuses</SelectItem>
+                            <SelectItem value="paid">Paid</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Date Range Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                        <Select value={earningsFilters.dateRange} onValueChange={(value) => 
+                          setEarningsFilters(prev => ({ ...prev, dateRange: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All time</SelectItem>
+                            <SelectItem value="today">Today</SelectItem>
+                            <SelectItem value="week">This Week</SelectItem>
+                            <SelectItem value="month">This Month</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
-                    {/* Payment Source Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Payment Source</Label>
-                      <Select value={earningsFilters.paymentSource} onValueChange={(value) => 
-                        setEarningsFilters(prev => ({ ...prev, paymentSource: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All sources" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All sources</SelectItem>
-                          <SelectItem value="Turo">Turo</SelectItem>
-                          <SelectItem value="Eon">Eon</SelectItem>
-                          <SelectItem value="GetAround">GetAround</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Payment Status Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Payment Status</Label>
-                      <Select value={earningsFilters.paymentStatus} onValueChange={(value) => 
-                        setEarningsFilters(prev => ({ ...prev, paymentStatus: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All statuses" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All statuses</SelectItem>
-                          <SelectItem value="paid">Paid</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Date Range Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Date Range</Label>
-                      <Select value={earningsFilters.dateRange} onValueChange={(value) => 
-                        setEarningsFilters(prev => ({ ...prev, dateRange: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All time</SelectItem>
-                          <SelectItem value="today">Today</SelectItem>
-                          <SelectItem value="week">This Week</SelectItem>
-                          <SelectItem value="month">This Month</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Results Summary */}
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <p className="text-sm text-muted-foreground">
-                      Showing {filteredEarnings.length} of {earnings.length} earnings
-                    </p>
-                    {activeEarningsFiltersCount > 0 && (
+                    {/* Results Summary */}
+                    <div className="flex items-center justify-between pt-2 border-t">
                       <p className="text-sm text-muted-foreground">
-                        {activeEarningsFiltersCount === 1 ? '1 filter applied' : `${activeEarningsFiltersCount} filters applied`}
+                        Showing {filteredEarnings.length} of {earnings.length} earnings
                       </p>
-                    )}
+                      {activeEarningsFiltersCount > 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          {activeEarningsFiltersCount === 1 ? '1 filter applied' : `${activeEarningsFiltersCount} filters applied`}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {earnings.length === 0 ? (
               <Card>
@@ -3373,22 +3554,24 @@ export default function HostCarManagement() {
                               })()}
                             </div>
                               <div className="text-right">
-                               <div className="flex items-start gap-2 mb-2">
-                                 <Button
-                                   variant="outline"
-                                   size="sm"
-                                   onClick={() => handleEditEarning(earning)}
-                                 >
-                                   <Edit className="h-3 w-3" />
-                                 </Button>
-                                 <Button
-                                   variant="outline"
-                                   size="sm"
-                                   onClick={() => onDeleteEarning(earning.id)}
-                                 >
-                                   <Trash className="h-3 w-3" />
-                                 </Button>
-                               </div>
+                              <div className="flex items-start gap-2 mb-2">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditEarning(earning)}>
+                                      <Edit className="h-3 w-3 mr-2" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => onDeleteEarning(earning.id)} className="text-destructive">
+                                      <Trash className="h-3 w-3 mr-2" /> Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                               <p className="font-bold text-xl text-green-600">${earning.amount.toFixed(2)}</p>
                               <p className="text-xs text-muted-foreground">Amount</p>
                               {earning.date_paid && (
@@ -3767,6 +3950,90 @@ export default function HostCarManagement() {
                       </Form>
                     </SheetContent>
                   </Sheet>
+
+                  {/* Mobile Filters Button */}
+                  <Button variant="outline" onClick={() => setClaimsFiltersOpen(true)} className="mt-2">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
+                    {activeClaimsFiltersCount > 0 && (
+                      <Badge variant="secondary" className="ml-2">{activeClaimsFiltersCount}</Badge>
+                    )}
+                  </Button>
+                  <Sheet open={claimsFiltersOpen} onOpenChange={setClaimsFiltersOpen}>
+                    <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
+                      <SheetHead>
+                        <SheetTit>Claims Filters</SheetTit>
+                        <SheetDesc>Refine the list of claims.</SheetDesc>
+                      </SheetHead>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 gap-4">
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Car</Label>
+                            <Select value={claimsFilters.carId} onValueChange={(value) => setClaimsFilters(prev => ({ ...prev, carId: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All cars" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All cars</SelectItem>
+                                {cars.map((car) => (
+                                  <SelectItem key={car.id} value={car.id}>
+                                    {formatCarDisplayName(car)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Claim Status</Label>
+                            <Select value={claimsFilters.claimStatus} onValueChange={(value) => setClaimsFilters(prev => ({ ...prev, claimStatus: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All statuses" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="denied">Denied</SelectItem>
+                                <SelectItem value="processing">Processing</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Claim Type</Label>
+                            <Select value={claimsFilters.claimType} onValueChange={(value) => setClaimsFilters(prev => ({ ...prev, claimType: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All types" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All types</SelectItem>
+                                <SelectItem value="damage">Damage</SelectItem>
+                                <SelectItem value="accident">Accident</SelectItem>
+                                <SelectItem value="theft">Theft</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                            <Select value={claimsFilters.dateRange} onValueChange={(value) => setClaimsFilters(prev => ({ ...prev, dateRange: value }))}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="All time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">All time</SelectItem>
+                                <SelectItem value="today">Today</SelectItem>
+                                <SelectItem value="week">This Week</SelectItem>
+                                <SelectItem value="month">This Month</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="pt-2 flex justify-end">
+                          <Button onClick={() => setClaimsFiltersOpen(false)}>Apply</Button>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
                 </>
               ) : (
                 <Dialog open={claimDialogOpen} onOpenChange={setClaimDialogOpen}>
@@ -4132,116 +4399,118 @@ export default function HostCarManagement() {
             </div>
 
             {/* Claims Filters */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Filter Claims</h4>
-                    {activeClaimsFiltersCount > 0 && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={clearClaimsFilters}
-                        className="h-8"
-                      >
-                        <X className="h-3 w-3 mr-1" />
-                        Clear Filters
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Car Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Car</Label>
-                      <Select value={claimsFilters.carId} onValueChange={(value) => 
-                        setClaimsFilters(prev => ({ ...prev, carId: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All cars" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All cars</SelectItem>
-                          {cars.map((car) => (
-                            <SelectItem key={car.id} value={car.id}>
-                              {formatCarDisplayName(car)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+            {!isMobile && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Filter Claims</h4>
+                      {activeClaimsFiltersCount > 0 && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={clearClaimsFilters}
+                          className="h-8"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Clear Filters
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {/* Car Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Car</Label>
+                        <Select value={claimsFilters.carId} onValueChange={(value) => 
+                          setClaimsFilters(prev => ({ ...prev, carId: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All cars" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All cars</SelectItem>
+                            {cars.map((car) => (
+                              <SelectItem key={car.id} value={car.id}>
+                                {formatCarDisplayName(car)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Claim Status Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Claim Status</Label>
+                        <Select value={claimsFilters.claimStatus} onValueChange={(value) => 
+                          setClaimsFilters(prev => ({ ...prev, claimStatus: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All statuses" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All statuses</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="denied">Denied</SelectItem>
+                            <SelectItem value="processing">Processing</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Claim Type Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Claim Type</Label>
+                        <Select value={claimsFilters.claimType} onValueChange={(value) => 
+                          setClaimsFilters(prev => ({ ...prev, claimType: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All types" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All types</SelectItem>
+                            <SelectItem value="damage">Damage</SelectItem>
+                            <SelectItem value="accident">Accident</SelectItem>
+                            <SelectItem value="theft">Theft</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Date Range Filter */}
+                      <div>
+                        <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                        <Select value={claimsFilters.dateRange} onValueChange={(value) => 
+                          setClaimsFilters(prev => ({ ...prev, dateRange: value }))
+                        }>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="All time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All time</SelectItem>
+                            <SelectItem value="today">Today</SelectItem>
+                            <SelectItem value="week">This Week</SelectItem>
+                            <SelectItem value="month">This Month</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
-                    {/* Claim Status Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Claim Status</Label>
-                      <Select value={claimsFilters.claimStatus} onValueChange={(value) => 
-                        setClaimsFilters(prev => ({ ...prev, claimStatus: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All statuses" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All statuses</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="approved">Approved</SelectItem>
-                          <SelectItem value="denied">Denied</SelectItem>
-                          <SelectItem value="processing">Processing</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Claim Type Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Claim Type</Label>
-                      <Select value={claimsFilters.claimType} onValueChange={(value) => 
-                        setClaimsFilters(prev => ({ ...prev, claimType: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All types" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All types</SelectItem>
-                          <SelectItem value="damage">Damage</SelectItem>
-                          <SelectItem value="accident">Accident</SelectItem>
-                          <SelectItem value="theft">Theft</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Date Range Filter */}
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">Date Range</Label>
-                      <Select value={claimsFilters.dateRange} onValueChange={(value) => 
-                        setClaimsFilters(prev => ({ ...prev, dateRange: value }))
-                      }>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="All time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All time</SelectItem>
-                          <SelectItem value="today">Today</SelectItem>
-                          <SelectItem value="week">This Week</SelectItem>
-                          <SelectItem value="month">This Month</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Results Summary */}
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <p className="text-sm text-muted-foreground">
-                      Showing {filteredClaims.length} of {claims.length} claims
-                    </p>
-                    {activeClaimsFiltersCount > 0 && (
+                    {/* Results Summary */}
+                    <div className="flex items-center justify-between pt-2 border-t">
                       <p className="text-sm text-muted-foreground">
-                        {activeClaimsFiltersCount === 1 ? '1 filter applied' : `${activeClaimsFiltersCount} filters applied`}
+                        Showing {filteredClaims.length} of {claims.length} claims
                       </p>
-                    )}
+                      {activeClaimsFiltersCount > 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          {activeClaimsFiltersCount === 1 ? '1 filter applied' : `${activeClaimsFiltersCount} filters applied`}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {claims.length === 0 ? (
               <Card>
@@ -4437,13 +4706,18 @@ export default function HostCarManagement() {
                                   <SelectItem value="closed">Closed</SelectItem>
                                 </SelectContent>
                               </Select>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditClaim(claim)}
-                              >
-                                <Edit className="h-3 w-3" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEditClaim(claim)}>
+                                    <Edit className="h-3 w-3 mr-2" /> Edit Claim
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                             <p className="font-bold text-lg">${claim.claim_amount?.toFixed(2) || '0.00'}</p>
                             <p className="text-xs text-muted-foreground">Claimed</p>
