@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
 import { ClientExpense } from '@/hooks/useClientAnalytics';
 import { Receipt } from 'lucide-react';
 
@@ -44,10 +44,10 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
 
   return (
     <Card className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-600/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10" />
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2">
-          <div className="p-2 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg">
+          <div className="p-2 rounded-full bg-primary text-primary-foreground shadow-lg">
             <Receipt className="h-4 w-4" />
           </div>
           Expense Breakdown
@@ -66,31 +66,34 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
           <div className="space-y-4">
             <ChartContainer config={chartConfig} className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={85}
-                    innerRadius={25}
-                    dataKey="value"
-                    label={false}
-                    labelLine={false}
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={COLORS[index % COLORS.length]}
-                        stroke="white"
-                        strokeWidth={2}
-                      />
-                    ))}
-                  </Pie>
+                <BarChart data={chartData} layout="vertical" margin={{ top: 8, right: 16, left: 16, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.4} />
+                  <XAxis 
+                    type="number"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
+                  />
+                  <YAxis 
+                    dataKey="name"
+                    type="category"
+                    width={100}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
                     formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']}
+                    labelFormatter={(label) => `${label}`}
                   />
-                </PieChart>
+                  <Bar dataKey="value" radius={[6, 6, 6, 6]}>
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
             

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Area, AreaChart } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { ClientEarning } from '@/hooks/useClientAnalytics';
 import { format, parseISO } from 'date-fns';
 import { TrendingUp } from 'lucide-react';
@@ -10,32 +10,42 @@ interface EarningsChartProps {
 }
 
 export function EarningsChart({ earnings }: EarningsChartProps) {
-  // Group earnings by month
+  // Group earnings by month, splitting Paid vs Upcoming (pending/processing)
   const monthlyData = earnings.reduce((acc, earning) => {
     const date = parseISO(earning.earning_period_start);
-    const monthKey = format(date, 'yyyy-MM');
-    const monthLabel = format(date, 'MMM yyyy');
-    
-    if (!acc[monthKey]) {
-      acc[monthKey] = {
-        month: monthLabel,
-        earnings: 0,
-        trips: 0
-      };
-    }
-    
-    acc[monthKey].earnings += earning.client_profit_amount || 0;
-    acc[monthKey].trips += 1;
-    
-    return acc;
-  }, {} as Record<string, { month: string; earnings: number; trips: number }>);
+    const key = format(date, 'yyyy-MM');
+    const label = format(date, 'MMM yyyy');
 
-  const chartData = Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
+    if (!acc[key]) {
+      acc[key] = { key, month: label, paid: 0, upcoming: 0, trips: 0 };
+    }
+
+    const amount = earning.client_profit_amount || 0;
+    const status = (earning.payment_status || '').toLowerCase();
+
+    if (status === 'paid') {
+      acc[key].paid += amount;
+    } else if (status === 'pending' || status === 'processing') {
+      acc[key].upcoming += amount;
+    } else {
+      // Fallback: treat unknown statuses as paid
+      acc[key].paid += amount;
+    }
+
+    acc[key].trips += 1;
+    return acc;
+  }, {} as Record<string, { key: string; month: string; paid: number; upcoming: number; trips: number }>);
+
+  const chartData = Object.values(monthlyData).sort((a, b) => a.key.localeCompare(b.key));
 
   const chartConfig = {
-    earnings: {
-      label: 'Earnings',
+    paid: {
+      label: 'Paid',
       color: 'hsl(var(--chart-1))',
+    },
+    upcoming: {
+      label: 'Upcoming',
+      color: 'hsl(var(--chart-2))',
     },
   };
 
@@ -75,21 +85,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
         ) : (
           <ChartContainer config={chartConfig} className="h-[260px] sm:h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
-                <defs>
-                  <linearGradient id="earningsGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.4}/>
-                    <stop offset="50%" stopColor="hsl(var(--chart-1))" stopOpacity={0.2}/>
-                    <stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0.05}/>
-                  </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                    <feMerge> 
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
-                </defs>
+              <BarChart data={chartData} margin={{ top: 20, right: 16, left: 8, bottom: 12 }}>
                 <CartesianGrid 
                   strokeDasharray="2 4" 
                   stroke="hsl(var(--border))" 
@@ -120,33 +116,14 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
                     className="rounded-xl border-0 bg-background/95 backdrop-blur-sm shadow-2xl ring-1 ring-border/50"
                   />}
                   formatter={(value, name) => [
-                    `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 
-                    'Monthly Earnings'
+                    `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    name === 'paid' ? 'Paid' : 'Upcoming'
                   ]}
                   labelFormatter={(label) => `${label}`}
                 />
-                <Area
-                  type="monotone"
-                  dataKey="earnings"
-                  stroke="hsl(var(--chart-1))"
-                  strokeWidth={3}
-                  fill="url(#earningsGradient)"
-                  dot={{ 
-                    fill: "hsl(var(--chart-1))", 
-                    strokeWidth: 2, 
-                    stroke: "hsl(var(--background))",
-                    r: 5,
-                    filter: "url(#glow)"
-                  }}
-                  activeDot={{ 
-                    r: 8, 
-                    strokeWidth: 3, 
-                    stroke: "hsl(var(--background))",
-                    fill: "hsl(var(--chart-1))",
-                    filter: "url(#glow)"
-                  }}
-                />
-              </AreaChart>
+                <Bar dataKey="paid" stackId="a" fill="hsl(var(--chart-1))" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="upcoming" stackId="a" fill="hsl(var(--chart-2))" radius={[6, 6, 0, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
         )}
