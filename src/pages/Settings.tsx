@@ -8,6 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { NotificationsCard } from "@/components/NotificationsCard";
 
 interface Profile {
   user_id: string;
@@ -263,6 +266,10 @@ export default function Settings() {
                   </div>
                 </CardContent>
               </Card>
+            </section>
+
+            <section aria-labelledby="notifications-section" className="md:col-span-2">
+              <NotificationsCard />
             </section>
           </div>
         )}

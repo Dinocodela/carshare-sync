@@ -38,6 +38,15 @@ verify_jwt = false
 [functions.share-car-access]
 verify_jwt = true
 
+[functions.save-push-subscription]
+verify_jwt = true
+
+[functions.push-send]
+verify_jwt = true
+
+[functions.get-vapid-public-key]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324
