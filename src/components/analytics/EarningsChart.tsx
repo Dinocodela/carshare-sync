@@ -10,33 +10,52 @@ interface EarningsChartProps {
 }
 
 export function EarningsChart({ earnings }: EarningsChartProps) {
-  // Group earnings by month, splitting Paid vs Upcoming (pending/processing)
-  const monthlyData = earnings.reduce((acc, earning) => {
-    const date = parseISO(earning.earning_period_start);
-    const key = format(date, 'yyyy-MM');
-    const label = format(date, 'MMM yyyy');
+  // Build a fixed 2025 timeline with all 12 months and merge earnings (Paid vs Upcoming)
+  const targetYear = 2025;
 
-    if (!acc[key]) {
-      acc[key] = { key, month: label, paid: 0, upcoming: 0, trips: 0 };
-    }
+  // Aggregate earnings only for the target year
+  const aggregated = earnings.reduce((acc, earning) => {
+    const date = parseISO(earning.earning_period_start);
+    if (date.getFullYear() !== targetYear) return acc;
+
+    const key = format(date, 'yyyy-MM');
+    const entry = acc[key] || { paid: 0, upcoming: 0, trips: 0 };
 
     const amount = earning.client_profit_amount || 0;
     const status = (earning.payment_status || '').toLowerCase();
 
     if (status === 'paid') {
-      acc[key].paid += amount;
+      entry.paid += amount;
     } else if (status === 'pending' || status === 'processing') {
-      acc[key].upcoming += amount;
+      entry.upcoming += amount;
     } else {
       // Fallback: treat unknown statuses as paid
-      acc[key].paid += amount;
+      entry.paid += amount;
     }
 
-    acc[key].trips += 1;
+    entry.trips += 1;
+    acc[key] = entry;
     return acc;
-  }, {} as Record<string, { key: string; month: string; paid: number; upcoming: number; trips: number }>);
+  }, {} as Record<string, { paid: number; upcoming: number; trips: number }>);
 
-  const chartData = Object.values(monthlyData).sort((a, b) => a.key.localeCompare(b.key));
+  // Create a full set of months for the year so the X axis shows Jan-Dec
+  const chartData = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(targetYear, i, 1);
+    const key = format(d, 'yyyy-MM');
+    const shortLabel = format(d, 'MMM');
+    const fullLabel = format(d, 'MMMM yyyy');
+
+    const values = aggregated[key] || { paid: 0, upcoming: 0, trips: 0 };
+
+    return {
+      key,
+      month: shortLabel, // used on X axis
+      fullMonth: fullLabel, // used in tooltip
+      paid: values.paid,
+      upcoming: values.upcoming,
+      trips: values.trips,
+    };
+  });
 
   const chartConfig = {
     paid: {
@@ -67,7 +86,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="relative">
-        {chartData.length === 0 ? (
+        {earnings.length === 0 ? (
           <div className="h-[260px] sm:h-[350px] flex items-center justify-center text-muted-foreground">
             <div className="text-center space-y-4">
               <div className="relative">
@@ -85,7 +104,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
         ) : (
           <ChartContainer config={chartConfig} className="h-[260px] sm:h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 16, left: 8, bottom: 12 }}>
+              <BarChart data={chartData} margin={{ top: 20, right: 24, left: 8, bottom: 12 }}>
                 <CartesianGrid 
                   strokeDasharray="2 4" 
                   stroke="hsl(var(--border))" 
@@ -94,6 +113,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
                 />
                 <XAxis 
                   dataKey="month" 
+                  interval={0}
                   fontSize={11}
                   fontWeight={500}
                   tickLine={false}
@@ -119,7 +139,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
                     `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                     name === 'paid' ? 'Paid' : 'Upcoming'
                   ]}
-                  labelFormatter={(label) => `${label}`}
+                  labelFormatter={(value, payload) => payload?.[0]?.payload?.fullMonth ?? String(value)}
                 />
                 <Bar dataKey="paid" stackId="a" fill="hsl(var(--chart-1))" radius={[6, 6, 0, 0]} />
                 <Bar dataKey="upcoming" stackId="a" fill="hsl(var(--chart-2))" radius={[6, 6, 0, 0]} />
