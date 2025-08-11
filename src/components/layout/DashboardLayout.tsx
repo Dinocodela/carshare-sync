@@ -37,7 +37,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <AppSidebar />
         <div className="flex-1">
           <header className="h-12 border-b bg-background px-4" />
-          <main className="flex-1 p-6 pb-20 md:pb-6 pb-safe-bottom">
+          <main className="flex-1 p-6 pb-app-bottom md:pb-6">
             {children}
           </main>
           <BottomNavBar />

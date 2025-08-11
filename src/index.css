@@ -39,6 +39,9 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
+    /* Navigation sizing */
+    --bottom-nav-height: 56px;
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -144,4 +147,8 @@ All colors MUST be HSL.
   /* Semantic utility classes (if needed outside Tailwind theme) */
   .text-success { color: hsl(var(--success)); }
   .text-warning { color: hsl(var(--warning)); }
+
+  /* Bottom nav utilities */
+  .h-bottom-nav { height: var(--bottom-nav-height); }
+  .pb-app-bottom { padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom)); }
 }

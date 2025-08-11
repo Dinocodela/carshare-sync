@@ -55,7 +55,7 @@ export function BottomNavBar() {
     `${isActive ? "text-primary" : "text-muted-foreground"} flex flex-col items-center justify-center gap-1 py-2`;
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 bg-background border-t md:hidden">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-background border-t md:hidden h-bottom-nav pb-safe-bottom">
       <ul className="flex items-stretch overflow-x-auto px-2 gap-2">
         {items.map((item) => (
           <li key={item.title} className="shrink-0 flex">
