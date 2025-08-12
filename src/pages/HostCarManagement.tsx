@@ -1369,7 +1369,7 @@ export default function HostCarManagement() {
       </DashboardLayout>;
   }
   return <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="md:max-w-6xl md:mx-auto mx-[-1.5rem] md:mx-0">
         <div className="mb-4 md:mb-6">
           <div className="flex items-center gap-2 mb-1 md:mb-2">
             <Car className="h-5 w-5 md:h-6 md:w-6 text-primary" />
@@ -1383,7 +1383,7 @@ export default function HostCarManagement() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
           <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
             <div className="relative">
-              <TabsList className="flex w-full min-w-max gap-2 px-2 py-1 snap-x snap-mandatory">
+              <TabsList className="flex w-full min-w-max gap-2 px-2 py-1 snap-x snap-mandatory overscroll-x-contain touch-pan-y">
                 <TabsTrigger value="active" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
                   <span>Active</span>
                   <Badge variant="secondary">{activeHostedCars.length}</Badge>
@@ -1471,10 +1471,10 @@ export default function HostCarManagement() {
                   <p className="text-muted-foreground">
                     Cars you're hosting will appear here.
                   </p>
-                </CardContent>
-              </Card> : <div className="grid gap-4 md:grid-cols-2">
+              </CardContent>
+            </Card> : <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                 {activeHostedCars.map(car => <Card key={car.id}>
-                    <CardHeader>
+                    <CardHeader className="p-4 md:p-6">
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-lg">
@@ -1487,7 +1487,7 @@ export default function HostCarManagement() {
                         <Badge variant="default">Hosting</Badge>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
                       <Collapsible defaultOpen={!isMobile}>
                         <div className="flex justify-end md:hidden">
                           <CollapsibleTrigger asChild>
