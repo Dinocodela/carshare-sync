@@ -136,7 +136,7 @@ export function SummaryCards({ summary, loading, hideNetProfit, replaceNetProfit
               </div>
             </CardHeader>
             <CardContent className="relative">
-              <div className={`text-2xl font-bold ${card.valueClass || ''}`}>
+              <div className={`text-xl md:text-2xl font-bold ${card.valueClass || ''}`}>
                 {card.value}
               </div>
               <p className="text-xs text-muted-foreground">

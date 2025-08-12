@@ -71,9 +71,9 @@ export default function HostAnalytics() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Host Analytics Dashboard</h1>
-            <Button onClick={refetch} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+            <Button onClick={refetch} variant="outline" size="sm" aria-label="Refresh analytics" className="w-10 px-0 sm:w-auto sm:px-3">
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
           </div>
           <div className="text-center py-8">
@@ -104,9 +104,9 @@ export default function HostAnalytics() {
                 Track your hosting performance and profitability
               </p>
             </div>
-            <Button onClick={refetch} variant="outline" size="sm" disabled={loading} className="w-full sm:w-auto">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
+            <Button onClick={refetch} variant="outline" size="sm" aria-label="Refresh analytics" disabled={loading} className="w-10 px-0 sm:w-auto sm:px-3">
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
           </div>
 

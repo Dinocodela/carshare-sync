@@ -105,26 +105,27 @@ export default function ClientAnalytics() {
                 onClick={handleRefresh} 
                 variant="outline" 
                 size="sm" 
+                aria-label="Refresh analytics"
                 disabled={loading || perCarLoading}
-                className="w-full sm:w-auto"
+                className="w-10 px-0 sm:w-auto sm:px-3"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${(loading || perCarLoading) ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-4 w-4 ${(loading || perCarLoading) ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
               </Button>
             </div>
           </div>
 
           <Tabs defaultValue="portfolio" className="space-y-6">
-            <TabsList className="w-full !h-auto min-h-10 flex flex-wrap gap-1 sm:grid sm:grid-cols-3">
-              <TabsTrigger value="portfolio" className="flex flex-1 min-w-0 items-center justify-center text-center space-x-2 !whitespace-normal sm:whitespace-nowrap">
+            <TabsList className="w-full">
+              <TabsTrigger value="portfolio" className="space-x-2 whitespace-nowrap">
                 <BarChart3 className="h-4 w-4" />
                 <span>Portfolio Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="per-car" className="flex flex-1 min-w-0 items-center justify-center text-center space-x-2 !whitespace-normal sm:whitespace-nowrap">
+              <TabsTrigger value="per-car" className="space-x-2 whitespace-nowrap">
                 <Car className="h-4 w-4" />
                 <span>Per-Car Analysis</span>
               </TabsTrigger>
-              <TabsTrigger value="comparison" className="flex flex-1 min-w-0 items-center justify-center text-center space-x-2 !whitespace-normal sm:whitespace-nowrap">
+              <TabsTrigger value="comparison" className="space-x-2 whitespace-nowrap">
                 <BarChart3 className="h-4 w-4" />
                 <span>Car Comparison</span>
               </TabsTrigger>
