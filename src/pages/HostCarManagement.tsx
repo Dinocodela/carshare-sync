@@ -1476,12 +1476,6 @@ export default function HostCarManagement() {
                 </div>
               </div>
             )}
-            {/* Floating Action Button for mobile */}
-            {isMobile && tab === 'expenses' && (
-              <Button className="fixed right-4 bottom-20 rounded-full shadow-lg md:hidden" onClick={() => setExpenseDialogOpen(true)}>
-                <Plus className="h-5 w-5 mr-2" /> Add Expense
-              </Button>
-            )}
           </div>
 
           <TabsContent value="active" className="space-y-4 px-3 sm:px-0">
