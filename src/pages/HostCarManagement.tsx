@@ -1473,14 +1473,14 @@ export default function HostCarManagement() {
                   </p>
               </CardContent>
             </Card> : <div className="grid gap-3 md:gap-4 md:grid-cols-2">
-                {activeHostedCars.map(car => <Card key={car.id}>
+                {activeHostedCars.map(car => <Card key={car.id} className="mx-2 sm:mx-0">
                     <CardHeader className="p-4 md:p-6">
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg">
+                          <CardTitle className="text-lg break-words">
                             {formatCarDisplayName(car)}
                           </CardTitle>
-                          <CardDescription>
+                          <CardDescription className="break-words">
                             Location: {car.location}
                           </CardDescription>
                         </div>
@@ -1537,7 +1537,7 @@ export default function HostCarManagement() {
 
                       {/* Management Actions */}
                       <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                        <Button variant="outline" className="w-full sm:flex-1" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                        <Button variant="outline" size="sm" className="w-full sm:flex-1" onClick={() => window.open(`tel:${car.client.phone}`)}>
                           <Phone className="h-4 w-4 mr-2" />
                           Call Client
                         </Button>
@@ -1580,14 +1580,14 @@ export default function HostCarManagement() {
                   </p>
                 </CardContent>
               </Card> : <div className="grid gap-4 md:grid-cols-2">
-                {readyForReturnCars.map(car => <Card key={car.id} className="border-orange-200">
+                {readyForReturnCars.map(car => <Card key={car.id} className="mx-2 sm:mx-0 border-orange-200">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg">
+                          <CardTitle className="text-lg break-words">
                             {formatCarDisplayName(car)}
                           </CardTitle>
-                          <CardDescription>
+                          <CardDescription className="break-words">
                             Location: {car.location}
                           </CardDescription>
                         </div>
