@@ -277,12 +277,38 @@ export default function Settings() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {role === "client" && (
-                    <Button variant="secondary" className="w-full" onClick={() => navigate("/client-fixed-expenses")}>Manage Fixed Expenses</Button>
+                    <Button variant="secondary" className="w-full" onClick={() => navigate("/client-fixed-expenses")}>
+                      Manage Fixed Expenses
+                    </Button>
                   )}
                   {role === "host" && (
-                    <Button variant="secondary" className="w-full" onClick={() => navigate("/host-car-management#returns")}>Manage Returns</Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() => navigate("/host-requests")}
+                      >
+                        Review Host Requests
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() => navigate("/host-car-management#returns")}
+                      >
+                        Manage Returns
+                      </Button>
+                    </>
                   )}
-                  <Button variant="destructive" className="w-full" onClick={async () => { await signOut(); navigate("/login"); }}>Sign Out</Button>
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={async () => {
+                      await signOut();
+                      navigate("/login");
+                    }}
+                  >
+                    Sign Out
+                  </Button>
                 </CardContent>
               </Card>
             </section>

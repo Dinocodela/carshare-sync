@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, Home, Plus, Settings, Inbox, BarChart3 } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,11 +82,6 @@ export function AppSidebar() {
           title: "Analytics",
           url: "/host-analytics",
           icon: BarChart3,
-        },
-        {
-          title: "Host Requests",
-          url: "/host-requests",
-          icon: Inbox,
         },
         {
           title: "Hosted Cars",

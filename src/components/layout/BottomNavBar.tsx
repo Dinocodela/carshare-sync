@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, BarChart3, Car, Settings, Inbox, Plus } from "lucide-react";
+import { Home, BarChart3, Car, Settings, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -42,7 +42,6 @@ export function BottomNavBar() {
       return [
         ...base,
         { title: "Analytics", url: "/host-analytics", icon: BarChart3 },
-        { title: "Host Requests", url: "/host-requests", icon: Inbox },
         { title: "Hosted", url: "/host-car-management", icon: Car },
         { title: "Settings", url: "/settings", icon: Settings },
       ];
