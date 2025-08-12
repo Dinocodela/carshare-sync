@@ -83,7 +83,7 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Total Claims</p>
                 <p className="text-2xl font-bold">{claims.length}</p>
@@ -93,7 +93,7 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
                 <p className="text-2xl font-bold">${totalAmount.toFixed(2)}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Approved Amount</p>
                 <p className="text-lg font-semibold text-green-600">${approvedAmount.toFixed(2)}</p>

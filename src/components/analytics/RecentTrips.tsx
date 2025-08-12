@@ -51,7 +51,7 @@ export function RecentTrips({ earnings, limit = 10 }: RecentTripsProps) {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="min-w-0">
                       <p className="text-xs text-muted-foreground">Guest</p>
                       <p className="text-sm truncate">{earning.guest_name || 'Unknown'}</p>

@@ -131,7 +131,7 @@ export function SummaryCards({ summary, loading, hideNetProfit, replaceNetProfit
                   </TooltipProvider>
                 )}
               </div>
-              <div className={`p-2 rounded-full bg-gradient-to-br ${card.gradient} text-white shadow-lg`}>
+              <div className={`p-1.5 sm:p-2 rounded-full bg-gradient-to-br ${card.gradient} text-white shadow-lg`}>
                 <card.icon className="h-4 w-4" />
               </div>
             </CardHeader>

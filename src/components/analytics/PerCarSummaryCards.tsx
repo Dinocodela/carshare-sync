@@ -114,7 +114,7 @@ export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsP
           <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-5`} />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
             <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-            <div className={`p-2 rounded-full bg-gradient-to-br ${card.gradient} text-white shadow-lg`}>
+            <div className={`p-1.5 sm:p-2 rounded-full bg-gradient-to-br ${card.gradient} text-white shadow-lg`}>
               <card.icon className="h-4 w-4" />
             </div>
           </CardHeader>
