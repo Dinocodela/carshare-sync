@@ -503,6 +503,9 @@ export type Database = {
           rating: number | null
           role: string
           services: string[] | null
+          turo_last_synced: string | null
+          turo_profile_url: string | null
+          turo_reviews_count: number | null
           updated_at: string
           user_id: string
         }
@@ -518,6 +521,9 @@ export type Database = {
           rating?: number | null
           role: string
           services?: string[] | null
+          turo_last_synced?: string | null
+          turo_profile_url?: string | null
+          turo_reviews_count?: number | null
           updated_at?: string
           user_id: string
         }
@@ -533,6 +539,9 @@ export type Database = {
           rating?: number | null
           role?: string
           services?: string[] | null
+          turo_last_synced?: string | null
+          turo_profile_url?: string | null
+          turo_reviews_count?: number | null
           updated_at?: string
           user_id?: string
         }

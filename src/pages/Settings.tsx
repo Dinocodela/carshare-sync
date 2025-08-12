@@ -24,6 +24,10 @@ interface Profile {
   bio: string | null;
   location: string | null;
   services: string[] | null;
+  rating?: number | null;
+  turo_profile_url?: string | null;
+  turo_reviews_count?: number | null;
+  turo_last_synced?: string | null;
 }
 
 export default function Settings() {
@@ -35,7 +39,7 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
-  // Form fields
+// Form fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -43,6 +47,7 @@ export default function Settings() {
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [servicesText, setServicesText] = useState("");
+  const [turoUrl, setTuroUrl] = useState("");
 
   const role = useMemo(() => (profile?.role ?? (user?.user_metadata?.role ?? "client")) as "client" | "host", [profile?.role, user?.user_metadata?.role]);
 
@@ -78,7 +83,7 @@ export default function Settings() {
       setLoading(true);
       const { data, error } = await supabase
         .from("profiles")
-        .select("user_id, role, first_name, last_name, company_name, phone, bio, location, services")
+.select("user_id, role, first_name, last_name, company_name, phone, bio, location, services, rating, turo_profile_url, turo_reviews_count, turo_last_synced")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -87,7 +92,7 @@ export default function Settings() {
         toast({ title: "Error", description: "Could not load your profile." });
       }
 
-      if (data) {
+if (data) {
         setProfile(data as Profile);
         setFirstName(data.first_name ?? "");
         setLastName(data.last_name ?? "");
@@ -96,6 +101,7 @@ export default function Settings() {
         setBio(data.bio ?? "");
         setLocation(data.location ?? "");
         setServicesText((data.services ?? []).join(", "));
+        setTuroUrl((data as any).turo_profile_url ?? "");
       } else {
         // No profile row found – initialize with defaults but require phone on save
         setProfile(null);
@@ -118,7 +124,7 @@ export default function Settings() {
       return;
     }
 
-    setSaving(true);
+setSaving(true);
     const payload = {
       first_name: firstName || null,
       last_name: lastName || null,
@@ -127,6 +133,7 @@ export default function Settings() {
       bio: bio || null,
       location: location || null,
       services: servicesText ? servicesText.split(",").map((s) => s.trim()).filter(Boolean) : null,
+      turo_profile_url: role === "host" ? (turoUrl || null) : null,
       role, // not editable here, but keep for insert case
       user_id: user.id,
     };
