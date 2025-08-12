@@ -1645,7 +1645,7 @@ export default function HostCarManagement() {
               <h3 className="text-lg font-medium">Expenses</h3>
               {isMobile ? (
                 <>
-                  <Button onClick={() => setExpenseDialogOpen(true)}>
+                  <Button size="sm" onClick={() => setExpenseDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Expense
                   </Button>
@@ -1874,7 +1874,7 @@ export default function HostCarManagement() {
                   </Sheet>
 
                   {/* Mobile Filters Button */}
-                  <Button variant="outline" onClick={() => setExpenseFiltersOpen(true)} className="mt-2">
+                  <Button variant="outline" size="sm" onClick={() => setExpenseFiltersOpen(true)} className="mt-2">
                     <Filter className="h-4 w-4 mr-2" />
                     Filters
                     {activeFiltersCount > 0 && (
@@ -2313,13 +2313,13 @@ export default function HostCarManagement() {
             )}
 
             {expensesLoading ? (
-              <Card>
+              <Card className="mx-2 sm:mx-0">
                 <CardContent className="text-center py-12">
                   <div className="text-lg text-muted-foreground">Loading expenses...</div>
                 </CardContent>
               </Card>
             ) : expenses.length === 0 ? (
-              <Card>
+              <Card className="mx-2 sm:mx-0">
                 <CardContent className="text-center py-12">
                   <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No expenses recorded</h3>
@@ -2332,7 +2332,7 @@ export default function HostCarManagement() {
                 </CardContent>
               </Card>
             ) : filteredExpenses.length === 0 ? (
-              <Card>
+              <Card className="mx-2 sm:mx-0">
                 <CardContent className="text-center py-12">
                   <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No expenses match your filters</h3>
@@ -2347,12 +2347,12 @@ export default function HostCarManagement() {
             ) : (
               <div className="grid gap-4">
                 {filteredExpenses.map((expense) => (
-                  <Card key={expense.id}>
-                    <CardContent className="p-4">
+                  <Card key={expense.id} className="mx-2 sm:mx-0">
+                    <CardContent className="p-3 sm:p-4">
                       <div className="flex justify-between items-start">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-medium capitalize">{expense.expense_type}</h4>
+                              <h4 className="font-medium capitalize break-words">{expense.expense_type}</h4>
                               {expense.trip_id && (
                                 <Badge variant="outline" className="text-xs">
                                   Trip# {expense.trip_id}
@@ -2360,10 +2360,10 @@ export default function HostCarManagement() {
                               )}
                             </div>
                             {expense.guest_name && (
-                              <p className="text-sm text-muted-foreground">Guest: {expense.guest_name}</p>
+                              <p className="text-sm text-muted-foreground break-words">Guest: {expense.guest_name}</p>
                             )}
-                            <p className="text-sm text-muted-foreground">{expense.description}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground break-words">{expense.description}</p>
+                            <p className="text-sm text-muted-foreground break-words">
                               {new Date(expense.created_at).toLocaleDateString()}
                             </p>
                             
