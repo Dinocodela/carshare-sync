@@ -2477,8 +2477,16 @@ export default function HostCarManagement() {
                     <Plus className="h-4 w-4 mr-2" />
                     Add Earning
                   </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  </>
+                ) : (
+                  <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Earning
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
                     <DialogHeader>
                       <DialogTitle>{editingEarning ? 'Edit Earning' : 'Record New Earning'}</DialogTitle>
                       <DialogDescription>
