@@ -1441,11 +1441,6 @@ export default function HostCarManagement() {
                   <span className="hidden sm:inline">Earnings</span>
                   <Badge variant="secondary">{earnings.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="claims" aria-label="Claims" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span className="sm:hidden">C</span>
-                  <span className="hidden sm:inline">Claims</span>
-                  <Badge variant="secondary">{claims.length}</Badge>
-                </TabsTrigger>
               </TabsList>
               <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-10 w-6 bg-gradient-to-r from-background to-transparent" />
               <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-10 w-6 bg-gradient-to-l from-background to-transparent" />
