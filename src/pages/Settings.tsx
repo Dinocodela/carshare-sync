@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -183,8 +184,9 @@ export default function Settings() {
 
   return (
     <DashboardLayout>
-      <main>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground mb-6">Account settings</h1>
+      <PageContainer>
+        <main>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground mb-6 text-center sm:text-left">Account settings</h1>
         {loading ? (
           <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">Loading…</div>
         ) : (
@@ -319,6 +321,7 @@ export default function Settings() {
           </div>
         )}
       </main>
+      </PageContainer>
     </DashboardLayout>
   );
 }

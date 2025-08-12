@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCars, useHostCars } from '@/hooks/useCars';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PageContainer } from '@/components/layout/PageContainer';
 import { Plus, Car, Users, FileText, TrendingUp, BarChart3 } from 'lucide-react';
 
 interface Profile {
@@ -51,12 +52,12 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <PageContainer><div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2 text-center sm:text-left">
             Welcome back, {displayName}!
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-center sm:text-left">
             {profile.role === 'host' 
               ? 'Manage your hosted vehicles and client relationships from your dashboard.'
               : 'Track your vehicles and manage your hosting requests from your dashboard.'
@@ -175,6 +176,7 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-    </DashboardLayout>
+    </PageContainer>
+  </DashboardLayout>
   );
 }
