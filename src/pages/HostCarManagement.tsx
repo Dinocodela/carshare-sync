@@ -1477,7 +1477,7 @@ export default function HostCarManagement() {
                   </p>
               </CardContent>
             </Card> : <div className="grid gap-3 md:gap-4 md:grid-cols-2">
-                {activeHostedCars.map(car => <Card key={car.id} className="mx-3 sm:mx-0">
+                {activeHostedCars.map(car => <Card key={car.id} className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
                     <CardHeader className="p-3 sm:p-4 md:p-6">
                       <div className="flex justify-between items-start">
                         <div>
@@ -1540,7 +1540,7 @@ export default function HostCarManagement() {
                       </Collapsible>
 
                       {/* Management Actions */}
-                      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row pt-2">
+                      <div className="flex flex-col gap-2 sm:flex-row pt-2">
                         <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => window.open(`tel:${car.client.phone}`)}>
                           <Phone className="h-4 w-4 mr-2" />
                           Call Client
@@ -1584,7 +1584,7 @@ export default function HostCarManagement() {
                   </p>
                 </CardContent>
               </Card> : <div className="grid gap-4 md:grid-cols-2">
-                {readyForReturnCars.map(car => <Card key={car.id} className="mx-3 sm:mx-0 border-orange-200">
+                {readyForReturnCars.map(car => <Card key={car.id} className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none border-orange-200">
                     <CardHeader className="p-3 sm:p-4 md:p-6">
                       <div className="flex justify-between items-start">
                         <div>
@@ -1628,7 +1628,7 @@ export default function HostCarManagement() {
                         <p className="text-sm text-orange-600 font-medium">
                           ⚠ Client has requested car return
                         </p>
-                        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
+                        <div className="flex flex-col gap-2 sm:flex-row">
                           <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => window.open(`tel:${car.client.phone}`)}>
                             <Phone className="h-4 w-4 mr-2" />
                             Call Client
