@@ -1490,7 +1490,7 @@ export default function HostCarManagement() {
             </Card> : <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                 {activeHostedCars.map(car => <Card key={car.id} className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
                     <CardHeader className="p-3 sm:p-4 md:p-6">
-                      <div className="flex justify-between items-start">
+                       <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                         <div>
                           <CardTitle className="text-lg break-words">
                             {formatCarDisplayName(car)}
@@ -1597,7 +1597,7 @@ export default function HostCarManagement() {
               </Card> : <div className="grid gap-4 md:grid-cols-2">
                 {readyForReturnCars.map(car => <Card key={car.id} className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none border-orange-200">
                     <CardHeader className="p-3 sm:p-4 md:p-6">
-                      <div className="flex justify-between items-start">
+                       <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                         <div>
                           <CardTitle className="text-lg break-words">
                             {formatCarDisplayName(car)}
@@ -2364,7 +2364,7 @@ export default function HostCarManagement() {
                 {filteredExpenses.map((expense) => (
                   <Card key={expense.id}>
                     <CardContent className="p-3 sm:p-4">
-                      <div className="flex justify-between items-start">
+                       <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                               <h4 className="font-medium capitalize break-words">{expense.expense_type}</h4>
@@ -3087,7 +3087,7 @@ export default function HostCarManagement() {
                      return (
                      <Card key={earning.id}>
                        <CardContent className="p-3 sm:p-4">
-                        <div className="flex justify-between items-start">
+                          <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                           <div className="space-y-2">
                              <div className="flex items-center gap-2 flex-wrap">
                                <h4 className="font-medium capitalize break-words">{earning.earning_type}</h4>
@@ -4203,7 +4203,7 @@ export default function HostCarManagement() {
                     return (
                     <Card key={claim.id}>
                        <CardContent className="p-3 sm:p-4">
-                        <div className="flex justify-between items-start">
+                        <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
                               <h4 className="font-medium capitalize break-words">{claim.claim_type} Claim</h4>
