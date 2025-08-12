@@ -1383,7 +1383,7 @@ export default function HostCarManagement() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
           <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
             <div className="relative">
-              <TabsList className="flex w-full min-w-max gap-2 px-2 py-1 snap-x snap-mandatory overscroll-x-contain touch-pan-y">
+              <TabsList className="flex w-full gap-2 px-2 py-1 pr-4 snap-x snap-mandatory overscroll-x-contain touch-auto">
                 <TabsTrigger value="active" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
                   <span>Active</span>
                   <Badge variant="secondary">{activeHostedCars.length}</Badge>
