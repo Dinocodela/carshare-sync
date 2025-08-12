@@ -1448,8 +1448,8 @@ export default function HostCarManagement() {
 
             {/* Quick filter chips for mobile */}
             {isMobile && tab === 'expenses' && (
-              <div className="overflow-x-auto px-2 py-2 border-t">
-                <div className="flex gap-2">
+              <div className="px-2 py-2 border-t">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button size="sm" variant={expenseFilters.dateRange==='7d' ? 'default' : 'secondary'} onClick={() => setExpenseFilters(prev => ({...prev, dateRange: '7d'}))}>7d</Button>
                   <Button size="sm" variant={expenseFilters.dateRange==='30d' ? 'default' : 'secondary'} onClick={() => setExpenseFilters(prev => ({...prev, dateRange: '30d'}))}>30d</Button>
                   <Button size="sm" variant={expenseFilters.dateRange==='90d' ? 'default' : 'secondary'} onClick={() => setExpenseFilters(prev => ({...prev, dateRange: '90d'}))}>90d</Button>
@@ -1461,8 +1461,8 @@ export default function HostCarManagement() {
               </div>
             )}
             {isMobile && tab === 'earnings' && (
-              <div className="overflow-x-auto px-2 py-2 border-t">
-                <div className="flex gap-2">
+              <div className="px-2 py-2 border-t">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button size="sm" variant={earningsFilters.paymentStatus==='pending' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'pending'}))}>Pending</Button>
                   <Button size="sm" variant={earningsFilters.paymentStatus==='paid' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'paid'}))}>Paid</Button>
                   <Button size="sm" variant={earningsFilters.paymentStatus==='all' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'all'}))}>All</Button>
@@ -1477,8 +1477,8 @@ export default function HostCarManagement() {
               </div>
             )}
             {isMobile && tab === 'claims' && (
-              <div className="overflow-x-auto px-2 py-2 border-t">
-                <div className="flex gap-2">
+              <div className="px-2 py-2 border-t">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button size="sm" variant={claimsFilters.claimStatus==='pending' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'pending'}))}>Pending</Button>
                   <Button size="sm" variant={claimsFilters.claimStatus==='closed' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'closed'}))}>Closed</Button>
                   <Button size="sm" variant={claimsFilters.claimStatus==='all' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'all'}))}>All</Button>
@@ -1495,7 +1495,7 @@ export default function HostCarManagement() {
           </div>
 
           <TabsContent value="active" className="space-y-4 px-3 sm:px-0">
-            {activeHostedCars.length === 0 ? <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
+            {activeHostedCars.length === 0 ? <Card className="w-full mx-0 max-w-none">
                 <CardContent className="text-center p-4 sm:p-6">
                   <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No cars currently hosted</h3>
@@ -1504,7 +1504,7 @@ export default function HostCarManagement() {
                   </p>
               </CardContent>
             </Card> : <div className="grid gap-3 md:gap-4 md:grid-cols-2">
-                {activeHostedCars.map(car => <Card key={car.id} className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
+                {activeHostedCars.map(car => <Card key={car.id} className="w-full mx-0 max-w-none">
                     <CardHeader className="p-3 sm:p-4 md:p-6">
                        <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                         <div>
@@ -3423,7 +3423,7 @@ export default function HostCarManagement() {
               <div className="space-y-4">
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card>
+                  <Card className="mx-0 max-w-none">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -3436,7 +3436,7 @@ export default function HostCarManagement() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card>
+                  <Card className="mx-0 max-w-none">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -3449,7 +3449,7 @@ export default function HostCarManagement() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card>
+                  <Card className="mx-0 max-w-none">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
