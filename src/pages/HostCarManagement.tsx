@@ -1660,9 +1660,9 @@ export default function HostCarManagement() {
               <h3 className="text-lg font-medium">Expenses</h3>
               {isMobile ? (
                 <>
-                  <Button size="sm" onClick={() => setExpenseDialogOpen(true)}>
+                  <Button size="sm" aria-label="Add expense" onClick={() => setExpenseDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Expense
+                    Expense
                   </Button>
                   <Sheet open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
                     <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
@@ -1982,9 +1982,9 @@ export default function HostCarManagement() {
               ) : (
                 <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button>
+                    <Button aria-label="Add expense">
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Expense
+                      Expense
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
