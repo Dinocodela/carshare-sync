@@ -1207,6 +1207,27 @@ export default function HostCarManagement() {
     }
   };
 
+  const handleAddEarningClick = () => {
+    setEditingEarning(null);
+    earningForm.reset({
+      car_id: '',
+      trip_id: '',
+      guest_name: '',
+      earning_type: 'hosting',
+      gross_earnings: 0,
+      payment_source: 'Turo',
+      earning_period_start_date: '',
+      earning_period_start_time: '',
+      earning_period_end_date: '',
+      earning_period_end_time: '',
+      client_profit_percentage: 70,
+      host_profit_percentage: 30,
+      payment_status: 'pending',
+      date_paid: '',
+    });
+    setEarningDialogOpen(true);
+  };
+
   const handleEditEarning = (earning: Earning) => {
     setEditingEarning(earning);
     earningForm.reset({
@@ -2463,41 +2484,13 @@ export default function HostCarManagement() {
           <TabsContent value="earnings" className="space-y-4 px-3 sm:px-0">
             <div className="flex items-center justify-start gap-2 sm:justify-between">
               <h3 className="text-lg font-medium">Earnings</h3>
-              {isMobile ? (
-                <>
-                  <Button size="sm" onClick={() => {
-                    setEarningDialogOpen(true);
-                    setEditingEarning(null);
-                    earningForm.reset({
-                      car_id: '',
-                      trip_id: '',
-                      guest_name: '',
-                      earning_type: 'hosting',
-                      gross_earnings: 0,
-                      payment_source: 'Turo',
-                      earning_period_start_date: '',
-                      earning_period_start_time: '',
-                      earning_period_end_date: '',
-                      earning_period_end_time: '',
-                      client_profit_percentage: 70,
-                      host_profit_percentage: 30,
-                      payment_status: 'pending',
-                      date_paid: '',
-                    });
-                  }}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Earning
-                  </Button>
-                  </>
-                ) : (
-                  <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Earning
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+              <>
+                <Button size="sm" onClick={handleAddEarningClick} aria-label="Add earning">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Earning
+                </Button>
+                <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
+                  <DialogContent className="max-w-2xl">
                     <DialogHeader>
                       <DialogTitle>{editingEarning ? 'Edit Earning' : 'Record New Earning'}</DialogTitle>
                       <DialogDescription>
@@ -2889,7 +2882,7 @@ export default function HostCarManagement() {
                     </Form>
                   </DialogContent>
                 </Dialog>
-              )}
+              </>
             </div>
 
             {/* Earnings Filters */}
