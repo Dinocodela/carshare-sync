@@ -240,6 +240,23 @@ export default function HostCarManagement() {
   // Active tab state for conditional mobile UI
   const [tab, setTab] = useState<'active' | 'returns' | 'expenses' | 'earnings' | 'claims'>('active');
 
+  // Sync tab with URL hash (supports deep-linking, e.g., #returns)
+  useEffect(() => {
+    const fromHash = window.location.hash.replace('#', '');
+    const valid = ['active', 'returns', 'expenses', 'earnings', 'claims'] as const;
+    if ((valid as readonly string[]).includes(fromHash)) {
+      setTab(fromHash as typeof tab);
+    }
+    const onHashChange = () => {
+      const h = window.location.hash.replace('#', '');
+      if ((valid as readonly string[]).includes(h)) {
+        setTab(h as typeof tab);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
   // Filter state for expenses
   const [expenseFilters, setExpenseFilters] = useState({
     carId: 'all',
@@ -1388,24 +1405,24 @@ export default function HostCarManagement() {
           <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
             <div className="relative">
               <TabsList className="flex w-full gap-2 px-2 py-1 pr-4 snap-x snap-mandatory overscroll-x-contain touch-auto">
-                <TabsTrigger value="active" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span>Active</span>
+                <TabsTrigger value="active" aria-label="Active" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
+                  <span className="sm:hidden">A</span>
+                  <span className="hidden sm:inline">Active</span>
                   <Badge variant="secondary">{activeHostedCars.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="returns" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span>Returns</span>
-                  <Badge variant="secondary">{readyForReturnCars.length}</Badge>
-                </TabsTrigger>
-                <TabsTrigger value="expenses" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span>Expenses</span>
+                <TabsTrigger value="expenses" aria-label="Expenses" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
+                  <span className="sm:hidden">E</span>
+                  <span className="hidden sm:inline">Expenses</span>
                   <Badge variant="secondary">{expenses.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="earnings" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span>Earnings</span>
+                <TabsTrigger value="earnings" aria-label="Earnings" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
+                  <span className="sm:hidden">E</span>
+                  <span className="hidden sm:inline">Earnings</span>
                   <Badge variant="secondary">{earnings.length}</Badge>
                 </TabsTrigger>
-                <TabsTrigger value="claims" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span>Claims</span>
+                <TabsTrigger value="claims" aria-label="Claims" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
+                  <span className="sm:hidden">C</span>
+                  <span className="hidden sm:inline">Claims</span>
                   <Badge variant="secondary">{claims.length}</Badge>
                 </TabsTrigger>
               </TabsList>
