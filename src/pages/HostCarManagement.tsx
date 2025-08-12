@@ -2480,403 +2480,808 @@ export default function HostCarManagement() {
             <div className="flex items-center justify-start gap-2 sm:justify-between">
               <h3 className="text-lg font-medium">Earnings</h3>
               <>
-                <Button size="sm" onClick={handleAddEarningClick} aria-label="Add earning">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Earning
-                </Button>
-                <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>{editingEarning ? 'Edit Earning' : 'Record New Earning'}</DialogTitle>
-                      <DialogDescription>
-                        Add a new earning record from your hosting activities.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Form {...earningForm}>
-                      <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
-                        <FormField
-                          control={earningForm.control}
-                          name="trip_id"
-                          render={({ field }) => {
-                            const existingTripIds = [...new Set(expenses
-                              .filter(e => e.trip_id && e.trip_id.trim() !== '')
-                              .map(e => e.trip_id)
-                              .filter(Boolean))] as string[];
-                            return (
-                              <FormItem>
-                                <FormLabel>Trip# *</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select existing Trip# or enter new" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {existingTripIds.map((tripId) => {
-                                      const tripExpenses = expenses.filter(e => e.trip_id === tripId);
-                                      const totalExpenses = tripExpenses.reduce((sum, e) => 
-                                        sum + (e.total_expenses || e.amount), 0
-                                      );
-                                      return (
-                                        <SelectItem key={tripId} value={tripId}>
-                                          {tripId} (Expenses: ${totalExpenses.toFixed(2)})
-                                        </SelectItem>
-                                      );
-                                    })}
-                                  </SelectContent>
-                                </Select>
-                                <div className="mt-2">
-                                  <Input 
-                                    placeholder="Or enter new Trip ID" 
-                                    value={field.value} 
-                                    onChange={field.onChange}
-                                  />
-                                </div>
-                                <FormMessage />
-                              </FormItem>
-                            );
-                          }}
-                        />
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={earningForm.control}
-                            name="car_id"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  Car
-                                  {field.value && (
-                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                                      Auto-filled
-                                    </Badge>
-                                  )}
-                                </FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a car" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {cars.map((car) => (
-                                      <SelectItem key={car.id} value={car.id}>
-                                        {formatCarDisplayName(car)}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={earningForm.control}
-                            name="guest_name"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  Guest Name
-                                  {field.value && (
-                                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                                      Auto-filled
-                                    </Badge>
-                                  )}
-                                </FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Enter guest name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={earningForm.control}
-                            name="earning_type"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Earning Type</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select earning type" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="hosting">Hosting</SelectItem>
-                                    <SelectItem value="delivery">Delivery</SelectItem>
-                                    <SelectItem value="subscription">Subscription</SelectItem>
-                                    <SelectItem value="bonus">Bonus</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={earningForm.control}
-                            name="payment_source"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Payment Source</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select payment source" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="Turo">Turo</SelectItem>
-                                    <SelectItem value="Eon">Eon</SelectItem>
-                                    <SelectItem value="GetAround">GetAround</SelectItem>
-                                    <SelectItem value="Private">Private</SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <FormField
-                          control={earningForm.control}
-                          name="gross_earnings"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Gross Earnings</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  inputMode="decimal"
-                                  step="0.01"
-                                  placeholder="0.00"
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {earningForm.watch("gross_earnings") > 0 && (
-                          <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                            <h4 className="font-medium text-sm">Profit Calculation</h4>
-                            <div className="space-y-1 text-sm">
-                              <div className="flex justify-between">
-                                <span>Gross Earnings:</span>
-                                <span>${Number(earningForm.watch("gross_earnings") || 0).toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between text-red-600">
-                                <span>Trip Expenses:</span>
-                                <span>-${selectedTripExpenses.toFixed(2)}</span>
-                              </div>
-                              <hr className="my-1" />
-                              <div className="flex justify-between font-medium">
-                                <span>Net Earnings:</span>
-                                <span>${(Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses).toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between text-blue-600">
-                                <span>Client Profit ({earningForm.watch("client_profit_percentage")}%):</span>
-                                <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("client_profit_percentage"))) / 100).toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between text-green-600">
-                                <span>Host Profit ({earningForm.watch("host_profit_percentage")}%):</span>
-                                <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("host_profit_percentage"))) / 100).toFixed(2)}</span>
-                              </div>
+                {isMobile ? (
+                  <>
+                    <Button size="sm" onClick={handleAddEarningClick} aria-label="Add earning">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Earning
+                    </Button>
+                    <Sheet open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
+                      <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
+                        <SheetHead>
+                          <SheetTit>{editingEarning ? 'Edit Earning' : 'Record New Earning'}</SheetTit>
+                          <SheetDesc>
+                            Add a new earning record from your hosting activities.
+                          </SheetDesc>
+                        </SheetHead>
+                        <Form {...earningForm}>
+                          <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
+                            <FormField
+                              control={earningForm.control}
+                              name="trip_id"
+                              render={({ field }) => {
+                                const existingTripIds = [...new Set(expenses
+                                  .filter(e => e.trip_id && e.trip_id.trim() !== '')
+                                  .map(e => e.trip_id)
+                                  .filter(Boolean))] as string[];
+                                return (
+                                  <FormItem>
+                                    <FormLabel>Trip# *</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select existing Trip# or enter new" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {existingTripIds.map((tripId) => {
+                                          const tripExpenses = expenses.filter(e => e.trip_id === tripId);
+                                          const totalExpenses = tripExpenses.reduce((sum, e) => 
+                                            sum + (e.total_expenses || e.amount), 0
+                                          );
+                                          return (
+                                            <SelectItem key={tripId} value={tripId}>
+                                              {tripId} (Expenses: ${totalExpenses.toFixed(2)})
+                                            </SelectItem>
+                                          );
+                                        })}
+                                      </SelectContent>
+                                    </Select>
+                                    <div className="mt-2">
+                                      <Input 
+                                        placeholder="Or enter new Trip ID" 
+                                        value={field.value} 
+                                        onChange={field.onChange}
+                                      />
+                                    </div>
+                                    <FormMessage />
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="car_id"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                      Car
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                          Auto-filled
+                                        </Badge>
+                                      )}
+                                    </FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select a car" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {cars.map((car) => (
+                                          <SelectItem key={car.id} value={car.id}>
+                                            {formatCarDisplayName(car)}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="guest_name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                      Guest Name
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                          Auto-filled
+                                        </Badge>
+                                      )}
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Enter guest name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             </div>
-                          </div>
-                        )}
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_type"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Earning Type</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select earning type" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="hosting">Hosting</SelectItem>
+                                        <SelectItem value="delivery">Delivery</SelectItem>
+                                        <SelectItem value="subscription">Subscription</SelectItem>
+                                        <SelectItem value="bonus">Bonus</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="payment_source"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Payment Source</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select payment source" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="Turo">Turo</SelectItem>
+                                        <SelectItem value="Eon">Eon</SelectItem>
+                                        <SelectItem value="GetAround">GetAround</SelectItem>
+                                        <SelectItem value="Private">Private</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={earningForm.control}
-                            name="client_profit_percentage"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Client Profit %</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    inputMode="decimal"
-                                    step="1"
-                                    placeholder="30"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 30)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={earningForm.control}
-                            name="host_profit_percentage"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Host Profit %</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    inputMode="decimal"
-                                    step="1"
-                                    placeholder="70"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 70)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={earningForm.control}
-                            name="earning_period_start_date"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Start Date</FormLabel>
-                                <FormControl>
-                                  <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={earningForm.control}
-                            name="earning_period_start_time"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Start Time</FormLabel>
-                                <FormControl>
-                                  <Input type="time" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={earningForm.control}
-                            name="earning_period_end_date"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>End Date</FormLabel>
-                                <FormControl>
-                                  <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={earningForm.control}
-                            name="earning_period_end_time"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>End Time</FormLabel>
-                                <FormControl>
-                                  <Input type="time" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        {dateConflicts.length > 0 && (
-                          <ConflictWarning 
-                            conflicts={dateConflicts}
-                            selectedDates={{
-                              start: `${earningForm.watch("earning_period_start_date")}T${earningForm.watch("earning_period_start_time")}:00`,
-                              end: `${earningForm.watch("earning_period_end_date")}T${earningForm.watch("earning_period_end_time")}:00`
-                            }}
-                          />
-                        )}
-
-                        {earningForm.watch("car_id") && (
-                          <div className="flex justify-center">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setShowCalendar(!showCalendar)}
-                              className="flex items-center gap-2"
-                            >
-                              <Calendar className="h-4 w-4" />
-                              {showCalendar ? 'Hide' : 'Show'} Booking Calendar
-                            </Button>
-                          </div>
-                        )}
-
-                        {showCalendar && earningForm.watch("car_id") && (
-                          <AvailabilityCalendar carId={earningForm.watch("car_id")} />
-                        )}
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={earningForm.control}
-                            name="payment_status"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Payment Status</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormField
+                              control={earningForm.control}
+                              name="gross_earnings"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Gross Earnings</FormLabel>
                                   <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select payment status" />
-                                    </SelectTrigger>
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
                                   </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="paid">Paid</SelectItem>
-                                    <SelectItem value="processing">Processing</SelectItem>
-                                    <SelectItem value="failed">Failed</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={earningForm.control}
-                            name="date_paid"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Date Paid (Optional)</FormLabel>
-                                <FormControl>
-                                  <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                        <div className="pt-2 flex justify-end gap-2">
-                          <Button type="button" variant="outline" onClick={() => {
-                            setEarningDialogOpen(false);
-                            setEditingEarning(null);
-                            earningForm.reset();
-                          }}>
-                            Cancel
-                          </Button>
-                          <Button type="submit">
-                            {editingEarning ? 'Update Earning' : 'Record Earning'}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
+                            {earningForm.watch("gross_earnings") > 0 && (
+                              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                                <h4 className="font-medium text-sm">Profit Calculation</h4>
+                                <div className="space-y-1 text-sm">
+                                  <div className="flex justify-between">
+                                    <span>Gross Earnings:</span>
+                                    <span>${Number(earningForm.watch("gross_earnings") || 0).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between text-red-600">
+                                    <span>Trip Expenses:</span>
+                                    <span>-${selectedTripExpenses.toFixed(2)}</span>
+                                  </div>
+                                  <hr className="my-1" />
+                                  <div className="flex justify-between font-medium">
+                                    <span>Net Earnings:</span>
+                                    <span>${(Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between text-blue-600">
+                                    <span>Client Profit ({earningForm.watch("client_profit_percentage")}%):</span>
+                                    <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("client_profit_percentage"))) / 100).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between text-green-600">
+                                    <span>Host Profit ({earningForm.watch("host_profit_percentage")}%):</span>
+                                    <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("host_profit_percentage"))) / 100).toFixed(2)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="client_profit_percentage"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Client Profit %</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        inputMode="decimal"
+                                        step="1"
+                                        placeholder="30"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 30)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="host_profit_percentage"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Host Profit %</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        inputMode="decimal"
+                                        step="1"
+                                        placeholder="70"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 70)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_start_date"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Start Date</FormLabel>
+                                    <FormControl>
+                                      <Input type="date" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_start_time"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Start Time</FormLabel>
+                                    <FormControl>
+                                      <Input type="time" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_end_date"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>End Date</FormLabel>
+                                    <FormControl>
+                                      <Input type="date" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_end_time"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>End Time</FormLabel>
+                                    <FormControl>
+                                      <Input type="time" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            {dateConflicts.length > 0 && (
+                              <ConflictWarning 
+                                conflicts={dateConflicts}
+                                selectedDates={{
+                                  start: `${earningForm.watch("earning_period_start_date")}T${earningForm.watch("earning_period_start_time")}:00`,
+                                  end: `${earningForm.watch("earning_period_end_date")}T${earningForm.watch("earning_period_end_time")}:00`
+                                }}
+                              />
+                            )}
+
+                            {earningForm.watch("car_id") && (
+                              <div className="flex justify-center">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setShowCalendar(!showCalendar)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Calendar className="h-4 w-4" />
+                                  {showCalendar ? 'Hide' : 'Show'} Booking Calendar
+                                </Button>
+                              </div>
+                            )}
+
+                            {showCalendar && earningForm.watch("car_id") && (
+                              <AvailabilityCalendar carId={earningForm.watch("car_id")} />
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="payment_status"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Payment Status</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select payment status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="paid">Paid</SelectItem>
+                                        <SelectItem value="processing">Processing</SelectItem>
+                                        <SelectItem value="failed">Failed</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="date_paid"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Date Paid (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input type="date" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="pt-2 flex justify-end gap-2">
+                              <Button type="button" variant="outline" onClick={() => {
+                                setEarningDialogOpen(false);
+                                setEditingEarning(null);
+                                earningForm.reset();
+                              }}>
+                                Cancel
+                              </Button>
+                              <Button type="submit">
+                                {editingEarning ? 'Update Earning' : 'Record Earning'}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </SheetContent>
+                    </Sheet>
+                  </>
+                ) : (
+                  <>
+                    <Button size="sm" onClick={handleAddEarningClick} aria-label="Add earning">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Earning
+                    </Button>
+                    <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>{editingEarning ? 'Edit Earning' : 'Record New Earning'}</DialogTitle>
+                          <DialogDescription>
+                            Add a new earning record from your hosting activities.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...earningForm}>
+                          <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
+                            <FormField
+                              control={earningForm.control}
+                              name="trip_id"
+                              render={({ field }) => {
+                                const existingTripIds = [...new Set(expenses
+                                  .filter(e => e.trip_id && e.trip_id.trim() !== '')
+                                  .map(e => e.trip_id)
+                                  .filter(Boolean))] as string[];
+                                return (
+                                  <FormItem>
+                                    <FormLabel>Trip# *</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select existing Trip# or enter new" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {existingTripIds.map((tripId) => {
+                                          const tripExpenses = expenses.filter(e => e.trip_id === tripId);
+                                          const totalExpenses = tripExpenses.reduce((sum, e) => 
+                                            sum + (e.total_expenses || e.amount), 0
+                                          );
+                                          return (
+                                            <SelectItem key={tripId} value={tripId}>
+                                              {tripId} (Expenses: ${totalExpenses.toFixed(2)})
+                                            </SelectItem>
+                                          );
+                                        })}
+                                      </SelectContent>
+                                    </Select>
+                                    <div className="mt-2">
+                                      <Input 
+                                        placeholder="Or enter new Trip ID" 
+                                        value={field.value} 
+                                        onChange={field.onChange}
+                                      />
+                                    </div>
+                                    <FormMessage />
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="car_id"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                      Car
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                          Auto-filled
+                                        </Badge>
+                                      )}
+                                    </FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select a car" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {cars.map((car) => (
+                                          <SelectItem key={car.id} value={car.id}>
+                                            {formatCarDisplayName(car)}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="guest_name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                      Guest Name
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                          Auto-filled
+                                        </Badge>
+                                      )}
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Enter guest name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_type"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Earning Type</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select earning type" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="hosting">Hosting</SelectItem>
+                                        <SelectItem value="delivery">Delivery</SelectItem>
+                                        <SelectItem value="subscription">Subscription</SelectItem>
+                                        <SelectItem value="bonus">Bonus</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="payment_source"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Payment Source</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select payment source" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="Turo">Turo</SelectItem>
+                                        <SelectItem value="Eon">Eon</SelectItem>
+                                        <SelectItem value="GetAround">GetAround</SelectItem>
+                                        <SelectItem value="Private">Private</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <FormField
+                              control={earningForm.control}
+                              name="gross_earnings"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Gross Earnings</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {earningForm.watch("gross_earnings") > 0 && (
+                              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                                <h4 className="font-medium text-sm">Profit Calculation</h4>
+                                <div className="space-y-1 text-sm">
+                                  <div className="flex justify-between">
+                                    <span>Gross Earnings:</span>
+                                    <span>${Number(earningForm.watch("gross_earnings") || 0).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between text-red-600">
+                                    <span>Trip Expenses:</span>
+                                    <span>-${selectedTripExpenses.toFixed(2)}</span>
+                                  </div>
+                                  <hr className="my-1" />
+                                  <div className="flex justify-between font-medium">
+                                    <span>Net Earnings:</span>
+                                    <span>${(Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between text-blue-600">
+                                    <span>Client Profit ({earningForm.watch("client_profit_percentage")}%):</span>
+                                    <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("client_profit_percentage"))) / 100).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between text-green-600">
+                                    <span>Host Profit ({earningForm.watch("host_profit_percentage")}%):</span>
+                                    <span>${(((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) * Number(earningForm.watch("host_profit_percentage"))) / 100).toFixed(2)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="client_profit_percentage"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Client Profit %</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        inputMode="decimal"
+                                        step="1"
+                                        placeholder="30"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 30)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="host_profit_percentage"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Host Profit %</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        inputMode="decimal"
+                                        step="1"
+                                        placeholder="70"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 70)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_start_date"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Start Date</FormLabel>
+                                    <FormControl>
+                                      <Input type="date" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_start_time"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Start Time</FormLabel>
+                                    <FormControl>
+                                      <Input type="time" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_end_date"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>End Date</FormLabel>
+                                    <FormControl>
+                                      <Input type="date" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="earning_period_end_time"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>End Time</FormLabel>
+                                    <FormControl>
+                                      <Input type="time" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            {dateConflicts.length > 0 && (
+                              <ConflictWarning 
+                                conflicts={dateConflicts}
+                                selectedDates={{
+                                  start: `${earningForm.watch("earning_period_start_date")}T${earningForm.watch("earning_period_start_time")}:00`,
+                                  end: `${earningForm.watch("earning_period_end_date")}T${earningForm.watch("earning_period_end_time")}:00`
+                                }}
+                              />
+                            )}
+
+                            {earningForm.watch("car_id") && (
+                              <div className="flex justify-center">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setShowCalendar(!showCalendar)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Calendar className="h-4 w-4" />
+                                  {showCalendar ? 'Hide' : 'Show'} Booking Calendar
+                                </Button>
+                              </div>
+                            )}
+
+                            {showCalendar && earningForm.watch("car_id") && (
+                              <AvailabilityCalendar carId={earningForm.watch("car_id")} />
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={earningForm.control}
+                                name="payment_status"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Payment Status</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select payment status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="paid">Paid</SelectItem>
+                                        <SelectItem value="processing">Processing</SelectItem>
+                                        <SelectItem value="failed">Failed</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={earningForm.control}
+                                name="date_paid"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Date Paid (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input type="date" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="pt-2 flex justify-end gap-2">
+                              <Button type="button" variant="outline" onClick={() => {
+                                setEarningDialogOpen(false);
+                                setEditingEarning(null);
+                                earningForm.reset();
+                              }}>
+                                Cancel
+                              </Button>
+                              <Button type="submit">
+                                {editingEarning ? 'Update Earning' : 'Record Earning'}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  </>
+                )}
+
               </>
             </div>
 
