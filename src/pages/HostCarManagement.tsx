@@ -1468,7 +1468,7 @@ export default function HostCarManagement() {
           </div>
 
           <TabsContent value="active" className="space-y-4">
-            {activeHostedCars.length === 0 ? <Card>
+            {activeHostedCars.length === 0 ? <Card className="mx-3 sm:mx-0">
                 <CardContent className="text-center py-12">
                   <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No cars currently hosted</h3>
@@ -1477,7 +1477,7 @@ export default function HostCarManagement() {
                   </p>
               </CardContent>
             </Card> : <div className="grid gap-3 md:gap-4 md:grid-cols-2">
-                {activeHostedCars.map(car => <Card key={car.id}>
+                {activeHostedCars.map(car => <Card key={car.id} className="mx-3 sm:mx-0">
                     <CardHeader className="p-3 sm:p-4 md:p-6">
                       <div className="flex justify-between items-start">
                         <div>
@@ -1540,8 +1540,8 @@ export default function HostCarManagement() {
                       </Collapsible>
 
                       {/* Management Actions */}
-                      <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="w-full sm:flex-1" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row pt-2">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => window.open(`tel:${car.client.phone}`)}>
                           <Phone className="h-4 w-4 mr-2" />
                           Call Client
                         </Button>
@@ -1575,7 +1575,7 @@ export default function HostCarManagement() {
           </TabsContent>
 
           <TabsContent value="returns" className="space-y-4">
-            {readyForReturnCars.length === 0 ? <Card>
+            {readyForReturnCars.length === 0 ? <Card className="mx-3 sm:mx-0">
                 <CardContent className="text-center py-12">
                   <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No cars ready for return</h3>
@@ -1584,7 +1584,7 @@ export default function HostCarManagement() {
                   </p>
                 </CardContent>
               </Card> : <div className="grid gap-4 md:grid-cols-2">
-                {readyForReturnCars.map(car => <Card key={car.id} className="border-orange-200">
+                {readyForReturnCars.map(car => <Card key={car.id} className="mx-3 sm:mx-0 border-orange-200">
                     <CardHeader className="p-3 sm:p-4 md:p-6">
                       <div className="flex justify-between items-start">
                         <div>
@@ -1628,12 +1628,12 @@ export default function HostCarManagement() {
                         <p className="text-sm text-orange-600 font-medium">
                           ⚠ Client has requested car return
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Button variant="outline" size="sm" className="w-full" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => window.open(`tel:${car.client.phone}`)}>
                             <Phone className="h-4 w-4 mr-2" />
                             Call Client
                           </Button>
-                          <Button size="sm" className="w-full" onClick={() => handleCarReturn(car.id)}>
+                          <Button size="sm" className="w-full sm:w-auto" onClick={() => handleCarReturn(car.id)}>
                             <CheckCircle className="h-4 w-4 mr-2" />
                             Confirm Return
                           </Button>
