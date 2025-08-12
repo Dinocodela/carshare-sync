@@ -2461,7 +2461,7 @@ export default function HostCarManagement() {
           </TabsContent>
 
           <TabsContent value="earnings" className="space-y-4 px-3 sm:px-0">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-start gap-2 sm:justify-between">
               <h3 className="text-lg font-medium">Earnings</h3>
               {isMobile ? (
                 <>
