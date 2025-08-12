@@ -1467,9 +1467,9 @@ export default function HostCarManagement() {
             )}
           </div>
 
-          <TabsContent value="active" className="space-y-4">
-            {activeHostedCars.length === 0 ? <Card className="mx-3 sm:mx-0">
-                <CardContent className="text-center py-12">
+          <TabsContent value="active" className="space-y-4 px-3 sm:px-0">
+            {activeHostedCars.length === 0 ? <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
+                <CardContent className="text-center p-4 sm:p-6">
                   <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No cars currently hosted</h3>
                   <p className="text-muted-foreground">
@@ -1574,9 +1574,9 @@ export default function HostCarManagement() {
               </div>}
           </TabsContent>
 
-          <TabsContent value="returns" className="space-y-4">
-            {readyForReturnCars.length === 0 ? <Card className="mx-3 sm:mx-0">
-                <CardContent className="text-center py-12">
+          <TabsContent value="returns" className="space-y-4 px-3 sm:px-0">
+            {readyForReturnCars.length === 0 ? <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
+                <CardContent className="text-center p-4 sm:p-6">
                   <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No cars ready for return</h3>
                   <p className="text-muted-foreground">
@@ -1644,7 +1644,7 @@ export default function HostCarManagement() {
               </div>}
           </TabsContent>
 
-          <TabsContent value="expenses" className="space-y-4">
+          <TabsContent value="expenses" className="space-y-4 px-3 sm:px-0">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Expenses</h3>
               {isMobile ? (
@@ -2449,7 +2449,7 @@ export default function HostCarManagement() {
             )}
           </TabsContent>
 
-          <TabsContent value="earnings" className="space-y-4">
+          <TabsContent value="earnings" className="space-y-4 px-3 sm:px-0">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Earnings</h3>
               {isMobile ? (
@@ -3182,7 +3182,7 @@ export default function HostCarManagement() {
             )}
           </TabsContent>
 
-          <TabsContent value="claims" className="space-y-4">
+          <TabsContent value="claims" className="space-y-4 px-3 sm:px-0">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Claims</h3>
               {isMobile ? (
