@@ -35,6 +35,8 @@ interface HostProfile {
   bio: string;
   services: string[];
   rating: number;
+  turo_reviews_count?: number;
+  turo_profile_url?: string;
 }
 
 export default function SelectHost() {
@@ -78,7 +80,7 @@ export default function SelectHost() {
       // Fetch Teslys host profile (the only host for now)
       const { data: hostData, error: hostError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, turo_reviews_count, turo_profile_url')
         .eq('role', 'host')
         .limit(1)
         .single();
@@ -302,7 +304,19 @@ export default function SelectHost() {
                   />
                 ))}
                 <span className="font-medium ml-1">{host.rating}</span>
-                <span className="text-muted-foreground text-sm">(45 reviews)</span>
+                <span className="text-muted-foreground text-sm">
+                  ({host.turo_reviews_count || 0} reviews)
+                </span>
+                {host.turo_profile_url && (
+                  <a 
+                    href={host.turo_profile_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary text-sm hover:underline ml-2"
+                  >
+                    View on Turo
+                  </a>
+                )}
               </div>
             </div>
           </CardHeader>

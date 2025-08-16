@@ -37,6 +37,7 @@ export default function Settings() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
 // Form fields
@@ -189,6 +190,44 @@ setSaving(true);
     }
   };
 
+  const handleSyncTuroData = async () => {
+    if (!user) return;
+    
+    setIsSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-turo-rating', {
+        body: { turo_profile_url: turoUrl }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Turo data synced successfully",
+        description: `Updated rating: ${data.rating || 'N/A'}, Reviews: ${data.reviews || 0}`,
+      });
+
+      // Refresh profile data
+      const { data: updatedProfile, error: fetchError } = await supabase
+        .from("profiles")
+        .select("user_id, role, first_name, last_name, company_name, phone, bio, location, services, rating, turo_profile_url, turo_reviews_count, turo_last_synced")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!fetchError && updatedProfile) {
+        setProfile(updatedProfile as Profile);
+      }
+    } catch (error) {
+      console.error('Error syncing Turo data:', error);
+      toast({
+        title: "Sync failed",
+        description: "Unable to sync Turo data. Please check your profile URL and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <PageContainer>
@@ -241,6 +280,38 @@ setSaving(true);
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} />
                   </div>
+
+                  {role === "host" && (
+                    <div>
+                      <Label htmlFor="turo_url">Turo Profile URL</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          id="turo_url" 
+                          value={turoUrl} 
+                          onChange={(e) => setTuroUrl(e.target.value)}
+                          placeholder="https://turo.com/us/en/drivers/..."
+                        />
+                        <Button 
+                          onClick={handleSyncTuroData}
+                          disabled={!turoUrl || isSyncing}
+                          variant="outline"
+                          size="sm"
+                        >
+                          {isSyncing ? 'Syncing...' : 'Sync from Turo'}
+                        </Button>
+                      </div>
+                      {profile?.turo_last_synced && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Last synced: {new Date(profile.turo_last_synced).toLocaleDateString()}
+                        </p>
+                      )}
+                      {profile?.rating && profile.rating > 0 && (
+                        <div className="text-sm text-muted-foreground mt-2">
+                          Current: {profile.rating}/5.0 ★ ({profile.turo_reviews_count || 0} reviews)
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">Role: <span className="font-medium text-foreground uppercase">{role}</span></div>

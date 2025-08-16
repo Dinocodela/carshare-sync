@@ -23,6 +23,8 @@ interface CarWithHost {
     company_name: string;
     location: string;
     rating: number;
+    turo_reviews_count?: number;
+    turo_profile_url?: string;
   };
 }
 
@@ -58,7 +60,7 @@ export default function HostingDetails() {
       // Fetch host profile
       const { data: hostProfile, error: hostError } = await supabase
         .from('profiles')
-        .select('user_id, first_name, last_name, phone, company_name, location, rating')
+        .select('user_id, first_name, last_name, phone, company_name, location, rating, turo_reviews_count, turo_profile_url')
         .eq('user_id', carData.host_id)
         .single();
 
@@ -77,7 +79,9 @@ export default function HostingDetails() {
           phone: hostProfile.phone,
           company_name: hostProfile.company_name,
           location: hostProfile.location,
-          rating: hostProfile.rating
+          rating: hostProfile.rating,
+          turo_reviews_count: hostProfile.turo_reviews_count,
+          turo_profile_url: hostProfile.turo_profile_url
         }
       };
 
@@ -253,8 +257,25 @@ export default function HostingDetails() {
                   <div className="flex items-center">
                     <span className="text-sm">{car.host.rating.toFixed(1)}/5.0</span>
                     <span className="text-yellow-500 ml-1">★</span>
+                    {car.host.turo_reviews_count && (
+                      <span className="text-xs text-muted-foreground ml-1">
+                        ({car.host.turo_reviews_count} reviews)
+                      </span>
+                    )}
                   </div>
                 </div>
+                {car.host.turo_profile_url && (
+                  <div className="pt-2 border-t">
+                    <a 
+                      href={car.host.turo_profile_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary text-sm hover:underline"
+                    >
+                      View Profile on Turo →
+                    </a>
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 border-t space-y-2">
