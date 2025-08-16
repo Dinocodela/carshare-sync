@@ -71,7 +71,7 @@ serve(async (req) => {
   });
 
   try {
-    const { url: overrideUrl } = (await req.json().catch(() => ({}))) as { url?: string };
+    const { turo_profile_url: overrideUrl } = (await req.json().catch(() => ({}))) as { turo_profile_url?: string };
 
     const {
       data: { user },
