@@ -37,7 +37,6 @@ export default function Settings() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
 // Form fields
@@ -49,6 +48,8 @@ export default function Settings() {
   const [location, setLocation] = useState("");
   const [servicesText, setServicesText] = useState("");
   const [turoUrl, setTuroUrl] = useState("");
+  const [rating, setRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
 
   const role = useMemo(() => (profile?.role ?? (user?.user_metadata?.role ?? "client")) as "client" | "host", [profile?.role, user?.user_metadata?.role]);
 
@@ -103,6 +104,8 @@ if (data) {
         setLocation(data.location ?? "");
         setServicesText((data.services ?? []).join(", "));
         setTuroUrl((data as any).turo_profile_url ?? "");
+        setRating(data.rating ?? 0);
+        setReviewCount(data.turo_reviews_count ?? 0);
       } else {
         // No profile row found – initialize with defaults but require phone on save
         setProfile(null);
@@ -135,6 +138,8 @@ setSaving(true);
       location: location || null,
       services: servicesText ? servicesText.split(",").map((s) => s.trim()).filter(Boolean) : null,
       turo_profile_url: role === "host" ? (turoUrl || null) : null,
+      rating: role === "host" ? rating : null,
+      turo_reviews_count: role === "host" ? reviewCount : null,
       role, // not editable here, but keep for insert case
       user_id: user.id,
     };
@@ -190,75 +195,6 @@ setSaving(true);
     }
   };
 
-  const handleSyncTuroData = async () => {
-    if (!user) return;
-    
-    // Validate URL before sending
-    if (!turoUrl.trim()) {
-      toast({
-        title: "URL Required",
-        description: "Please enter your Turo profile URL before syncing.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!turoUrl.includes('turo.com')) {
-      toast({
-        title: "Invalid URL",
-        description: "Please enter a valid Turo profile URL (must contain turo.com).",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSyncing(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('sync-turo-rating', {
-        body: { turo_profile_url: turoUrl.trim() }
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        toast({
-          title: "Turo data synced successfully",
-          description: `Updated rating: ${data.rating}/5.0 ★ (${data.reviews || 0} reviews)`,
-        });
-
-        // Refresh profile data
-        const { data: updatedProfile, error: fetchError } = await supabase
-          .from("profiles")
-          .select("user_id, role, first_name, last_name, company_name, phone, bio, location, services, rating, turo_profile_url, turo_reviews_count, turo_last_synced")
-          .eq("user_id", user.id)
-          .single();
-
-        if (!fetchError && updatedProfile) {
-          setProfile(updatedProfile as Profile);
-        }
-      } else {
-        throw new Error(data?.error || "Unknown error occurred");
-      }
-    } catch (error: any) {
-      console.error('Error syncing Turo data:', error);
-      
-      let errorMessage = "Unable to sync Turo data. Please try again.";
-      
-      if (error?.message) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
-      
-      toast({
-        title: "Sync failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   return (
     <DashboardLayout>
@@ -314,45 +250,65 @@ setSaving(true);
                   </div>
 
                   {role === "host" && (
-                    <div>
-                      <Label htmlFor="turo_url">Turo Profile URL</Label>
-                      <div className="flex gap-2">
+                    <>
+                      <div>
+                        <Label htmlFor="turo_url">Turo Profile URL (optional)</Label>
                         <Input 
                           id="turo_url" 
                           value={turoUrl} 
                           onChange={(e) => setTuroUrl(e.target.value)}
                           placeholder="https://turo.com/us/en/drivers/7050393"
-                          className={!turoUrl || !turoUrl.includes('turo.com') ? 'border-muted' : ''}
                         />
-                        <Button 
-                          onClick={handleSyncTuroData}
-                          disabled={!turoUrl || isSyncing || !turoUrl.includes('turo.com')}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {isSyncing ? 'Syncing...' : 'Sync'}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Enter your public Turo driver profile URL to sync your rating and reviews
-                      </p>
-                      {profile?.turo_last_synced && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Last synced: {new Date(profile.turo_last_synced).toLocaleDateString()} at {new Date(profile.turo_last_synced).toLocaleTimeString()}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Your public Turo driver profile URL for reference
                         </p>
-                      )}
-                      {profile?.rating && profile.rating > 0 && (
-                        <div className="text-sm bg-muted/50 p-2 rounded-md mt-2">
-                          <div className="font-medium">Current Turo Rating</div>
-                          <div className="text-lg font-bold text-primary">
-                            {profile.rating}/5.0 ★
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="rating">Turo Rating</Label>
+                          <Input 
+                            id="rating" 
+                            type="number"
+                            min="0"
+                            max="5"
+                            step="0.1"
+                            value={rating}
+                            onChange={(e) => setRating(Math.min(5, Math.max(0, parseFloat(e.target.value) || 0)))}
+                            placeholder="4.9"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Your current Turo rating (0-5 stars)
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="review_count">Review Count</Label>
+                          <Input 
+                            id="review_count" 
+                            type="number"
+                            min="0"
+                            value={reviewCount}
+                            onChange={(e) => setReviewCount(Math.max(0, parseInt(e.target.value) || 0))}
+                            placeholder="250"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Total number of Turo reviews
+                          </p>
+                        </div>
+                      </div>
+
+                      {rating > 0 && (
+                        <div className="text-sm bg-muted/50 p-3 rounded-md">
+                          <div className="font-medium text-center">Your Turo Rating</div>
+                          <div className="text-2xl font-bold text-primary text-center">
+                            {rating}/5.0 ★
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            Based on {profile.turo_reviews_count || 0} reviews
+                          <div className="text-xs text-muted-foreground text-center">
+                            Based on {reviewCount} reviews
                           </div>
                         </div>
                       )}
-                    </div>
+                    </>
                   )}
 
                   <div className="flex items-center justify-between">
