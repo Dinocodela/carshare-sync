@@ -59,6 +59,8 @@ function fallbackExtract(html: string): { rating?: number; reviews?: number } {
 }
 
 serve(async (req) => {
+  console.log(`[sync-turo-rating] Request received: ${req.method}`);
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -71,13 +73,20 @@ serve(async (req) => {
   });
 
   try {
-    const { turo_profile_url: overrideUrl } = (await req.json().catch(() => ({}))) as { turo_profile_url?: string };
+    const requestBody = await req.json().catch(() => ({}));
+    console.log(`[sync-turo-rating] Request body:`, requestBody);
+    
+    const { turo_profile_url: overrideUrl } = requestBody as { turo_profile_url?: string };
 
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
+    
+    console.log(`[sync-turo-rating] Auth check - User ID: ${user?.id}, Error: ${userError?.message}`);
+    
     if (userError || !user) {
+      console.error(`[sync-turo-rating] Authorization failed:`, userError);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -86,24 +95,44 @@ serve(async (req) => {
 
     // Load profile to get stored URL if not provided
     let profileUrl = overrideUrl;
+    console.log(`[sync-turo-rating] Override URL provided: ${!!overrideUrl}`);
+    
     if (!profileUrl) {
+      console.log(`[sync-turo-rating] Loading profile URL from database`);
       const { data: prof, error: profErr } = await supabase
         .from("profiles")
         .select("turo_profile_url")
         .eq("user_id", user.id)
         .maybeSingle();
       if (profErr) {
+        console.error(`[sync-turo-rating] Profile fetch error:`, profErr);
         throw profErr;
       }
       profileUrl = prof?.turo_profile_url ?? undefined;
+      console.log(`[sync-turo-rating] Profile URL from DB: ${profileUrl}`);
     }
 
-    if (!profileUrl || !isValidTuroUrl(profileUrl)) {
-      return new Response(JSON.stringify({ error: "A valid turo.com profile URL is required" }), {
+    if (!profileUrl) {
+      console.error(`[sync-turo-rating] No profile URL available`);
+      return new Response(JSON.stringify({ 
+        error: "No Turo profile URL provided. Please set your Turo profile URL first." 
+      }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    
+    if (!isValidTuroUrl(profileUrl)) {
+      console.error(`[sync-turo-rating] Invalid Turo URL: ${profileUrl}`);
+      return new Response(JSON.stringify({ 
+        error: "Invalid Turo profile URL. Please provide a valid turo.com profile link." 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    console.log(`[sync-turo-rating] Fetching Turo profile: ${profileUrl}`);
 
     const response = await fetch(profileUrl, {
       headers: {
@@ -113,28 +142,59 @@ serve(async (req) => {
       },
     });
 
+    console.log(`[sync-turo-rating] Fetch response status: ${response.status}`);
+
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: `Failed to fetch profile (${response.status})` }), {
+      console.error(`[sync-turo-rating] Fetch failed - Status: ${response.status}, StatusText: ${response.statusText}`);
+      let errorMessage = `Failed to fetch Turo profile (${response.status})`;
+      
+      if (response.status === 404) {
+        errorMessage = "Turo profile not found. Please check if the URL is correct and the profile is public.";
+      } else if (response.status === 403) {
+        errorMessage = "Access denied to Turo profile. The profile might be private or restricted.";
+      } else if (response.status >= 500) {
+        errorMessage = "Turo servers are currently unavailable. Please try again later.";
+      }
+      
+      return new Response(JSON.stringify({ error: errorMessage }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const html = await response.text();
+    console.log(`[sync-turo-rating] HTML content length: ${html.length}`);
+    console.log(`[sync-turo-rating] HTML contains "ratingValue": ${html.includes('ratingValue')}`);
+    console.log(`[sync-turo-rating] HTML contains JSON-LD: ${html.includes('application/ld+json')}`);
+    
     let { rating, reviews } = extractRatingFromJsonLd(html);
+    console.log(`[sync-turo-rating] JSON-LD extraction result - Rating: ${rating}, Reviews: ${reviews}`);
+    
     if (rating === undefined) {
+      console.log(`[sync-turo-rating] JSON-LD failed, trying fallback extraction`);
       const fb = fallbackExtract(html);
       rating = fb.rating;
       reviews = reviews ?? fb.reviews;
+      console.log(`[sync-turo-rating] Fallback extraction result - Rating: ${rating}, Reviews: ${reviews}`);
     }
 
     if (rating === undefined) {
-      return new Response(JSON.stringify({ error: "Unable to parse rating from Turo profile" }), {
+      console.error(`[sync-turo-rating] No rating found in HTML content`);
+      // Log a snippet of HTML for debugging
+      const htmlSnippet = html.substring(0, 1000);
+      console.log(`[sync-turo-rating] HTML snippet:`, htmlSnippet);
+      
+      return new Response(JSON.stringify({ 
+        error: "Unable to find rating data in Turo profile. The profile structure may have changed or the profile may not have any reviews yet." 
+      }), {
         status: 422,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    
+    console.log(`[sync-turo-rating] Successfully extracted - Rating: ${rating}, Reviews: ${reviews}`);
 
+    console.log(`[sync-turo-rating] Updating profile in database`);
     const { error: updErr } = await supabase
       .from("profiles")
       .update({
@@ -145,15 +205,33 @@ serve(async (req) => {
       })
       .eq("user_id", user.id);
 
-    if (updErr) throw updErr;
+    if (updErr) {
+      console.error(`[sync-turo-rating] Database update error:`, updErr);
+      throw updErr;
+    }
+    
+    console.log(`[sync-turo-rating] Successfully updated profile`);
 
+    console.log(`[sync-turo-rating] Sync completed successfully`);
     return new Response(
       JSON.stringify({ success: true, rating, reviews: reviews ?? 0, url: profileUrl }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    console.error("sync-turo-rating error:", err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }), {
+    console.error("[sync-turo-rating] Error occurred:", err);
+    
+    let errorMessage = "Internal server error occurred while syncing Turo data";
+    if (err instanceof Error) {
+      if (err.message.includes("fetch")) {
+        errorMessage = "Network error while accessing Turo. Please check your internet connection and try again.";
+      } else if (err.message.includes("timeout")) {
+        errorMessage = "Request timed out. Turo servers may be slow. Please try again.";
+      } else {
+        errorMessage = err.message;
+      }
+    }
+    
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

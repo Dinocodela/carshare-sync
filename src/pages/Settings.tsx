@@ -193,34 +193,66 @@ setSaving(true);
   const handleSyncTuroData = async () => {
     if (!user) return;
     
+    // Validate URL before sending
+    if (!turoUrl.trim()) {
+      toast({
+        title: "URL Required",
+        description: "Please enter your Turo profile URL before syncing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!turoUrl.includes('turo.com')) {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid Turo profile URL (must contain turo.com).",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSyncing(true);
     try {
       const { data, error } = await supabase.functions.invoke('sync-turo-rating', {
-        body: { turo_profile_url: turoUrl }
+        body: { turo_profile_url: turoUrl.trim() }
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Turo data synced successfully",
-        description: `Updated rating: ${data.rating || 'N/A'}, Reviews: ${data.reviews || 0}`,
-      });
+      if (data?.success) {
+        toast({
+          title: "Turo data synced successfully",
+          description: `Updated rating: ${data.rating}/5.0 ★ (${data.reviews || 0} reviews)`,
+        });
 
-      // Refresh profile data
-      const { data: updatedProfile, error: fetchError } = await supabase
-        .from("profiles")
-        .select("user_id, role, first_name, last_name, company_name, phone, bio, location, services, rating, turo_profile_url, turo_reviews_count, turo_last_synced")
-        .eq("user_id", user.id)
-        .single();
+        // Refresh profile data
+        const { data: updatedProfile, error: fetchError } = await supabase
+          .from("profiles")
+          .select("user_id, role, first_name, last_name, company_name, phone, bio, location, services, rating, turo_profile_url, turo_reviews_count, turo_last_synced")
+          .eq("user_id", user.id)
+          .single();
 
-      if (!fetchError && updatedProfile) {
-        setProfile(updatedProfile as Profile);
+        if (!fetchError && updatedProfile) {
+          setProfile(updatedProfile as Profile);
+        }
+      } else {
+        throw new Error(data?.error || "Unknown error occurred");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error syncing Turo data:', error);
+      
+      let errorMessage = "Unable to sync Turo data. Please try again.";
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
       toast({
         title: "Sync failed",
-        description: "Unable to sync Turo data. Please check your profile URL and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -289,25 +321,35 @@ setSaving(true);
                           id="turo_url" 
                           value={turoUrl} 
                           onChange={(e) => setTuroUrl(e.target.value)}
-                          placeholder="https://turo.com/us/en/drivers/..."
+                          placeholder="https://turo.com/us/en/drivers/7050393"
+                          className={!turoUrl || !turoUrl.includes('turo.com') ? 'border-muted' : ''}
                         />
                         <Button 
                           onClick={handleSyncTuroData}
-                          disabled={!turoUrl || isSyncing}
+                          disabled={!turoUrl || isSyncing || !turoUrl.includes('turo.com')}
                           variant="outline"
                           size="sm"
                         >
-                          {isSyncing ? 'Syncing...' : 'Sync from Turo'}
+                          {isSyncing ? 'Syncing...' : 'Sync'}
                         </Button>
                       </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Enter your public Turo driver profile URL to sync your rating and reviews
+                      </p>
                       {profile?.turo_last_synced && (
                         <p className="text-xs text-muted-foreground mt-2">
-                          Last synced: {new Date(profile.turo_last_synced).toLocaleDateString()}
+                          Last synced: {new Date(profile.turo_last_synced).toLocaleDateString()} at {new Date(profile.turo_last_synced).toLocaleTimeString()}
                         </p>
                       )}
                       {profile?.rating && profile.rating > 0 && (
-                        <div className="text-sm text-muted-foreground mt-2">
-                          Current: {profile.rating}/5.0 ★ ({profile.turo_reviews_count || 0} reviews)
+                        <div className="text-sm bg-muted/50 p-2 rounded-md mt-2">
+                          <div className="font-medium">Current Turo Rating</div>
+                          <div className="text-lg font-bold text-primary">
+                            {profile.rating}/5.0 ★
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Based on {profile.turo_reviews_count || 0} reviews
+                          </div>
                         </div>
                       )}
                     </div>
