@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Logo } from '@/components/ui/logo';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -25,9 +26,12 @@ const Index = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="text-center max-w-2xl">
-        <div className="mb-8">
+        <div className="mb-8 flex flex-col items-center">
+          <div className="mb-6">
+            <Logo size="xl" className="h-20 w-20 sm:h-24 sm:w-24" />
+          </div>
           <h1 className="text-5xl font-bold mb-4 text-primary">TESLYS</h1>
-          <p className="text-xl text-muted-foreground mb-8">
+          <p className="text-xl text-muted-foreground mb-8 text-center">
             Streamline your car management and hosting services with our comprehensive platform
           </p>
         </div>

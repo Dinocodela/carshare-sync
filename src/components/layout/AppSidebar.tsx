@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Car, Home, Plus, Settings, BarChart3, Shield } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { Logo } from '@/components/ui/logo';
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +23,7 @@ interface Profile {
 
 export function AppSidebar() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [userRole, setUserRole] = useState<'client' | 'host' | null>(null);
 
   useEffect(() => {
@@ -111,6 +113,14 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel className="flex items-center gap-2 p-2">
+            <Logo 
+              size="sm" 
+              onClick={() => navigate('/dashboard')}
+              className="h-6 w-6"
+            />
+            <span className="font-semibold text-primary">TESLYS</span>
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (

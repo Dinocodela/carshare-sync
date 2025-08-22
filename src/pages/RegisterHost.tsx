@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { Logo } from '@/components/ui/logo';
 
 const RegisterHost = () => {
   const [formData, setFormData] = useState({
@@ -87,7 +88,10 @@ const RegisterHost = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">Join TESLYS</CardTitle>
+          <div className="flex flex-col items-center mb-4">
+            <Logo size="lg" className="mb-2" />
+            <CardTitle className="text-2xl font-bold text-primary">Join TESLYS</CardTitle>
+          </div>
           <CardDescription>Create your host account</CardDescription>
         </CardHeader>
         <CardContent>
