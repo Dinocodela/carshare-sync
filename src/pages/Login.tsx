@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Logo } from '@/components/ui/logo';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -51,10 +50,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex flex-col items-center mb-4">
-            <Logo size="lg" className="mb-2" />
-            <CardTitle className="text-2xl font-bold text-primary">Welcome to TESLYS</CardTitle>
-          </div>
+          <CardTitle className="text-2xl font-bold text-primary">Welcome to TESLYS</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
