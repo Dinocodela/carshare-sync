@@ -1,23 +1,17 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCars, useHostCars } from '@/hooks/useCars';
+import { useProfile } from '@/hooks/useProfile';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Plus, Car, Users, FileText, TrendingUp, BarChart3 } from 'lucide-react';
 
-interface Profile {
-  role: 'client' | 'host';
-  name?: string;
-  company_name?: string;
-}
-
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const { profile, loading: profileLoading } = useProfile();
   
   // Get appropriate data based on user role
   const clientData = useCars();
@@ -26,17 +20,7 @@ export default function Dashboard() {
   const isHost = profile?.role === 'host';
   const data = isHost ? hostData : clientData;
 
-  useEffect(() => {
-    if (user?.user_metadata) {
-      setProfile({
-        role: user.user_metadata.role || 'client',
-        name: user.user_metadata.name,
-        company_name: user.user_metadata.company_name,
-      });
-    }
-  }, [user]);
-
-  if (!user || !profile) {
+  if (!user || profileLoading || !profile) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -47,8 +31,8 @@ export default function Dashboard() {
   }
 
   const displayName = profile.role === 'host' 
-    ? (profile.company_name || profile.name || 'Host')
-    : (profile.name || 'Client');
+    ? (profile.company_name || profile.first_name || 'Host')
+    : (profile.first_name || 'Client');
 
   return (
     <DashboardLayout>
