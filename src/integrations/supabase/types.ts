@@ -678,6 +678,34 @@ export type Database = {
           phone: string
         }[]
       }
+      get_safe_car_info: {
+        Args: { p_user_id?: string }
+        Returns: {
+          client_id: string
+          color: string
+          created_at: string
+          description: string
+          general_location: string
+          host_id: string
+          id: string
+          images: string[]
+          make: string
+          mileage: number
+          model: string
+          status: string
+          updated_at: string
+          user_relationship: string
+          year: number
+        }[]
+      }
+      get_vehicle_identifiers_emergency: {
+        Args: { p_car_id: string; p_purpose: string }
+        Returns: {
+          full_location: string
+          masked_license_plate: string
+          partial_vin: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

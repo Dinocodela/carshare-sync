@@ -49,46 +49,32 @@ export function useCars() {
 
     try {
       setError(null);
-      // Owned cars
-      const { data: owned, error: ownedErr } = await (supabase as any)
+      // Use secure function instead of direct table access
+      const { data: safeCarData, error: safeCarError } = await (supabase as any)
+        .rpc('get_safe_car_info', { p_user_id: user.id });
+      
+      if (safeCarError) throw safeCarError;
+
+      // For car owners, also get their full car data (including sensitive info)
+      const { data: ownedCars, error: ownedErr } = await (supabase as any)
         .from('cars')
         .select('*')
-        .eq('client_id', user.id)
-        .order('created_at', { ascending: false });
-      if (ownedErr) throw ownedErr;
+        .eq('client_id', user.id);
+      
+      if (ownedErr && ownedErr.code !== 'PGRST116') throw ownedErr;
 
-      // Shared cars via car_access
-      const { data: access, error: accessErr } = await (supabase as any)
-        .from('car_access')
-        .select('car_id, permission')
-        .eq('user_id', user.id);
-      if (accessErr) throw accessErr;
+      // Merge safe car data with owned car data (owned cars get priority)
+      const ownedCarIds = new Set((ownedCars || []).map((c: any) => c.id));
+      const safeNonOwnedCars = (safeCarData || []).filter((c: any) => !ownedCarIds.has(c.id));
+      
+      // Add sharing metadata to non-owned cars
+      const carsWithSharingInfo = safeNonOwnedCars.map((car: any) => ({
+        ...car,
+        is_shared: car.user_relationship === 'shared_access',
+        share_permission: car.user_relationship === 'shared_access' ? 'viewer' : undefined,
+      }));
 
-      let sharedCars: Car[] = [];
-      if (access && access.length > 0) {
-        const sharedIds = access
-          .map((a: any) => a.car_id)
-          .filter((id: string) => !(owned || []).some((c: any) => c.id === id));
-
-        if (sharedIds.length > 0) {
-          const { data: sharedData, error: sharedErr } = await (supabase as any)
-            .from('cars')
-            .select('*')
-            .in('id', sharedIds);
-          if (sharedErr) throw sharedErr;
-
-          const permMap: Record<string, 'viewer' | 'editor'> = {};
-          access.forEach((a: any) => { permMap[a.car_id] = a.permission; });
-
-          sharedCars = (sharedData || []).map((c: any) => ({
-            ...c,
-            is_shared: true,
-            share_permission: permMap[c.id],
-          }));
-        }
-      }
-
-      setCars([...(owned || []), ...sharedCars]);
+      setCars([...(ownedCars || []), ...carsWithSharingInfo]);
     } catch (err) {
       console.error('Error fetching accessible cars:', err);
       setError('Failed to load cars');
@@ -155,14 +141,18 @@ export function useHostCars() {
 
     try {
       setError(null);
-      const { data, error: fetchError } = await (supabase as any)
-        .from('cars')
-        .select('*')
-        .eq('host_id', user.id)
-        .order('created_at', { ascending: false });
+      // Use secure function for host car access (no sensitive identifiers exposed)
+      const { data: safeCarData, error: safeCarError } = await (supabase as any)
+        .rpc('get_safe_car_info', { p_user_id: user.id });
+      
+      if (safeCarError) throw safeCarError;
 
-      if (fetchError) throw fetchError;
-      setCars(data || []);
+      // Filter to only cars where user is the host
+      const hostCars = (safeCarData || []).filter((car: any) => 
+        car.user_relationship === 'host'
+      );
+
+      setCars(hostCars);
     } catch (err) {
       console.error('Error fetching host cars:', err);
       setError('Failed to load cars');
