@@ -635,6 +635,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_car_earnings_summary: {
+        Args: { p_car_id: string }
+        Returns: {
+          car_id: string
+          last_earning_date: string
+          pending_earnings_count: number
+          total_owner_earnings: number
+          total_trips: number
+        }[]
+      }
       get_conflicting_earnings: {
         Args: { p_car_id: string; p_end_date: string; p_start_date: string }
         Returns: {
