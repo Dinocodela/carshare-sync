@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useNativeFeatures } from '@/hooks/useNativeFeatures';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { BottomNavBar } from './BottomNavBar';
@@ -11,6 +12,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, loading } = useAuth();
+  const { isNative } = useNativeFeatures();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen-safe flex items-center justify-center">
         <div className="text-lg">Loading...</div>
       </div>
     );
@@ -33,7 +35,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className={`min-h-screen-safe flex w-full ${isNative ? 'pt-safe-top' : ''}`}>
         <AppSidebar />
         <div className="flex-1">
           <header className="h-12 border-b bg-background px-4" />

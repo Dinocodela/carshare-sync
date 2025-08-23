@@ -1,0 +1,21 @@
+{
+  "name": "TESLYS Carshare",
+  "short_name": "TESLYS",
+  "description": "Premium Tesla carsharing platform with comprehensive analytics and management tools",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48 32x32 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["business", "productivity", "travel"],
+  "lang": "en",
+  "scope": "/",
+  "prefer_related_applications": false
+}

@@ -71,6 +71,18 @@ export default {
 						foreground: 'hsl(var(--warning-foreground))'
 					}
 				},
+				spacing: {
+					'safe-top': 'env(safe-area-inset-top)',
+					'safe-bottom': 'env(safe-area-inset-bottom)',
+					'safe-left': 'env(safe-area-inset-left)',
+					'safe-right': 'env(safe-area-inset-right)',
+				},
+				minHeight: {
+					'screen-safe': 'calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
+				},
+				padding: {
+					'safe': 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)',
+				},
 				borderRadius: {
 					lg: 'var(--radius)',
 					md: 'calc(var(--radius) - 2px)',
