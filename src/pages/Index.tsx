@@ -30,7 +30,7 @@ const Index = () => {
         {/* Hero Section */}
         <div className="mb-12 space-y-6">
           <div className="flex justify-center mb-6">
-            <Logo size="xl" className="animate-pulse" />
+            <Logo size="xl" />
           </div>
           
           <div className="space-y-4">
