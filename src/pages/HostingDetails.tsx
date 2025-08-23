@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { HostProfilePreview } from '@/components/HostProfilePreview';
 
 interface CarWithHost {
   id: string;
@@ -223,70 +224,19 @@ export default function HostingDetails() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div>
-                  <h3 className="font-medium text-lg">
-                    {car.host.first_name} {car.host.last_name}
-                  </h3>
-                  {car.host.company_name && (
-                    <p className="text-sm text-muted-foreground">{car.host.company_name}</p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <a 
-                    href={`tel:${car.host.phone}`}
-                    className="text-sm font-medium hover:underline"
-                  >
-                    {car.host.phone}
-                  </a>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{car.host.location}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Rating:</span>
-                  <div className="flex items-center">
-                    <span className="text-sm">{car.host.rating.toFixed(1)}/5.0</span>
-                    <span className="text-yellow-500 ml-1">★</span>
-                    {car.host.turo_reviews_count && (
-                      <span className="text-xs text-muted-foreground ml-1">
-                        ({car.host.turo_reviews_count} reviews)
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {car.host.turo_profile_url && (
-                  <div className="pt-2 border-t">
-                    <a 
-                      href={car.host.turo_profile_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary text-sm hover:underline"
-                    >
-                      View Profile on Turo →
-                    </a>
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-4 border-t space-y-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => window.open(`tel:${car.host.phone}`)}
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call Host
-                </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  For emergencies or urgent matters, please call directly
-                </p>
-              </div>
+              <HostProfilePreview 
+                host={{
+                  first_name: car.host.first_name,
+                  last_name: car.host.last_name,
+                  company_name: car.host.company_name,
+                  phone: car.host.phone,
+                  location: car.host.location,
+                  rating: car.host.rating,
+                  turo_reviews_count: car.host.turo_reviews_count,
+                  turo_profile_url: car.host.turo_profile_url,
+                }}
+                showCallButton={true}
+              />
             </CardContent>
           </Card>
         </div>

@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { NotificationsCard } from "@/components/NotificationsCard";
+import { HostProfilePreviewDialog } from "@/components/HostProfilePreviewDialog";
 import { useNavigate } from "react-router-dom";
 
 interface Profile {
@@ -308,6 +309,19 @@ setSaving(true);
                           </div>
                         </div>
                       )}
+
+                      <HostProfilePreviewDialog
+                        host={{
+                          first_name: firstName,
+                          last_name: lastName,
+                          company_name: companyName,
+                          phone: phone,
+                          location: location,
+                          rating: rating > 0 ? rating : null,
+                          turo_reviews_count: reviewCount > 0 ? reviewCount : null,
+                          turo_profile_url: turoUrl,
+                        }}
+                      />
                     </>
                   )}
 
