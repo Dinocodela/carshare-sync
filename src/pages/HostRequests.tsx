@@ -23,7 +23,7 @@ interface RequestWithDetails {
     year: number;
     color: string;
     images: string[];
-  };
+  } | null;
   client: {
     first_name: string;
     last_name: string;
@@ -82,7 +82,7 @@ export default function HostRequests() {
 
       if (requestsError) throw requestsError;
 
-      // Then get client profiles for each request
+      // Then get client profiles for each request and filter out invalid data
       const requestsWithClientData = await Promise.all(
         (requestsData || []).map(async (request) => {
           const { data: clientData, error: clientError } = await supabase
@@ -93,13 +93,22 @@ export default function HostRequests() {
 
           return {
             ...request,
-            car: request.cars,
+            car: request.cars || null,
             client: clientData || { first_name: 'Unknown', last_name: 'Client' }
           };
         })
       );
 
-      setRequests(requestsWithClientData);
+      // Filter out requests with missing car data to prevent errors
+      const validRequests = requestsWithClientData.filter(request => {
+        if (!request.car) {
+          console.warn('Request with missing car data filtered out:', request.id);
+          return false;
+        }
+        return true;
+      });
+
+      setRequests(validRequests);
     } catch (error) {
       console.error('Error fetching requests:', error);
       toast({
@@ -173,7 +182,7 @@ export default function HostRequests() {
         hostCompany: hostProfile?.company_name || "Teslys LLC",
         hostPhone: hostProfile?.phone,
         hostEmail: user?.email,
-        carDetails: `${request.car.year} ${request.car.make} ${request.car.model}`,
+        carDetails: request.car ? `${request.car.year} ${request.car.make} ${request.car.model}` : 'Vehicle details unavailable',
         status: action
       };
 
@@ -253,7 +262,7 @@ export default function HostRequests() {
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2">
                         <Car className="h-5 w-5" />
-                        {request.car.year} {request.car.make} {request.car.model}
+                        {request.car ? `${request.car.year} ${request.car.make} ${request.car.model}` : 'Vehicle details unavailable'}
                       </CardTitle>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <User className="h-4 w-4" />
@@ -270,16 +279,16 @@ export default function HostRequests() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex gap-4">
-                    {request.car.images && request.car.images[0] && (
+                    {request.car?.images?.[0] && (
                       <img 
                         src={request.car.images[0]} 
-                        alt={`${request.car.make} ${request.car.model}`}
+                        alt={request.car ? `${request.car.make} ${request.car.model}` : 'Vehicle'}
                         className="w-24 h-24 object-cover rounded-lg"
                       />
                     )}
                     <div className="flex-1">
                       <p className="text-sm text-muted-foreground mb-2">Car Details:</p>
-                      <p className="text-sm">Color: {request.car.color || 'Not specified'}</p>
+                      <p className="text-sm">Color: {request.car?.color || 'Not specified'}</p>
                     </div>
                   </div>
                   
@@ -325,7 +334,7 @@ export default function HostRequests() {
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Car className="h-4 w-4" />
-                        {request.car.year} {request.car.make} {request.car.model}
+                        {request.car ? `${request.car.year} ${request.car.make} ${request.car.model}` : 'Vehicle details unavailable'}
                       </CardTitle>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <User className="h-4 w-4" />
