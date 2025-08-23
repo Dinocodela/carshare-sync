@@ -17,18 +17,30 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* TESLYS brand colors - blue/teal theme */
-    --primary: 190 90% 40%;
+    /* TESLYS brand colors - navy, bright blue, and teal theme */
+    --primary: 175 70% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 190 30% 95%;
-    --secondary-foreground: 190 90% 25%;
+    --secondary: 220 15% 96%;
+    --secondary-foreground: 220 85% 15%;
 
-    --muted: 190 15% 96%;
-    --muted-foreground: 190 10% 45%;
+    --muted: 220 10% 96%;
+    --muted-foreground: 220 15% 45%;
 
-    --accent: 200 85% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 185 100% 50%;
+    --accent-foreground: 220 85% 15%;
+
+    /* Enhanced brand palette matching logo */
+    --navy: 220 85% 15%;
+    --navy-foreground: 0 0% 100%;
+    --charcoal: 210 40% 20%;
+    --charcoal-foreground: 0 0% 95%;
+    --bright-blue: 185 100% 50%;
+    --bright-blue-foreground: 220 85% 15%;
+    --teal-light: 180 80% 60%;
+    --teal-light-foreground: 220 85% 15%;
+    --teal-dark: 175 70% 35%;
+    --teal-dark-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -71,15 +83,18 @@ All colors MUST be HSL.
     --warning: 37 92% 50%;
     --warning-foreground: 0 0% 15%;
 
-    /* Beautiful gradients for enhanced UI */
-    --gradient-primary: linear-gradient(135deg, hsl(190 90% 40%), hsl(200 85% 60%));
-    --gradient-hero: linear-gradient(135deg, hsl(190 30% 98%), hsl(200 40% 95%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(190 30% 98%));
+    /* Beautiful gradients matching logo aesthetic */
+    --gradient-primary: linear-gradient(135deg, hsl(175 70% 35%), hsl(185 100% 50%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 15% 98%), hsl(180 20% 96%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(180 10% 98%));
+    --gradient-logo: linear-gradient(135deg, hsl(220 85% 15%), hsl(175 70% 35%), hsl(185 100% 50%));
+    --gradient-tech: linear-gradient(45deg, hsl(185 100% 50%), hsl(180 80% 60%));
     
-    /* Enhanced shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(190 90% 40% / 0.1);
-    --shadow-card: 0 4px 20px -4px hsl(190 50% 50% / 0.08);
-    --shadow-glow: 0 0 40px hsl(190 90% 40% / 0.15);
+    /* Enhanced shadows with new color palette */
+    --shadow-elegant: 0 10px 30px -10px hsl(175 70% 35% / 0.15);
+    --shadow-card: 0 4px 20px -4px hsl(180 50% 50% / 0.08);
+    --shadow-glow: 0 0 40px hsl(185 100% 50% / 0.2);
+    --shadow-navy: 0 8px 25px -8px hsl(220 85% 15% / 0.25);
   }
 
   .dark {
@@ -93,17 +108,29 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 95%;
 
     /* TESLYS dark theme */
-    --primary: 190 90% 55%;
+    --primary: 180 80% 60%;
     --primary-foreground: 220 15% 8%;
 
     --secondary: 220 15% 15%;
-    --secondary-foreground: 190 30% 85%;
+    --secondary-foreground: 180 30% 85%;
 
     --muted: 220 15% 12%;
-    --muted-foreground: 190 10% 65%;
+    --muted-foreground: 180 10% 65%;
 
-    --accent: 200 85% 65%;
+    --accent: 185 100% 60%;
     --accent-foreground: 220 15% 8%;
+
+    /* Enhanced brand palette for dark mode */
+    --navy: 220 85% 25%;
+    --navy-foreground: 0 0% 95%;
+    --charcoal: 210 30% 15%;
+    --charcoal-foreground: 0 0% 90%;
+    --bright-blue: 185 100% 60%;
+    --bright-blue-foreground: 220 15% 8%;
+    --teal-light: 180 80% 70%;
+    --teal-light-foreground: 220 15% 8%;
+    --teal-dark: 175 70% 45%;
+    --teal-dark-foreground: 220 15% 8%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -134,14 +161,17 @@ All colors MUST be HSL.
     --warning-foreground: 220 15% 10%;
 
     /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(190 90% 55%), hsl(200 85% 65%));
+    --gradient-primary: linear-gradient(135deg, hsl(180 80% 60%), hsl(185 100% 60%));
     --gradient-hero: linear-gradient(135deg, hsl(220 15% 8%), hsl(220 15% 12%));
     --gradient-card: linear-gradient(135deg, hsl(220 15% 10%), hsl(220 15% 12%));
+    --gradient-logo: linear-gradient(135deg, hsl(220 85% 25%), hsl(180 80% 60%), hsl(185 100% 60%));
+    --gradient-tech: linear-gradient(45deg, hsl(185 100% 60%), hsl(180 80% 70%));
     
     /* Dark mode shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.3);
     --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.2);
-    --shadow-glow: 0 0 40px hsl(190 90% 55% / 0.2);
+    --shadow-glow: 0 0 40px hsl(185 100% 60% / 0.25);
+    --shadow-navy: 0 8px 25px -8px hsl(220 85% 15% / 0.4);
   }
 }
 
