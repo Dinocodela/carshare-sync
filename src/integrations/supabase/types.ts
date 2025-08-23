@@ -656,9 +656,27 @@ export type Database = {
           trip_id: string
         }[]
       }
+      get_contact_info: {
+        Args: { p_context: string; p_target_user_id: string }
+        Returns: {
+          company_name: string
+          first_name: string
+          masked_phone: string
+          rating: number
+          role: string
+          user_id: string
+        }[]
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_emergency_contact: {
+        Args: { p_target_user_id: string }
+        Returns: {
+          first_name: string
+          phone: string
+        }[]
       }
     }
     Enums: {
