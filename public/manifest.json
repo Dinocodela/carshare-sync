@@ -1,7 +1,7 @@
 {
   "name": "TESLYS Carshare",
   "short_name": "TESLYS",
-  "description": "Premium Tesla carsharing platform with comprehensive analytics and management tools",
+  "description": "We handle everything—rentals, cleaning, and guest support—so you can relax and earn money while you sleep",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
