@@ -44,44 +44,40 @@ export default function HostingDetails() {
     if (!user || !carId) return;
 
     try {
-      const { data: carData, error: carError } = await supabase
-        .from('cars')
-        .select('*')
-        .eq('id', carId)
-        .eq('client_id', user.id)
-        .single();
+      // Use the secure function that bypasses RLS issues
+      const { data: hostContactData, error: hostContactError } = await supabase
+        .rpc('get_host_contact_for_client', {
+          p_car_id: carId,
+          p_client_id: user.id
+        });
 
-      if (carError) throw carError;
-
-      if (!carData.host_id) {
-        throw new Error('No host assigned to this car');
+      if (hostContactError) {
+        console.error('Error fetching host contact:', hostContactError);
+        throw hostContactError;
       }
 
-      // Fetch host profile
-      const { data: hostProfile, error: hostError } = await supabase
-        .from('profiles')
-        .select('user_id, first_name, last_name, phone, company_name, location, rating, turo_reviews_count, turo_profile_url')
-        .eq('user_id', carData.host_id)
-        .single();
-
-      if (hostError) throw hostError;
-
-      if (!hostProfile) {
-        throw new Error('No host information found');
+      if (!hostContactData || hostContactData.length === 0) {
+        throw new Error('No host contact information found for this car');
       }
 
+      const hostData = hostContactData[0];
+      
       const transformedCar = {
-        ...carData,
+        id: hostData.car_id,
+        make: hostData.make,
+        model: hostData.model,
+        year: hostData.year,
+        status: hostData.status,
         host: {
-          id: hostProfile.user_id,
-          first_name: hostProfile.first_name,
-          last_name: hostProfile.last_name,
-          phone: hostProfile.phone,
-          company_name: hostProfile.company_name,
-          location: hostProfile.location,
-          rating: hostProfile.rating,
-          turo_reviews_count: hostProfile.turo_reviews_count,
-          turo_profile_url: hostProfile.turo_profile_url
+          id: hostData.host_id,
+          first_name: hostData.host_first_name,
+          last_name: hostData.host_last_name,
+          phone: hostData.host_phone,
+          company_name: hostData.host_company_name,
+          location: hostData.host_location,
+          rating: hostData.host_rating || 0,
+          turo_reviews_count: hostData.host_turo_reviews_count,
+          turo_profile_url: hostData.host_turo_profile_url
         }
       };
 
