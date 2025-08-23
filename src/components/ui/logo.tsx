@@ -23,21 +23,20 @@ export function Logo({ className, size = 'lg' }: LogoProps) {
 
   return (
     <div className={cn(
-      'relative flex items-center justify-center rounded-full bg-gradient-logo shadow-navy transition-all duration-500 hover:scale-110 hover:shadow-glow animate-bounce',
+      'relative flex items-center justify-center rounded-full bg-gradient-logo shadow-navy transition-all duration-500 hover:scale-110 hover:shadow-glow',
       sizeClasses[size],
       className
     )}>
       <Car 
         size={iconSizes[size]} 
         className="text-white relative z-10" 
+        strokeWidth={3}
         style={{
-          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6)) drop-shadow(0 0 8px rgba(255,255,255,0.3))',
-          stroke: 'rgba(0,0,0,0.2)',
-          strokeWidth: '0.5px'
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6)) drop-shadow(0 0 8px rgba(255,255,255,0.3))'
         }}
       />
       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 via-white/5 to-black/15 pointer-events-none" />
-      <div className="absolute inset-0 rounded-full border-2 border-white/30 pointer-events-none" />
+      <div className="absolute inset-0 rounded-full border-4 border-white/40 pointer-events-none" />
       <div className="absolute -inset-1 rounded-full bg-white/10 blur-sm pointer-events-none" />
     </div>
   );
