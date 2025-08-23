@@ -163,6 +163,33 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Commission paid email sent successfully:", emailResponse);
 
+    // Send push notification
+    try {
+      const pushResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push-send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+        },
+        body: JSON.stringify({
+          targetUserId: car.client_id,
+          title: 'Commission Payment Received!',
+          body: `$${amount} payment completed for your ${carDetails}`,
+          icon: '/favicon.ico',
+          url: '/client-analytics'
+        }),
+      });
+      
+      if (pushResponse.ok) {
+        console.log("Push notification sent successfully");
+      } else {
+        console.log("Push notification failed, but email sent successfully");
+      }
+    } catch (pushError) {
+      console.error("Push notification error:", pushError);
+      // Don't fail the whole request if push fails
+    }
+
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },

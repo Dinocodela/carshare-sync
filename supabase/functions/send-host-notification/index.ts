@@ -12,6 +12,7 @@ const corsHeaders = {
 
 interface HostNotificationRequest {
   requestId: string;
+  hostId?: string;
   hostEmail: string;
   hostName: string;
   clientName: string;
@@ -28,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { requestId, hostEmail, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
+    const { requestId, hostId, hostEmail, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
 
     console.log("Sending host notification email for request:", requestId);
 
@@ -97,6 +98,35 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("Host notification email sent successfully:", emailResponse);
+
+    // Send push notification for new host request
+    if (hostId) {
+      try {
+        const pushResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push-send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          },
+          body: JSON.stringify({
+            targetUserId: hostId,
+            title: 'New Hosting Request!',
+            body: `${clientName} wants to host their ${carDetails}`,
+            icon: '/favicon.ico',
+            url: '/dashboard'
+          }),
+        });
+        
+        if (pushResponse.ok) {
+          console.log("Push notification sent successfully");
+        } else {
+          console.log("Push notification failed, but email sent successfully");
+        }
+      } catch (pushError) {
+        console.error("Push notification error:", pushError);
+        // Don't fail the whole request if push fails
+      }
+    }
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,

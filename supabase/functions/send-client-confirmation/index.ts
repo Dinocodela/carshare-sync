@@ -140,6 +140,35 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Client confirmation email sent successfully:", emailResponse);
 
+    // Send push notification for car acceptance
+    if (isAccepted) {
+      try {
+        const pushResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push-send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          },
+          body: JSON.stringify({
+            targetUserId: clientId,
+            title: 'Car Request Accepted!',
+            body: `Your ${carDetails} hosting request was accepted by ${hostName}`,
+            icon: '/favicon.ico',
+            url: '/my-cars'
+          }),
+        });
+        
+        if (pushResponse.ok) {
+          console.log("Push notification sent successfully");
+        } else {
+          console.log("Push notification failed, but email sent successfully");
+        }
+      } catch (pushError) {
+        console.error("Push notification error:", pushError);
+        // Don't fail the whole request if push fails
+      }
+    }
+
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
       headers: {

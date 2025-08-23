@@ -43,17 +43,24 @@ export const handler = async (req: Request): Promise<Response> => {
       global: { headers: { Authorization: req.headers.get("Authorization") || "" } },
     });
 
-    const { data: authData, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !authData?.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+    const body = await req.json().catch(() => ({}));
+    let userId: string;
+    
+    // If targetUserId is provided, use it (for system notifications)
+    // Otherwise, use the authenticated user's ID
+    if (body.targetUserId) {
+      userId = body.targetUserId;
+    } else {
+      const { data: authData, error: authErr } = await supabase.auth.getUser();
+      if (authErr || !authData?.user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+      userId = authData.user.id;
     }
 
-    const userId = authData.user.id;
-
-    const body = await req.json().catch(() => ({}));
     const title: string = body.title || "Test notification";
     const message: string = body.body || "Push notifications are working!";
     const icon: string | undefined = body.icon;
