@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { validatePassword } from '@/lib/passwordValidation';
+import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 
 const RegisterHost = () => {
   const [formData, setFormData] = useState({
@@ -20,18 +22,43 @@ const RegisterHost = () => {
     confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState(validatePassword(''));
+  const [showPasswordHint, setShowPasswordHint] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    
+    if (!formData.companyName.trim()) errors.companyName = 'Company name is required';
+    if (!formData.adminName.trim()) errors.adminName = 'Admin name is required';
+    if (!formData.email.trim()) errors.email = 'Email is required';
+    if (!formData.phone.trim()) errors.phone = 'Phone number is required';
+    if (!formData.services.trim()) errors.services = 'Services description is required';
+    if (!formData.coverageArea.trim()) errors.coverageArea = 'Coverage area is required';
+    
+    if (!passwordValidation.isValid) {
+      errors.password = 'Password does not meet requirements';
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords don't match";
+    }
+    
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
+    if (!validateForm()) {
       toast({
         variant: "destructive",
-        title: "Passwords don't match",
-        description: "Please ensure both passwords are identical.",
+        title: "Please fix the errors below",
+        description: "All fields must be completed correctly.",
       });
       return;
     }
@@ -77,11 +104,32 @@ const RegisterHost = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    
+    // Real-time password validation
+    if (name === 'password') {
+      setPasswordValidation(validatePassword(value));
+    }
   };
+  
+  useEffect(() => {
+    // Auto-validate confirm password
+    if (formData.confirmPassword && formData.password !== formData.confirmPassword) {
+      setFieldErrors(prev => ({ ...prev, confirmPassword: "Passwords don't match" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, confirmPassword: '' }));
+    }
+  }, [formData.password, formData.confirmPassword]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -183,8 +231,18 @@ const RegisterHost = () => {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
+                  onFocus={() => setShowPasswordHint(true)}
+                  onBlur={() => setShowPasswordHint(false)}
                   required
                   placeholder="Create a password"
+                  className={fieldErrors.password ? 'border-red-500' : ''}
+                />
+                {fieldErrors.password && (
+                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
+                )}
+                <PasswordStrengthIndicator 
+                  validation={passwordValidation} 
+                  show={showPasswordHint || formData.password.length > 0} 
                 />
               </div>
 
@@ -198,7 +256,11 @@ const RegisterHost = () => {
                   onChange={handleChange}
                   required
                   placeholder="Confirm password"
+                  className={fieldErrors.confirmPassword ? 'border-red-500' : ''}
                 />
+                {fieldErrors.confirmPassword && (
+                  <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>
+                )}
               </div>
             </div>
 
