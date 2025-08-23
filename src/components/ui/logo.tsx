@@ -29,7 +29,12 @@ export function Logo({ className, size = 'lg' }: LogoProps) {
     )}>
       <Car 
         size={iconSizes[size]} 
-        className="text-white drop-shadow-lg relative z-10" 
+        className="text-white relative z-10" 
+        style={{
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6)) drop-shadow(0 0 8px rgba(255,255,255,0.3))',
+          stroke: 'rgba(0,0,0,0.2)',
+          strokeWidth: '0.5px'
+        }}
       />
       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 via-white/5 to-black/15 pointer-events-none" />
       <div className="absolute inset-0 rounded-full border-2 border-white/30 pointer-events-none" />
