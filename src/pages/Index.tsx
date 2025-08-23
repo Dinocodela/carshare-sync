@@ -34,9 +34,6 @@ const Index = () => {
           </div>
           
           <div className="space-y-4">
-            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              TESLYS
-            </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Streamline your car management and hosting services with our comprehensive platform
             </p>
