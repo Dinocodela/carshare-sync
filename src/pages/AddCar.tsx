@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Car, Upload, X } from 'lucide-react';
+import { Car, Upload, X, Camera, Image } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useCameraCapture } from '@/hooks/useCameraCapture';
 
 const carSchema = z.object({
   make: z.string().min(1, 'Make is required'),
@@ -35,6 +36,7 @@ export default function AddCar() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const { takePhoto, selectFromGallery, showActionSheet, convertPhotoToFile, isCapturing, isNative } = useCameraCapture();
 
   const form = useForm<CarFormData>({
     resolver: zodResolver(carSchema),
@@ -66,6 +68,50 @@ export default function AddCar() {
 
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleCameraCapture = async () => {
+    const photo = await showActionSheet({
+      quality: 90,
+      allowEditing: true,
+    });
+    
+    if (photo) {
+      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
+      if (file) {
+        if (selectedImages.length >= 5) {
+          toast({
+            title: "Too many images",
+            description: "You can upload a maximum of 5 images per car.",
+            variant: "destructive",
+          });
+          return;
+        }
+        setSelectedImages(prev => [...prev, file]);
+      }
+    }
+  };
+
+  const handleGallerySelect = async () => {
+    const photo = await selectFromGallery({
+      quality: 90,
+      allowEditing: true,
+    });
+    
+    if (photo) {
+      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
+      if (file) {
+        if (selectedImages.length >= 5) {
+          toast({
+            title: "Too many images",
+            description: "You can upload a maximum of 5 images per car.",
+            variant: "destructive",
+          });
+          return;
+        }
+        setSelectedImages(prev => [...prev, file]);
+      }
+    }
   };
 
   const uploadImages = async (carId: string): Promise<string[]> => {
@@ -341,7 +387,7 @@ export default function AddCar() {
                   )}
                 />
 
-                {/* Image Upload */}
+                 {/* Image Upload */}
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-foreground">
@@ -351,6 +397,38 @@ export default function AddCar() {
                       Upload photos of your car to help hosts better understand your vehicle.
                     </p>
                   </div>
+                  
+                  {isNative ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleCameraCapture}
+                          disabled={isCapturing || selectedImages.length >= 5}
+                          className="h-20 flex flex-col gap-2"
+                        >
+                          <Camera className="h-6 w-6" />
+                          <span className="text-sm">Take Photo</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleGallerySelect}
+                          disabled={isCapturing || selectedImages.length >= 5}
+                          className="h-20 flex flex-col gap-2"
+                        >
+                          <Image className="h-6 w-6" />
+                          <span className="text-sm">Choose from Gallery</span>
+                        </Button>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground">
+                          Or use the file upload below
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
                   
                   <div className="border-2 border-dashed border-border rounded-lg p-6">
                     <div className="flex flex-col items-center gap-2">
