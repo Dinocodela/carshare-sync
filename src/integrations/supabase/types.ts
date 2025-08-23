@@ -678,6 +678,25 @@ export type Database = {
           phone: string
         }[]
       }
+      get_host_contact_for_client: {
+        Args: { p_car_id: string; p_client_id: string }
+        Returns: {
+          car_id: string
+          host_company_name: string
+          host_first_name: string
+          host_id: string
+          host_last_name: string
+          host_location: string
+          host_phone: string
+          host_rating: number
+          host_turo_profile_url: string
+          host_turo_reviews_count: number
+          make: string
+          model: string
+          status: string
+          year: number
+        }[]
+      }
       get_safe_car_info: {
         Args: { p_user_id?: string }
         Returns: {
