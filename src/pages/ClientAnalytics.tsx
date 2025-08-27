@@ -9,6 +9,7 @@ import { RecentClaims } from '@/components/analytics/RecentClaims';
 import { CarSelector } from '@/components/analytics/CarSelector';
 import { CarPerformanceCard } from '@/components/analytics/CarPerformanceCard';
 import { CarComparisonTable } from '@/components/analytics/CarComparisonTable';
+import { CarManagementDialog } from '@/components/cars/CarManagementDialog';
 import { useClientAnalytics } from '@/hooks/useClientAnalytics';
 import { usePerCarAnalytics } from '@/hooks/usePerCarAnalytics';
 import { Button } from '@/components/ui/button';
@@ -18,10 +19,23 @@ import { useEffect, useState } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ClientAnalytics() {
   const { earnings, expenses, claims, summary, loading, error, refetch } = useClientAnalytics();
   const [selectedCarId, setSelectedCarId] = useState<string | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState('portfolio');
+  const [manageDialogOpen, setManageDialogOpen] = useState(false);
+  const [selectedCarForManagement, setSelectedCarForManagement] = useState<{
+    id: string;
+    year: number;
+    make: string;
+    model: string;
+    status: string;
+  } | null>(null);
+  
+  const { toast } = useToast();
+  
   const { 
     cars, 
     carPerformanceData, 
@@ -51,11 +65,35 @@ export default function ClientAnalytics() {
 
   const handleViewDetails = (carId: string) => {
     setSelectedCarId(carId);
+    setActiveTab('per-car');
+    
+    // Find car details for toast
+    const carData = carPerformanceData.find(car => car.car_id === carId);
+    if (carData) {
+      toast({
+        title: "Car Selected",
+        description: `Viewing details for ${carData.car_year} ${carData.car_make} ${carData.car_model}`,
+      });
+    }
   };
 
   const handleManageStatus = (carId: string) => {
-    // TODO: Implement car status management modal
-    console.log('Manage status for car:', carId);
+    const carData = carPerformanceData.find(car => car.car_id === carId);
+    if (carData) {
+      setSelectedCarForManagement({
+        id: carId,
+        year: carData.car_year,
+        make: carData.car_make,
+        model: carData.car_model,
+        status: carData.car_status,
+      });
+      setManageDialogOpen(true);
+    }
+  };
+
+  const handleCarUpdated = () => {
+    refetch();
+    refetchPerCar();
   };
 
   if (error || perCarError) {
@@ -115,7 +153,7 @@ export default function ClientAnalytics() {
             </div>
           </div>
 
-          <Tabs defaultValue="portfolio" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="w-full">
               <TabsTrigger value="portfolio" className="space-x-2 whitespace-nowrap">
                 <BarChart3 className="h-4 w-4" />
@@ -198,8 +236,18 @@ export default function ClientAnalytics() {
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Car Management Dialog */}
+        {selectedCarForManagement && (
+          <CarManagementDialog
+            open={manageDialogOpen}
+            onOpenChange={setManageDialogOpen}
+            carId={selectedCarForManagement.id}
+            carInfo={selectedCarForManagement}
+            onCarUpdated={handleCarUpdated}
+          />
+        )}
       </PageContainer>
     </DashboardLayout>
-
   );
 }
