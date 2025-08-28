@@ -1,30 +1,61 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Car, Upload, X, Camera, Image } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useCameraCapture } from '@/hooks/useCameraCapture';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Car,
+  Upload,
+  X,
+  Camera,
+  Image as ImageIcon,
+  Info,
+  RefreshCw,
+  RotateCcw,
+} from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useCameraCapture } from "@/hooks/useCameraCapture";
 
 const carSchema = z.object({
-  make: z.string().min(1, 'Make is required'),
-  model: z.string().min(1, 'Model is required'),
-  year: z.number().min(1990, 'Year must be 1990 or later').max(new Date().getFullYear() + 1),
-  mileage: z.number().min(0, 'Mileage is required and must be positive'),
-  color: z.string().min(1, 'Color is required'),
-  location: z.string().min(1, 'Location is required'),
-  license_plate: z.string().min(1, 'License plate is required'),
-  vin_number: z.string().min(1, 'VIN number is required'),
+  make: z.string().min(1, "Make is required"),
+  model: z.string().min(1, "Model is required"),
+  year: z
+    .number()
+    .min(1990, "Year must be 1990 or later")
+    .max(new Date().getFullYear() + 1),
+  mileage: z.number().min(0, "Mileage is required and must be positive"),
+  color: z.string().min(1, "Color is required"),
+  location: z.string().min(1, "Location is required"),
+  license_plate: z.string().min(1, "License plate is required"),
+  vin_number: z.string().min(1, "VIN number is required"),
   description: z.string().optional(),
 });
 
@@ -36,114 +67,113 @@ export default function AddCar() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const { takePhoto, selectFromGallery, showActionSheet, convertPhotoToFile, isCapturing, isNative } = useCameraCapture();
+  const {
+    takePhoto,
+    selectFromGallery,
+    showActionSheet,
+    convertPhotoToFile,
+    isCapturing,
+    isNative,
+  } = useCameraCapture();
 
   const form = useForm<CarFormData>({
     resolver: zodResolver(carSchema),
     defaultValues: {
-      make: '',
-      model: '',
+      make: "",
+      model: "",
       year: new Date().getFullYear(),
       mileage: 0,
-      color: '',
-      location: '',
-      license_plate: '',
-      vin_number: '',
-      description: '',
+      color: "",
+      location: "",
+      license_plate: "",
+      vin_number: "",
+      description: "",
     },
   });
 
+  const MAX_IMAGES = 5;
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + selectedImages.length > 5) {
+    if (files.length + selectedImages.length > MAX_IMAGES) {
       toast({
         title: "Too many images",
-        description: "You can upload a maximum of 5 images per car.",
+        description: `You can upload a maximum of ${MAX_IMAGES} images per car.`,
         variant: "destructive",
       });
       return;
     }
-    setSelectedImages(prev => [...prev, ...files]);
+    setSelectedImages((prev) => [...prev, ...files]);
   };
 
   const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleCameraCapture = async () => {
-    const photo = await showActionSheet({
-      quality: 90,
-      allowEditing: true,
-    });
-    
+    const photo = await showActionSheet({ quality: 90, allowEditing: true });
     if (photo) {
-      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
-      if (file) {
-        if (selectedImages.length >= 5) {
-          toast({
-            title: "Too many images",
-            description: "You can upload a maximum of 5 images per car.",
-            variant: "destructive",
-          });
-          return;
-        }
-        setSelectedImages(prev => [...prev, file]);
+      const file = await convertPhotoToFile(
+        photo,
+        `car-photo-${Date.now()}.jpg`
+      );
+      if (!file) return;
+      if (selectedImages.length >= MAX_IMAGES) {
+        toast({
+          title: "Too many images",
+          description: `You can upload a maximum of ${MAX_IMAGES} images per car.`,
+          variant: "destructive",
+        });
+        return;
       }
+      setSelectedImages((prev) => [...prev, file]);
     }
   };
 
   const handleGallerySelect = async () => {
-    const photo = await selectFromGallery({
-      quality: 90,
-      allowEditing: true,
-    });
-    
+    const photo = await selectFromGallery({ quality: 90, allowEditing: true });
     if (photo) {
-      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
-      if (file) {
-        if (selectedImages.length >= 5) {
-          toast({
-            title: "Too many images",
-            description: "You can upload a maximum of 5 images per car.",
-            variant: "destructive",
-          });
-          return;
-        }
-        setSelectedImages(prev => [...prev, file]);
+      const file = await convertPhotoToFile(
+        photo,
+        `car-photo-${Date.now()}.jpg`
+      );
+      if (!file) return;
+      if (selectedImages.length >= MAX_IMAGES) {
+        toast({
+          title: "Too many images",
+          description: `You can upload a maximum of ${MAX_IMAGES} images per car.`,
+          variant: "destructive",
+        });
+        return;
       }
+      setSelectedImages((prev) => [...prev, file]);
     }
   };
 
   const uploadImages = async (carId: string): Promise<string[]> => {
     const imageUrls: string[] = [];
-    
     for (let i = 0; i < selectedImages.length; i++) {
       const file = selectedImages[i];
-      const fileName = `${carId}/${Date.now()}-${i}.${file.name.split('.').pop()}`;
-      
+      const fileName = `${carId}/${Date.now()}-${i}.${file.name
+        .split(".")
+        .pop()}`;
       const { error } = await supabase.storage
-        .from('car-images')
+        .from("car-images")
         .upload(fileName, file);
-      
       if (error) {
-        console.error('Error uploading image:', error);
+        console.error("Error uploading image:", error);
         continue;
       }
-      
       const { data } = supabase.storage
-        .from('car-images')
+        .from("car-images")
         .getPublicUrl(fileName);
-      
       imageUrls.push(data.publicUrl);
     }
-    
     return imageUrls;
   };
 
   const onSubmit = async (data: CarFormData) => {
     if (!user) return;
-    
-    // Validate that at least one image is uploaded
     if (selectedImages.length === 0) {
       toast({
         title: "Images Required",
@@ -152,12 +182,10 @@ export default function AddCar() {
       });
       return;
     }
-    
     setIsSubmitting(true);
     try {
-      // Insert car data
       const { data: carData, error: carError } = await (supabase as any)
-        .from('cars')
+        .from("cars")
         .insert({
           client_id: user.id,
           make: data.make,
@@ -169,34 +197,29 @@ export default function AddCar() {
           license_plate: data.license_plate,
           vin_number: data.vin_number,
           description: data.description,
-          status: 'available',
+          status: "available",
         })
         .select()
         .single();
-
       if (carError) throw carError;
 
-      // Upload images if any
       if (selectedImages.length > 0) {
         const imageUrls = await uploadImages(carData.id);
-        
-        // Update car with image URLs
         const { error: updateError } = await (supabase as any)
-          .from('cars')
+          .from("cars")
           .update({ images: imageUrls })
-          .eq('id', carData?.id);
-
+          .eq("id", carData?.id);
         if (updateError) throw updateError;
       }
 
       toast({
         title: "Car added successfully!",
-        description: "Your car has been listed. You can now request hosting services from your My Cars page.",
+        description:
+          "Your car has been listed. You can now request hosting services from your My Cars page.",
       });
-
-      navigate('/my-cars');
+      navigate("/my-cars");
     } catch (error) {
-      console.error('Error adding car:', error);
+      console.error("Error adding car:", error);
       toast({
         title: "Error adding car",
         description: "There was an error adding your car. Please try again.",
@@ -209,28 +232,85 @@ export default function AddCar() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Car className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Add Your Car</h1>
+      <div className="max-w-2xl mx-auto pb-24 px-4">
+        {/* Header */}
+        <section className="mb-6">
+          {/* Desktop / tablet (md+): full header with info + reset */}
+          <div className="hidden md:flex items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <Car className="h-6 w-6 text-primary" />
+                <h1 className="text-3xl font-bold">Add Your Car</h1>
+              </div>
+              <p className="text-muted-foreground">
+                Fill out the details below to list your car for hosting
+                services.
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                form.reset();
+                setSelectedImages([]);
+              }}
+              className="flex items-center gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reset
+            </Button>
           </div>
-          <p className="text-muted-foreground">
-            Fill out the details below to list your car for hosting services.
-          </p>
-        </div>
+
+          {/* Mobile (sm and below): compact banner */}
+          <div className="md:hidden">
+            <div className="rounded-2xl border bg-muted/40 p-3 flex items-start gap-3">
+              <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+                <Car className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Add your car details to request hosting services.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  form.reset();
+                  setSelectedImages([]);
+                }}
+                className="h-9 w-9 shrink-0"
+                aria-label="Reset form"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </section>
 
         <Card>
           <CardHeader>
-            <CardTitle>Car Details</CardTitle>
-            <CardDescription>
-              Provide accurate information about your vehicle to help hosts understand your needs.
-            </CardDescription>
+            <div className="flex items-start gap-2 mt-2 text-[12px] text-muted-foreground border-b pb-4">
+              <div className="rounded-md bg-primary/10 p-1">
+                <Info className="h-4 w-4 text-primary" />
+              </div>
+              <span>
+                Provide accurate information about your vehicle to help hosts
+                understand your needs.
+              </span>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {/* Rows are responsive now */}
+                <div className="grid sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="make"
@@ -259,7 +339,7 @@ export default function AddCar() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="year"
@@ -267,10 +347,15 @@ export default function AddCar() {
                       <FormItem>
                         <FormLabel>Year *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
+                            inputMode="numeric"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(
+                                parseInt(e.target.value || "0", 10)
+                              )
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -284,11 +369,16 @@ export default function AddCar() {
                       <FormItem>
                         <FormLabel>Mileage *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
+                            inputMode="numeric"
                             placeholder="50000"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(
+                                parseInt(e.target.value || "0", 10)
+                              )
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -297,29 +387,38 @@ export default function AddCar() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="color"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Color *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select color" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="white">White</SelectItem>
-                            <SelectItem value="black">Black</SelectItem>
-                            <SelectItem value="silver">Silver</SelectItem>
-                            <SelectItem value="gray">Gray</SelectItem>
-                            <SelectItem value="red">Red</SelectItem>
-                            <SelectItem value="blue">Blue</SelectItem>
-                            <SelectItem value="green">Green</SelectItem>
-                            <SelectItem value="yellow">Yellow</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
+                            {[
+                              "white",
+                              "black",
+                              "silver",
+                              "gray",
+                              "red",
+                              "blue",
+                              "green",
+                              "yellow",
+                              "other",
+                            ].map((c) => (
+                              <SelectItem key={c} value={c}>
+                                {c[0].toUpperCase() + c.slice(1)}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -341,7 +440,7 @@ export default function AddCar() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="license_plate"
@@ -349,7 +448,11 @@ export default function AddCar() {
                       <FormItem>
                         <FormLabel>License Plate *</FormLabel>
                         <FormControl>
-                          <Input placeholder="ABC-1234" {...field} />
+                          <Input
+                            placeholder="ABC-1234"
+                            autoCapitalize="characters"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -377,7 +480,7 @@ export default function AddCar() {
                     <FormItem>
                       <FormLabel>Description (Optional)</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Any additional details about your car..."
                           {...field}
                         />
@@ -387,50 +490,52 @@ export default function AddCar() {
                   )}
                 />
 
-                 {/* Image Upload */}
+                {/* Images */}
                 <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground">
-                      Car Images * (Min 1, Max 5)
-                    </label>
-                    <p className="text-sm text-muted-foreground">
-                      Upload photos of your car to help hosts better understand your vehicle.
-                    </p>
-                  </div>
-                  
-                  {isNative ? (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleCameraCapture}
-                          disabled={isCapturing || selectedImages.length >= 5}
-                          className="h-20 flex flex-col gap-2"
-                        >
-                          <Camera className="h-6 w-6" />
-                          <span className="text-sm">Take Photo</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleGallerySelect}
-                          disabled={isCapturing || selectedImages.length >= 5}
-                          className="h-20 flex flex-col gap-2"
-                        >
-                          <Image className="h-6 w-6" />
-                          <span className="text-sm">Choose from Gallery</span>
-                        </Button>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xs text-muted-foreground">
-                          Or use the file upload below
-                        </p>
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-foreground">
+                        Car Images *
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        Upload photos of your car (min 1, max {MAX_IMAGES}).
+                      </p>
                     </div>
-                  ) : null}
-                  
-                  <div className="border-2 border-dashed border-border rounded-lg p-6">
+                    <span className="text-xs text-muted-foreground">
+                      {selectedImages.length}/{MAX_IMAGES}
+                    </span>
+                  </div>
+
+                  {isNative && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCameraCapture}
+                        disabled={
+                          isCapturing || selectedImages.length >= MAX_IMAGES
+                        }
+                        className="h-20 flex flex-col gap-2"
+                      >
+                        <Camera className="h-6 w-6" />
+                        <span className="text-sm">Take Photo</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleGallerySelect}
+                        disabled={
+                          isCapturing || selectedImages.length >= MAX_IMAGES
+                        }
+                        className="h-20 flex flex-col gap-2"
+                      >
+                        <ImageIcon className="h-6 w-6" />
+                        <span className="text-sm">From Gallery</span>
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className="border-2 border-dashed border-border rounded-xl p-6">
                     <div className="flex flex-col items-center gap-2">
                       <Upload className="h-8 w-8 text-muted-foreground" />
                       <div className="text-center">
@@ -442,6 +547,7 @@ export default function AddCar() {
                             type="file"
                             multiple
                             accept="image/*"
+                            capture="environment"
                             onChange={handleImageSelect}
                             className="hidden"
                           />
@@ -454,23 +560,29 @@ export default function AddCar() {
                   </div>
 
                   {selectedImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                       {selectedImages.map((file, index) => (
-                        <div key={index} className="relative">
+                        <div key={index} className="relative group">
                           <img
                             src={URL.createObjectURL(file)}
                             alt={`Preview ${index + 1}`}
                             className="w-full h-24 object-cover rounded-lg border"
                           />
-                          <Button
+                          <button
                             type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
                             onClick={() => removeImage(index)}
+                            aria-label={`Remove image ${index + 1}`}
+                            className="
+                              absolute -top-2 -right-2
+                              inline-flex items-center justify-center
+                              h-7 w-7 rounded-full
+                              bg-red-500 text-white shadow-md
+                              ring-2 ring-white
+                              transition hover:scale-105 active:scale-95
+                            "
                           >
-                            <X className="h-3 w-3" />
-                          </Button>
+                            <X className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -481,7 +593,7 @@ export default function AddCar() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate("/dashboard")}
                     className="flex-1"
                   >
                     Cancel
@@ -491,7 +603,7 @@ export default function AddCar() {
                     disabled={isSubmitting}
                     className="flex-1"
                   >
-                    {isSubmitting ? 'Adding Car...' : 'Add Car'}
+                    {isSubmitting ? "Adding Car..." : "Add Car"}
                   </Button>
                 </div>
               </form>

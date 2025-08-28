@@ -5,246 +5,404 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { CarPerformance } from '@/hooks/usePerCarAnalytics';
-import { 
-  ArrowUpDown, 
-  TrendingUp, 
-  TrendingDown,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CarPerformance } from "@/hooks/usePerCarAnalytics";
+import {
+  ArrowDownWideNarrow,
+  ArrowUpNarrowWide,
+  ArrowUpDown,
   Eye,
-  Settings
-} from 'lucide-react';
-import { useState } from 'react';
+  Settings,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
+import * as React from "react";
 
+/* ---------------- helpers ---------------- */
+type SortField = keyof CarPerformance;
+type SortDirection = "asc" | "desc";
+
+function utilColor(pct: number) {
+  if (pct >= 60) return "text-emerald-600";
+  if (pct >= 30) return "text-amber-600";
+  return "text-red-600";
+}
+function utilBar(pct: number) {
+  if (pct >= 60) return "bg-emerald-500";
+  if (pct >= 30) return "bg-amber-500";
+  return "bg-red-500";
+}
+function riskColor(score: number) {
+  if (score < 30) return "text-emerald-600";
+  if (score < 60) return "text-amber-600";
+  return "text-red-600";
+}
+function riskBar(score: number) {
+  if (score < 30) return "bg-emerald-500";
+  if (score < 60) return "bg-amber-500";
+  return "bg-red-500";
+}
+const recBadgeVariant: Record<CarPerformance["recommendation"], any> = {
+  keep_active: "default",
+  optimize: "secondary",
+  monitor: "outline",
+  return: "destructive",
+};
+
+/* small, reusable progress bar */
+function MiniBar({
+  value,
+  className,
+}: {
+  value: number; // 0..100
+  className: string;
+}) {
+  const w = Math.max(0, Math.min(100, value));
+  return (
+    <div className="mt-1 h-1.5 w-full rounded-full bg-muted">
+      <div
+        className={`h-1.5 rounded-full ${className}`}
+        style={{ width: `${w}%` }}
+      />
+    </div>
+  );
+}
+
+/* ---------------- component ---------------- */
 interface CarComparisonTableProps {
   carPerformanceData: CarPerformance[];
   onViewDetails?: (carId: string) => void;
   onManageStatus?: (carId: string) => void;
 }
 
-type SortField = keyof CarPerformance;
-type SortDirection = 'asc' | 'desc';
-
-export function CarComparisonTable({ 
-  carPerformanceData, 
-  onViewDetails, 
-  onManageStatus 
+export function CarComparisonTable({
+  carPerformanceData,
+  onViewDetails,
+  onManageStatus,
 }: CarComparisonTableProps) {
-  const [sortField, setSortField] = useState<SortField>('profitMargin');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [sortField, setSortField] = React.useState<SortField>("profitMargin");
+  const [sortDirection, setSortDirection] =
+    React.useState<SortDirection>("desc");
 
   const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
+    if (sortField === field)
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    else {
       setSortField(field);
-      setSortDirection('desc');
+      setSortDirection("desc");
     }
   };
 
-  const sortedData = [...carPerformanceData].sort((a, b) => {
-    let aValue = a[sortField];
-    let bValue = b[sortField];
-    
-    // Handle string comparisons
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortDirection === 'asc' 
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
-    
-    // Handle numeric comparisons
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
-    }
-    
-    return 0;
-  });
+  const sorted = React.useMemo(() => {
+    const data = [...carPerformanceData];
+    return data.sort((a, b) => {
+      const av = a[sortField] as any;
+      const bv = b[sortField] as any;
+      if (typeof av === "number" && typeof bv === "number") {
+        return sortDirection === "asc" ? av - bv : bv - av;
+      }
+      return sortDirection === "asc"
+        ? String(av).localeCompare(String(bv))
+        : String(bv).localeCompare(String(av));
+    });
+  }, [carPerformanceData, sortField, sortDirection]);
 
-  const getRecommendationBadge = (recommendation: CarPerformance['recommendation']) => {
-    const variants = {
-      keep_active: 'default',
-      optimize: 'secondary',
-      monitor: 'outline',
-      return: 'destructive'
-    } as const;
-    
-    return (
-      <Badge variant={variants[recommendation]}>
-        {recommendation.replace('_', ' ')}
-      </Badge>
-    );
-  };
-
-  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
-    <TableHead 
-      className="cursor-pointer hover:bg-muted/50 transition-colors"
-      onClick={() => handleSort(field)}
-    >
-      <div className="flex items-center space-x-1">
-        <span>{children}</span>
-        <ArrowUpDown className="h-3 w-3" />
-      </div>
-    </TableHead>
-  );
-
+  /* ----- MOBILE: stacked cards ----- */
   return (
     <>
-      {/* Mobile: Stacked cards */}
       <div className="space-y-3 md:hidden">
-        {sortedData.map((car) => (
-          <div key={car.car_id} className="rounded-md border p-4 space-y-3">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="font-semibold truncate">{car.car_year} {car.car_make} {car.car_model}</p>
-                <p className="text-xs text-muted-foreground">
-                  {car.activeDays} active days • Avg ${car.averagePerTrip.toFixed(0)}/trip
-                </p>
-              </div>
-              <Badge variant={car.car_status === 'available' ? 'default' : 'secondary'}>
-                {car.car_status}
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Margin %</p>
-                <p className={`font-medium ${
-                  car.profitMargin >= 0 ? 'text-success' : 'text-destructive'
-                }`}>
-                  {car.profitMargin.toFixed(1)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Trips</p>
-                <p className="font-medium">{car.totalTrips}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Utilization</p>
-                <p className={`font-medium ${
-                  car.utilizationRate >= 50 ? 'text-success' : 
-                  car.utilizationRate >= 25 ? 'text-warning' : 'text-destructive'
-                }`}>
-                  {car.utilizationRate.toFixed(1)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Risk</p>
-                <p className={`font-medium ${
-                  car.riskScore < 30 ? 'text-success' :
-                  car.riskScore < 60 ? 'text-warning' : 'text-destructive'
-                }`}>
-                  {car.riskScore.toFixed(0)}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>{getRecommendationBadge(car.recommendation)}</div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onViewDetails?.(car.car_id)}
+        {sorted.map((car) => {
+          const util = Math.max(0, Math.min(100, car.utilizationRate));
+          const risk = Math.max(0, Math.min(100, car.riskScore));
+          return (
+            <div
+              key={car.car_id}
+              className="rounded-xl border p-4 shadow-sm bg-background"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-semibold truncate text-xs sm:text-base">
+                    {car.car_year} {car.car_make} {car.car_model}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {car.activeDays} active days • Avg $
+                    {car.averagePerTrip.toFixed(0)}/trip
+                  </p>
+                </div>
+                <Badge
+                  variant={
+                    car.car_status === "available" ? "default" : "secondary"
+                  }
+                  className="capitalize shrink-0"
                 >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onManageStatus?.(car.car_id)}
+                  {car.car_status}
+                </Badge>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Margin %</p>
+                  <p
+                    className={`font-semibold ${
+                      car.profitMargin >= 0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {car.profitMargin.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Trips</p>
+                  <p className="font-semibold">{car.totalTrips}</p>
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Utilization</p>
+                  <p className={`font-semibold ${utilColor(util)}`}>
+                    {util.toFixed(1)}%
+                  </p>
+                  <MiniBar value={util} className={utilBar(util)} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Risk</p>
+                  <p className={`font-semibold ${riskColor(risk)}`}>
+                    {Math.round(risk)}
+                  </p>
+                  <MiniBar value={risk} className={riskBar(risk)} />
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between">
+                <Badge
+                  variant={recBadgeVariant[car.recommendation]}
+                  className="capitalize"
                 >
-                  <Settings className="h-4 w-4" />
-                </Button>
+                  {car.recommendation.replace("_", " ")}
+                </Badge>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="View details"
+                    onClick={() => onViewDetails?.(car.car_id)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Manage status"
+                    onClick={() => onManageStatus?.(car.car_id)}
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Desktop: Table */}
-      <div className="hidden md:block rounded-md border overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Vehicle</TableHead>
-              <SortableHeader field="profitMargin">Margin %</SortableHeader>
-              <SortableHeader field="totalTrips">Trips</SortableHeader>
-              <SortableHeader field="utilizationRate">Utilization</SortableHeader>
-              <SortableHeader field="riskScore">Risk Score</SortableHeader>
-              <SortableHeader field="recommendation">Recommendation</SortableHeader>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedData.map((car) => (
-              <TableRow key={car.car_id}>
-                <TableCell className="font-medium">
-                  <div>
-                    <p className="font-semibold">{car.car_year} {car.car_make} {car.car_model}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {car.activeDays} active days • Avg ${car.averagePerTrip.toFixed(0)}/trip
-                    </p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className={`font-medium ${
-                    car.profitMargin >= 0 ? 'text-success' : 'text-destructive'
-                  }`}>
-                    {car.profitMargin.toFixed(1)}%
-                  </span>
-                </TableCell>
-                <TableCell>{car.totalTrips}</TableCell>
-                <TableCell>
-                  <span className={`font-medium ${
-                    car.utilizationRate >= 50 ? 'text-success' : 
-                    car.utilizationRate >= 25 ? 'text-warning' : 'text-destructive'
-                  }`}>
-                    {car.utilizationRate.toFixed(1)}%
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className={`font-medium ${
-                    car.riskScore < 30 ? 'text-success' :
-                    car.riskScore < 60 ? 'text-warning' : 'text-destructive'
-                  }`}>
-                    {car.riskScore.toFixed(0)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  {getRecommendationBadge(car.recommendation)}
-                </TableCell>
-                <TableCell>
-                  <Badge variant={car.car_status === 'available' ? 'default' : 'secondary'}>
-                    {car.car_status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onViewDetails?.(car.car_id)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onManageStatus?.(car.car_id)}
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+      {/* ----- DESKTOP: table ----- */}
+      <div className="relative mt-2 hidden md:block">
+        <div className="max-w-full overflow-x-auto rounded-xl border">
+          <Table className="min-w-[860px]">
+            <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur">
+              <TableRow>
+                <TableHead className="w-[28%]">Vehicle</TableHead>
+
+                <SortHead
+                  current={{ field: sortField, dir: sortDirection }}
+                  onSort={handleSort}
+                  field="profitMargin"
+                  right
+                >
+                  Margin %
+                </SortHead>
+                <SortHead
+                  current={{ field: sortField, dir: sortDirection }}
+                  onSort={handleSort}
+                  field="totalTrips"
+                  right
+                >
+                  Trips
+                </SortHead>
+                <SortHead
+                  current={{ field: sortField, dir: sortDirection }}
+                  onSort={handleSort}
+                  field="utilizationRate"
+                  right
+                >
+                  Utilization
+                </SortHead>
+                <SortHead
+                  current={{ field: sortField, dir: sortDirection }}
+                  onSort={handleSort}
+                  field="riskScore"
+                  right
+                >
+                  Risk
+                </SortHead>
+
+                <SortHead
+                  current={{ field: sortField, dir: sortDirection }}
+                  onSort={handleSort}
+                  field="recommendation"
+                >
+                  Recommendation
+                </SortHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody>
+              {sorted.map((car, i) => {
+                const util = Math.max(0, Math.min(100, car.utilizationRate));
+                const risk = Math.max(0, Math.min(100, car.riskScore));
+                return (
+                  <TableRow
+                    key={car.car_id}
+                    className={i % 2 ? "bg-muted/20" : undefined}
+                  >
+                    <TableCell className="align-top">
+                      <div className="min-w-0">
+                        <p className="font-semibold truncate">
+                          {car.car_year} {car.car_make} {car.car_model}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {car.activeDays} active days • Avg $
+                          {car.averagePerTrip.toFixed(0)}/trip
+                        </p>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right align-top">
+                      <span
+                        className={`font-semibold ${
+                          car.profitMargin >= 0
+                            ? "text-emerald-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {car.profitMargin.toFixed(1)}%
+                      </span>
+                    </TableCell>
+
+                    <TableCell className="text-right align-top">
+                      {car.totalTrips}
+                    </TableCell>
+
+                    <TableCell className="text-right align-top">
+                      <div className="inline-block min-w-[120px] text-right">
+                        <span className={`font-semibold ${utilColor(util)}`}>
+                          {util.toFixed(1)}%
+                        </span>
+                        <MiniBar value={util} className={utilBar(util)} />
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right align-top">
+                      <div className="inline-block min-w-[120px] text-right">
+                        <span className={`font-semibold ${riskColor(risk)}`}>
+                          {Math.round(risk)}
+                        </span>
+                        <MiniBar value={risk} className={riskBar(risk)} />
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="align-top">
+                      <Badge
+                        variant={recBadgeVariant[car.recommendation]}
+                        className="capitalize"
+                      >
+                        {car.recommendation.replace("_", " ")}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell className="align-top">
+                      <Badge
+                        variant={
+                          car.car_status === "available"
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="capitalize"
+                      >
+                        {car.car_status}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell className="align-top">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onViewDetails?.(car.car_id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onManageStatus?.(car.car_id)}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </>
+  );
+}
+
+/* --- Sortable header with direction indicator --- */
+function SortHead({
+  field,
+  children,
+  onSort,
+  current,
+  right,
+}: {
+  field: SortField;
+  children: React.ReactNode;
+  onSort: (f: SortField) => void;
+  current: { field: SortField; dir: SortDirection };
+  right?: boolean;
+}) {
+  const isActive = current.field === field;
+  const DirIcon = !isActive
+    ? ArrowUpDown
+    : current.dir === "asc"
+    ? ArrowUpNarrowWide
+    : ArrowDownWideNarrow;
+  return (
+    <TableHead
+      onClick={() => onSort(field)}
+      className={`cursor-pointer select-none hover:bg-muted/50 ${
+        right ? "text-right" : ""
+      }`}
+      aria-sort={
+        isActive ? (current.dir === "asc" ? "ascending" : "descending") : "none"
+      }
+    >
+      <span
+        className={`inline-flex items-center gap-1 ${
+          right ? "justify-end" : ""
+        }`}
+      >
+        {children}
+        <DirIcon className="h-3.5 w-3.5" />
+      </span>
+    </TableHead>
   );
 }

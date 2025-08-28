@@ -7,6 +7,13 @@ import { SEO } from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -595,7 +602,7 @@ export default function HostCarManagement() {
     // Filter by date range
     if (earningsFilters.dateRange !== 'all') {
       const today = new Date();
-      let filterDate = new Date();
+      const filterDate = new Date();
       
       switch (earningsFilters.dateRange) {
         case 'today':
@@ -642,7 +649,7 @@ export default function HostCarManagement() {
     // Filter by date range
     if (claimsFilters.dateRange !== 'all') {
       const today = new Date();
-      let filterDate = new Date();
+      const filterDate = new Date();
       
       switch (claimsFilters.dateRange) {
         case 'today':
@@ -1412,39 +1419,47 @@ export default function HostCarManagement() {
       <>
         <SEO title="Host Car Management" description="Manage hosted cars, returns, expenses, earnings, and claims." />
         <PageContainer className="pb-24">
-          <div className="mb-4 md:mb-6">
-          <div className="flex items-center gap-2 mb-1 md:mb-2">
-            <Car className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Hosted Cars Management</h1>
-          </div>
-          <p className="text-muted-foreground hidden sm:block">
-            Manage cars you're currently hosting and process returns.
-          </p>
-        </div>
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
-          <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
-            <div className="relative">
-              <TabsList className="flex w-full gap-2 px-2 py-1 pr-4 snap-x snap-mandatory overscroll-x-contain touch-auto">
-                <TabsTrigger value="active" aria-label="Active" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span className="sm:hidden">A</span>
-                  <span className="hidden sm:inline">Active</span>
-                  <Badge variant="secondary">{activeHostedCars.length}</Badge>
-                </TabsTrigger>
-                <TabsTrigger value="expenses" aria-label="Expenses" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span className="sm:hidden">E</span>
-                  <span className="hidden sm:inline">Expenses</span>
-                  <Badge variant="secondary">{expenses.length}</Badge>
-                </TabsTrigger>
-                <TabsTrigger value="earnings" aria-label="Earnings" className="gap-2 px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-sm">
-                  <span className="sm:hidden">E</span>
-                  <span className="hidden sm:inline">Earnings</span>
-                  <Badge variant="secondary">{earnings.length}</Badge>
-                </TabsTrigger>
-              </TabsList>
-              <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-10 w-6 bg-gradient-to-r from-background to-transparent" />
-              <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-10 w-6 bg-gradient-to-l from-background to-transparent" />
-            </div>
+<Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
+  <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
+    <div className="relative">
+      <TabsList
+        className="flex w-full gap-2 px-2 py-2 overflow-x-auto no-scrollbar snap-x snap-mandatory
+                   [scrollbar-width:none] [-ms-overflow-style:none]"
+      >
+        <TabsTrigger
+          value="active"
+          className="gap-2 px-3 py-1.5 text-sm snap-start"
+          aria-label="Active"
+        >
+          Active
+          <Badge variant="secondary">{activeHostedCars.length}</Badge>
+        </TabsTrigger>
+
+        <TabsTrigger
+          value="expenses"
+          className="gap-2 px-3 py-1.5 text-sm snap-start"
+          aria-label="Expenses"
+        >
+          Expenses
+          <Badge variant="secondary">{expenses.length}</Badge>
+        </TabsTrigger>
+
+        <TabsTrigger
+          value="earnings"
+          className="gap-2 px-3 py-1.5 text-sm snap-start"
+          aria-label="Earnings"
+        >
+          Earnings
+          <Badge variant="secondary">{earnings.length}</Badge>
+        </TabsTrigger>
+      </TabsList>
+
+      {/* edge fades for nicer scroll affordance */}
+      <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-10 w-6 bg-gradient-to-r from-background to-transparent" />
+      <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-10 w-6 bg-gradient-to-l from-background to-transparent" />
+    </div>
+
 
             {/* Quick filter chips for mobile */}
             {isMobile && tab === 'expenses' && (
@@ -1460,226 +1475,427 @@ export default function HostCarManagement() {
                 </div>
               </div>
             )}
-            {isMobile && tab === 'earnings' && (
-              <div className="px-2 py-2 border-t">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button size="sm" variant={earningsFilters.paymentStatus==='pending' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'pending'}))}>Pending</Button>
-                  <Button size="sm" variant={earningsFilters.paymentStatus==='paid' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'paid'}))}>Paid</Button>
-                  <Button size="sm" variant={earningsFilters.paymentStatus==='all' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, paymentStatus: 'all'}))}>All</Button>
-                  <div className="mx-2 w-px bg-border" />
-                  <Button size="sm" variant={earningsFilters.dateRange==='7d' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, dateRange: '7d'}))}>7d</Button>
-                  <Button size="sm" variant={earningsFilters.dateRange==='30d' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, dateRange: '30d'}))}>30d</Button>
-                  <Button size="sm" variant={earningsFilters.dateRange==='all' ? 'default' : 'secondary'} onClick={() => setEarningsFilters(prev => ({...prev, dateRange: 'all'}))}>All</Button>
-                  <Button size="sm" variant="ghost" onClick={clearEarningsFilters}>
-                    <X className="h-4 w-4 mr-1" /> Clear
-                  </Button>
-                </div>
-              </div>
-            )}
+{isMobile && tab === "earnings" && (
+  <div className="px-3 py-3 border-t bg-background">
+    {/* Top row: Payment + Clear */}
+    <div className="flex items-center justify-between">
+      <span className="text-xs font-medium text-muted-foreground">Payment</span>
+      <Button
+        size="sm"
+        variant="outline"
+        className="h-7 px-3 text-xs text-primary hover:bg-primary/10"
+        onClick={clearEarningsFilters}
+      >
+        <X className="h-3.5 w-3.5 mr-1" />
+        Clear
+      </Button>
+    </div>
+
+    {/* Payment segmented control */}
+    <div className="mt-2 inline-flex rounded-full  p-0.5">
+      <Button
+        size="sm"
+        variant={earningsFilters.paymentStatus === "pending" ? "default" : "secondary"}
+        className="h-7 rounded-full px-2.5 text-xs"
+        onClick={() => setEarningsFilters((p) => ({ ...p, paymentStatus: "pending" }))}
+      >
+        Pending
+      </Button>
+      <Button
+        size="sm"
+        variant={earningsFilters.paymentStatus === "paid" ? "default" : "secondary"}
+        className="h-7 rounded-full px-2.5 text-xs"
+        onClick={() => setEarningsFilters((p) => ({ ...p, paymentStatus: "paid" }))}
+      >
+        Paid
+      </Button>
+      <Button
+        size="sm"
+        variant={earningsFilters.paymentStatus === "all" ? "default" : "secondary"}
+        className="h-7 rounded-full px-2.5 text-xs"
+        onClick={() => setEarningsFilters((p) => ({ ...p, paymentStatus: "all" }))}
+      >
+        All
+      </Button>
+    </div>
+
+    {/* Date range */}
+    <div className="mt-4 flex flex-col gap-2">
+      <span className="text-xs font-medium text-muted-foreground">Date</span>
+      <div className="mt-2 inline-flex rounded-full p-0.5">
+        <Button
+          size="sm"
+          variant={earningsFilters.dateRange === "7d" ? "default" : "secondary"}
+          className="h-7 rounded-full px-2.5 text-xs"
+          onClick={() => setEarningsFilters((p) => ({ ...p, dateRange: "7d" }))}
+        >
+          7d
+        </Button>
+        <Button
+          size="sm"
+          variant={earningsFilters.dateRange === "30d" ? "default" : "secondary"}
+          className="h-7 rounded-full px-2.5 text-xs"
+          onClick={() => setEarningsFilters((p) => ({ ...p, dateRange: "30d" }))}
+        >
+          30d
+        </Button>
+        <Button
+          size="sm"
+          variant={earningsFilters.dateRange === "all" ? "default" : "secondary"}
+          className="h-7 rounded-full px-2.5 text-xs"
+          onClick={() => setEarningsFilters((p) => ({ ...p, dateRange: "all" }))}
+        >
+          All
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
             {isMobile && tab === 'claims' && (
-              <div className="px-2 py-2 border-t">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button size="sm" variant={claimsFilters.claimStatus==='pending' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'pending'}))}>Pending</Button>
-                  <Button size="sm" variant={claimsFilters.claimStatus==='closed' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'closed'}))}>Closed</Button>
-                  <Button size="sm" variant={claimsFilters.claimStatus==='all' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'all'}))}>All</Button>
-                  <div className="mx-2 w-px bg-border" />
-                  <Button size="sm" variant={claimsFilters.dateRange==='7d' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: '7d'}))}>7d</Button>
-                  <Button size="sm" variant={claimsFilters.dateRange==='30d' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: '30d'}))}>30d</Button>
-                  <Button size="sm" variant={claimsFilters.dateRange==='all' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: 'all'}))}>All</Button>
-                  <Button size="sm" variant="ghost" onClick={clearClaimsFilters}>
-                    <X className="h-4 w-4 mr-1" /> Clear
-                  </Button>
-                </div>
-              </div>
+				 <div className="px-3 py-3 border-t bg-background">
+    {/* Top row: Payment + Clear */}
+    <div className="flex items-center justify-between">
+      <span className="text-xs font-medium text-muted-foreground">Status</span>
+      <Button
+        size="sm"
+        variant="outline"
+        className="h-7 px-3 text-xs text-primary hover:bg-primary/10"
+onClick={clearClaimsFilters}      >
+        <X className="h-3.5 w-3.5 mr-1" />
+        Clear
+      </Button>
+    </div>
+
+    {/* Payment segmented control */}
+    <div className="mt-2 inline-flex rounded-full  p-0.5">
+      <Button
+        size="sm"
+		variant={claimsFilters.claimStatus==='pending' ? 'default' : 'secondary'} 
+		onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'pending'}))}
+		        className="h-7 rounded-full px-2.5 text-xs"
+
+      >
+        Pending
+      </Button>
+      <Button
+        size="sm"
+ variant={claimsFilters.claimStatus==='closed' ? 'default' : 'secondary'} 
+ onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'closed'}))}
+        className="h-7 rounded-full px-2.5 text-xs"
+
+      >
+        Closed
+      </Button>
+      <Button
+        size="sm"
+variant={claimsFilters.claimStatus==='all' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, claimStatus: 'all'}))}
+        className="h-7 rounded-full px-2.5 text-xs"
+
+      >
+        All
+      </Button>
+    </div>
+
+    {/* Date range */}
+    <div className="mt-4 flex flex-col gap-2">
+      <span className="text-xs font-medium text-muted-foreground">Date</span>
+      <div className="mt-2 inline-flex rounded-full p-0.5">
+        <Button
+          size="sm"
+          className="h-7 rounded-full px-2.5 text-xs"
+variant={claimsFilters.dateRange==='7d' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: '7d'}))}
+>
+          7d
+        </Button>
+        <Button
+          size="sm"
+          className="h-7 rounded-full px-2.5 text-xs"
+ variant={claimsFilters.dateRange==='30d' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: '30d'}))}
+>
+          30d
+        </Button>
+        <Button
+          size="sm"
+          className="h-7 rounded-full px-2.5 text-xs"
+		  variant={claimsFilters.dateRange==='all' ? 'default' : 'secondary'} onClick={() => setClaimsFilters(prev => ({...prev, dateRange: 'all'}))}
+        >
+          All
+        </Button>
+      </div>
+    </div>
+  </div>
+
             )}
           </div>
 
-          <TabsContent value="active" className="space-y-4 px-3 sm:px-0">
-            {activeHostedCars.length === 0 ? <Card className="w-full mx-0 max-w-none">
-                <CardContent className="text-center p-4 sm:p-6">
-                  <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No cars currently hosted</h3>
-                  <p className="text-muted-foreground">
-                    Cars you're hosting will appear here.
-                  </p>
+<TabsContent value="active" className="space-y-4 px-3 sm:px-0">
+  {activeHostedCars.length === 0 ? (
+    <Card className="w-full mx-0 max-w-none">
+      <CardContent className="text-center p-4 sm:p-6">
+        <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-medium mb-2">No cars currently hosted</h3>
+        <p className="text-muted-foreground">Cars you're hosting will appear here.</p>
+      </CardContent>
+    </Card>
+  ) : (
+    <Accordion
+      /* multiple so desktop can keep several open; mobile starts collapsed */
+      type="multiple"
+      defaultValue={!isMobile ? activeHostedCars.map((c) => c.id) : []}
+      className="grid gap-3 md:gap-4 md:grid-cols-2"
+    >
+      {activeHostedCars.map((car) => (
+        <AccordionItem key={car.id} value={car.id} className="border-none">
+          <Card className="w-full mx-0 max-w-none">
+            {/* Header becomes the accordion trigger */}
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <AccordionTrigger
+                className="
+                  group w-full rounded-md px-0
+                  [&[data-state=open]_.chev]:rotate-180
+                  hover:no-underline
+                "
+              >
+                <div className="flex w-full items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <CardTitle className="text-sm sm:text-lg break-words">
+                      {formatCarDisplayName(car)}
+                    </CardTitle>
+                    <CardDescription className="break-words">
+                      Location: {car.location}
+                    </CardDescription>
+                    <Badge className="mt-2" variant="default">Hosting</Badge>
+                  </div>
+
+                </div>
+              </AccordionTrigger>
+            </CardHeader>
+
+            {/* Body */}
+            <AccordionContent>
+              <CardContent className="p-3 sm:p-4 md:p-6 space-y-4">
+                {/* Car information */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Color:</span>
+                    <p className="font-medium">{car.color || "N/A"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Mileage:</span>
+                    <p className="font-medium">
+                      {car.mileage ? `${car.mileage.toLocaleString()} mi` : "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Hosting Since:</span>
+                    <p className="font-medium">
+                      {new Date(car.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <p className="font-medium text-green-600">Active</p>
+                  </div>
+                </div>
+
+                {/* Client Contact */}
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-2">Client Contact</h4>
+                  <div className="space-y-2">
+                    <p className="text-sm">
+                      <strong>Name:</strong>{" "}
+                      {car.client.first_name || car.client.last_name
+                        ? `${car.client.first_name || ""} ${
+                            car.client.last_name || ""
+                          }`.trim()
+                        : "Name not available"}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
+                        {car.client.phone}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-2 sm:flex-row pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                    onClick={() => window.open(`tel:${car.client.phone}`)}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Call Client
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Manage
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        View Car Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Schedule Maintenance
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </CardContent>
-            </Card> : <div className="grid gap-3 md:gap-4 md:grid-cols-2">
-                {activeHostedCars.map(car => <Card key={car.id} className="w-full mx-0 max-w-none">
-                    <CardHeader className="p-3 sm:p-4 md:p-6">
-                       <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                        <div>
-                          <CardTitle className="text-lg break-words">
-                            {formatCarDisplayName(car)}
-                          </CardTitle>
-                          <CardDescription className="break-words">
-                            Location: {car.location}
-                          </CardDescription>
-                        </div>
-                        <Badge variant="default">Hosting</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-4 md:p-6 space-y-3 md:space-y-4">
-                      <Collapsible defaultOpen={!isMobile}>
-                        <div className="flex justify-end md:hidden">
-                          <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm">Details</Button>
-                          </CollapsibleTrigger>
-                        </div>
-                        <CollapsibleContent className="space-y-4">
-                          {/* Enhanced Car Information */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-muted-foreground">Color:</span>
-                              <p className="font-medium">{car.color || 'N/A'}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Mileage:</span>
-                              <p className="font-medium">{car.mileage ? `${car.mileage.toLocaleString()} mi` : 'N/A'}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Hosting Since:</span>
-                              <p className="font-medium">{new Date(car.created_at).toLocaleDateString()}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Status:</span>
-                              <p className="font-medium text-green-600">Active</p>
-                            </div>
-                          </div>
+            </AccordionContent>
+          </Card>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  )}
+</TabsContent>
 
-                          {/* Client Contact Section */}
-                          <div className="border-t pt-4">
-                            <h4 className="font-medium mb-2">Client Contact</h4>
-                            <div className="space-y-2">
-                               <p className="text-sm">
-                                 <strong>Name:</strong> {car.client.first_name || car.client.last_name 
-                                   ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
-                                   : 'Name not available'}
-                               </p>
-                              <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-muted-foreground" />
-                                <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
-                                  {car.client.phone}
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
+    <TabsContent value="returns" className="space-y-4 px-3 sm:px-0">
+  {readyForReturnCars.length === 0 ? (
+    <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
+      <CardContent className="text-center p-4 sm:p-6">
+        <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-medium mb-2">No cars ready for return</h3>
+        <p className="text-muted-foreground">
+          Cars ready to be returned will appear here.
+        </p>
+      </CardContent>
+    </Card>
+  ) : (
+    <Accordion
+      type="single"
+      collapsible
+      defaultValue={!isMobile ? readyForReturnCars[0]?.id : undefined}
+      className="grid gap-4 md:grid-cols-2"
+    >
+      {readyForReturnCars.map((car) => (
+        <AccordionItem key={car.id} value={car.id} className="border-none">
+          <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none border-orange-200">
+            {/* Accordion header */}
+            <AccordionTrigger className="w-full p-3 sm:p-4 md:p-6 hover:no-underline">
+              <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap w-full">
+                <div>
+                  <CardTitle className="text-sm sm:text-lg break-words">
+                    {formatCarDisplayName(car)}
+                  </CardTitle>
+                  <CardDescription className="break-words">
+                    Location: {car.location}
+                  </CardDescription>
+                </div>
+                <Badge className="w-full flex items-center justify-center" variant="secondary">Ready for Return</Badge>
+              </div>
+            </AccordionTrigger>
 
-                      {/* Management Actions */}
-                      <div className="flex flex-col gap-2 sm:flex-row pt-2">
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => window.open(`tel:${car.client.phone}`)}>
-                          <Phone className="h-4 w-4 mr-2" />
-                          Call Client
-                        </Button>
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                              <Settings className="h-4 w-4 mr-2" />
-                              Manage
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => handleManagementAction('view-details', car)}>
-                              <FileText className="h-4 w-4 mr-2" />
-                              View Car Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleManagementAction('schedule-maintenance', car)}>
-                              <Calendar className="h-4 w-4 mr-2" />
-                              Schedule Maintenance
-                            </DropdownMenuItem>
-                            
-                            <DropdownMenuSeparator />
-                            
-                            
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </CardContent>
-                  </Card>)}
-              </div>}
-          </TabsContent>
-
-          <TabsContent value="returns" className="space-y-4 px-3 sm:px-0">
-            {readyForReturnCars.length === 0 ? <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
-                <CardContent className="text-center p-4 sm:p-6">
-                  <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No cars ready for return</h3>
-                  <p className="text-muted-foreground">
-                    Cars ready to be returned will appear here.
+            {/* Accordion body */}
+            <AccordionContent>
+              <CardContent className="p-3 sm:p-4 space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm text-orange-600 font-medium">
+                    ⚠ Client has requested car return
                   </p>
-                </CardContent>
-              </Card> : <div className="grid gap-4 md:grid-cols-2">
-                {readyForReturnCars.map(car => <Card key={car.id} className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none border-orange-200">
-                    <CardHeader className="p-3 sm:p-4 md:p-6">
-                       <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                        <div>
-                          <CardTitle className="text-lg break-words">
-                            {formatCarDisplayName(car)}
-                          </CardTitle>
-                          <CardDescription className="break-words">
-                            Location: {car.location}
-                          </CardDescription>
-                        </div>
-                        <Badge variant="secondary">Ready for Return</Badge>
+
+                  {/* Client Contact */}
+                  <div>
+                    <h4 className="font-medium mb-2">Client Contact</h4>
+                    <div className="space-y-2">
+                      <p className="text-sm">
+                        <strong>Name:</strong>{" "}
+                        {car.client.first_name || car.client.last_name
+                          ? `${car.client.first_name || ""} ${car.client.last_name || ""}`.trim()
+                          : "Name not available"}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <a
+                          href={`tel:${car.client.phone}`}
+                          className="text-sm hover:underline"
+                        >
+                          {car.client.phone}
+                        </a>
                       </div>
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-4 space-y-4">
-                      <Collapsible defaultOpen={!isMobile}>
-                        <div className="flex justify-end md:hidden">
-                          <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm">Details</Button>
-                          </CollapsibleTrigger>
-                        </div>
-                        <CollapsibleContent>
-                          <div>
-                            <h4 className="font-medium mb-2">Client Contact</h4>
-                            <div className="space-y-2">
-                               <p className="text-sm">
-                                 <strong>Name:</strong> {car.client.first_name || car.client.last_name 
-                                   ? `${car.client.first_name || ''} ${car.client.last_name || ''}`.trim()
-                                   : 'Name not available'}
-                               </p>
-                              <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-muted-foreground" />
-                                <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
-                                  {car.client.phone}
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                      <div className="space-y-2">
-                        <p className="text-sm text-orange-600 font-medium">
-                          ⚠ Client has requested car return
-                        </p>
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => window.open(`tel:${car.client.phone}`)}>
-                            <Phone className="h-4 w-4 mr-2" />
-                            Call Client
-                          </Button>
-                          <Button size="sm" className="w-full sm:w-auto" onClick={() => handleCarReturn(car.id)}>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Confirm Return
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>)}
-              </div>}
-          </TabsContent>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:w-auto"
+                      onClick={() => window.open(`tel:${car.client.phone}`)}
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      Call Client
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="w-full sm:w-auto"
+                      onClick={() => handleCarReturn(car.id)}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Confirm Return
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </AccordionContent>
+          </Card>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  )}
+</TabsContent>
 
           <TabsContent value="expenses" className="space-y-4 px-3 sm:px-0">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Expenses</h3>
+            <div className="flex justify-between items-center ">
+              {/* <h3 className="text-lg font-medium">Expenses</h3> */}
               {isMobile ? (
                 <>
-                  <Button size="sm" aria-label="Add expense" onClick={() => setExpenseDialogOpen(true)}>
+				<div className="flex items-center justify-between w-full">
+    <Button
+      size="sm"
+      onClick={() => setExpenseDialogOpen(true)}
+      className="h-8 px-3 font-medium justify-center"
+      aria-label="Add expense"
+    >
+      <Plus className="h-4 w-4 mr-1" />
+      Expense
+    </Button>
+
+    {/* Mobile Filters trigger */}
+    {isMobile && (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setExpenseFiltersOpen(true)}
+        className="h-8 px-3"
+      >
+        <Filter className="h-4 w-4 mr-2" />
+        Filters
+        {activeFiltersCount > 0 && (
+          <Badge variant="secondary" className="ml-2">{activeFiltersCount}</Badge>
+        )}
+      </Button>
+    )}
+  </div>
+
+                  {/* <Button size="sm" aria-label="Add expense" onClick={() => setExpenseDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Expense
-                  </Button>
+                  </Button> */}
                   <Sheet open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
                     <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
                       <SheetHead>
@@ -1905,15 +2121,18 @@ export default function HostCarManagement() {
                   </Sheet>
 
                   {/* Mobile Filters Button */}
-                  <Button variant="outline" size="sm" onClick={() => setExpenseFiltersOpen(true)} className="mt-2">
+                  {/* <Button variant="outline" size="sm" onClick={() => setExpenseFiltersOpen(true)} className="mt-2">
                     <Filter className="h-4 w-4 mr-2" />
                     Filters
                     {activeFiltersCount > 0 && (
                       <Badge variant="secondary" className="ml-2">{activeFiltersCount}</Badge>
                     )}
-                  </Button>
+                  </Button> */}
                   <Sheet open={expenseFiltersOpen} onOpenChange={setExpenseFiltersOpen}>
-                    <SheetContent side="bottom" className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto">
+                    <SheetContent side="bottom" 
+					  className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto text-base" // normalize base size
+
+					>
                       <SheetHead>
                         <SheetTit>Expense Filters</SheetTit>
                         <SheetDesc>Refine the list of expenses.</SheetDesc>
@@ -1970,7 +2189,7 @@ export default function HostCarManagement() {
                             <Label className="text-sm font-medium">Added Recently</Label>
                             <RadioGroup value={expenseFilters.dateRange} onValueChange={(value) => setExpenseFilters(prev => ({ ...prev, dateRange: value }))} className="flex flex-wrap gap-4">
                               <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="all" id="m-all" />
+                                <RadioGroupItem value="all" id="m-all" className='h-4 w-4' />
                                 <Label htmlFor="m-all" className="text-sm">All</Label>
                               </div>
                               <div className="flex items-center space-x-2">
@@ -2478,7 +2697,7 @@ export default function HostCarManagement() {
 
           <TabsContent value="earnings" className="space-y-4 px-3 sm:px-0">
             <div className="flex items-center justify-start gap-2 sm:justify-between">
-              <h3 className="text-lg font-medium">Earnings</h3>
+              {/* <h3 className="text-lg font-medium">Earnings</h3> */}
               <>
                 {isMobile ? (
                   <>
@@ -3478,107 +3697,153 @@ export default function HostCarManagement() {
                      const netProfit = earning.amount - totalExpenses;
                      
                      return (
-                     <Card key={earning.id}>
-                       <CardContent className="p-3 sm:p-4">
-                          <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                          <div className="space-y-2">
-                             <div className="flex items-center gap-2 flex-wrap">
-                               <h4 className="font-medium capitalize break-words">{earning.earning_type}</h4>
-                               {earning.trip_id && (
-                                 <Badge variant="outline" className="text-xs">
-                                   Trip# {earning.trip_id}
-                                 </Badge>
-                               )}
-                               <Badge variant={earning.payment_status === 'paid' ? 'default' : 'secondary'}>
-                                 {earning.payment_status}
-                               </Badge>
-                             </div>
-                             {earning.guest_name && (
-                              <p className="text-sm text-muted-foreground break-words">Guest: {earning.guest_name}</p>
-                            )}
-                            <p className="text-sm text-muted-foreground break-words">
-                              {new Date(earning.earning_period_start).toLocaleDateString()} - {new Date(earning.earning_period_end).toLocaleDateString()}
-                            </p>
-                            <p className="text-sm text-muted-foreground break-words">
-                              Source: {earning.payment_source}
-                            </p>
-                            
-                             {/* Profit Breakdown */}
-                             <div className="grid grid-cols-2 gap-4 text-sm">
-                               <div>
-                                 <span className="text-muted-foreground">Gross Earnings:</span>
-                                 <p className="font-medium">${earning.gross_earnings?.toFixed(2) || '0.00'}</p>
-                               </div>
-                               <div>
-                                 <span className="text-muted-foreground">Client Profit ({earning.client_profit_percentage}%):</span>
-                                 <p className="font-medium">${earning.client_profit_amount?.toFixed(2) || '0.00'}</p>
-                               </div>
-                               <div>
-                                 <span className="text-muted-foreground">Host Profit ({earning.host_profit_percentage}%):</span>
-                                 <p className="font-medium">${earning.host_profit_amount?.toFixed(2) || '0.00'}</p>
-                               </div>
-                               {earning.trip_id && totalExpenses > 0 && (
-                                 <>
-                                   <div>
-                                     <span className="text-muted-foreground">Total Expenses:</span>
-                                     <p className="font-medium text-red-600">-${totalExpenses.toFixed(2)}</p>
-                                   </div>
-                                   <div>
-                                     <span className="text-muted-foreground">Net Profit:</span>
-                                     <p className={`font-medium ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                       ${netProfit.toFixed(2)}
-                                     </p>
-                                   </div>
-                                 </>
-                               )}
-                             </div>
-                             {earning.trip_id && relatedExpenses.length > 0 && (
-                               <div className="text-xs text-muted-foreground">
-                                 Related expenses: {relatedExpenses.length} item(s)
-                               </div>
-                              )}
-                              
-                              {/* Car Details */}
-                              {(() => {
-                                const earningCar = cars.find(car => car.id === earning.car_id);
-                                return earningCar ? (
-                                  <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">Vehicle Details:</p>
-                                    {formatDetailedCarInfo(earningCar)}
-                                  </div>
-                                ) : null;
-                              })()}
-                            </div>
-                              <div className="text-right">
-                              <div className="flex items-start gap-2 mb-2">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="sm">
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => handleEditEarning(earning)}>
-                                      <Edit className="h-3 w-3 mr-2" /> Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => onDeleteEarning(earning.id)} className="text-destructive">
-                                      <Trash className="h-3 w-3 mr-2" /> Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                              <p className="font-bold text-xl text-green-600">${earning.amount.toFixed(2)}</p>
-                              <p className="text-xs text-muted-foreground">Amount</p>
-                              {earning.date_paid && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Paid: {new Date(earning.date_paid).toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-                         </div>
-                       </CardContent>
-                     </Card>
+<Card key={earning.id}>
+  <CardContent className="p-3 sm:p-4">
+    {/* Row 1: Title (Hosting) + actions */}
+    <div className="flex items-start justify-between gap-2">
+      <h4 className="font-semibold capitalize">{earning.earning_type}</h4>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="shrink-0">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => handleEditEarning(earning)}>
+            <Edit className="h-3 w-3 mr-2" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => onDeleteEarning(earning.id)}
+            className="text-destructive"
+          >
+            <Trash className="h-3 w-3 mr-2" /> Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+
+    {/* Row 2: Amount */}
+    <div className="mt-1 mb-2">
+      <p className="font-bold text-2xl text-green-600 leading-none">
+        ${earning.amount.toFixed(2)}
+      </p>
+      <p className="text-xs text-muted-foreground mt-1">Amount</p>
+      {earning.date_paid && (
+        <p className="text-xs text-muted-foreground">
+          Paid: {new Date(earning.date_paid).toLocaleDateString()}
+        </p>
+      )}
+    </div>
+
+    {/* Row 3: Trip + payment status */}
+    <div className="flex flex-wrap items-center gap-2 mb-3">
+      {earning.trip_id && (
+        <Badge variant="outline" className="text-xs">
+          Trip# {earning.trip_id}
+        </Badge>
+      )}
+      <Badge variant={earning.payment_status === "paid" ? "default" : "secondary"}>
+        {earning.payment_status}
+      </Badge>
+    </div>
+
+    {/* Rest (unchanged content) */}
+    <div className="space-y-2">
+      {earning.guest_name && (
+        <p className="text-sm text-muted-foreground break-words">
+          Guest: {earning.guest_name}
+        </p>
+      )}
+      <p className="text-sm text-muted-foreground break-words">
+        {new Date(earning.earning_period_start).toLocaleDateString()} –{" "}
+        {new Date(earning.earning_period_end).toLocaleDateString()}
+      </p>
+      <p className="text-sm text-muted-foreground break-words">
+        Source: {earning.payment_source}
+      </p>
+
+      {/* Profit breakdown */}
+      <div className="grid grid-cols-2 gap-4 text-sm pt-1">
+        <div>
+          <span className="text-muted-foreground">Gross Earnings:</span>
+          <p className="font-medium">
+            ${earning.gross_earnings?.toFixed(2) || "0.00"}
+          </p>
+        </div>
+        <div>
+          <span className="text-muted-foreground">
+            Client Profit ({earning.client_profit_percentage}%):
+          </span>
+          <p className="font-medium">
+            ${earning.client_profit_amount?.toFixed(2) || "0.00"}
+          </p>
+        </div>
+        <div>
+          <span className="text-muted-foreground">
+            Host Profit ({earning.host_profit_percentage}%):
+          </span>
+          <p className="font-medium">
+            ${earning.host_profit_amount?.toFixed(2) || "0.00"}
+          </p>
+        </div>
+
+        {/* Expenses + net profit (if any) */}
+        {(() => {
+          const relatedExpenses = earning.trip_id
+            ? expenses.filter((e) => e.trip_id === earning.trip_id)
+            : [];
+          const totalExpenses = relatedExpenses.reduce(
+            (sum, e) => sum + (e.total_expenses || e.amount),
+            0
+          );
+          const netProfit = earning.amount - totalExpenses;
+
+          return totalExpenses > 0 ? (
+            <>
+              <div>
+                <span className="text-muted-foreground">Total Expenses:</span>
+                <p className="font-medium text-red-600">
+                  -${totalExpenses.toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Net Profit:</span>
+                <p
+                  className={`font-medium ${
+                    netProfit >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  ${netProfit.toFixed(2)}
+                </p>
+              </div>
+            </>
+          ) : null;
+        })()}
+      </div>
+
+      {/* Related expenses count */}
+      {earning.trip_id &&
+        expenses.some((e) => e.trip_id === earning.trip_id) && (
+          <div className="text-xs text-muted-foreground">
+            Related expenses:{" "}
+            {expenses.filter((e) => e.trip_id === earning.trip_id).length} item(s)
+          </div>
+        )}
+
+      {/* Vehicle details */}
+      {(() => {
+        const earningCar = cars.find((car) => car.id === earning.car_id);
+        return earningCar ? (
+          <div className="border-t mt-3 pt-3">
+            <p className="text-sm font-medium mb-2">Vehicle Details:</p>
+            {formatDetailedCarInfo(earningCar)}
+          </div>
+        ) : null;
+      })()}
+    </div>
+  </CardContent>
+</Card>
                      );
                    })}
                  </div>
@@ -3588,7 +3853,7 @@ export default function HostCarManagement() {
 
           <TabsContent value="claims" className="space-y-4 px-3 sm:px-0">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Claims</h3>
+              {/* <h3 className="text-lg font-medium">Claims</h3> */}
               {isMobile ? (
                 <>
                   <Button size="sm" onClick={() => setClaimDialogOpen(true)}>

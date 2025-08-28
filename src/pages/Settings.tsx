@@ -40,7 +40,7 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
-// Form fields
+  // Form fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -52,7 +52,13 @@ export default function Settings() {
   const [rating, setRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
 
-  const role = useMemo(() => (profile?.role ?? (user?.user_metadata?.role ?? "client")) as "client" | "host", [profile?.role, user?.user_metadata?.role]);
+  const role = useMemo(
+    () =>
+      (profile?.role ?? user?.user_metadata?.role ?? "client") as
+        | "client"
+        | "host",
+    [profile?.role, user?.user_metadata?.role]
+  );
 
   useEffect(() => {
     // SEO: set title, description, canonical
@@ -63,7 +69,10 @@ export default function Settings() {
     const createdDesc = !metaDesc;
     const descEl = metaDesc || document.createElement("meta");
     if (!metaDesc) descEl.setAttribute("name", "description");
-    descEl.setAttribute("content", "Manage your TESLYS account settings, profile, and password.");
+    descEl.setAttribute(
+      "content",
+      "Manage your TESLYS account settings, profile, and password."
+    );
     if (!metaDesc) document.head.appendChild(descEl);
 
     const linkCanonical = document.querySelector('link[rel="canonical"]');
@@ -75,8 +84,10 @@ export default function Settings() {
 
     return () => {
       document.title = prevTitle;
-      if (createdDesc && descEl.parentElement) descEl.parentElement.removeChild(descEl);
-      if (createdCanon && canonEl.parentElement) canonEl.parentElement.removeChild(canonEl);
+      if (createdDesc && descEl.parentElement)
+        descEl.parentElement.removeChild(descEl);
+      if (createdCanon && canonEl.parentElement)
+        canonEl.parentElement.removeChild(canonEl);
     };
   }, []);
 
@@ -86,7 +97,9 @@ export default function Settings() {
       setLoading(true);
       const { data, error } = await supabase
         .from("profiles")
-.select("user_id, role, first_name, last_name, company_name, phone, bio, location, services, rating, turo_profile_url, turo_reviews_count, turo_last_synced")
+        .select(
+          "user_id, role, first_name, last_name, company_name, phone, bio, location, services, rating, turo_profile_url, turo_reviews_count, turo_last_synced"
+        )
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -95,7 +108,7 @@ export default function Settings() {
         toast({ title: "Error", description: "Could not load your profile." });
       }
 
-if (data) {
+      if (data) {
         setProfile(data as Profile);
         setFirstName(data.first_name ?? "");
         setLastName(data.last_name ?? "");
@@ -125,20 +138,28 @@ if (data) {
   const handleSaveProfile = async () => {
     if (!user) return;
     if (!phone) {
-      toast({ title: "Phone required", description: "Please enter your phone number." });
+      toast({
+        title: "Phone required",
+        description: "Please enter your phone number.",
+      });
       return;
     }
 
-setSaving(true);
+    setSaving(true);
     const payload = {
       first_name: firstName || null,
       last_name: lastName || null,
-      company_name: role === "host" ? (companyName || null) : null,
+      company_name: role === "host" ? companyName || null : null,
       phone: phone,
       bio: bio || null,
       location: location || null,
-      services: servicesText ? servicesText.split(",").map((s) => s.trim()).filter(Boolean) : null,
-      turo_profile_url: role === "host" ? (turoUrl || null) : null,
+      services: servicesText
+        ? servicesText
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : null,
+      turo_profile_url: role === "host" ? turoUrl || null : null,
       rating: role === "host" ? rating : null,
       turo_reviews_count: role === "host" ? reviewCount : null,
       role, // not editable here, but keep for insert case
@@ -163,9 +184,15 @@ setSaving(true);
 
     if (error) {
       console.error(error);
-      toast({ title: "Save failed", description: "Could not save your profile." });
+      toast({
+        title: "Save failed",
+        description: "Could not save your profile.",
+      });
     } else {
-      toast({ title: "Profile updated", description: "Your changes have been saved." });
+      toast({
+        title: "Profile updated",
+        description: "Your changes have been saved.",
+      });
       setProfile(payload as Profile);
     }
   };
@@ -176,11 +203,17 @@ setSaving(true);
 
   const handlePasswordChange = async () => {
     if (!pwd1 || !pwd2) {
-      toast({ title: "Missing fields", description: "Enter and confirm your new password." });
+      toast({
+        title: "Missing fields",
+        description: "Enter and confirm your new password.",
+      });
       return;
     }
     if (pwd1 !== pwd2) {
-      toast({ title: "Passwords do not match", description: "Please re-enter matching passwords." });
+      toast({
+        title: "Passwords do not match",
+        description: "Please re-enter matching passwords.",
+      });
       return;
     }
     setPwdLoading(true);
@@ -188,229 +221,320 @@ setSaving(true);
     setPwdLoading(false);
     if (error) {
       console.error(error);
-      toast({ title: "Update failed", description: error.message || "Password update failed." });
+      toast({
+        title: "Update failed",
+        description: error.message || "Password update failed.",
+      });
     } else {
-      toast({ title: "Password updated", description: "Your password has been changed." });
+      toast({
+        title: "Password updated",
+        description: "Your password has been changed.",
+      });
       setPwd1("");
       setPwd2("");
     }
   };
 
-
   return (
     <DashboardLayout>
       <PageContainer>
         <main>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground mb-6 text-center sm:text-left">Account settings</h1>
-        {loading ? (
-          <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">Loading…</div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            <section aria-labelledby="profile-section">
-              <Card>
-                <CardHeader>
-                  <CardTitle id="profile-section">Profile</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="first_name">First name</Label>
-                      <Input id="first_name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="last_name">Last name</Label>
-                      <Input id="last_name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                    </div>
-                  </div>
+          {/* ⬇️ removed the large "Account settings" page title */}
 
-                  {role === "host" && (
-                    <div>
-                      <Label htmlFor="company_name">Company name</Label>
-                      <Input id="company_name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-                    </div>
-                  )}
+          {loading ? (
+            <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
+              Loading…
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Profile */}
+              <section aria-labelledby="profile-section">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle id="profile-section" className="text-xl">
+                      Profile
+                    </CardTitle>
+                  </CardHeader>
 
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="services">Services (comma separated)</Label>
-                    <Input id="services" value={servicesText} onChange={(e) => setServicesText(e.target.value)} />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} />
-                  </div>
-
-                  {role === "host" && (
-                    <>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="turo_url">Turo Profile URL (optional)</Label>
-                        <Input 
-                          id="turo_url" 
-                          value={turoUrl} 
-                          onChange={(e) => setTuroUrl(e.target.value)}
-                          placeholder="https://turo.com/us/en/drivers/7050393"
+                        <Label htmlFor="first_name">First name</Label>
+                        <Input
+                          id="first_name"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Your public Turo driver profile URL for reference
-                        </p>
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="rating">Turo Rating</Label>
-                          <Input 
-                            id="rating" 
-                            type="number"
-                            min="0"
-                            max="5"
-                            step="0.1"
-                            value={rating}
-                            onChange={(e) => setRating(Math.min(5, Math.max(0, parseFloat(e.target.value) || 0)))}
-                            placeholder="4.9"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Your current Turo rating (0-5 stars)
-                          </p>
-                        </div>
-                        <div>
-                          <Label htmlFor="review_count">Review Count</Label>
-                          <Input 
-                            id="review_count" 
-                            type="number"
-                            min="0"
-                            value={reviewCount}
-                            onChange={(e) => setReviewCount(Math.max(0, parseInt(e.target.value) || 0))}
-                            placeholder="250"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Total number of Turo reviews
-                          </p>
-                        </div>
+                      <div>
+                        <Label htmlFor="last_name">Last name</Label>
+                        <Input
+                          id="last_name"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                        />
                       </div>
+                    </div>
 
-                      {rating > 0 && (
-                        <div className="text-sm bg-muted/50 p-3 rounded-md">
-                          <div className="font-medium text-center">Your Turo Rating</div>
-                          <div className="text-2xl font-bold text-primary text-center">
-                            {rating}/5.0 ★
-                          </div>
-                          <div className="text-xs text-muted-foreground text-center">
-                            Based on {reviewCount} reviews
-                          </div>
-                        </div>
-                      )}
+                    {role === "host" && (
+                      <div>
+                        <Label htmlFor="company_name">Company name</Label>
+                        <Input
+                          id="company_name"
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                        />
+                      </div>
+                    )}
 
-                      <HostProfilePreviewDialog
-                        host={{
-                          first_name: firstName,
-                          last_name: lastName,
-                          company_name: companyName,
-                          phone: phone,
-                          location: location,
-                          rating: rating > 0 ? rating : null,
-                          turo_reviews_count: reviewCount > 0 ? reviewCount : null,
-                          turo_profile_url: turoUrl,
-                        }}
+                    <div>
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                       />
-                    </>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">Role: <span className="font-medium text-foreground uppercase">{role}</span></div>
-                    <Button onClick={handleSaveProfile} disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-
-            <section aria-labelledby="account-section">
-              <Card>
-                <CardHeader>
-                  <CardTitle id="account-section">Account</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Email</Label>
-                    <Input value={user?.email ?? ""} readOnly aria-readonly />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="new_password">New password</Label>
-                      <Input id="new_password" type="password" value={pwd1} onChange={(e) => setPwd1(e.target.value)} />
                     </div>
+
                     <div>
-                      <Label htmlFor="confirm_password">Confirm password</Label>
-                      <Input id="confirm_password" type="password" value={pwd2} onChange={(e) => setPwd2(e.target.value)} />
+                      <Label htmlFor="location">Location</Label>
+                      <Input
+                        id="location"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
                     </div>
-                  </div>
 
-                  <div className="flex justify-end">
-                    <Button variant="outline" onClick={handlePasswordChange} disabled={pwdLoading}>{pwdLoading ? "Updating…" : "Update password"}</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
+                    <div>
+                      <Label htmlFor="services">
+                        Services (comma separated)
+                      </Label>
+                      <Input
+                        id="services"
+                        value={servicesText}
+                        onChange={(e) => setServicesText(e.target.value)}
+                      />
+                    </div>
 
-            <section aria-labelledby="actions-section">
-              <Card>
-                <CardHeader>
-                  <CardTitle id="actions-section">Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {role === "client" && (
-                    <Button variant="secondary" className="w-full" onClick={() => navigate("/client-fixed-expenses")}>
-                      Manage Fixed Expenses
+                    <div>
+                      <Label htmlFor="bio">Bio</Label>
+                      <Textarea
+                        id="bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                      />
+                    </div>
+
+                    {role === "host" && (
+                      <>
+                        <div>
+                          <Label htmlFor="turo_url">
+                            Turo Profile URL (optional)
+                          </Label>
+                          <Input
+                            id="turo_url"
+                            value={turoUrl}
+                            onChange={(e) => setTuroUrl(e.target.value)}
+                            placeholder="https://turo.com/us/en/drivers/7050393"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Your public Turo driver profile URL for reference
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="rating">Turo Rating</Label>
+                            <Input
+                              id="rating"
+                              type="number"
+                              min="0"
+                              max="5"
+                              step="0.1"
+                              value={rating}
+                              onChange={(e) =>
+                                setRating(
+                                  Math.min(
+                                    5,
+                                    Math.max(0, parseFloat(e.target.value) || 0)
+                                  )
+                                )
+                              }
+                              placeholder="4.9"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Your current Turo rating (0–5 stars)
+                            </p>
+                          </div>
+                          <div>
+                            <Label htmlFor="review_count">Review Count</Label>
+                            <Input
+                              id="review_count"
+                              type="number"
+                              min="0"
+                              value={reviewCount}
+                              onChange={(e) =>
+                                setReviewCount(
+                                  Math.max(0, parseInt(e.target.value) || 0)
+                                )
+                              }
+                              placeholder="250"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Total number of Turo reviews
+                            </p>
+                          </div>
+                        </div>
+
+                        {rating > 0 && (
+                          <div className="text-sm bg-muted/50 p-3 rounded-md">
+                            <div className="font-medium text-center">
+                              Your Turo Rating
+                            </div>
+                            <div className="text-2xl font-bold text-primary text-center">
+                              {rating}/5.0 ★
+                            </div>
+                            <div className="text-xs text-muted-foreground text-center">
+                              Based on {reviewCount} reviews
+                            </div>
+                          </div>
+                        )}
+
+                        <HostProfilePreviewDialog
+                          host={{
+                            first_name: firstName,
+                            last_name: lastName,
+                            company_name: companyName,
+                            phone: phone,
+                            location: location,
+                            rating: rating > 0 ? rating : null,
+                            turo_reviews_count:
+                              reviewCount > 0 ? reviewCount : null,
+                            turo_profile_url: turoUrl,
+                          }}
+                        />
+                      </>
+                    )}
+
+                    {/* role + full-width Save */}
+                    <div className="text-sm text-muted-foreground">
+                      Role:{" "}
+                      <span className="font-medium text-foreground uppercase">
+                        {role}
+                      </span>
+                    </div>
+                    <Button
+                      onClick={handleSaveProfile}
+                      disabled={saving}
+                      className="w-full"
+                    >
+                      {saving ? "Saving…" : "Save changes"}
                     </Button>
-                  )}
-                  {role === "host" && (
-                    <>
-                      <Button
-                        variant="secondary"
-                        className="w-full"
-                        onClick={() => navigate("/host-requests")}
-                      >
-                        Review Host Requests
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        className="w-full"
-                        onClick={() => navigate("/host-car-management#returns")}
-                      >
-                        Manage Returns
-                      </Button>
-                    </>
-                  )}
-                  <Button
-                    variant="destructive"
-                    className="w-full"
-                    onClick={async () => {
-                      await signOut();
-                      navigate("/login");
-                    }}
-                  >
-                    Sign Out
-                  </Button>
-                </CardContent>
-              </Card>
-            </section>
+                  </CardContent>
+                </Card>
+              </section>
 
-            <section aria-labelledby="notifications-section" className="md:col-span-2">
-              <NotificationsCard />
-            </section>
-          </div>
-        )}
-      </main>
+              {/* Account (Password) */}
+              <section aria-labelledby="account-section">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle id="account-section" className="text-xl">
+                      Account
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label>Email</Label>
+                      <Input value={user?.email ?? ""} readOnly aria-readonly />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="new_password">New password</Label>
+                        <Input
+                          id="new_password"
+                          type="password"
+                          value={pwd1}
+                          onChange={(e) => setPwd1(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="confirm_password">
+                          Confirm password
+                        </Label>
+                        <Input
+                          id="confirm_password"
+                          type="password"
+                          value={pwd2}
+                          onChange={(e) => setPwd2(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* full-width Update */}
+                    <Button
+                      variant="outline"
+                      onClick={handlePasswordChange}
+                      disabled={pwdLoading}
+                      className="w-full"
+                    >
+                      {pwdLoading ? "Updating…" : "Update password"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </section>
+
+              {/* Notifications */}
+              <section
+                aria-labelledby="notifications-section"
+                className="md:col-span-2"
+              >
+                <NotificationsCard />
+              </section>
+
+              {/* Actions — no card, stacked, at the very end */}
+              <section className="md:col-span-2 space-y-3">
+                {role === "client" && (
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => navigate("/client-fixed-expenses")}
+                  >
+                    Manage Fixed Expenses
+                  </Button>
+                )}
+                {role === "host" && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => navigate("/host-requests")}
+                    >
+                      Review Host Requests
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => navigate("/host-car-management#returns")}
+                    >
+                      Manage Returns
+                    </Button>
+                  </>
+                )}
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  onClick={async () => {
+                    await signOut();
+                    navigate("/login");
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </section>
+            </div>
+          )}
+        </main>
       </PageContainer>
     </DashboardLayout>
   );

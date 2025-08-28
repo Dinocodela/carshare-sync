@@ -1,14 +1,52 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { ClientClaim } from '@/hooks/useClientAnalytics';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { PieChart, Pie, Cell, ResponsiveContainer, Label } from "recharts";
+import { ClientClaim } from "@/hooks/useClientAnalytics";
+import {
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  DollarSign,
+  FileWarning,
+} from "lucide-react";
+import * as React from "react";
 
 interface ClaimsSummaryProps {
   claims: ClientClaim[];
   loading?: boolean;
 }
 
+/* ------------------------- small helpers ------------------------- */
+const fMoney = (n = 0) =>
+  `$${Number(n || 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const COLORS: Record<string, string> = {
+  approved: "hsl(var(--chart-2))",
+  pending: "hsl(var(--chart-1))",
+  denied: "hsl(var(--chart-3))",
+  closed: "hsl(var(--chart-4))",
+};
+
+const StatusIcon: Record<
+  string,
+  React.ComponentType<React.SVGProps<SVGSVGElement>>
+> = {
+  approved: CheckCircle,
+  pending: Clock,
+  denied: XCircle,
+  closed: AlertCircle,
+};
+
+/* ----------------------------- component ----------------------------- */
 export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
   if (loading) {
     return (
@@ -18,7 +56,7 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
             <CardTitle>Claims Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-32 bg-muted animate-pulse rounded"></div>
+            <div className="h-36 rounded-xl bg-muted animate-pulse" />
           </CardContent>
         </Card>
         <Card>
@@ -26,147 +64,222 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
             <CardTitle>Claims by Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-32 bg-muted animate-pulse rounded"></div>
+            <div className="h-36 rounded-xl bg-muted animate-pulse" />
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Group claims by status
-  const statusCounts = claims.reduce((acc, claim) => {
-    const status = claim.claim_status || 'pending';
-    acc[status] = (acc[status] || 0) + 1;
+  /* --- aggregations --- */
+  const statusCounts = claims.reduce<Record<string, number>>((acc, c) => {
+    const s = c.claim_status || "pending";
+    acc[s] = (acc[s] || 0) + 1;
     return acc;
-  }, {} as Record<string, number>);
+  }, {});
+  const totalClaims = claims.length;
+  const totalAmount = claims.reduce((s, c) => s + (c.claim_amount || 0), 0);
+  const approvedAmount = claims
+    .filter((c) => c.claim_status === "approved")
+    .reduce((s, c) => s + (c.approved_amount ?? c.claim_amount ?? 0), 0);
 
-  const chartData = Object.entries(statusCounts).map(([status, count]) => ({
-    name: status.charAt(0).toUpperCase() + status.slice(1),
-    value: count,
-    status
+  const chartData = Object.entries(statusCounts).map(([status, value]) => ({
+    status,
+    name: status[0].toUpperCase() + status.slice(1),
+    value,
+    percent: totalClaims ? Math.round((value / totalClaims) * 100) : 0,
+    color: COLORS[status] || "hsl(var(--muted))",
   }));
 
-  const COLORS = {
-    pending: 'hsl(var(--chart-1))',
-    approved: 'hsl(var(--chart-2))', 
-    denied: 'hsl(var(--chart-3))',
-    closed: 'hsl(var(--chart-4))'
-  };
-
-  const statusIcons = {
-    pending: Clock,
-    approved: CheckCircle,
-    denied: XCircle,
-    closed: AlertCircle
-  };
-
-  const totalAmount = claims.reduce((sum, claim) => sum + (claim.claim_amount || 0), 0);
-  const approvedAmount = claims
-    .filter(claim => claim.claim_status === 'approved')
-    .reduce((sum, claim) => sum + (claim.approved_amount || claim.claim_amount || 0), 0);
-
   const chartConfig = {
-    value: {
-      label: 'Claims',
-    },
+    value: { label: "Claims" },
   };
 
+  /* ----------------------------- UI ----------------------------- */
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-2 md:grid-cols-2">
       {/* Claims Overview */}
-      <Card>
-        <CardHeader>
+      <Card className="min-w-0">
+        <CardHeader className="pb-2 mt-2">
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
+            <FileText className="h-5 w-5 text-primary" />
             Claims Overview
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Claims</p>
-                <p className="text-2xl font-bold">{claims.length}</p>
+        <CardContent className="pt-2">
+          <div className="grid grid-cols-2 gap-2 sm:gap-6">
+            {/* Total Claims */}
+            <div className="rounded-xl border bg-background p-3 sm:p-4">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <FileWarning className="h-4 w-4" />
+                Total Claims
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Amount</p>
-                <p className="text-2xl font-bold">${totalAmount.toFixed(2)}</p>
+              <div className="mt-1 text-2xl font-extrabold tracking-tight">
+                {totalClaims}
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Approved Amount</p>
-                <p className="text-lg font-semibold text-green-600">${approvedAmount.toFixed(2)}</p>
+
+            {/* Total Amount */}
+            <div className="rounded-xl border bg-background p-3 sm:p-4">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <DollarSign className="h-4 w-4" />
+                Total Amount
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Pending Claims</p>
-                <p className="text-lg font-semibold text-orange-600">
-                  {statusCounts.pending || 0}
-                </p>
+              <div className="mt-1 text-2xl font-extrabold tracking-tight">
+                {fMoney(totalAmount)}
+              </div>
+            </div>
+
+            {/* Approved Amount */}
+            <div className="rounded-xl border bg-background p-3 sm:p-4">
+              <div className="text-xs text-muted-foreground">
+                Approved Amount
+              </div>
+              <div className="mt-1 text-xl font-semibold text-emerald-600">
+                {fMoney(approvedAmount)}
+              </div>
+            </div>
+
+            {/* Pending Count */}
+            <div className="rounded-xl border bg-background p-3 sm:p-4">
+              <div className="text-xs text-muted-foreground">
+                Pending Claims
+              </div>
+              <div className="mt-1 text-xl font-semibold text-amber-600">
+                {statusCounts.pending || 0}
               </div>
             </div>
           </div>
+
+          {/* Tiny status strip */}
+          {chartData.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+              {chartData.map((d) => {
+                const Ico = StatusIcon[d.status] || AlertCircle;
+                return (
+                  <div
+                    key={d.status}
+                    className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5"
+                  >
+                    <span
+                      className="inline-block h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: d.color }}
+                    />
+                    <Ico className="h-3.5 w-3.5" />
+                    <span className="truncate">{d.name}</span>
+                    <span className="ml-auto tabular-nums">{d.value}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Claims by Status Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Claims by Status</CardTitle>
+      {/* Claims by Status */}
+      <Card className="min-w-0">
+        <CardHeader className="pb-2 mt-2">
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-primary" />
+            Claims by Status
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          {chartData.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No claims recorded yet.
+        <CardContent className="pt-2">
+          {totalClaims === 0 ? (
+            <div className="flex h-48 flex-col items-center justify-center text-center text-sm text-muted-foreground">
+              🎉 No claims yet — all clear!
             </div>
           ) : (
-            <div className="space-y-4">
-              <ChartContainer config={chartConfig} className="h-[180px]">
+            <>
+              <ChartContainer
+                config={chartConfig}
+                className="mx-auto h-48 w-full sm:h-56"
+              >
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                  <PieChart role="img" aria-label="Claims by status">
                     <Pie
                       data={chartData}
+                      dataKey="value"
+                      nameKey="name"
                       cx="50%"
                       cy="50%"
-                      outerRadius={60}
-                      dataKey="value"
-                      label={false}
-                      labelLine={false}
+                      innerRadius={38}
+                      outerRadius={70}
+                      startAngle={90}
+                      endAngle={-270}
+                      isAnimationActive
+                      strokeWidth={2}
                     >
-                      {chartData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={COLORS[entry.status as keyof typeof COLORS] || 'hsl(var(--muted))'} 
-                        />
+                      {chartData.map((d, i) => (
+                        <Cell key={i} fill={d.color} />
                       ))}
+                      {/* Center label with total */}
+                      <Label
+                        position="center"
+                        content={({ viewBox }) => {
+                          if (
+                            !viewBox ||
+                            !("cx" in viewBox) ||
+                            !("cy" in viewBox)
+                          )
+                            return null;
+                          const { cx, cy } = viewBox;
+                          return (
+                            <g>
+                              <text
+                                x={cx}
+                                y={cy - 6}
+                                textAnchor="middle"
+                                className="fill-foreground text-xl font-extrabold"
+                              >
+                                {totalClaims}
+                              </text>
+                              <text
+                                x={cx}
+                                y={cy + 12}
+                                textAnchor="middle"
+                                className="fill-muted-foreground text-[10px]"
+                              >
+                                total
+                              </text>
+                            </g>
+                          );
+                        }}
+                      />
                     </Pie>
-                    <ChartTooltip 
+                    <ChartTooltip
                       content={<ChartTooltipContent />}
-                      formatter={(value) => [value, 'Claims']}
+                      formatter={(v, _n, p) => [
+                        `${v} • ${p?.payload?.percent ?? 0}%`,
+                        p?.payload?.name ?? "Claims",
+                      ]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </ChartContainer>
-              
-              <div className="space-y-2">
-                {chartData.map((item) => {
-                  const Icon = statusIcons[item.status as keyof typeof statusIcons] || AlertCircle;
+
+              {/* Legend */}
+              <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                {chartData.map((d) => {
+                  const Ico = StatusIcon[d.status] || AlertCircle;
                   return (
-                    <div key={item.status} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: COLORS[item.status as keyof typeof COLORS] }}
-                        />
-                        <Icon className="h-4 w-4" />
-                        <span>{item.name}</span>
-                      </div>
-                      <span className="font-medium">{item.value}</span>
+                    <div
+                      key={d.status}
+                      className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5"
+                    >
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: d.color }}
+                        aria-hidden
+                      />
+                      <Ico className="h-3.5 w-3.5" />
+                      <span className="truncate">{d.name}</span>
+                      <span className="ml-auto tabular-nums">{d.percent}%</span>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </>
           )}
         </CardContent>
       </Card>

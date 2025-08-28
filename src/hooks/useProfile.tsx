@@ -4,8 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface Profile {
   user_id: string;
-  role: 'client' | 'host';
+  role: 'client' | 'host' ;
   first_name?: string;
+  is_super_admin?:boolean;
   last_name?: string;
   company_name?: string;
   phone: string;

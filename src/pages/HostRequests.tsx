@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Clock, Car, User } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Car, User, Info, ChevronLeft } from 'lucide-react';
 
 interface RequestWithDetails {
   id: string;
@@ -239,11 +239,57 @@ export default function HostRequests() {
 
   return (
     <DashboardLayout>
+			  <header className="sticky top-0 z-10">
+				<div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
+				  <Button
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate(-1)}
+					aria-label="Back"
+					className="h-9 w-9"
+				  >
+					<ChevronLeft className="h-5 w-5" />
+				  </Button>
+		
+				  <div className="flex items-center gap-2">
+					<h1 className=" text-xl sm:text-2xl font-bold">Host Requests</h1>
+				  </div>
+		
+				  {/* spacer to keep title centered */}
+				  <div className="h-9 w-9" />
+				</div>
+			  </header>
+
+
+			<section className="mb-6 px-4">
+			  {/* Desktop / tablet (md+): full header with info + reset */}
+			  <div className="hidden md:flex items-center justify-between gap-3">
+				<div>
+				  <div className="flex items-center gap-2">
+					<Info className="h-6 w-6 text-primary" />
+				  </div>
+				  <p className="text-muted-foreground">
+Review and manage incoming vehicle hosting requests				  </p>
+				</div>
+	
+			  </div>
+	
+			  {/* Mobile (sm and below): compact banner */}
+			  <div className="md:hidden">
+				<div className="rounded-2xl border bg-muted/40 p-3 flex items-start gap-3">
+				  <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+					<Info className="h-5 w-5 text-primary" />
+				  </div>
+				  <div className="flex-1">
+					<p className="text-sm text-muted-foreground leading-relaxed">
+Review and manage incoming vehicle hosting requests					</p>
+				  </div>
+				</div>
+			  </div>
+			</section>
+	
+
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Host Requests</h1>
-          <p className="text-muted-foreground">Review and manage incoming vehicle hosting requests</p>
-        </div>
 
         {pendingRequests.length === 0 ? (
           <Card>
@@ -326,7 +372,7 @@ export default function HostRequests() {
 
         {requests.filter(req => req.status !== 'pending').length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Request History</h2>
+            {/* <h2 className="text-xl font-semibold">Request History</h2> */}
             {requests.filter(req => req.status !== 'pending').map((request) => (
               <Card key={request.id} className="opacity-75">
                 <CardHeader>

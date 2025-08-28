@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Teslys</string>
+    <string name="title_activity_main">Teslys</string>
+    <string name="package_name">com.app.teslys</string>
+    <string name="custom_url_scheme">com.app.teslys</string>
+</resources>

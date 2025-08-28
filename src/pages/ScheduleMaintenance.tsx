@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, Wrench, Car } from 'lucide-react';
+import { CalendarIcon, Clock, Wrench, Car, ChevronLeft } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -133,28 +133,61 @@ export default function ScheduleMaintenance() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={() => navigate('/my-cars')}>
-            ← Back to My Cars
+		      <header className="sticky top-0 z-10">
+        <div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/my-cars')}
+            aria-label="Back"
+            className="h-9 w-9"
+          >
+            <ChevronLeft className="h-5 w-5" />
           </Button>
-          <div className="flex items-center space-x-2">
-            <Car className="h-6 w-6" />
-            <h1 className="text-3xl font-bold">Schedule Maintenance</h1>
-          </div>
-        </div>
 
-        <Card className="max-w-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Wrench className="h-5 w-5" />
-              <span>Maintenance Details</span>
-            </CardTitle>
-            <CardDescription>
+          <div className="flex items-center gap-2">
+            <h1 className=" text-xl sm:text-2xl font-bold">Schedule Maintenance</h1>
+          </div>
+
+          {/* spacer to keep title centered */}
+          <div className="h-9 w-9" />
+        </div>
+      </header>
+
+      <div className="space-y-6">
+
+				<section className="mb-6">
+				  {/* Desktop / tablet (md+): full header with info + reset */}
+				  <div className="hidden md:flex items-center justify-between gap-3">
+					<div>
+					  <div className="flex items-center gap-2">
+						<Wrench className="h-6 w-6 text-primary" />
+					  </div>
+					  <p className="text-muted-foreground">
               Schedule routine maintenance or repairs for your vehicle
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+					  </p>
+					</div>
+		
+				  </div>
+		
+				  {/* Mobile (sm and below): compact banner */}
+				  <div className="md:hidden">
+					<div className="rounded-2xl   p-3 flex items-start gap-3">
+					  <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+						<Wrench className="h-5 w-5 text-primary" />
+					  </div>
+					  <div className="flex-1">
+						<p className="text-sm text-muted-foreground leading-relaxed">
+              Schedule routine maintenance or repairs for your vehicle
+						</p>
+					  </div>
+					</div>
+				  </div>
+				</section>
+		
+
+        <Card className="max-w-2xl px-4">
+          <CardContent className="mt-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField

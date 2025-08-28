@@ -1,30 +1,66 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { ArrowLeft, Car, Upload, X, Trash2, Camera, Image } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useCameraCapture } from '@/hooks/useCameraCapture';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  ArrowLeft,
+  Car,
+  Upload,
+  X,
+  Trash2,
+  Camera,
+  Image,
+  CarIcon,
+  ChevronLeft,
+} from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useCameraCapture } from "@/hooks/useCameraCapture";
 
 const carSchema = z.object({
-  make: z.string().min(1, 'Make is required'),
-  model: z.string().min(1, 'Model is required'),
-  year: z.number().min(1900, 'Invalid year').max(new Date().getFullYear() + 1, 'Invalid year'),
-  mileage: z.number().min(0, 'Mileage must be positive'),
-  color: z.string().min(1, 'Color is required'),
-  location: z.string().min(1, 'Location is required'),
-  license_plate: z.string().min(1, 'License plate is required'),
-  vin_number: z.string().min(1, 'VIN number is required'),
+  make: z.string().min(1, "Make is required"),
+  model: z.string().min(1, "Model is required"),
+  year: z
+    .number()
+    .min(1900, "Invalid year")
+    .max(new Date().getFullYear() + 1, "Invalid year"),
+  mileage: z.number().min(0, "Mileage must be positive"),
+  color: z.string().min(1, "Color is required"),
+  location: z.string().min(1, "Location is required"),
+  license_plate: z.string().min(1, "License plate is required"),
+  vin_number: z.string().min(1, "VIN number is required"),
   description: z.string().optional(),
 });
 
@@ -47,7 +83,14 @@ export default function EditCar() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const { takePhoto, selectFromGallery, showActionSheet, convertPhotoToFile, isCapturing, isNative } = useCameraCapture();
+  const {
+    takePhoto,
+    selectFromGallery,
+    showActionSheet,
+    convertPhotoToFile,
+    isCapturing,
+    isNative,
+  } = useCameraCapture();
 
   const form = useForm<CarFormData>({
     resolver: zodResolver(carSchema),
@@ -64,10 +107,10 @@ export default function EditCar() {
 
     try {
       const { data, error } = await supabase
-        .from('cars')
-        .select('*')
-        .eq('id', id)
-        .eq('client_id', user.id)
+        .from("cars")
+        .select("*")
+        .eq("id", id)
+        .eq("client_id", user.id)
         .single();
 
       if (error) throw error;
@@ -80,20 +123,20 @@ export default function EditCar() {
         mileage: data.mileage || 0,
         color: data.color,
         location: data.location,
-        license_plate: data.license_plate || '',
-        vin_number: data.vin_number || '',
-        description: data.description || '',
+        license_plate: data.license_plate || "",
+        vin_number: data.vin_number || "",
+        description: data.description || "",
       });
 
       setExistingImages(data.images || []);
     } catch (error) {
-      console.error('Error fetching car:', error);
+      console.error("Error fetching car:", error);
       toast({
         title: "Error loading car",
         description: "Unable to load car details. Please try again.",
         variant: "destructive",
       });
-      navigate('/my-cars');
+      navigate("/my-cars");
     } finally {
       setLoading(false);
     }
@@ -101,15 +144,15 @@ export default function EditCar() {
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setSelectedImages(prev => [...prev, ...files].slice(0, 5)); // Max 5 images
+    setSelectedImages((prev) => [...prev, ...files].slice(0, 5)); // Max 5 images
   };
 
   const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeExistingImage = (index: number) => {
-    setExistingImages(prev => prev.filter((_, i) => i !== index));
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleCameraCapture = async () => {
@@ -117,9 +160,12 @@ export default function EditCar() {
       quality: 90,
       allowEditing: true,
     });
-    
+
     if (photo) {
-      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
+      const file = await convertPhotoToFile(
+        photo,
+        `car-photo-${Date.now()}.jpg`
+      );
       if (file) {
         if (existingImages.length + selectedImages.length >= 5) {
           toast({
@@ -129,7 +175,7 @@ export default function EditCar() {
           });
           return;
         }
-        setSelectedImages(prev => [...prev, file]);
+        setSelectedImages((prev) => [...prev, file]);
       }
     }
   };
@@ -139,9 +185,12 @@ export default function EditCar() {
       quality: 90,
       allowEditing: true,
     });
-    
+
     if (photo) {
-      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
+      const file = await convertPhotoToFile(
+        photo,
+        `car-photo-${Date.now()}.jpg`
+      );
       if (file) {
         if (existingImages.length + selectedImages.length >= 5) {
           toast({
@@ -151,7 +200,7 @@ export default function EditCar() {
           });
           return;
         }
-        setSelectedImages(prev => [...prev, file]);
+        setSelectedImages((prev) => [...prev, file]);
       }
     }
   };
@@ -160,21 +209,23 @@ export default function EditCar() {
     const uploadedUrls: string[] = [];
 
     for (const file of selectedImages) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${carId}-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${carId}-${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2)}.${fileExt}`;
       const filePath = `car-images/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('cars')
+        .from("cars")
         .upload(filePath, file);
 
       if (uploadError) {
-        console.error('Error uploading file:', uploadError);
+        console.error("Error uploading file:", uploadError);
         continue;
       }
 
       const { data: urlData } = supabase.storage
-        .from('cars')
+        .from("cars")
         .getPublicUrl(filePath);
 
       uploadedUrls.push(urlData.publicUrl);
@@ -189,14 +240,15 @@ export default function EditCar() {
     setIsSubmitting(true);
     try {
       // Upload new images if any
-      const newImageUrls = selectedImages.length > 0 ? await uploadImages(id) : [];
-      
+      const newImageUrls =
+        selectedImages.length > 0 ? await uploadImages(id) : [];
+
       // Combine existing and new images
       const allImages = [...existingImages, ...newImageUrls];
 
       // Update car data
       const { error } = await supabase
-        .from('cars')
+        .from("cars")
         .update({
           make: data.make,
           model: data.model,
@@ -210,8 +262,8 @@ export default function EditCar() {
           images: allImages.length > 0 ? allImages : null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', id)
-        .eq('client_id', user.id);
+        .eq("id", id)
+        .eq("client_id", user.id);
 
       if (error) throw error;
 
@@ -220,9 +272,9 @@ export default function EditCar() {
         description: "Your car details have been updated.",
       });
 
-      navigate('/my-cars');
+      navigate("/my-cars");
     } catch (error) {
-      console.error('Error updating car:', error);
+      console.error("Error updating car:", error);
       toast({
         title: "Error updating car",
         description: "Please try again later.",
@@ -238,10 +290,10 @@ export default function EditCar() {
 
     try {
       const { error } = await supabase
-        .from('cars')
+        .from("cars")
         .delete()
-        .eq('id', id)
-        .eq('client_id', user.id);
+        .eq("id", id)
+        .eq("client_id", user.id);
 
       if (error) throw error;
 
@@ -250,9 +302,9 @@ export default function EditCar() {
         description: "Your car has been removed from the platform.",
       });
 
-      navigate('/my-cars');
+      navigate("/my-cars");
     } catch (error) {
-      console.error('Error deleting car:', error);
+      console.error("Error deleting car:", error);
       toast({
         title: "Error deleting car",
         description: "Please try again later.",
@@ -265,7 +317,9 @@ export default function EditCar() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-muted-foreground">Loading car details...</div>
+          <div className="text-lg text-muted-foreground">
+            Loading car details...
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -273,29 +327,35 @@ export default function EditCar() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" onClick={() => navigate('/my-cars')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to My Cars
+      <header className="sticky top-0 z-10">
+        <div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            aria-label="Back"
+            className="h-9 w-9"
+          >
+            <ChevronLeft className="h-5 w-5" />
           </Button>
-          <div className="flex items-center gap-2">
-            <Car className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Edit Car</h1>
-          </div>
-        </div>
 
+          <div className="flex items-center gap-2">
+            <h1 className=" text-xl sm:text-2xl font-bold">Edit Car</h1>
+          </div>
+
+          {/* spacer to keep title centered */}
+          <div className="h-9 w-9" />
+        </div>
+      </header>
+      <div className="max-w-2xl mx-auto mt-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Update Car Details</CardTitle>
-            <CardDescription>
-              Make changes to your car listing below.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="make"
@@ -324,7 +384,7 @@ export default function EditCar() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="year"
@@ -332,11 +392,13 @@ export default function EditCar() {
                       <FormItem>
                         <FormLabel>Year *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="2020" 
+                          <Input
+                            type="number"
+                            placeholder="2020"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -350,11 +412,13 @@ export default function EditCar() {
                       <FormItem>
                         <FormLabel>Mileage *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="50000" 
+                          <Input
+                            type="number"
+                            placeholder="50000"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -363,7 +427,7 @@ export default function EditCar() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="color"
@@ -392,7 +456,7 @@ export default function EditCar() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="license_plate"
@@ -428,7 +492,7 @@ export default function EditCar() {
                     <FormItem>
                       <FormLabel>Description (Optional)</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Tell us about your car..."
                           className="min-h-[100px]"
                           {...field}
@@ -441,13 +505,15 @@ export default function EditCar() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Current Images</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Current Images
+                    </label>
                     {existingImages.length > 0 ? (
                       <div className="grid grid-cols-3 gap-2 mb-4">
                         {existingImages.map((image, index) => (
                           <div key={index} className="relative">
-                            <img 
-                              src={image} 
+                            <img
+                              src={image}
                               alt={`Car image ${index + 1}`}
                               className="w-full aspect-square object-cover rounded-md"
                             />
@@ -464,13 +530,17 @@ export default function EditCar() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground mb-4">No existing images</p>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        No existing images
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Add New Images</label>
-                    
+                    <label className="block text-sm font-medium mb-2">
+                      Add New Images
+                    </label>
+
                     {isNative ? (
                       <div className="space-y-3 mb-4">
                         <div className="grid grid-cols-2 gap-3">
@@ -478,7 +548,10 @@ export default function EditCar() {
                             type="button"
                             variant="outline"
                             onClick={handleCameraCapture}
-                            disabled={isCapturing || (existingImages.length + selectedImages.length) >= 5}
+                            disabled={
+                              isCapturing ||
+                              existingImages.length + selectedImages.length >= 5
+                            }
                             className="h-20 flex flex-col gap-2"
                           >
                             <Camera className="h-6 w-6" />
@@ -488,7 +561,10 @@ export default function EditCar() {
                             type="button"
                             variant="outline"
                             onClick={handleGallerySelect}
-                            disabled={isCapturing || (existingImages.length + selectedImages.length) >= 5}
+                            disabled={
+                              isCapturing ||
+                              existingImages.length + selectedImages.length >= 5
+                            }
                             className="h-20 flex flex-col gap-2"
                           >
                             <Image className="h-6 w-6" />
@@ -502,7 +578,7 @@ export default function EditCar() {
                         </div>
                       </div>
                     ) : null}
-                    
+
                     <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                       <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                       <div className="text-sm text-muted-foreground mb-2">
@@ -519,7 +595,9 @@ export default function EditCar() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => document.getElementById('image-upload')?.click()}
+                        onClick={() =>
+                          document.getElementById("image-upload")?.click()
+                        }
                       >
                         Choose Files
                       </Button>
@@ -527,12 +605,14 @@ export default function EditCar() {
 
                     {selectedImages.length > 0 && (
                       <div className="mt-4">
-                        <p className="text-sm font-medium mb-2">New Images to Upload:</p>
+                        <p className="text-sm font-medium mb-2">
+                          New Images to Upload:
+                        </p>
                         <div className="grid grid-cols-3 gap-2">
                           {selectedImages.map((file, index) => (
                             <div key={index} className="relative">
-                              <img 
-                                src={URL.createObjectURL(file)} 
+                              <img
+                                src={URL.createObjectURL(file)}
                                 alt={`Upload preview ${index + 1}`}
                                 className="w-full aspect-square object-cover rounded-md"
                               />
@@ -554,20 +634,20 @@ export default function EditCar() {
                 </div>
 
                 <div className="flex gap-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => navigate('/my-cars')}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate("/my-cars")}
                     className="flex-1"
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={isSubmitting}
                     className="flex-1"
                   >
-                    {isSubmitting ? 'Updating...' : 'Update Car'}
+                    {isSubmitting ? "Updating..." : "Update Car"}
                   </Button>
                 </div>
 
@@ -583,13 +663,14 @@ export default function EditCar() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete your car
-                          and remove all associated data from our servers.
+                          This action cannot be undone. This will permanently
+                          delete your car and remove all associated data from
+                          our servers.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                           onClick={handleDelete}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >

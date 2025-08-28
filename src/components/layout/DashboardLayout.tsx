@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useNativeFeatures } from '@/hooks/useNativeFeatures';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from './AppSidebar';
-import { BottomNavBar } from './BottomNavBar';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useNativeFeatures } from "@/hooks/useNativeFeatures";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "./AppSidebar";
+import { BottomNavBar } from "./BottomNavBar";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -17,13 +17,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, loading, navigate]);
 
   if (loading) {
     return (
-      <div className="min-h-screen-safe flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <div className="text-lg">Loading...</div>
       </div>
     );
@@ -35,11 +35,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className={`min-h-screen-safe flex w-full ${isNative ? 'pt-safe-top' : ''}`}>
+      <div
+        className={`flex w-full ${
+          isNative ? "" : ""
+        }`}
+      >
         <AppSidebar />
-        <div className="flex-1">
-          <header className="h-12 border-b bg-background px-4" />
-          <main className="flex-1 px-0 py-4 pb-app-bottom sm:p-6 md:pb-6">
+        <div className="flex-1 w-full">
+          {/* <header className="h-12 bg-background px-4" /> */}
+          {/* ⬇️ added overflow-x-hidden */}
+          <main className="flex-1 pt-4 px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 overflow-x-hidden w-full">
             {children}
           </main>
           <BottomNavBar />
