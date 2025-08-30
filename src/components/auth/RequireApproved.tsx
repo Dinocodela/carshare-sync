@@ -1,32 +1,16 @@
-import { useEffect, useState } from "react";
+// src/components/auth/RequireApproved.tsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/useProfile";
 
 export default function RequireApproved() {
-  const { user } = useAuth();
-  const [status, setStatus] = useState<"pending"|"approved"|"rejected"|null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      if (!user) return; // RequireAuth will handle redirect
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("account_status")
-        .eq("user_id", user.id)
-        .single();
-		console.log(data.account_status);
-      if (!mounted) return;
-      setStatus(error ? "pending" : (data?.account_status ?? "pending")); // default safe: treat unknown as pending
-      setLoading(false);
-    })();
-    return () => { mounted = false; };
-  }, [user?.id]);
-
-  if (loading) return null; // or a spinner
-  if (status !== "approved") {
+  if (authLoading || profileLoading)
+    return <div style={{ padding: 24 }}>Loading require approed…</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (profile?.account_status !== "approved") {
     return <Navigate to="/account-pending" replace />;
   }
   return <Outlet />;

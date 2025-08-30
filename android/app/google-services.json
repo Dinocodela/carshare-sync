@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "920357505260",
+    "project_id": "teslys-web-app",
+    "storage_bucket": "teslys-web-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920357505260:android:cd5a1edd5eaf7ad07d3dc9",
+        "android_client_info": {
+          "package_name": "com.app.teslys"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOGYNKaiKmzZsYrjQ2MAmWoDe3dnqjcgQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

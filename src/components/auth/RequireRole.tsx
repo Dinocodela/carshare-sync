@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react";
+// src/components/auth/RequireRole.tsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/useProfile";
 
 export default function RequireRole() {
-  const { user } = useAuth();
-  const [ok, setOk] = useState<boolean | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      if (!user) return setOk(false);
-      const { data } = await supabase.from("profiles").select("is_super_admin").eq("user_id", user.id).single();
-      if (!mounted) return;
-      setOk(data?.is_super_admin);
-    })();
-    return () => { mounted = false; };
-  }, [user?.id]);
-
-  if (ok === null) return null;
-  return ok ? <Outlet /> : <Navigate to="/dashboard" replace />;
+  if (authLoading || profileLoading)
+    return <div style={{ padding: 24 }}>Loading…</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  return profile?.is_super_admin ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/dashboard" replace />
+  );
 }

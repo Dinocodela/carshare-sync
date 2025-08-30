@@ -161,6 +161,8 @@ function useRecentActivity(
 
 /* ---------- component ---------- */
 export default function Dashboard() {
+  console.log("dashboard");
+
   const mounted = useMounted();
   const navigate = useNavigate();
   const { user } = useAuth();

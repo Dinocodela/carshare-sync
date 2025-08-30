@@ -30,6 +30,7 @@ import RequireRole from "@/components/auth/RequireRole";
 import AccountPending from "@/pages/AccountPending";
 import AdminManageAccounts from "./pages/AdminManageAccounts";
 import RequirePending from "./components/auth/RequirePending";
+import PushNavHandler from "./components/push/PushNavHandler";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -40,6 +41,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthCallbackHandler />
+          <PushNavHandler />
+
           <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />

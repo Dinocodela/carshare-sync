@@ -1,40 +1,17 @@
-import { useEffect, useState } from "react";
+// src/components/auth/RequirePending.tsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/useProfile";
 
 export default function RequirePending() {
-  const { user } = useAuth();
-  const [status, setStatus] = useState<
-    "pending" | "approved" | "rejected" | null
-  >(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      if (!user) return;
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("account_status")
-        .eq("user_id", user.id)
-        .single();
-
-      if (!mounted) return;
-      setStatus(error ? null : data?.account_status ?? null);
-      setLoading(false);
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [user?.id]);
-
-  if (loading) return null; // or spinner
-
-  // only allow if exactly pending
-  if (status !== "pending") {
+  if (authLoading || profileLoading)
+    return <div style={{ padding: 24 }}>Loading…</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  // only allow exactly pending
+  if (profile?.account_status !== "pending")
     return <Navigate to="/dashboard" replace />;
-  }
-
   return <Outlet />;
 }

@@ -14,9 +14,10 @@ const config: CapacitorConfig = {
 	plugins: {
 		SplashScreen: {
 			launchShowDuration: 2000,
+			autoHide: true,
 			backgroundColor: "#000000",
 			showSpinner: false,
-			
+
 		},
 		StatusBar: {
 			style: "DARK",
@@ -24,11 +25,11 @@ const config: CapacitorConfig = {
 			overlaysWebView: true,
 		},
 		EdgeToEdge: {
-      backgroundColor: "#ffffff"
-    },
+			backgroundColor: "#ffffff"
+		},
 		Keyboard: {
 			resize: "native",
-    resizeOnFullScreen: true
+			resizeOnFullScreen: true
 		},
 		PushNotifications: {
 			presentationOptions: ["badge", "sound", "alert"],

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -27,9 +27,9 @@ const Index = () => {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (user) navigate("/dashboard");
-  }, [user, navigate]);
+  //   useEffect(() => {
+  //     if (user) navigate("/dashboard");
+  //   }, [user, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +61,8 @@ const Index = () => {
       </div>
     );
   }
+
+  if (user) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="h-full bg-gradient-hero flex items-center justify-center p-4">
