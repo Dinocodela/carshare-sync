@@ -1,7 +1,4 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { PageContainer } from "@/components/layout/PageContainer";
 import { SummaryCards } from "@/components/analytics/SummaryCards";
 import { PerCarSummaryCards } from "@/components/analytics/PerCarSummaryCards";
 import { EarningsChart } from "@/components/analytics/EarningsChart";
@@ -12,18 +9,36 @@ import { RecentClaims } from "@/components/analytics/RecentClaims";
 import { CarSelector } from "@/components/analytics/CarSelector";
 import { CarPerformanceCard } from "@/components/analytics/CarPerformanceCard";
 import { CarComparisonTable } from "@/components/analytics/CarComparisonTable";
+import { CarManagementDialog } from "@/components/cars/CarManagementDialog";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { usePerCarAnalytics } from "@/hooks/usePerCarAnalytics";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefreshCw, BarChart3, Car, Info } from "lucide-react";
+import { useEffect, useState } from "react";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ClientAnalytics() {
   const { earnings, expenses, claims, summary, loading, error, refetch } =
     useClientAnalytics();
+  const [selectedCarId, setSelectedCarId] = useState<string | undefined>(
+    undefined
+  );
+  const [activeTab, setActiveTab] = useState("portfolio");
+  const [manageDialogOpen, setManageDialogOpen] = useState(false);
+  const [selectedCarForManagement, setSelectedCarForManagement] = useState<{
+    id: string;
+    year: number;
+    make: string;
+    model: string;
+    status: string;
+  } | null>(null);
 
-  const [selectedCarId, setSelectedCarId] = useState<string | undefined>();
+  const { toast } = useToast();
+
   const {
     cars,
     carPerformanceData,
@@ -46,6 +61,39 @@ export default function ClientAnalytics() {
   }, [loading, perCarLoading, refetch, refetchPerCar]);
 
   const handleRefresh = () => {
+    refetch();
+    refetchPerCar();
+  };
+
+  const handleViewDetails = (carId: string) => {
+    setSelectedCarId(carId);
+    setActiveTab("per-car");
+
+    // Find car details for toast
+    const carData = carPerformanceData.find((car) => car.car_id === carId);
+    if (carData) {
+      toast({
+        title: "Car Selected",
+        description: `Viewing details for ${carData.car_year} ${carData.car_make} ${carData.car_model}`,
+      });
+    }
+  };
+
+  const handleManageStatus = (carId: string) => {
+    const carData = carPerformanceData.find((car) => car.car_id === carId);
+    if (carData) {
+      setSelectedCarForManagement({
+        id: carId,
+        year: carData.car_year,
+        make: carData.car_make,
+        model: carData.car_model,
+        status: carData.car_status,
+      });
+      setManageDialogOpen(true);
+    }
+  };
+
+  const handleCarUpdated = () => {
     refetch();
     refetchPerCar();
   };
@@ -128,7 +176,7 @@ export default function ClientAnalytics() {
 
           {/* --- Tabs: sticky & horizontally scrollable on mobile --- */}
           <section className="sticky top-[env(safe-area-inset-top,0)] z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70 -mx-4 px-4 sm:mx-0 sm:px-0 py-2">
-            <Tabs defaultValue="portfolio">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-2">
                 <TabsTrigger
                   value="portfolio"
@@ -224,8 +272,8 @@ export default function ClientAnalytics() {
                     <CarPerformanceCard
                       key={p.car_id}
                       performance={p}
-                      onViewDetails={setSelectedCarId}
-                      onManageStatus={() => {}}
+                      onViewDetails={handleViewDetails}
+                      onManageStatus={handleManageStatus}
                     />
                   ))}
                 </div>
@@ -235,14 +283,25 @@ export default function ClientAnalytics() {
                   </h3>
                   <CarComparisonTable
                     carPerformanceData={carPerformanceData}
-                    onViewDetails={setSelectedCarId}
-                    onManageStatus={() => {}}
+                    onViewDetails={handleViewDetails}
+                    onManageStatus={handleManageStatus}
                   />
                 </div>
               </TabsContent>
             </Tabs>
           </section>
         </div>
+
+        {/* Car Management Dialog */}
+        {selectedCarForManagement && (
+          <CarManagementDialog
+            open={manageDialogOpen}
+            onOpenChange={setManageDialogOpen}
+            carId={selectedCarForManagement.id}
+            carInfo={selectedCarForManagement}
+            onCarUpdated={handleCarUpdated}
+          />
+        )}
       </PageContainer>
     </DashboardLayout>
   );
