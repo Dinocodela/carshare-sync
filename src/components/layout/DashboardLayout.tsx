@@ -35,16 +35,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div
-        className={`flex w-full ${
-          isNative ? "" : ""
-        }`}
-      >
+      <div className={`flex w-full ${isNative ? "" : ""}`}>
         <AppSidebar />
         <div className="flex-1 w-full">
           {/* <header className="h-12 bg-background px-4" /> */}
           {/* ⬇️ added overflow-x-hidden */}
-          <main className="flex-1 pt-4 px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 overflow-x-hidden w-full">
+          <main className="flex-1 pt-4 pt-safe-top px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 overflow-x-hidden w-full">
             {children}
           </main>
           <BottomNavBar />

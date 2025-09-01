@@ -41,7 +41,7 @@ const config: CapacitorConfig = {
 
 	ios: {
 		scheme: "TESLYS Carshare",
-		contentInset: "automatic",
+		contentInset: "never",
 	},
 
 	android: {

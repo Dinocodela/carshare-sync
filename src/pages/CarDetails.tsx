@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
 
 interface CarData {
   id: string;
@@ -321,6 +322,18 @@ export default function CarDetails() {
             </CardContent>
           </Card>
         ) : null}
+
+        {userRole === "client" && car.status === "ready_for_return" && (
+          <div className="max-w-3xl mx-auto px-0 sm:px-0 mt-4">
+            <CancelReturnButton
+              carId={car.id}
+              afterSuccess={() => {
+                // simple UX: go back to My Cars or refresh
+                navigate("/my-cars", { replace: true });
+              }}
+            />
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

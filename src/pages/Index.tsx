@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/logo";
 import { ArrowRight } from "lucide-react";
+import { StatusBar } from "@capacitor/status-bar";
+import { Capacitor } from "@capacitor/core";
 
 type Role = "client" | "host";
 
@@ -26,6 +28,18 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
+
+  useEffect(() => {
+    if (isNative) {
+      StatusBar.setBackgroundColor({ color: "#000000" });
+    }
+    return () => {
+      if (isNative) {
+        StatusBar.setBackgroundColor({ color: "#aef1be" });
+      }
+    };
+  }, []);
 
   //   useEffect(() => {
   //     if (user) navigate("/dashboard");
@@ -56,7 +70,7 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
+      <div className="h-full flex items-center justify-center bg-gradient-hero">
         <div className="text-lg text-muted-foreground">Loading...</div>
       </div>
     );
@@ -66,7 +80,7 @@ const Index = () => {
 
   return (
     <div className="h-full bg-gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-xl">
+      <div className={`w-full max-w-xl `}>
         {/* Hero */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
@@ -128,7 +142,7 @@ const Index = () => {
               </span>
             </CardDescription> */}
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4">
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

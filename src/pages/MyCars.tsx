@@ -25,6 +25,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCars } from "@/hooks/useCars";
 import { ShareCarDialog } from "@/components/cars/ShareCarDialog";
 import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
+import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
 
 interface CarData {
   id: string;
@@ -295,6 +296,16 @@ export default function MyCars() {
                             >
                               View Host Contact
                             </Button>
+                          ) : car.status === "ready_for_return" ? (
+                            <CancelReturnButton
+                              carId={car.id}
+                              afterSuccess={() => {
+                                // If you have refetch in useCars, call it here
+                                // refetch?.();
+                                // Fallback:
+                                window.location.reload();
+                              }}
+                            />
                           ) : (
                             <Button
                               variant="outline"

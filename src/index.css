@@ -6,13 +6,26 @@
 All colors MUST be HSL.
 */
 
-html,body{
-	height: 100%;
+/* html,
+body {
+  height: 100%;
+} */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body,
+#root {
+  /* Modern iOS viewport unit + fallback for older WebKit */
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
 @layer base {
   :root {
-
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -57,7 +70,7 @@ html,body{
     --radius: 0.5rem;
 
     /* Navigation sizing */
-    --bottom-nav-height: 56px;
+    --bottom-nav-height: 65px;
 
     --sidebar-background: 0 0% 98%;
 
