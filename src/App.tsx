@@ -31,6 +31,7 @@ import AccountPending from "@/pages/AccountPending";
 import AdminManageAccounts from "./pages/AdminManageAccounts";
 import RequirePending from "./components/auth/RequirePending";
 import PushNavHandler from "./components/push/PushNavHandler";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register/client" element={<RegisterClient />} />
             <Route path="/register/host" element={<RegisterHost />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
 
             {/* Authenticated */}
             <Route element={<RequireAuth />}>
