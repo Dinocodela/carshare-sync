@@ -42,6 +42,7 @@ export function SubscriptionProvider({
   children: React.ReactNode;
 }) {
   const { user, loading } = useAuth();
+  const { setProfileLocal } = useProfile();
   const [state, setState] = useState<Omit<SubState, "refresh">>({
     loading: true,
     active: false,

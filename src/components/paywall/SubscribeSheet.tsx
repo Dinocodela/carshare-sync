@@ -98,6 +98,24 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
     }
   }
 
+  const monthlyPkg = packages.find(
+    (p: any) => /month/i.test(p.identifier || "") || p.packageType === "MONTHLY"
+  );
+  const annualPkg = packages.find(
+    (p: any) => /annual/i.test(p.identifier || "") || p.packageType === "ANNUAL"
+  );
+  const savingsPct =
+    monthlyPkg &&
+    annualPkg &&
+    annualPkg.product?.price != null &&
+    monthlyPkg.product?.price != null
+      ? Math.round(
+          ((monthlyPkg.product.price * 12 - annualPkg.product.price) /
+            (monthlyPkg.product.price * 12)) *
+            100
+        )
+      : null;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -132,40 +150,64 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
             <div className="space-y-3">
               {pkgsToShow.map((pkg: any) => {
                 const isAnnual =
-                  (pkg.identifier || "").toLowerCase().includes("annual") ||
+                  /annual/i.test(pkg.identifier || "") ||
                   pkg.packageType === "ANNUAL";
+                const title =
+                  pkg.product.title || (isAnnual ? "Annual" : "Monthly");
+                const desc =
+                  pkg.product.description ||
+                  "Unlock all premium features across the app";
+
+                const recommended = isAnnual && (!active || currentIsMonthly);
+
                 return (
                   <button
                     key={pkg.identifier}
-                    className="w-full text-left rounded-2xl border p-4 hover:bg-muted/40 transition"
                     onClick={() => onPurchase(pkg)}
+                    className={[
+                      "group w-full rounded-2xl border p-4 text-left transition hover:bg-muted/40",
+                      recommended
+                        ? "ring-2 ring-primary/30 bg-primary/5 border-primary/30"
+                        : "",
+                    ].join(" ")}
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium">
-                          {pkg.product.title ||
-                            (isAnnual ? "Annual" : "Monthly")}
+                    <div className="grid grid-cols-[1fr_auto] items-center gap-3">
+                      {/* Left: title + (inline ribbon) + description */}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium">{title}</div>
+
+                          {/* Inline ribbon so it never collides with price */}
+                          {isAnnual && (
+                            <span className="inline-flex items-center whitespace-nowrap rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                              {savingsPct
+                                ? `Best value · Save ${savingsPct}%`
+                                : "Best value"}
+                            </span>
+                          )}
+
+                          {recommended && (
+                            <span className="hidden sm:inline whitespace-nowrap rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                              Recommended
+                            </span>
+                          )}
                         </div>
-                        {!!pkg.product.description && (
-                          <div className="text-sm text-muted-foreground">
-                            {pkg.product.description}
-                          </div>
-                        )}
+
+                        <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                          {desc}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-semibold">
+
+                      {/* Right: price */}
+                      <div className="shrink-0 text-right">
+                        <div className="text-base font-semibold">
                           {pkg.product.priceString}
                         </div>
-                        {isAnnual && (
-                          <Badge className="mt-1" variant="secondary">
-                            Best value
-                          </Badge>
-                        )}
                       </div>
                     </div>
                   </button>
                 );
-              })}{" "}
+              })}
             </div>
           )}
 
