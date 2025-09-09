@@ -31,76 +31,91 @@ import AccountPending from "@/pages/AccountPending";
 import AdminManageAccounts from "./pages/AdminManageAccounts";
 import RequirePending from "./components/auth/RequirePending";
 import PushNavHandler from "./components/push/PushNavHandler";
+import { SubscriptionProvider } from "./hooks/useSubscription";
+import RequireSubscribed from "./components/auth/RequireSubscribed";
+import Subscribe from "./pages/Subscribe";
+import RequireUnsubscribed from "./components/auth/RequireUnsusbscribed";
+import SubscribeOverlay from "./pages/SubscribeOverlay";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthCallbackHandler />
-          <PushNavHandler />
+      <SubscriptionProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthCallbackHandler />
+            <PushNavHandler />
+            <Routes>
+              {/* Public */}
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register/client" element={<RegisterClient />} />
+              <Route path="/register/host" element={<RegisterHost />} />
 
-          <Routes>
-            {/* Public */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register/client" element={<RegisterClient />} />
-            <Route path="/register/host" element={<RegisterHost />} />
+              {/* Authenticated */}
+              <Route element={<RequireAuth />}>
+                {/* Pending */}
+                <Route element={<RequirePending />}>
+                  <Route path="/account-pending" element={<AccountPending />} />
+                </Route>
 
-            {/* Authenticated */}
-            <Route element={<RequireAuth />}>
-              {/* Pending route (auth required but not approved) */}
-              <Route element={<RequirePending />}>
-                <Route path="/account-pending" element={<AccountPending />} />
-              </Route>
+                {/* Approved-only */}
+                <Route element={<RequireApproved />}>
+                  <Route path="/subscribe" element={<SubscribeOverlay />} />
 
-              {/* Approved-only */}
-              <Route element={<RequireApproved />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/client-analytics" element={<ClientAnalytics />} />
-                <Route path="/host-analytics" element={<HostAnalytics />} />
-                <Route path="/add-car" element={<AddCar />} />
-                <Route path="/select-host" element={<SelectHost />} />
-                <Route path="/my-cars" element={<MyCars />} />
-                <Route path="/host-requests" element={<HostRequests />} />
-                <Route
-                  path="/hosting-details/:carId"
-                  element={<HostingDetails />}
-                />
-                <Route
-                  path="/host-car-management"
-                  element={<HostCarManagement />}
-                />
-                <Route path="/cars/:id/view" element={<CarDetails />} />
-                <Route path="/cars/:id/edit" element={<EditCar />} />
-                <Route
-                  path="/cars/:id/schedule-maintenance"
-                  element={<ScheduleMaintenance />}
-                />
-                <Route
-                  path="/client-fixed-expenses"
-                  element={<ClientFixedExpenses />}
-                />
-                <Route path="/settings" element={<Settings />} />
+                  {/* 🔓 Let Settings be reachable even if unsubscribed so users can manage/restore */}
+                  <Route path="/settings" element={<Settings />} />
+                  {/* everything else requires subscription */}
+                  <Route element={<RequireSubscribed />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route
+                      path="/client-analytics"
+                      element={<ClientAnalytics />}
+                    />
+                    <Route path="/host-analytics" element={<HostAnalytics />} />
+                    <Route path="/add-car" element={<AddCar />} />
+                    <Route path="/select-host" element={<SelectHost />} />
+                    <Route path="/my-cars" element={<MyCars />} />
+                    <Route path="/host-requests" element={<HostRequests />} />
+                    <Route
+                      path="/hosting-details/:carId"
+                      element={<HostingDetails />}
+                    />
+                    <Route
+                      path="/host-car-management"
+                      element={<HostCarManagement />}
+                    />
+                    <Route path="/cars/:id/view" element={<CarDetails />} />
+                    <Route path="/cars/:id/edit" element={<EditCar />} />
+                    <Route
+                      path="/cars/:id/schedule-maintenance"
+                      element={<ScheduleMaintenance />}
+                    />
+                    <Route
+                      path="/client-fixed-expenses"
+                      element={<ClientFixedExpenses />}
+                    />
 
-                {/* Admin-only (optional) */}
-                <Route element={<RequireRole />}>
-                  <Route
-                    path="/admin/manage-accounts"
-                    element={<AdminManageAccounts />}
-                  />
+                    {/* Admin inside the paywall as well (move it out if you want admin to bypass) */}
+                    <Route element={<RequireRole />}>
+                      <Route
+                        path="/admin/manage-accounts"
+                        element={<AdminManageAccounts />}
+                      />
+                    </Route>
+                  </Route>
                 </Route>
               </Route>
-            </Route>
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </SubscriptionProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

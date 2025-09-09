@@ -14,6 +14,8 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { NotificationsCard } from "@/components/NotificationsCard";
 import { HostProfilePreviewDialog } from "@/components/HostProfilePreviewDialog";
 import { useNavigate } from "react-router-dom";
+import { Info } from "lucide-react";
+import { SubscriptionCard } from "@/components/SubscriptionCard";
 
 interface Profile {
   user_id: string;
@@ -237,6 +239,12 @@ export default function Settings() {
 
   return (
     <DashboardLayout>
+      <header className="sticky top-0 z-10 flex items-center justify-center gap-2 py-2 mb-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold">Account Settings</h1>
+        </div>
+      </header>
+
       <PageContainer>
         <main>
           {/* ⬇️ removed the large "Account settings" page title */}
@@ -482,6 +490,14 @@ export default function Settings() {
                     </Button>
                   </CardContent>
                 </Card>
+              </section>
+
+              {/* Subscription */}
+              <section
+                aria-labelledby="subscription-section"
+                className="md:col-span-2"
+              >
+                <SubscriptionCard />
               </section>
 
               {/* Notifications */}

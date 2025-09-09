@@ -5,6 +5,7 @@ import { useNativeFeatures } from "@/hooks/useNativeFeatures";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { BottomNavBar } from "./BottomNavBar";
+import { PaywallGate } from "../paywall/PaywallGate";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -43,6 +44,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <main className="flex-1 pt-4 pt-safe-top px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 overflow-x-hidden w-full">
             {children}
           </main>
+          {/* <PaywallGate /> */}
           <BottomNavBar />
         </div>
       </div>

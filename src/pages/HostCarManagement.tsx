@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Car,
   Phone,
@@ -215,6 +215,20 @@ type EarningsFilters = {
   dateRange: EarningsDateRange; // 👈 update
 };
 
+const VALID_TABS = [
+  "active",
+  "returns",
+  "expenses",
+  "earnings",
+  "claims",
+] as const;
+type Tab = (typeof VALID_TABS)[number];
+
+const tabFromHash = (hash: string): Tab => {
+  const h = hash.replace("#", "") as string;
+  return (VALID_TABS as readonly string[]).includes(h) ? (h as Tab) : "active";
+};
+
 const expenseSchema = z.object({
   trip_id: z.string().min(1, "Trip# is required"),
   car_id: z.string().optional(),
@@ -298,6 +312,7 @@ const formatDetailedCarInfo = (car: CarWithClient) => (
 );
 
 export default function HostCarManagement() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, session } = useAuth();
@@ -327,32 +342,34 @@ export default function HostCarManagement() {
   const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
 
   // Active tab state for conditional mobile UI
-  const [tab, setTab] = useState<
-    "active" | "returns" | "expenses" | "earnings" | "claims"
-  >("active");
+  const [tab, setTab] = useState<Tab>(() => tabFromHash(location.hash));
 
-  // Sync tab with URL hash (supports deep-linking, e.g., #returns)
+  // keep state in sync when hash changes (e.g., bottom nav links)
   useEffect(() => {
-    const fromHash = window.location.hash.replace("#", "");
-    const valid = [
-      "active",
-      "returns",
-      "expenses",
-      "earnings",
-      "claims",
-    ] as const;
-    if ((valid as readonly string[]).includes(fromHash)) {
-      setTab(fromHash as typeof tab);
-    }
-    const onHashChange = () => {
-      const h = window.location.hash.replace("#", "");
-      if ((valid as readonly string[]).includes(h)) {
-        setTab(h as typeof tab);
-      }
-    };
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, []);
+    setTab(tabFromHash(location.hash));
+  }, [location.hash]);
+  // Sync tab with URL hash (supports deep-linking, e.g., #returns)
+  //   useEffect(() => {
+  //     const fromHash = window.location.hash.replace("#", "");
+  //     const valid = [
+  //       "active",
+  //       "returns",
+  //       "expenses",
+  //       "earnings",
+  //       "claims",
+  //     ] as const;
+  //     if ((valid as readonly string[]).includes(fromHash)) {
+  //       setTab(fromHash as typeof tab);
+  //     }
+  //     const onHashChange = () => {
+  //       const h = window.location.hash.replace("#", "");
+  //       if ((valid as readonly string[]).includes(h)) {
+  //         setTab(h as typeof tab);
+  //       }
+  //     };
+  //     window.addEventListener("hashchange", onHashChange);
+  //     return () => window.removeEventListener("hashchange", onHashChange);
+  //   }, []);
 
   // Filter state for expenses
   const [expenseFilters, setExpenseFilters] = useState({
@@ -1591,6 +1608,13 @@ export default function HostCarManagement() {
     }
   };
 
+  const onTabChange = (next: string) => {
+    if ((VALID_TABS as readonly string[]).includes(next)) {
+      setTab(next as Tab);
+      navigate({ hash: `#${next}` }, { replace: true });
+    }
+  };
+
   const [earningFiltersOpen, setEarningFiltersOpen] = useState(false);
 
   const earningsActiveFiltersCount =
@@ -1622,133 +1646,80 @@ export default function HostCarManagement() {
           description="Manage hosted cars, returns, expenses, earnings, and claims."
         />
         <PageContainer className="pb-24">
-          <Tabs
-            value={tab}
-            onValueChange={(v) => setTab(v as typeof tab)}
-            className="w-full"
-          >
-            <div className="sticky top-0 z-20 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
-              <div className="relative">
-                <TabsList
-                  className="flex w-full gap-2 px-2 py-2 overflow-x-auto no-scrollbar snap-x snap-mandatory
-                   [scrollbar-width:none] [-ms-overflow-style:none]"
-                >
+          <Tabs value={tab} onValueChange={onTabChange} className="w-full">
+            {/* Tabs header */}
+            {/* Sticky header */}
+            {/* Header that matches the bottom bar */}
+            <div
+              className="
+  sticky top-0 z-40 border-b
+  backdrop-blur-md bg-white/70 supports-[backdrop-filter]:bg-white/60
+  shadow-[0_6px_16px_rgba(0,0,0,0.05)]
+"
+            >
+              <TabsList className="grid grid-cols-4 w-full h-11 px-1.5 gap-0 bg-transparent border-0">
+                {[
+                  {
+                    key: "active",
+                    label: "Active",
+                    count: activeHostedCars.length,
+                  },
+                  {
+                    key: "expenses",
+                    label: "Expenses",
+                    count: expenses.length,
+                  },
+                  {
+                    key: "earnings",
+                    label: "Earnings",
+                    count: earnings.length,
+                  },
+                  { key: "claims", label: "Claims", count: claims.length },
+                ].map(({ key, label, count }) => (
                   <TabsTrigger
-                    value="active"
-                    className="gap-2 px-3 py-1.5 text-sm snap-start"
-                    aria-label="Active"
+                    key={key}
+                    value={key as any}
+                    className="
+          group relative inline-flex items-center justify-center
+          h-11 px-3 rounded-none text-[15px] font-medium
+          text-muted-foreground data-[state=active]:text-primary
+          transition-colors
+        "
                   >
-                    Active
-                    <Badge variant="secondary">{activeHostedCars.length}</Badge>
+                    {/* label (kept perfectly centered) */}
+                    <span className="leading-none">{label}</span>
+
+                    {/* badge - lowered & tighter, with a subtle ring like iOS badges */}
+                    {!!count && (
+                      <span
+                        className="
+              pointer-events-none absolute top-[0px] right-[0px]
+              inline-grid place-items-center tabular-nums
+              h-[18px] min-w-[18px] 
+              rounded-full text-[10px] leading-none
+              bg-muted/90 text-foreground/70 ring-1 ring-black/5
+              group-data-[state=active]:bg-primary/10
+              group-data-[state=active]:text-primary
+            "
+                      >
+                        {count}
+                      </span>
+                    )}
+
+                    {/* active underline */}
+                    <span
+                      aria-hidden
+                      className="
+            absolute left-2 right-2 -bottom-[1px] h-[2px] rounded-full
+            bg-primary opacity-0 group-data-[state=active]:opacity-100
+          "
+                    />
                   </TabsTrigger>
-
-                  <TabsTrigger
-                    value="expenses"
-                    className="gap-2 px-3 py-1.5 text-sm snap-start"
-                    aria-label="Expenses"
-                  >
-                    Expenses
-                    <Badge variant="secondary">{expenses.length}</Badge>
-                  </TabsTrigger>
-
-                  <TabsTrigger
-                    value="earnings"
-                    className="gap-2 px-3 py-1.5 text-sm snap-start"
-                    aria-label="Earnings"
-                  >
-                    Earnings
-                    <Badge variant="secondary">{earnings.length}</Badge>
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* edge fades for nicer scroll affordance */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute left-0 top-0 h-10 w-6 bg-gradient-to-r from-background to-transparent"
-                />
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute right-0 top-0 h-10 w-6 bg-gradient-to-l from-background to-transparent"
-                />
-              </div>
-
-              {/* Quick filter chips for mobile */}
-              {/* {isMobile && tab === "expenses" && (
-                <div className="px-2 py-2 border-t">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant={
-                        expenseFilters.dateRange === "7d"
-                          ? "default"
-                          : "secondary"
-                      }
-                      onClick={() =>
-                        setExpenseFilters((prev) => ({
-                          ...prev,
-                          dateRange: "7d",
-                        }))
-                      }
-                    >
-                      7d
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={
-                        expenseFilters.dateRange === "30d"
-                          ? "default"
-                          : "secondary"
-                      }
-                      onClick={() =>
-                        setExpenseFilters((prev) => ({
-                          ...prev,
-                          dateRange: "30d",
-                        }))
-                      }
-                    >
-                      30d
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={
-                        expenseFilters.dateRange === "90d"
-                          ? "default"
-                          : "secondary"
-                      }
-                      onClick={() =>
-                        setExpenseFilters((prev) => ({
-                          ...prev,
-                          dateRange: "90d",
-                        }))
-                      }
-                    >
-                      90d
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={
-                        expenseFilters.dateRange === "all"
-                          ? "default"
-                          : "secondary"
-                      }
-                      onClick={() =>
-                        setExpenseFilters((prev) => ({
-                          ...prev,
-                          dateRange: "all",
-                        }))
-                      }
-                    >
-                      All
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={clearFilters}>
-                      <X className="h-4 w-4 mr-1" /> Clear
-                    </Button>
-                  </div>
-                </div>
-              )} */}
+                ))}
+              </TabsList>
             </div>
 
-            <TabsContent value="active" className="space-y-4 px-3 sm:px-0">
+            <TabsContent value="active" className="space-y-4  sm:px-0">
               {activeHostedCars.length === 0 ? (
                 <Card className="w-full mx-0 max-w-none">
                   <CardContent className="text-center p-4 sm:p-6">
@@ -1984,7 +1955,7 @@ export default function HostCarManagement() {
               )}
             </TabsContent>
 
-            <TabsContent value="returns" className="space-y-4 px-3 sm:px-0">
+            <TabsContent value="returns" className="space-y-4  sm:px-0">
               {readyForReturnCars.length === 0 ? (
                 <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
                   <CardContent className="text-center p-4 sm:p-6">
@@ -2125,7 +2096,7 @@ export default function HostCarManagement() {
               )}
             </TabsContent>
 
-            <TabsContent value="expenses" className="space-y-4 px-3 sm:px-0">
+            <TabsContent value="expenses" className="space-y-4  sm:px-0">
               <div className="flex justify-between items-center ">
                 {/* <h3 className="text-lg font-medium">Expenses</h3> */}
                 {isMobile ? (
@@ -3213,7 +3184,7 @@ export default function HostCarManagement() {
               )}
             </TabsContent>
 
-            <TabsContent value="earnings" className="space-y-4 px-3 sm:px-0">
+            <TabsContent value="earnings" className="space-y-4  sm:px-0">
               <div className="flex items-center justify-start gap-2 sm:justify-between">
                 {/* <h3 className="text-lg font-medium">Earnings</h3> */}
                 <>
@@ -5122,7 +5093,7 @@ export default function HostCarManagement() {
               )}
             </TabsContent>
 
-            <TabsContent value="claims" className="space-y-4 px-3 sm:px-0">
+            <TabsContent value="claims" className="space-y-4  sm:px-0">
               {/* <h3 className="text-lg font-medium">Claims</h3> */}
               {isMobile ? (
                 <div className="flex items-center justify-between w-full">

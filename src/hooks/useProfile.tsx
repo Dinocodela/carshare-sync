@@ -13,6 +13,11 @@ export interface Profile {
   is_super_admin?: boolean | null;
   email?: string | null;
   phone?: string | null;
+  is_subscribed?: boolean;
+  rc_product_id?: string | null;
+  rc_expiration_at?: string | null;
+  rc_will_renew?: boolean | null;
+  rc_entitlements?: any;
 }
 
 export function useProfile() {
@@ -38,7 +43,7 @@ export function useProfile() {
         const { data, error } = await supabase
           .from("profiles")
           .select(
-            "user_id, role, first_name, last_name, company_name, account_status, is_super_admin, email, phone"
+            "user_id, role, first_name, last_name, company_name, account_status, is_super_admin, email, phone,is_subscribed,rc_product_id,rc_expiration_at,rc_will_renew,rc_entitlements"
           )
           .eq("user_id", user.id)
           .maybeSingle();
@@ -68,9 +73,14 @@ export function useProfile() {
     };
   }, [user?.id]);
 
+  const setProfileLocal = (patch: Partial<Profile>) => {
+    setProfile((prev) => (prev ? { ...(prev as Profile), ...patch } : prev));
+  };
+
   return {
     profile,
     loading,
+    setProfileLocal,
     error,
     refetch: () => {
       /* optional if you want */

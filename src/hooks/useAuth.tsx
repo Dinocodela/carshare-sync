@@ -4,6 +4,9 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
 import { registerPushToken, unregisterPushToken } from "@/lib/push";
+import { configureRevenueCat } from "@/lib/revenuecat";
+
+// Add an "augmented" user shape we can patch locally
 
 interface AuthContextType {
   user: User | null;
@@ -33,9 +36,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         const { data } = await supabase.auth.getSession();
+        console.log("session", data);
         if (!alive) return;
         setSession(data.session ?? null);
         setUser(data.session?.user ?? null);
+        console.log("configure revenue cat", data?.session?.user?.id);
+        configureRevenueCat(data.session?.user?.id ?? null);
       } finally {
         if (alive) setLoading(false);
       }
@@ -48,6 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!alive) return;
       setSession(s ?? null);
       setUser(s?.user ?? null);
+      if (s?.user) {
+        if (Capacitor.isNativePlatform()) {
+          configureRevenueCat(s.user?.id ?? null);
+          registerPushToken(s.user.id).catch((e) =>
+            console.warn("registerPushToken failed:", e)
+          );
+        }
+      }
     });
 
     return () => {
@@ -59,9 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 3) Register/unregister push token when user changes (native only)
   useEffect(() => {
     if (!user?.id || !Capacitor.isNativePlatform()) return;
-    registerPushToken(user.id).catch((e) =>
-      console.warn("registerPushToken failed:", e)
-    );
   }, [user?.id]);
 
   const signIn = async (email: string, password: string) => {
