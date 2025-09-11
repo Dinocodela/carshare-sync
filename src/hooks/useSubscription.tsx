@@ -89,8 +89,6 @@ export function SubscriptionProvider({
 
     console.log("customer entitlements", ci.entitlements);
 
-    alert(JSON.stringify(ci.entitlements));
-
     const activeNow =
       !!ci?.entitlements?.active?.pro || !!ci?.entitlements?.active?.Pro;
     const pickedEnt =
