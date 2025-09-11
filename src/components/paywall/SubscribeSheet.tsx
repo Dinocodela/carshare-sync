@@ -180,7 +180,7 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
                           {/* Inline ribbon so it never collides with price */}
                           {isAnnual && (
                             <span className="inline-flex items-center whitespace-nowrap rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
-                              {savingsPct
+                              {savingsPct && savingsPct > 0
                                 ? `Best value · Save ${savingsPct}%`
                                 : "Best value"}
                             </span>

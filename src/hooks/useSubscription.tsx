@@ -87,6 +87,10 @@ export function SubscriptionProvider({
     // await loadFromDb();
     const ci = await getCustomerInfo();
 
+    console.log("customer entitlements", ci.entitlements);
+
+    alert(JSON.stringify(ci.entitlements));
+
     const activeNow =
       !!ci?.entitlements?.active?.pro || !!ci?.entitlements?.active?.Pro;
     const pickedEnt =
