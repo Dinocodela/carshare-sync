@@ -15,6 +15,8 @@ PODS:
     - Capacitor
   - CapacitorPushNotifications (7.0.2):
     - Capacitor
+  - CapacitorScreenOrientation (7.0.2):
+    - Capacitor
   - CapacitorSplashScreen (7.0.2):
     - Capacitor
   - CapacitorStatusBar (7.0.2):
@@ -88,6 +90,7 @@ DEPENDENCIES:
   - "CapacitorFirebaseMessaging (from `../../node_modules/@capacitor-firebase/messaging`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapacitorScreenOrientation (from `../../node_modules/@capacitor/screen-orientation`)"
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "RevenuecatPurchasesCapacitor (from `../../node_modules/@revenuecat/purchases-capacitor`)"
@@ -122,6 +125,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/keyboard"
   CapacitorPushNotifications:
     :path: "../../node_modules/@capacitor/push-notifications"
+  CapacitorScreenOrientation:
+    :path: "../../node_modules/@capacitor/screen-orientation"
   CapacitorSplashScreen:
     :path: "../../node_modules/@capacitor/splash-screen"
   CapacitorStatusBar:
@@ -138,6 +143,7 @@ SPEC CHECKSUMS:
   CapacitorFirebaseMessaging: 71ea2cde4484e172de29e4b4e68100c2f84fb441
   CapacitorKeyboard: a86aa9e4741b6444a802df26440a92ae041b34a6
   CapacitorPushNotifications: 7c0659b349b149ee3936a682da31a9d269de9582
+  CapacitorScreenOrientation: e0d5b9ef293b269b8f93373355d5b276f50fabea
   CapacitorSplashScreen: 157947576b59d913792063a8d442a79e6d283ee5
   CapacitorStatusBar: e04d05e121d5a5979c29eb4249186a4e4a84cacb
   FirebaseCore: 3227e35f4197a924206fbcdc0349325baf4f5de4
@@ -152,6 +158,6 @@ SPEC CHECKSUMS:
   RevenueCat: 47d52620419dcf3dce4e724eade9d390e16ab4b0
   RevenuecatPurchasesCapacitor: 51cd81cec7db693a2552b45c36261d849e1cf574
 
-PODFILE CHECKSUM: 411a3a518844b8b3fddaa810c6fc1ab726c08e99
+PODFILE CHECKSUM: 89049a3f044b109bf78e90e705e3953041141378
 
 COCOAPODS: 1.16.2

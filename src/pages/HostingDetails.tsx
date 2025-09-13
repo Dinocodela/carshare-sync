@@ -36,6 +36,8 @@ interface CarWithHost {
     id: string;
     first_name: string;
     last_name: string;
+    bio?: string | null;
+    services?: string[] | null;
     phone: string;
     company_name: string;
     location: string;
@@ -63,7 +65,7 @@ export default function HostingDetails() {
     try {
       // Use the secure function that bypasses RLS issues
       const { data: hostContactData, error: hostContactError } =
-        await supabase.rpc("get_host_contact_for_client", {
+        await supabase.rpc("get_host_contact_for_client_v2", {
           p_car_id: carId,
           p_client_id: user.id,
         });
@@ -93,6 +95,8 @@ export default function HostingDetails() {
           company_name: hostData.host_company_name,
           location: hostData.host_location,
           rating: hostData.host_rating || 0,
+          bio: hostData.host_bio ?? null,
+          services: hostData.host_services ?? null,
           turo_reviews_count: hostData.host_turo_reviews_count,
           turo_profile_url: hostData.host_turo_profile_url,
         },
@@ -265,6 +269,8 @@ export default function HostingDetails() {
                   rating: car.host.rating,
                   turo_reviews_count: car.host.turo_reviews_count,
                   turo_profile_url: car.host.turo_profile_url,
+                  services: car.host.services,
+                  bio: car.host.bio,
                 }}
                 showCallButton
               />

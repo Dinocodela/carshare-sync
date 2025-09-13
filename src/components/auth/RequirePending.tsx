@@ -8,7 +8,7 @@ export default function RequirePending() {
   const { profile, loading: profileLoading } = useProfile();
 
   if (authLoading || profileLoading) return <></>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
   // only allow exactly pending
   if (profile?.account_status !== "pending")
     return <Navigate to="/dashboard" replace />;

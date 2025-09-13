@@ -243,11 +243,14 @@ body,
 
 @layer utilities {
   /* Safe area helpers */
+  .top-safe {
+    top: env(safe-area-inset-top);
+  }
   .pb-safe-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom) + 0px);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   .pt-safe-top {
-    padding-top: calc(env(safe-area-inset-top) + 6px);
+    padding-top: env(safe-area-inset-top);
   }
 
   /* Semantic utility classes (if needed outside Tailwind theme) */

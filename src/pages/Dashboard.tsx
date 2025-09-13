@@ -358,7 +358,7 @@ export default function Dashboard() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-1 text-center sm:text-left break-words">
+            <h1 className="text-xl font-bold text-foreground mb-1 text-center sm:text-left break-words">
               Welcome back,{" "}
               <span className="whitespace-nowrap">{displayName}!</span>
             </h1>

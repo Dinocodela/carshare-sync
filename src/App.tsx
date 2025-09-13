@@ -53,7 +53,7 @@ const App = () => (
             <Routes>
               {/* Public */}
               <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
+              {/* <Route path="/login" element={<Login />} /> */}
               <Route path="/register/client" element={<RegisterClient />} />
               <Route path="/register/host" element={<RegisterHost />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />

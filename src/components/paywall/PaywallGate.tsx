@@ -18,7 +18,6 @@ export function PaywallGate() {
       "/subscribe",
       "/settings",
       "/account-pending",
-      "/login",
       "/register/client",
       "/register/host",
       "/",

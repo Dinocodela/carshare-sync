@@ -19,7 +19,8 @@ export default function AuthCallbackHandler() {
 
       let description = decodeURIComponent(errorDesc || error);
       if (errorCode === "otp_expired") {
-        description = "Email link is invalid or has expired. Please request a new confirmation email.";
+        description =
+          "Email link is invalid or has expired. Please request a new confirmation email.";
       }
 
       toast({
@@ -36,8 +37,8 @@ export default function AuthCallbackHandler() {
       );
 
       // Send users to the login page after showing the error
-      if (location.pathname !== "/login") {
-        navigate("/login", { replace: true });
+      if (location.pathname !== "/") {
+        navigate("/", { replace: true });
       }
     }
   }, [location.hash, location.pathname, navigate, toast]);

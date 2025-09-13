@@ -50,7 +50,7 @@ export default function HostRequests() {
 
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 

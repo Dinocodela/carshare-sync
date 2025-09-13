@@ -17,7 +17,6 @@ export default function SubscribeOverlay() {
       "/subscribe",
       "/settings",
       "/account-pending",
-      "/login",
       "/register/client",
       "/register/host",
       "/",

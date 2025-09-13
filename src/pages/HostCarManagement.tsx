@@ -1641,6 +1641,12 @@ export default function HostCarManagement() {
   return (
     <DashboardLayout>
       <>
+        <header className="sticky top-0 z-10 flex items-center justify-center gap-2 py-2 mb-4">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold">Hosted</h1>
+          </div>
+        </header>
+
         <SEO
           title="Host Car Management"
           description="Manage hosted cars, returns, expenses, earnings, and claims."

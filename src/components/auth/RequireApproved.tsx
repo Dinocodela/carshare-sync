@@ -8,7 +8,7 @@ export default function RequireApproved() {
   const { profile, loading: profileLoading } = useProfile();
 
   if (authLoading || profileLoading) return <></>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
   if (profile?.account_status !== "approved") {
     return <Navigate to="/account-pending" replace />;
   }
