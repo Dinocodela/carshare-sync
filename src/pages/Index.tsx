@@ -144,7 +144,7 @@ const Index = () => {
   );
 
   return (
-    <div className="h-full bg-gradient-hero flex items-center justify-center p-4 overflow-y-scroll">
+    <div className="h-full pt-safe-top bg-gradient-hero flex items-center justify-center p-4 overflow-y-scroll">
       <div className="w-full max-w-xl h-full">
         {Hero}
 
