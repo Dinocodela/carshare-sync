@@ -16,6 +16,7 @@ import { HostProfilePreviewDialog } from "@/components/HostProfilePreviewDialog"
 import { useNavigate } from "react-router-dom";
 import { Info } from "lucide-react";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
+import { Capacitor } from "@capacitor/core";
 
 interface Profile {
   user_id: string;
@@ -53,6 +54,7 @@ export default function Settings() {
   const [turoUrl, setTuroUrl] = useState("");
   const [rating, setRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [reviewCountInput, setReviewCountInput] = useState<string>("0");
 
   const role = useMemo(
     () =>
@@ -379,15 +381,28 @@ export default function Settings() {
                             <Input
                               id="review_count"
                               type="number"
-                              min="0"
-                              value={reviewCount}
-                              onChange={(e) =>
-                                setReviewCount(
-                                  Math.max(0, parseInt(e.target.value) || 0)
-                                )
-                              }
+                              inputMode="numeric"
+                              min={0}
+                              step={1}
+                              value={reviewCountInput} // show exactly what the user is typing
                               placeholder="250"
-                            />
+                              onChange={(e) => {
+                                const v = e.target.value; // string
+                                setReviewCountInput(v); // allow "", "1", "12", etc.
+
+                                const n = Number(v);
+                                // keep model numeric & valid; anything non-number -> 0
+                                if (v === "" || !Number.isFinite(n)) {
+                                  setReviewCount(0);
+                                } else {
+                                  setReviewCount(Math.max(0, Math.floor(n)));
+                                }
+                              }}
+                              onBlur={() => {
+                                // when leaving the field, snap display back to a valid number
+                                setReviewCountInput(String(reviewCount)); // e.g. "" -> "0"
+                              }}
+                            />{" "}
                             <p className="text-xs text-muted-foreground mt-1">
                               Total number of Turo reviews
                             </p>
@@ -493,12 +508,14 @@ export default function Settings() {
               </section>
 
               {/* Subscription */}
-              <section
-                aria-labelledby="subscription-section"
-                className="md:col-span-2"
-              >
-                <SubscriptionCard />
-              </section>
+              {Capacitor.isNativePlatform() && (
+                <section
+                  aria-labelledby="subscription-section"
+                  className="md:col-span-2"
+                >
+                  <SubscriptionCard />
+                </section>
+              )}
 
               {/* Notifications */}
               <section
@@ -542,7 +559,7 @@ export default function Settings() {
                   className="w-full"
                   onClick={async () => {
                     await signOut();
-                    navigate("/");
+                    window.location.reload();
                   }}
                 >
                   Sign Out

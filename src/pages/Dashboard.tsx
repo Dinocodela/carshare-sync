@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -319,8 +320,10 @@ export default function Dashboard() {
     delayIdx?: number;
     className?: string;
     children: React.ReactNode;
-  }> = ({ delayIdx = 0, className = "", children }) => (
+    onClick?: () => void;
+  }> = ({ delayIdx = 0, className = "", children, onClick }) => (
     <div
+      onClick={onClick}
       className={`${
         mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
       } transition-all`}
@@ -390,7 +393,12 @@ export default function Dashboard() {
             </AnimatedCard>
 
             {/* Card 2 (Requests) */}
-            <AnimatedCard delayIdx={1}>
+            <AnimatedCard
+              onClick={() => {
+                isHost ? navigate("/host-requests") : null;
+              }}
+              delayIdx={1}
+            >
               <StatHeader
                 title="Requests"
                 icon={<FileText className="h-5 w-5" />}

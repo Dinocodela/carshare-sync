@@ -351,11 +351,21 @@ export default function AddCar() {
                             type="number"
                             inputMode="numeric"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(
-                                parseInt(e.target.value || "0", 10)
-                              )
-                            }
+                            value={field.value === 0 ? "" : field.value} // show empty if value is 0
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || isNaN(Number(val))) {
+                                field.onChange(0); // invalid -> 0
+                              } else {
+                                field.onChange(Number(val));
+                              }
+                            }}
+                            onBlur={(e) => {
+                              // if empty on blur, reset to 0
+                              if (e.target.value === "") {
+                                field.onChange(0);
+                              }
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -374,11 +384,21 @@ export default function AddCar() {
                             inputMode="numeric"
                             placeholder="50000"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(
-                                parseInt(e.target.value || "0", 10)
-                              )
-                            }
+                            value={field.value === 0 ? "" : field.value} // show empty if value is 0
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || isNaN(Number(val))) {
+                                field.onChange(0); // invalid -> 0
+                              } else {
+                                field.onChange(Number(val));
+                              }
+                            }}
+                            onBlur={(e) => {
+                              // if empty on blur, reset to 0
+                              if (e.target.value === "") {
+                                field.onChange(0);
+                              }
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

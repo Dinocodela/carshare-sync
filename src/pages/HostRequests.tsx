@@ -79,34 +79,47 @@ export default function HostRequests() {
   }, [user, navigate]);
 
   const fetchRequests = async () => {
+    setLoading(true);
     try {
-      // First get requests for this host
+      // 1) Get this host's requests with an explicit alias for the car join
       const { data: requestsData, error: requestsError } = await supabase
         .from("requests")
         .select(
           `
-          *,
-          cars(make, model, year, color, images)
-        `
+        id,
+        car_id,
+        client_id,
+        host_id,
+        message,
+        status,
+        created_at,
+        car:cars(id, make, model, year, color, images)
+      `
         )
-        .eq("host_id", user?.id)
+        .eq("host_id", user!.id)
         .order("created_at", { ascending: false });
 
       if (requestsError) throw requestsError;
 
-      // Then get client profiles for each request and filter out invalid data
-      const requestsWithClientData = await Promise.all(
-        (requestsData || []).map(async (request) => {
-          const { data: clientData, error: clientError } = await supabase
+      // 2) Attach client profile (name). Keep the row even if car is null.
+      const rows: RequestWithDetails[] = await Promise.all(
+        (requestsData ?? []).map(async (r: any) => {
+          const { data: clientData } = await supabase
             .from("profiles")
             .select("first_name, last_name")
-            .eq("user_id", request.client_id)
-            .single();
+            .eq("user_id", r.client_id)
+            .maybeSingle();
 
           return {
-            ...request,
-            car: request.cars || null,
-            client: clientData || {
+            id: r.id,
+            car_id: r.car_id,
+            client_id: r.client_id,
+            host_id: r.host_id,
+            message: r.message,
+            status: r.status,
+            created_at: r.created_at,
+            car: r.car ?? null, // <-- alias result
+            client: clientData ?? {
               first_name: "Unknown",
               last_name: "Client",
             },
@@ -114,19 +127,7 @@ export default function HostRequests() {
         })
       );
 
-      // Filter out requests with missing car data to prevent errors
-      const validRequests = requestsWithClientData.filter((request) => {
-        if (!request.car) {
-          console.warn(
-            "Request with missing car data filtered out:",
-            request.id
-          );
-          return false;
-        }
-        return true;
-      });
-
-      setRequests(validRequests);
+      setRequests(rows);
     } catch (error) {
       console.error("Error fetching requests:", error);
       toast({

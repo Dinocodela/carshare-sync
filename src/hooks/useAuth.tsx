@@ -41,7 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(data.session ?? null);
         setUser(data.session?.user ?? null);
         console.log("configure revenue cat", data?.session?.user?.id);
-        configureRevenueCat(data.session?.user?.id ?? null);
+        if (Capacitor.isNativePlatform()) {
+          configureRevenueCat(data.session?.user?.id ?? null);
+        }
       } finally {
         if (alive) setLoading(false);
       }
@@ -108,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.warn("unregisterPushToken failed:", e);
     } finally {
+      console.log("here");
       await supabase.auth.signOut();
     }
   };

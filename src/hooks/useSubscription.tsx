@@ -17,6 +17,7 @@ import {
   syncDbWithRevenueCat,
 } from "@/lib/revenuecat";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
 
 type SubState = {
   loading: boolean;
@@ -72,7 +73,15 @@ export function SubscriptionProvider({
   useEffect(() => {
     if (!loading) {
       if (user) {
-        loadFromDb();
+        if (Capacitor.isNativePlatform()) {
+          loadFromDb();
+        } else {
+          setState({
+            loading: false,
+            active: true,
+            profile: (user as any) ?? null,
+          });
+        }
       } else {
         setState({
           loading: false,

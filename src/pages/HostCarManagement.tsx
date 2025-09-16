@@ -1755,7 +1755,7 @@ export default function HostCarManagement() {
                     >
                       <Card className="w-full mx-0 max-w-none">
                         {/* Header becomes the accordion trigger */}
-                        <CardHeader className="p-3 sm:p-4 md:p-6">
+                        <CardHeader className="p-3 sm:p-4 md:p-6 items-center">
                           <AccordionTrigger
                             className="
                   group w-full rounded-md px-0

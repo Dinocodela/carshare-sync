@@ -1,29 +1,52 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { format } from 'date-fns';
-import { CalendarIcon, Clock, Wrench, Car, ChevronLeft } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { format } from "date-fns";
+import { CalendarIcon, Clock, Wrench, Car, ChevronLeft } from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 const maintenanceSchema = z.object({
-  maintenance_type: z.string().min(1, 'Maintenance type is required'),
+  maintenance_type: z.string().min(1, "Maintenance type is required"),
   scheduled_date: z.date({
-    required_error: 'Scheduled date is required',
+    required_error: "Scheduled date is required",
   }),
   scheduled_time: z.string().optional(),
   provider_name: z.string().optional(),
@@ -35,15 +58,15 @@ const maintenanceSchema = z.object({
 type MaintenanceFormData = z.infer<typeof maintenanceSchema>;
 
 const maintenanceTypes = [
-  'Oil Change',
-  'Tire Rotation',
-  'Brake Inspection',
-  'Engine Tune-up',
-  'Car Wash',
-  'Interior Cleaning',
-  'Battery Check',
-  'Fluid Check',
-  'Other'
+  "Oil Change",
+  "Tire Rotation",
+  "Brake Inspection",
+  "Engine Tune-up",
+  "Car Wash",
+  "Interior Cleaning",
+  "Battery Check",
+  "Fluid Check",
+  "Other",
 ];
 
 export default function ScheduleMaintenance() {
@@ -56,10 +79,10 @@ export default function ScheduleMaintenance() {
   const form = useForm<MaintenanceFormData>({
     resolver: zodResolver(maintenanceSchema),
     defaultValues: {
-      maintenance_type: '',
-      notes: '',
-      provider_name: '',
-      provider_contact: '',
+      maintenance_type: "",
+      notes: "",
+      provider_name: "",
+      provider_contact: "",
     },
   });
 
@@ -76,20 +99,18 @@ export default function ScheduleMaintenance() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('maintenance_schedules')
-        .insert({
-          car_id: carId,
-          host_id: user.id,
-          maintenance_type: data.maintenance_type,
-          scheduled_date: format(data.scheduled_date, 'yyyy-MM-dd'),
-          scheduled_time: data.scheduled_time || null,
-          provider_name: data.provider_name || null,
-          provider_contact: data.provider_contact || null,
-          estimated_cost: data.estimated_cost || null,
-          notes: data.notes || null,
-          status: 'scheduled',
-        });
+      const { error } = await supabase.from("maintenance_schedules").insert({
+        car_id: carId,
+        host_id: user.id,
+        maintenance_type: data.maintenance_type,
+        scheduled_date: format(data.scheduled_date, "yyyy-MM-dd"),
+        scheduled_time: data.scheduled_time || null,
+        provider_name: data.provider_name || null,
+        provider_contact: data.provider_contact || null,
+        estimated_cost: data.estimated_cost || null,
+        notes: data.notes || null,
+        status: "scheduled",
+      });
 
       if (error) {
         throw error;
@@ -97,30 +118,31 @@ export default function ScheduleMaintenance() {
 
       // Send notification to client
       try {
-        await supabase.functions.invoke('send-maintenance-notification', {
+        await supabase.functions.invoke("send-maintenance-notification", {
           body: {
             carId: carId,
             maintenanceType: data.maintenance_type,
-            scheduledDate: format(data.scheduled_date, 'yyyy-MM-dd'),
+            scheduledDate: format(data.scheduled_date, "yyyy-MM-dd"),
             scheduledTime: data.scheduled_time,
-            provider: data.provider_name || 'TBD',
+            provider: data.provider_name || "TBD",
             estimatedCost: data.estimated_cost,
-            notes: data.notes
-          }
+            notes: data.notes,
+          },
         });
       } catch (emailError) {
-        console.error('Error sending maintenance notification:', emailError);
+        console.error("Error sending maintenance notification:", emailError);
         // Don't fail the whole operation if email fails
       }
 
       toast({
         title: "Success",
-        description: "Maintenance has been scheduled and client notified successfully",
+        description:
+          "Maintenance has been scheduled and client notified successfully",
       });
 
-      navigate('/my-cars');
+      history.back();
     } catch (error) {
-      console.error('Error scheduling maintenance:', error);
+      console.error("Error scheduling maintenance:", error);
       toast({
         title: "Error",
         description: "Failed to schedule maintenance. Please try again.",
@@ -133,12 +155,12 @@ export default function ScheduleMaintenance() {
 
   return (
     <DashboardLayout>
-		      <header className="sticky top-0 z-10">
+      <header className="sticky top-0 z-10">
         <div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/my-cars')}
+            onClick={() => history.back()}
             aria-label="Back"
             className="h-9 w-9"
           >
@@ -146,7 +168,9 @@ export default function ScheduleMaintenance() {
           </Button>
 
           <div className="flex items-center gap-2">
-            <h1 className=" text-xl sm:text-2xl font-bold">Schedule Maintenance</h1>
+            <h1 className=" text-xl sm:text-2xl font-bold">
+              Schedule Maintenance
+            </h1>
           </div>
 
           {/* spacer to keep title centered */}
@@ -155,48 +179,51 @@ export default function ScheduleMaintenance() {
       </header>
 
       <div className="space-y-6">
+        <section className="mb-6">
+          {/* Desktop / tablet (md+): full header with info + reset */}
+          <div className="hidden md:flex items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <Wrench className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-muted-foreground">
+                Schedule routine maintenance or repairs for your vehicle
+              </p>
+            </div>
+          </div>
 
-				<section className="mb-6">
-				  {/* Desktop / tablet (md+): full header with info + reset */}
-				  <div className="hidden md:flex items-center justify-between gap-3">
-					<div>
-					  <div className="flex items-center gap-2">
-						<Wrench className="h-6 w-6 text-primary" />
-					  </div>
-					  <p className="text-muted-foreground">
-              Schedule routine maintenance or repairs for your vehicle
-					  </p>
-					</div>
-		
-				  </div>
-		
-				  {/* Mobile (sm and below): compact banner */}
-				  <div className="md:hidden">
-					<div className="rounded-2xl   p-3 flex items-start gap-3">
-					  <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-						<Wrench className="h-5 w-5 text-primary" />
-					  </div>
-					  <div className="flex-1">
-						<p className="text-sm text-muted-foreground leading-relaxed">
-              Schedule routine maintenance or repairs for your vehicle
-						</p>
-					  </div>
-					</div>
-				  </div>
-				</section>
-		
+          {/* Mobile (sm and below): compact banner */}
+          <div className="md:hidden">
+            <div className="rounded-2xl   p-3 flex items-start gap-3">
+              <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+                <Wrench className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Schedule routine maintenance or repairs for your vehicle
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <Card className="max-w-2xl px-4">
           <CardContent className="mt-4">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <FormField
                   control={form.control}
                   name="maintenance_type"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Maintenance Type *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select maintenance type" />
@@ -265,7 +292,7 @@ export default function ScheduleMaintenance() {
                         id="scheduled_time"
                         type="time"
                         className="pl-10"
-                        {...form.register('scheduled_time')}
+                        {...form.register("scheduled_time")}
                       />
                     </div>
                   </div>
@@ -277,7 +304,7 @@ export default function ScheduleMaintenance() {
                     <Input
                       id="provider_name"
                       placeholder="e.g., Joe's Auto Shop"
-                      {...form.register('provider_name')}
+                      {...form.register("provider_name")}
                     />
                   </div>
 
@@ -286,7 +313,7 @@ export default function ScheduleMaintenance() {
                     <Input
                       id="provider_contact"
                       placeholder="Phone or email"
-                      {...form.register('provider_contact')}
+                      {...form.register("provider_contact")}
                     />
                   </div>
                 </div>
@@ -298,7 +325,9 @@ export default function ScheduleMaintenance() {
                     type="number"
                     step="0.01"
                     placeholder="0.00"
-                    {...form.register('estimated_cost', { valueAsNumber: true })}
+                    {...form.register("estimated_cost", {
+                      valueAsNumber: true,
+                    })}
                   />
                 </div>
 
@@ -308,7 +337,7 @@ export default function ScheduleMaintenance() {
                     id="notes"
                     placeholder="Additional details about the maintenance..."
                     rows={3}
-                    {...form.register('notes')}
+                    {...form.register("notes")}
                   />
                 </div>
 
@@ -316,12 +345,12 @@ export default function ScheduleMaintenance() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate('/my-cars')}
+                    onClick={() => history.back()}
                   >
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Scheduling...' : 'Schedule Maintenance'}
+                    {isSubmitting ? "Scheduling..." : "Schedule Maintenance"}
                   </Button>
                 </div>
               </form>
