@@ -5864,7 +5864,7 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select a car" />
                                     </SelectTrigger>
                                   </FormControl>
-                                   <SelectContent className="bg-popover border shadow-md z-[70]">
+                                   <SelectContent className="bg-popover border shadow-md">
                                     {cars.map((car) => (
                                       <SelectItem key={car.id} value={car.id}>
                                         {formatCarDisplayName(car)}
@@ -5891,7 +5891,7 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select claim type" />
                                     </SelectTrigger>
                                   </FormControl>
-                                   <SelectContent className="bg-popover border shadow-md z-[70]">
+                                   <SelectContent className="bg-popover border shadow-md">
                                     <SelectItem value="damage">
                                       Physical Damage
                                     </SelectItem>
@@ -5989,7 +5989,7 @@ export default function HostCarManagement() {
                                             }
                                           />
                                         </SelectTrigger>
-                                         <SelectContent className="bg-popover border shadow-md z-[70]">
+                                         <SelectContent className="bg-popover border shadow-md">
                                           {availableTripIds.map((tripId) => (
                                             <SelectItem
                                               key={tripId}
