@@ -47,7 +47,14 @@ serve(async (req: Request) => {
     // Client for verifying the caller (uses the JWT from the request)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
     );
 
     const { data: authData, error: authError } = await supabase.auth.getUser(jwt);
@@ -60,7 +67,7 @@ serve(async (req: Request) => {
 
     const callerId = authData.user.id;
 
-    // Verify caller owns the car
+    // Verify caller owns the car using authenticated client
     const { data: car, error: carError } = await supabase
       .from('cars')
       .select('id, client_id')
@@ -68,6 +75,7 @@ serve(async (req: Request) => {
       .maybeSingle();
 
     if (carError || !car) {
+      console.error('Car lookup error:', carError);
       return new Response(JSON.stringify({ error: 'Car not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -75,13 +83,14 @@ serve(async (req: Request) => {
     }
 
     if (car.client_id !== callerId) {
+      console.error('Access denied: caller is not car owner', { carId, callerId, ownerId: car.client_id });
       return new Response(JSON.stringify({ error: 'Only the car owner can share access' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Admin client for user lookup and upsert (bypass RLS)
+    // Admin client for user lookup ONLY (bypass auth restrictions)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -104,6 +113,7 @@ serve(async (req: Request) => {
     const target = usersList?.users?.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
 
     if (!target) {
+      console.error('User not found by email:', email);
       return new Response(JSON.stringify({ error: 'No user found with that email' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -114,8 +124,9 @@ serve(async (req: Request) => {
 
     console.log('Granting access', { carId, targetUserId, permission, granted_by: callerId });
 
+    // Use AUTHENTICATED client for car_access operations to pass RLS checks
     // Check if access already exists
-    const { data: existingAccess, error: selectError } = await supabaseAdmin
+    const { data: existingAccess, error: selectError } = await supabase
       .from('car_access')
       .select('id, car_id, user_id, permission')
       .eq('car_id', carId)
@@ -133,7 +144,8 @@ serve(async (req: Request) => {
     let accessRow;
 
     if (existingAccess) {
-      const { data: updated, error: updateError } = await supabaseAdmin
+      console.log('Updating existing access record:', existingAccess.id);
+      const { data: updated, error: updateError } = await supabase
         .from('car_access')
         .update({ permission, granted_by: callerId, updated_at: new Date().toISOString() })
         .eq('id', existingAccess.id)
@@ -150,7 +162,8 @@ serve(async (req: Request) => {
 
       accessRow = updated;
     } else {
-      const { data: inserted, error: insertError } = await supabaseAdmin
+      console.log('Creating new access record');
+      const { data: inserted, error: insertError } = await supabase
         .from('car_access')
         .insert({ car_id: carId, user_id: targetUserId, permission, granted_by: callerId })
         .select()
