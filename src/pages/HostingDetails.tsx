@@ -25,6 +25,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { HostProfilePreview } from "@/components/HostProfilePreview";
+import { ReturnRequestDialog } from "@/components/cars/ReturnRequestDialog";
+import { format } from "date-fns";
 
 interface CarWithHost {
   id: string;
@@ -116,47 +118,68 @@ export default function HostingDetails() {
     }
   };
 
-  const handleReturnRequest = async () => {
+  const handleReturnRequest = async (returnDate: Date, message?: string) => {
     if (!car || !user) return;
 
     try {
-      // Update car status
-      const { error } = await supabase
+      // Update car status to "ready_for_return"
+      const { error: updateError } = await supabase
         .from("cars")
         .update({ status: "ready_for_return" })
         .eq("id", car.id);
 
-      if (error) throw error;
+      if (updateError) {
+        toast({
+          title: "Error",
+          description: "Failed to update car status",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Format the return request message
+      const formattedDate = format(returnDate, "PPPP");
+      const returnMessage = `I would like to request the return of my ${car.year} ${car.make} ${car.model}.
+
+Preferred Return Date: ${formattedDate}
+
+Please note: This request provides the required 30-day notice period.${message ? `\n\nAdditional Details:\n${message}` : ''}`;
 
       // Send notification to host
-      try {
-        await supabase.functions.invoke("send-host-return-request", {
+      const { error: notificationError } = await supabase.functions.invoke(
+        "send-host-return-request",
+        {
           body: {
             carId: car.id,
             hostUserId: car.host.id,
             clientId: user.id,
-            message: `I would like to arrange the return of my ${car.year} ${car.make} ${car.model}. Please contact me to coordinate pickup details.`,
+            message: returnMessage
           },
-        });
-      } catch (emailError) {
-        console.error("Error sending host notification:", emailError);
-        // Don't fail the whole operation if email fails
-      }
+        }
+      );
 
-      toast({
-        title: "Return requested",
-        description:
-          "Your host has been notified that you're ready to return the car.",
-      });
+      if (notificationError) {
+        console.error("Error sending notification:", notificationError);
+        toast({
+          title: "Warning",
+          description: "Car return request submitted, but notification may not have been sent",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Car return request sent to host successfully!"
+        });
+      }
 
       // Refresh car details
       fetchCarDetails();
     } catch (error) {
-      console.error("Error requesting return:", error);
+      console.error("Error requesting car return:", error);
       toast({
         title: "Error",
-        description: "Unable to request return. Please try again.",
-        variant: "destructive",
+        description: "Failed to request car return",
+        variant: "destructive"
       });
     }
   };
@@ -240,9 +263,10 @@ export default function HostingDetails() {
               </div>
 
               {car.status === "hosted" && (
-                <Button className="w-full" onClick={handleReturnRequest}>
-                  Request Car Return
-                </Button>
+                <ReturnRequestDialog
+                  onSubmit={handleReturnRequest}
+                  loading={false}
+                />
               )}
             </CardContent>
           </Card>
