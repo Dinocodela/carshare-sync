@@ -138,83 +138,75 @@ export default function Settings() {
   }, [user, toast]);
 
   const handleSaveProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Not authenticated",
+        description: "You must be logged in to save your profile.",
+      });
+      return;
+    }
+
     if (!phone) {
       toast({
-        title: "Phone required",
-        description: "Please enter your phone number.",
+        title: "Phone number required",
+        description: "Please enter a phone number.",
       });
       return;
     }
 
     setSaving(true);
     console.log("Saving profile for user:", user.id);
-    console.log("Current profile state:", profile);
     
-    const payload = {
-      first_name: firstName || null,
-      last_name: lastName || null,
-      company_name: role === "host" ? companyName || null : null,
-      phone: phone,
-      bio: bio || null,
-      location: location || null,
-      services: servicesText
-        ? servicesText
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : null,
-      turo_profile_url: role === "host" ? turoUrl || null : null,
-      rating: role === "host" ? rating : null,
-      turo_reviews_count: role === "host" ? reviewCount : null,
-      role, // not editable here, but keep for insert case
-      user_id: user.id,
-    };
+    try {
+      // Prepare services array
+      const servicesArray = servicesText
+        ? servicesText.split(",").map((s) => s.trim()).filter(Boolean)
+        : null;
 
-    console.log("Payload to save:", payload);
+      // Use the secure database function to update the profile
+      const { data, error } = await supabase.rpc('update_user_profile', {
+        p_first_name: firstName || null,
+        p_last_name: lastName || null,
+        p_company_name: role === "host" ? companyName || null : null,
+        p_phone: phone,
+        p_bio: bio || null,
+        p_location: location || null,
+        p_services: servicesArray,
+        p_turo_profile_url: role === "host" ? turoUrl || null : null,
+      });
 
-    let error;
-    let result;
-    
-    if (profile) {
-      console.log("Updating existing profile");
-      const { data, error: updError } = await supabase
-        .from("profiles")
-        .update(payload)
-        .eq("user_id", user.id)
-        .select();
-      error = updError;
-      result = data;
-    } else {
-      console.log("Inserting new profile");
-      const { data, error: insError } = await supabase
-        .from("profiles")
-        .insert([payload])
-        .select();
-      error = insError;
-      result = data;
-    }
+      setSaving(false);
 
-    console.log("Save result:", result);
-    console.log("Save error:", error);
-
-    setSaving(false);
-
-    if (error) {
-      console.error("Save profile error:", error);
+      if (error) {
+        console.error("Save profile error:", error);
+        toast({
+          title: "Save failed",
+          description: `Could not save your profile: ${error.message || 'Unknown error'}`,
+        });
+      } else {
+        toast({
+          title: "Profile updated",
+          description: "Your changes have been saved.",
+        });
+        // Update the profile state with the returned data
+        if (data) {
+          const profileData = data as any as Profile;
+          setProfile(profileData);
+          // Update the rating and review count in the form state as well
+          if (role === "host" && profileData) {
+            setRating(profileData.rating || 0);
+            setReviewCount(profileData.turo_reviews_count || 0);
+            setReviewCountInput(String(profileData.turo_reviews_count || 0));
+          }
+        }
+      }
+    } catch (err) {
+      setSaving(false);
+      console.error("Unexpected error:", err);
       toast({
         title: "Save failed",
-        description: `Could not save your profile: ${error.message || 'Unknown error'}`,
+        description: "An unexpected error occurred while saving your profile.",
       });
-    } else {
-      toast({
-        title: "Profile updated",
-        description: "Your changes have been saved.",
-      });
-      // Update the profile state with the returned data
-      if (result && result[0]) {
-        setProfile(result[0] as Profile);
-      }
     }
   };
 
