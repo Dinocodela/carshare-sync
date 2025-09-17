@@ -207,6 +207,7 @@ export type Database = {
           estimate_submitted_date: string | null
           estimated_completion_date: string | null
           final_status: string | null
+          guest_name: string | null
           host_id: string
           id: string
           incident_date: string
@@ -244,6 +245,7 @@ export type Database = {
           estimate_submitted_date?: string | null
           estimated_completion_date?: string | null
           final_status?: string | null
+          guest_name?: string | null
           host_id: string
           id?: string
           incident_date: string
@@ -281,6 +283,7 @@ export type Database = {
           estimate_submitted_date?: string | null
           estimated_completion_date?: string | null
           final_status?: string | null
+          guest_name?: string | null
           host_id?: string
           id?: string
           incident_date?: string
