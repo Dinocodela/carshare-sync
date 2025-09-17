@@ -48,6 +48,16 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -331,6 +341,10 @@ export default function HostCarManagement() {
   const [editingEarning, setEditingEarning] = useState<Earning | null>(null);
   const [selectedTripExpenses, setSelectedTripExpenses] = useState<number>(0);
   const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
+  
+  // Delete confirmation state
+  const [deleteClaimId, setDeleteClaimId] = useState<string | null>(null);
+  const [deleteClaimDialogOpen, setDeleteClaimDialogOpen] = useState(false);
 
   // Loading states for better UX
   const [earningsLoading, setEarningsLoading] = useState(false);
@@ -1536,6 +1550,38 @@ export default function HostCarManagement() {
       photos_taken: claim.photos_taken || false,
     });
     setClaimDialogOpen(true);
+  };
+
+  const handleDeleteClaim = async () => {
+    if (!deleteClaimId) return;
+    
+    try {
+      const { error } = await supabase
+        .from("host_claims")
+        .delete()
+        .eq("id", deleteClaimId)
+        .eq("host_id", user?.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setClaims((prev) => prev.filter((claim) => claim.id !== deleteClaimId));
+      
+      toast({
+        title: "Success",
+        description: "Claim deleted successfully.",
+      });
+    } catch (error: any) {
+      console.error("Error deleting claim:", error);
+      toast({
+        title: "Error", 
+        description: "Failed to delete claim. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteClaimId(null);
+      setDeleteClaimDialogOpen(false);
+    }
   };
 
   const handleUpdateClaimStatus = async (
@@ -6688,14 +6734,29 @@ export default function HostCarManagement() {
                                         <MoreVertical className="h-4 w-4" />
                                       </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        onClick={() => handleEditClaim(claim)}
-                                      >
-                                        <Edit className="h-3 w-3 mr-2" /> Edit
-                                        Claim
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
+                                     <DropdownMenuContent align="end">
+                                       <DropdownMenuItem
+                                         onClick={() => handleEditClaim(claim)}
+                                       >
+                                         <Edit className="h-3 w-3 mr-2" /> Edit
+                                         Claim
+                                       </DropdownMenuItem>
+                                       {claim.claim_status === "pending" && (
+                                         <>
+                                           <DropdownMenuSeparator />
+                                           <DropdownMenuItem
+                                             onClick={() => {
+                                               setDeleteClaimId(claim.id);
+                                               setDeleteClaimDialogOpen(true);
+                                             }}
+                                             className="text-destructive focus:text-destructive"
+                                           >
+                                             <Trash className="h-3 w-3 mr-2" /> Delete
+                                             Claim
+                                           </DropdownMenuItem>
+                                         </>
+                                       )}
+                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 </div>
                                 <p className="font-bold text-lg">
@@ -6736,6 +6797,29 @@ export default function HostCarManagement() {
             </TabsContent>
           </Tabs>
         </PageContainer>
+        
+        {/* Delete Claim Confirmation Dialog */}
+        <AlertDialog open={deleteClaimDialogOpen} onOpenChange={setDeleteClaimDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Claim</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this claim? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteClaimDialogOpen(false)}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteClaim}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete Claim
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </>
     </DashboardLayout>
   );
