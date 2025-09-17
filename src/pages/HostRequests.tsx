@@ -156,38 +156,21 @@ export default function HostRequests() {
 
       console.log("Found request:", request);
 
-      // Update request status
-      console.log(`Updating request status to ${action}...`);
-      const { error: requestError } = await supabase
-        .from("requests")
-        .update({ status: action })
-        .eq("id", requestId);
+      // Use secure database function to handle the request
+      const functionName = action === "accepted" ? "accept_hosting_request" : "reject_hosting_request";
+      console.log(`Calling ${functionName} function...`);
+      
+      const { data: result, error: functionError } = await supabase.rpc(
+        functionName,
+        { p_request_id: requestId }
+      );
 
-      if (requestError) {
-        console.error("Error updating request:", requestError);
-        throw requestError;
+      if (functionError) {
+        console.error(`Error calling ${functionName}:`, functionError);
+        throw functionError;
       }
 
-      console.log("Request status updated successfully");
-
-      // Update car status and host_id
-      const newCarStatus = action === "accepted" ? "hosted" : "available";
-      const updateData =
-        action === "accepted"
-          ? { status: newCarStatus, host_id: user?.id }
-          : { status: newCarStatus, host_id: null };
-      console.log(`Updating car status to ${newCarStatus} and host_id...`);
-      const { error: carError } = await supabase
-        .from("cars")
-        .update(updateData)
-        .eq("id", request.car_id);
-
-      if (carError) {
-        console.error("Error updating car status:", carError);
-        throw carError;
-      }
-
-      console.log("Car status updated successfully");
+      console.log(`${functionName} completed successfully:`, result);
 
       // Get host profile information for contact details
       const { data: hostProfile } = await supabase

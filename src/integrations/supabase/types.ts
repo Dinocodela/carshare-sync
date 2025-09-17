@@ -728,6 +728,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_hosting_request: {
+        Args: { p_request_id: string }
+        Returns: Json
+      }
       check_earning_date_conflicts: {
         Args: {
           p_car_id: string
@@ -851,6 +855,10 @@ export type Database = {
       is_super: {
         Args: { uid: string }
         Returns: boolean
+      }
+      reject_hosting_request: {
+        Args: { p_request_id: string }
+        Returns: Json
       }
     }
     Enums: {
