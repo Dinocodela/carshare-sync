@@ -314,7 +314,7 @@ export default function Dashboard() {
 
   // Base + animation (stagger)
   const cardBase = `rounded-2xl border border-primary/10 bg-white/80 backdrop-blur shadow-sm 
-     hover:shadow-lg hover:-translate-y-[1px] transition-all duration-300`;
+     hover:shadow-lg hover:-translate-y-[1px] transition-all duration-300 cursor-pointer`;
 
   const AnimatedCard: React.FC<{
     delayIdx?: number;
@@ -375,7 +375,10 @@ export default function Dashboard() {
           {/* Stat Grid — 2 cols on all, 3 on lg */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
             {/* Card 1 */}
-            <AnimatedCard delayIdx={0}>
+            <AnimatedCard 
+              delayIdx={0}
+              onClick={() => navigate(isHost ? "/host-car-management" : "/my-cars")}
+            >
               <StatHeader
                 title={isHost ? "Active Vehicles" : "My Vehicles"}
                 icon={<Car className="h-5 w-5" />}
@@ -394,9 +397,7 @@ export default function Dashboard() {
 
             {/* Card 2 (Requests) */}
             <AnimatedCard
-              onClick={() => {
-                isHost ? navigate("/host-requests") : null;
-              }}
+              onClick={() => navigate(isHost ? "/host-requests" : "/select-host")}
               delayIdx={1}
             >
               <StatHeader
@@ -416,7 +417,10 @@ export default function Dashboard() {
             </AnimatedCard>
 
             {/* Card 3 (Active Cars for client; Active Cars again for host keeps 4-up grid symmetry) */}
-            <AnimatedCard delayIdx={2}>
+            <AnimatedCard 
+              delayIdx={2}
+              onClick={() => navigate(isHost ? "/host-analytics" : "/client-analytics")}
+            >
               <StatHeader
                 title="Active Cars"
                 icon={<TrendingUp className="h-5 w-5" />}
@@ -434,7 +438,10 @@ export default function Dashboard() {
             </AnimatedCard>
 
             {/* Card 4 (Earnings 7d) – both roles */}
-            <AnimatedCard delayIdx={3}>
+            <AnimatedCard 
+              delayIdx={3}
+              onClick={() => navigate(isHost ? "/host-analytics" : "/client-analytics")}
+            >
               <StatHeader
                 title="Earnings"
                 icon={<BarChart3 className="h-5 w-5" />}
