@@ -173,6 +173,7 @@ export default function Settings() {
         p_location: location || null,
         p_services: servicesArray,
         p_turo_profile_url: role === "host" ? turoUrl || null : null,
+        p_role: role,
       });
 
       setSaving(false);
