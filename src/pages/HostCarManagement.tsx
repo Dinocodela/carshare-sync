@@ -6022,7 +6022,7 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select payment source" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent>
+                                  <SelectContent className="bg-popover border shadow-md z-50">
                                     <SelectItem value="Turo">Turo</SelectItem>
                                     <SelectItem value="Eon">Eon</SelectItem>
                                     <SelectItem value="GetAround">
