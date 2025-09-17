@@ -19,7 +19,12 @@ export const handler = async (req: Request): Promise<Response> => {
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
     const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY");
     const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY");
-    const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:admin@example.com";
+    let VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:admin@example.com";
+    
+    // Ensure VAPID subject is in correct format (must be URL or mailto:)
+    if (VAPID_SUBJECT && !VAPID_SUBJECT.startsWith('mailto:') && !VAPID_SUBJECT.startsWith('https://')) {
+      VAPID_SUBJECT = `mailto:${VAPID_SUBJECT}`;
+    }
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       console.error("Missing Supabase envs");
