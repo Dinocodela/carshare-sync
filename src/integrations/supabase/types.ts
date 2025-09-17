@@ -872,6 +872,19 @@ export type Database = {
               p_last_name?: string
               p_location?: string
               p_phone?: string
+              p_rating?: number
+              p_role?: string
+              p_services?: string[]
+              p_turo_profile_url?: string
+              p_turo_reviews_count?: number
+            }
+          | {
+              p_bio?: string
+              p_company_name?: string
+              p_first_name?: string
+              p_last_name?: string
+              p_location?: string
+              p_phone?: string
               p_role?: string
               p_services?: string[]
               p_turo_profile_url?: string

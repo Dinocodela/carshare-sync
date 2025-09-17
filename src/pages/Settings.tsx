@@ -174,6 +174,8 @@ export default function Settings() {
         p_services: servicesArray,
         p_turo_profile_url: role === "host" ? turoUrl || null : null,
         p_role: role,
+        p_rating: role === "host" && rating > 0 ? rating : null,
+        p_turo_reviews_count: role === "host" && reviewCount > 0 ? reviewCount : null,
       });
 
       setSaving(false);
