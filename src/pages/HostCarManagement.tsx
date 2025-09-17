@@ -5825,6 +5825,7 @@ export default function HostCarManagement() {
                 <Dialog
                   open={claimDialogOpen}
                   onOpenChange={setClaimDialogOpen}
+                  modal={!isMobile}
                 >
                   <DialogTrigger asChild>
                     <Button>
@@ -5864,7 +5865,12 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select a car" />
                                     </SelectTrigger>
                                   </FormControl>
-                                   <SelectContent className="bg-popover border shadow-md">
+                                   <SelectContent 
+                                     className="bg-popover border shadow-md"
+                                     position="popper"
+                                     side="bottom"
+                                     avoidCollisions={false}
+                                   >
                                     {cars.map((car) => (
                                       <SelectItem key={car.id} value={car.id}>
                                         {formatCarDisplayName(car)}
@@ -5891,22 +5897,27 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select claim type" />
                                     </SelectTrigger>
                                   </FormControl>
-                                   <SelectContent className="bg-popover border shadow-md">
-                                    <SelectItem value="damage">
-                                      Physical Damage
-                                    </SelectItem>
-                                    <SelectItem value="theft">Theft</SelectItem>
-                                    <SelectItem value="accident">
-                                      Accident
-                                    </SelectItem>
-                                    <SelectItem value="vandalism">
-                                      Vandalism
-                                    </SelectItem>
-                                    <SelectItem value="mechanical">
-                                      Mechanical Issues
-                                    </SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                  </SelectContent>
+                                   <SelectContent 
+                                     className="bg-popover border shadow-md"
+                                     position="popper"
+                                     side="bottom"
+                                     avoidCollisions={false}
+                                   >
+                                     <SelectItem value="damage">
+                                       Physical Damage
+                                     </SelectItem>
+                                     <SelectItem value="theft">Theft</SelectItem>
+                                     <SelectItem value="accident">
+                                       Accident
+                                     </SelectItem>
+                                     <SelectItem value="vandalism">
+                                       Vandalism
+                                     </SelectItem>
+                                     <SelectItem value="mechanical">
+                                       Mechanical Issues
+                                     </SelectItem>
+                                     <SelectItem value="other">Other</SelectItem>
+                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
                               </FormItem>
@@ -5989,16 +6000,21 @@ export default function HostCarManagement() {
                                             }
                                           />
                                         </SelectTrigger>
-                                         <SelectContent className="bg-popover border shadow-md">
-                                          {availableTripIds.map((tripId) => (
-                                            <SelectItem
-                                              key={tripId}
-                                              value={tripId}
-                                            >
-                                              {tripId}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
+                                          <SelectContent 
+                                            className="bg-popover border shadow-md"
+                                            position="popper"
+                                            side="bottom"
+                                            avoidCollisions={false}
+                                          >
+                                           {availableTripIds.map((tripId) => (
+                                             <SelectItem
+                                               key={tripId}
+                                               value={tripId}
+                                             >
+                                               {tripId}
+                                             </SelectItem>
+                                           ))}
+                                         </SelectContent>
                                       </Select>
                                     ) : selectedCarId ? (
                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
@@ -6077,20 +6093,25 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select payment source" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent className="bg-popover border shadow-md z-50">
-                                    <SelectItem value="Turo">Turo</SelectItem>
-                                    <SelectItem value="Eon">Eon</SelectItem>
-                                    <SelectItem value="GetAround">
-                                      GetAround
-                                    </SelectItem>
-                                    <SelectItem value="Private">
-                                      Private
-                                    </SelectItem>
-                                    <SelectItem value="Insurance">
-                                      Insurance
-                                    </SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
-                                  </SelectContent>
+                                   <SelectContent 
+                                     className="bg-popover border shadow-md"
+                                     position="popper"
+                                     side="bottom"
+                                     avoidCollisions={false}
+                                   >
+                                     <SelectItem value="Turo">Turo</SelectItem>
+                                     <SelectItem value="Eon">Eon</SelectItem>
+                                     <SelectItem value="GetAround">
+                                       GetAround
+                                     </SelectItem>
+                                     <SelectItem value="Private">
+                                       Private
+                                     </SelectItem>
+                                     <SelectItem value="Insurance">
+                                       Insurance
+                                     </SelectItem>
+                                     <SelectItem value="Other">Other</SelectItem>
+                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
                               </FormItem>
