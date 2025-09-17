@@ -864,16 +864,28 @@ export type Database = {
         Returns: Json
       }
       update_user_profile: {
-        Args: {
-          p_bio?: string
-          p_company_name?: string
-          p_first_name?: string
-          p_last_name?: string
-          p_location?: string
-          p_phone?: string
-          p_services?: string[]
-          p_turo_profile_url?: string
-        }
+        Args:
+          | {
+              p_bio?: string
+              p_company_name?: string
+              p_first_name?: string
+              p_last_name?: string
+              p_location?: string
+              p_phone?: string
+              p_role?: string
+              p_services?: string[]
+              p_turo_profile_url?: string
+            }
+          | {
+              p_bio?: string
+              p_company_name?: string
+              p_first_name?: string
+              p_last_name?: string
+              p_location?: string
+              p_phone?: string
+              p_services?: string[]
+              p_turo_profile_url?: string
+            }
         Returns: Json
       }
     }
