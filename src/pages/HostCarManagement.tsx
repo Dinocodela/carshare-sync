@@ -5226,7 +5226,12 @@ export default function HostCarManagement() {
                                         <SelectValue placeholder="Select a car" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="bg-popover border shadow-md z-50">
+                                     <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                       position="popper"
+                                       side="bottom"
+                                       avoidCollisions={false}
+                                       onPointerDownOutside={(e) => e.preventDefault()}
+                                     >
                                       {cars.map((car) => (
                                         <SelectItem key={car.id} value={car.id}>
                                           {formatCarDisplayName(car)}
@@ -5253,7 +5258,12 @@ export default function HostCarManagement() {
                                         <SelectValue placeholder="Select claim type" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="bg-popover border shadow-md z-50">
+                                     <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                       position="popper"
+                                       side="bottom"
+                                       avoidCollisions={false}
+                                       onPointerDownOutside={(e) => e.preventDefault()}
+                                     >
                                       <SelectItem value="damage">
                                         Physical Damage
                                       </SelectItem>
@@ -5347,7 +5357,12 @@ export default function HostCarManagement() {
                                               }
                                             />
                                           </SelectTrigger>
-                                          <SelectContent className="bg-popover border shadow-md z-50">
+                                           <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                             position="popper"
+                                             side="bottom"
+                                             avoidCollisions={false}
+                                             onPointerDownOutside={(e) => e.preventDefault()}
+                                           >
                                             {availableTripIds.map((tripId) => (
                                               <SelectItem
                                                 key={tripId}
@@ -5865,12 +5880,13 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select a car" />
                                     </SelectTrigger>
                                   </FormControl>
-                                   <SelectContent 
-                                     className="bg-popover border shadow-md"
-                                     position="popper"
-                                     side="bottom"
-                                     avoidCollisions={false}
-                                   >
+                                    <SelectContent 
+                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                      position="popper"
+                                      side="bottom"
+                                      avoidCollisions={false}
+                                      onPointerDownOutside={(e) => e.preventDefault()}
+                                    >
                                     {cars.map((car) => (
                                       <SelectItem key={car.id} value={car.id}>
                                         {formatCarDisplayName(car)}
@@ -5897,12 +5913,13 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select claim type" />
                                     </SelectTrigger>
                                   </FormControl>
-                                   <SelectContent 
-                                     className="bg-popover border shadow-md"
-                                     position="popper"
-                                     side="bottom"
-                                     avoidCollisions={false}
-                                   >
+                                    <SelectContent 
+                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                      position="popper"
+                                      side="bottom"
+                                      avoidCollisions={false}
+                                      onPointerDownOutside={(e) => e.preventDefault()}
+                                    >
                                      <SelectItem value="damage">
                                        Physical Damage
                                      </SelectItem>
@@ -6001,11 +6018,12 @@ export default function HostCarManagement() {
                                           />
                                         </SelectTrigger>
                                           <SelectContent 
-                                            className="bg-popover border shadow-md"
-                                            position="popper"
-                                            side="bottom"
-                                            avoidCollisions={false}
-                                          >
+                                             className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                             position="popper"
+                                             side="bottom"
+                                             avoidCollisions={false}
+                                             onPointerDownOutside={(e) => e.preventDefault()}
+                                           >
                                            {availableTripIds.map((tripId) => (
                                              <SelectItem
                                                key={tripId}
@@ -6093,12 +6111,13 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select payment source" />
                                     </SelectTrigger>
                                   </FormControl>
-                                   <SelectContent 
-                                     className="bg-popover border shadow-md"
-                                     position="popper"
-                                     side="bottom"
-                                     avoidCollisions={false}
-                                   >
+                                    <SelectContent 
+                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                      position="popper"
+                                      side="bottom"
+                                      avoidCollisions={false}
+                                      onPointerDownOutside={(e) => e.preventDefault()}
+                                    >
                                      <SelectItem value="Turo">Turo</SelectItem>
                                      <SelectItem value="Eon">Eon</SelectItem>
                                      <SelectItem value="GetAround">
