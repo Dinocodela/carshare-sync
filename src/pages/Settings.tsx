@@ -156,15 +156,18 @@ export default function Settings() {
 
     setSaving(true);
     console.log("Saving profile for user:", user.id);
-    
+
     try {
       // Prepare services array
       const servicesArray = servicesText
-        ? servicesText.split(",").map((s) => s.trim()).filter(Boolean)
+        ? servicesText
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
         : null;
 
       // Use the secure database function to update the profile
-      const { data, error } = await supabase.rpc('update_user_profile', {
+      const { data, error } = await supabase.rpc("update_user_profile", {
         p_first_name: firstName || null,
         p_last_name: lastName || null,
         p_company_name: role === "host" ? companyName || null : null,
@@ -175,7 +178,8 @@ export default function Settings() {
         p_turo_profile_url: role === "host" ? turoUrl || null : null,
         p_role: role,
         p_rating: role === "host" && rating > 0 ? rating : null,
-        p_turo_reviews_count: role === "host" && reviewCount > 0 ? reviewCount : null,
+        p_turo_reviews_count:
+          role === "host" && reviewCount > 0 ? reviewCount : null,
       });
 
       setSaving(false);
@@ -184,7 +188,9 @@ export default function Settings() {
         console.error("Save profile error:", error);
         toast({
           title: "Save failed",
-          description: `Could not save your profile: ${error.message || 'Unknown error'}`,
+          description: `Could not save your profile: ${
+            error.message || "Unknown error"
+          }`,
         });
       } else {
         toast({
@@ -520,7 +526,7 @@ export default function Settings() {
               </section>
 
               {/* Subscription */}
-              {Capacitor.isNativePlatform() && (
+              {Capacitor.isNativePlatform() && profile.role === "host" && (
                 <section
                   aria-labelledby="subscription-section"
                   className="md:col-span-2"

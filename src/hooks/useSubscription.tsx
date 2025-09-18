@@ -59,13 +59,14 @@ export function SubscriptionProvider({
     const { data } = await supabase
       .from("profiles")
       .select(
-        "is_subscribed, rc_product_id, rc_expiration_at, rc_will_renew, rc_entitlements"
+        "is_subscribed, rc_product_id, rc_expiration_at, rc_will_renew, role, rc_entitlements"
       )
       .eq("user_id", user.id)
       .maybeSingle();
+    const active = data.role === "client" || data.is_subscribed ? true : false;
     setState({
       loading: false,
-      active: !!data?.is_subscribed,
+      active,
       profile: (data as any) ?? null,
     });
   };
@@ -73,6 +74,7 @@ export function SubscriptionProvider({
   useEffect(() => {
     if (!loading) {
       if (user) {
+        console.log(user);
         if (Capacitor.isNativePlatform()) {
           loadFromDb();
         } else {
