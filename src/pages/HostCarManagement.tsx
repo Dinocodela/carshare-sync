@@ -5346,7 +5346,16 @@ export default function HostCarManagement() {
                                       ) : availableTripIds.length > 0 ? (
                                         <Select
                                           value={field.value}
-                                          onValueChange={field.onChange}
+                                          onValueChange={(value) => {
+                                            field.onChange(value);
+                                            // Auto-populate car field based on trip ID
+                                            const expenseWithTripId = expenses.find(
+                                              (e) => e.trip_id === value && e.car_id
+                                            );
+                                            if (expenseWithTripId && expenseWithTripId.car_id) {
+                                              claimForm.setValue("car_id", expenseWithTripId.car_id);
+                                            }
+                                          }}
                                         >
                                           <SelectTrigger>
                                             <SelectValue
