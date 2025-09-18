@@ -5230,7 +5230,7 @@ export default function HostCarManagement() {
                                        position="popper"
                                        side="bottom"
                                        avoidCollisions={false}
-                                       onPointerDownOutside={(e) => e.preventDefault()}
+                                        onPointerDownOutside={(e) => e.stopPropagation()}
                                      >
                                       {cars.map((car) => (
                                         <SelectItem key={car.id} value={car.id}>
@@ -5262,7 +5262,7 @@ export default function HostCarManagement() {
                                        position="popper"
                                        side="bottom"
                                        avoidCollisions={false}
-                                       onPointerDownOutside={(e) => e.preventDefault()}
+                                        onPointerDownOutside={(e) => e.stopPropagation()}
                                      >
                                       <SelectItem value="damage">
                                         Physical Damage
@@ -5370,7 +5370,7 @@ export default function HostCarManagement() {
                                              position="popper"
                                              side="bottom"
                                              avoidCollisions={false}
-                                             onPointerDownOutside={(e) => e.preventDefault()}
+                                              onPointerDownOutside={(e) => e.stopPropagation()}
                                            >
                                             {availableTripIds.map((tripId) => (
                                               <SelectItem
@@ -5894,7 +5894,7 @@ export default function HostCarManagement() {
                                       position="popper"
                                       side="bottom"
                                       avoidCollisions={false}
-                                      onPointerDownOutside={(e) => e.preventDefault()}
+                                       onPointerDownOutside={(e) => e.stopPropagation()}
                                     >
                                     {cars.map((car) => (
                                       <SelectItem key={car.id} value={car.id}>
@@ -5927,7 +5927,7 @@ export default function HostCarManagement() {
                                       position="popper"
                                       side="bottom"
                                       avoidCollisions={false}
-                                      onPointerDownOutside={(e) => e.preventDefault()}
+                                       onPointerDownOutside={(e) => e.stopPropagation()}
                                     >
                                      <SelectItem value="damage">
                                        Physical Damage
@@ -6031,7 +6031,7 @@ export default function HostCarManagement() {
                                              position="popper"
                                              side="bottom"
                                              avoidCollisions={false}
-                                             onPointerDownOutside={(e) => e.preventDefault()}
+                                              onPointerDownOutside={(e) => e.stopPropagation()}
                                            >
                                            {availableTripIds.map((tripId) => (
                                              <SelectItem
@@ -6125,7 +6125,7 @@ export default function HostCarManagement() {
                                       position="popper"
                                       side="bottom"
                                       avoidCollisions={false}
-                                      onPointerDownOutside={(e) => e.preventDefault()}
+                                      onPointerDownOutside={(e) => e.stopPropagation()}
                                     >
                                      <SelectItem value="Turo">Turo</SelectItem>
                                      <SelectItem value="Eon">Eon</SelectItem>
