@@ -37,6 +37,7 @@ import Subscribe from "./pages/Subscribe";
 import RequireUnsubscribed from "./components/auth/RequireUnsusbscribed";
 import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsofUse";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/register/client" element={<RegisterClient />} />
               <Route path="/register/host" element={<RegisterHost />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfUse />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>

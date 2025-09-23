@@ -11,6 +11,7 @@ import {
 } from "@/lib/revenuecat";
 import { SubscribeSheet } from "@/components/paywall/SubscribeSheet";
 import { toast } from "sonner";
+import { Capacitor } from "@capacitor/core";
 
 function humanizeProduct(id?: string) {
   if (!id) return "Unknown plan";
@@ -100,6 +101,11 @@ export function SubscriptionCard() {
           ) : active ? (
             <>
               <div className="text-sm">{planLabel}</div>
+
+              <Button variant="outline" className="w-full" onClick={openManage}>
+                Manage on Apple Subscriptions
+              </Button>
+
               {dateOnly && (
                 <div className="text-xs text-muted-foreground">
                   Renews : {dateOnly}
@@ -147,11 +153,13 @@ export function SubscriptionCard() {
               </div>
             </>
           )}
-
           <p className="text-xs text-muted-foreground">
-            Payment is managed by your App Store / Play account. Subscriptions
-            renew automatically unless canceled at least 24 hours before the end
-            of the period. You can cancel anytime in your store subscriptions.
+            Payment is managed by your{" "}
+            {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"}{" "}
+            account. Subscriptions renew automatically unless canceled at least
+            24 hours before the end of the period. You can cancel anytime in
+            your {Capacitor.getPlatform() === "ios" ? "Apple" : "Play Store"}{" "}
+            subscriptions.
           </p>
         </CardContent>
       </Card>

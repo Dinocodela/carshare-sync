@@ -22,6 +22,9 @@ export async function configureRevenueCat(appUserId: string | null) {
 
 }
 
+
+
+
 export async function getCustomerInfo(): Promise<CustomerInfo> {
 	const { customerInfo } = await Purchases.getCustomerInfo();
 	return customerInfo;
@@ -84,6 +87,10 @@ export async function restorePurchases(): Promise<CustomerInfo> {
 
 // ---- Manage link (native sheet when available) ----
 export async function openManage() {
-
+	const isIOS = Capacitor.getPlatform() === "ios";
+	const url = isIOS
+		? "itms-apps://apps.apple.com/account/subscriptions"
+		: "https://play.google.com/store/account/subscriptions";
+	if (Capacitor.isNativePlatform()) await Browser.open({ url });
+	else window.open(url, "_blank");
 }
-

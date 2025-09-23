@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useNavigate } from "react-router-dom";
 import { Purchases } from "@revenuecat/purchases-capacitor";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 type Props = { open: boolean; onOpenChange: (v: boolean) => void };
 
 export function SubscribeSheet({ open, onOpenChange }: Props) {
@@ -104,6 +106,10 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
   const annualPkg = packages.find(
     (p: any) => /annual/i.test(p.identifier || "") || p.packageType === "ANNUAL"
   );
+
+  const annualPerMonth =
+    annualPkg?.product?.price != null ? annualPkg.product.price / 12 : null;
+
   const savingsPct =
     monthlyPkg &&
     annualPkg &&
@@ -196,6 +202,21 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
                         <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                           {desc}
                         </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {isAnnual ? "Length: 1 year" : "Length: 1 month"}
+                          {isAnnual && annualPerMonth != null && (
+                            <>
+                              {" "}
+                              · ~
+                              {annualPerMonth.toLocaleString(undefined, {
+                                style: "currency",
+                                currency:
+                                  annualPkg.product.currencyCode || "USD",
+                              })}
+                              /mo equivalent
+                            </>
+                          )}
+                        </div>
                       </div>
 
                       {/* Right: price */}
@@ -226,11 +247,40 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
           )}
 
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Payment will be charged to your App Store / Play account.
-            Subscription renews automatically unless canceled at least 24 hours
-            before the end of the current period. Manage in your store
+            Payment will be charged to your{" "}
+            {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"}{" "}
+            account. Subscription renews automatically unless canceled at least
+            24 hours before the end of the current period. Manage in your{" "}
+            {Capacitor.getPlatform() === "ios" ? "Apple" : "Play Store"}{" "}
             subscriptions.
           </p>
+          <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+            <div>
+              By subscribing, you agree to our{" "}
+              <button
+                className="underline underline-offset-2"
+                onClick={async () => {
+                  const url = "https://teslys.app/terms";
+                  if (Capacitor.isNativePlatform()) await Browser.open({ url });
+                  else window.open(url, "_blank");
+                }}
+              >
+                Terms of Use
+              </button>{" "}
+              and{" "}
+              <button
+                className="underline underline-offset-2"
+                onClick={async () => {
+                  const url = "https://teslys.app/privacy";
+                  if (Capacitor.isNativePlatform()) await Browser.open({ url });
+                  else window.open(url, "_blank");
+                }}
+              >
+                Privacy Policy
+              </button>
+              .
+            </div>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

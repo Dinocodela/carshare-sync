@@ -14,9 +14,17 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { NotificationsCard } from "@/components/NotificationsCard";
 import { HostProfilePreviewDialog } from "@/components/HostProfilePreviewDialog";
 import { useNavigate } from "react-router-dom";
-import { Info } from "lucide-react";
+import { ExternalLink, Info } from "lucide-react";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Profile {
   user_id: string;
@@ -55,7 +63,8 @@ export default function Settings() {
   const [rating, setRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [reviewCountInput, setReviewCountInput] = useState<string>("0");
-
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const role = useMemo(
     () =>
       (profile?.role ?? user?.user_metadata?.role ?? "client") as
@@ -218,6 +227,36 @@ export default function Settings() {
       });
     }
   };
+
+  async function handleDeleteAccount() {
+    try {
+      setDeleting(true);
+      const token = (await supabase.auth.getSession()).data.session
+        ?.access_token;
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Delete failed");
+      toast({
+        title: "Account deleted",
+        description: "Your account and data were removed.",
+      });
+      await signOut();
+      //   window.location.replace("/");
+    } catch (e: any) {
+      toast({
+        title: "Delete failed",
+        description: e?.message ?? "Please contact support@teslys.app",
+      });
+    } finally {
+      setDeleting(false);
+      setDeleteOpen(false);
+    }
+  }
 
   const [pwd1, setPwd1] = useState("");
   const [pwd2, setPwd2] = useState("");
@@ -474,7 +513,6 @@ export default function Settings() {
                   </CardContent>
                 </Card>
               </section>
-
               {/* Account (Password) */}
               <section aria-labelledby="account-section">
                 <Card>
@@ -524,7 +562,6 @@ export default function Settings() {
                   </CardContent>
                 </Card>
               </section>
-
               {/* Subscription */}
               {Capacitor.isNativePlatform() && profile.role === "host" && (
                 <section
@@ -534,7 +571,6 @@ export default function Settings() {
                   <SubscriptionCard />
                 </section>
               )}
-
               {/* Notifications */}
               <section
                 aria-labelledby="notifications-section"
@@ -543,6 +579,39 @@ export default function Settings() {
                 <NotificationsCard />
               </section>
 
+              <section aria-labelledby="help-support" className="md:col-span-2">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle id="help-support" className="text-xl">
+                      Help & Support
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between"
+                      onClick={async () => {
+                        const url = "https://teslys.app/support";
+                        if (Capacitor.isNativePlatform())
+                          await Browser.open({ url });
+                        else window.open(url, "_blank");
+                      }}
+                    >
+                      Open Support Page
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full underline underline-offset-2"
+                      onClick={() =>
+                        (window.location.href = "mailto:support@teslys.app")
+                      }
+                    >
+                      Email support@teslys.app
+                    </Button>
+                  </CardContent>
+                </Card>
+              </section>
               {/* Actions — no card, stacked, at the very end */}
               <section className="md:col-span-2 space-y-3">
                 {role === "client" && (
@@ -582,6 +651,41 @@ export default function Settings() {
                 >
                   Sign Out
                 </Button>
+
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  Delete Account
+                </Button>
+
+                <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Delete your account?</DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                      This permanently deletes your account and associated data.
+                      This action cannot be undone.
+                    </p>
+                    <DialogFooter className="gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setDeleteOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteAccount}
+                        disabled={deleting}
+                      >
+                        {deleting ? "Deleting…" : "Delete"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </section>
             </div>
           )}
