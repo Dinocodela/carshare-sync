@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Support from "@/pages/Support";
+
 import RegisterClient from "./pages/RegisterClient";
 import RegisterHost from "./pages/RegisterHost";
 import Dashboard from "./pages/Dashboard";
@@ -59,6 +61,7 @@ const App = () => (
               <Route path="/register/host" element={<RegisterHost />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfUse />} />
+              <Route path="/support" element={<Support />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
