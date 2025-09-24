@@ -341,7 +341,7 @@ export default function HostCarManagement() {
   const [editingEarning, setEditingEarning] = useState<Earning | null>(null);
   const [selectedTripExpenses, setSelectedTripExpenses] = useState<number>(0);
   const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
-  
+
   // Delete confirmation state
   const [deleteClaimId, setDeleteClaimId] = useState<string | null>(null);
   const [deleteClaimDialogOpen, setDeleteClaimDialogOpen] = useState(false);
@@ -1554,7 +1554,7 @@ export default function HostCarManagement() {
 
   const handleDeleteClaim = async () => {
     if (!deleteClaimId) return;
-    
+
     try {
       const { error } = await supabase
         .from("host_claims")
@@ -1566,7 +1566,7 @@ export default function HostCarManagement() {
 
       // Update local state
       setClaims((prev) => prev.filter((claim) => claim.id !== deleteClaimId));
-      
+
       toast({
         title: "Success",
         description: "Claim deleted successfully.",
@@ -1574,7 +1574,7 @@ export default function HostCarManagement() {
     } catch (error: any) {
       console.error("Error deleting claim:", error);
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Failed to delete claim. Please try again.",
         variant: "destructive",
       });
@@ -1687,7 +1687,7 @@ export default function HostCarManagement() {
   return (
     <DashboardLayout>
       <>
-        <header className="sticky top-0 z-10 flex items-center justify-center gap-2 py-2 mb-4">
+        <header className="z-10 flex items-center justify-center gap-2 py-2 mb-4">
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold">Hosted</h1>
           </div>
@@ -1704,7 +1704,7 @@ export default function HostCarManagement() {
             {/* Header that matches the bottom bar */}
             <div
               className="
-  sticky top-0 z-40 border-b
+   z-40 border-b
   backdrop-blur-md bg-white/70 supports-[backdrop-filter]:bg-white/60
   shadow-[0_6px_16px_rgba(0,0,0,0.05)]
 "
@@ -5226,12 +5226,15 @@ export default function HostCarManagement() {
                                         <SelectValue placeholder="Select a car" />
                                       </SelectTrigger>
                                     </FormControl>
-                                     <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                       position="popper"
-                                       side="bottom"
-                                       avoidCollisions={false}
-                                        onPointerDownOutside={(e) => e.stopPropagation()}
-                                     >
+                                    <SelectContent
+                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                      position="popper"
+                                      side="bottom"
+                                      avoidCollisions={false}
+                                      onPointerDownOutside={(e) =>
+                                        e.stopPropagation()
+                                      }
+                                    >
                                       {cars.map((car) => (
                                         <SelectItem key={car.id} value={car.id}>
                                           {formatCarDisplayName(car)}
@@ -5258,12 +5261,15 @@ export default function HostCarManagement() {
                                         <SelectValue placeholder="Select claim type" />
                                       </SelectTrigger>
                                     </FormControl>
-                                     <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                       position="popper"
-                                       side="bottom"
-                                       avoidCollisions={false}
-                                        onPointerDownOutside={(e) => e.stopPropagation()}
-                                     >
+                                    <SelectContent
+                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                      position="popper"
+                                      side="bottom"
+                                      avoidCollisions={false}
+                                      onPointerDownOutside={(e) =>
+                                        e.stopPropagation()
+                                      }
+                                    >
                                       <SelectItem value="damage">
                                         Physical Damage
                                       </SelectItem>
@@ -5349,11 +5355,20 @@ export default function HostCarManagement() {
                                           onValueChange={(value) => {
                                             field.onChange(value);
                                             // Auto-populate car field based on trip ID
-                                            const expenseWithTripId = expenses.find(
-                                              (e) => e.trip_id === value && e.car_id
-                                            );
-                                            if (expenseWithTripId && expenseWithTripId.car_id) {
-                                              claimForm.setValue("car_id", expenseWithTripId.car_id);
+                                            const expenseWithTripId =
+                                              expenses.find(
+                                                (e) =>
+                                                  e.trip_id === value &&
+                                                  e.car_id
+                                              );
+                                            if (
+                                              expenseWithTripId &&
+                                              expenseWithTripId.car_id
+                                            ) {
+                                              claimForm.setValue(
+                                                "car_id",
+                                                expenseWithTripId.car_id
+                                              );
                                             }
                                           }}
                                         >
@@ -5366,12 +5381,15 @@ export default function HostCarManagement() {
                                               }
                                             />
                                           </SelectTrigger>
-                                           <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                             position="popper"
-                                             side="bottom"
-                                             avoidCollisions={false}
-                                              onPointerDownOutside={(e) => e.stopPropagation()}
-                                           >
+                                          <SelectContent
+                                            className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                            position="popper"
+                                            side="bottom"
+                                            avoidCollisions={false}
+                                            onPointerDownOutside={(e) =>
+                                              e.stopPropagation()
+                                            }
+                                          >
                                             {availableTripIds.map((tripId) => (
                                               <SelectItem
                                                 key={tripId}
@@ -5889,13 +5907,15 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select a car" />
                                     </SelectTrigger>
                                   </FormControl>
-                                    <SelectContent 
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                       onPointerDownOutside={(e) => e.stopPropagation()}
-                                    >
+                                  <SelectContent
+                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                    position="popper"
+                                    side="bottom"
+                                    avoidCollisions={false}
+                                    onPointerDownOutside={(e) =>
+                                      e.stopPropagation()
+                                    }
+                                  >
                                     {cars.map((car) => (
                                       <SelectItem key={car.id} value={car.id}>
                                         {formatCarDisplayName(car)}
@@ -5922,28 +5942,30 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select claim type" />
                                     </SelectTrigger>
                                   </FormControl>
-                                    <SelectContent 
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                       onPointerDownOutside={(e) => e.stopPropagation()}
-                                    >
-                                     <SelectItem value="damage">
-                                       Physical Damage
-                                     </SelectItem>
-                                     <SelectItem value="theft">Theft</SelectItem>
-                                     <SelectItem value="accident">
-                                       Accident
-                                     </SelectItem>
-                                     <SelectItem value="vandalism">
-                                       Vandalism
-                                     </SelectItem>
-                                     <SelectItem value="mechanical">
-                                       Mechanical Issues
-                                     </SelectItem>
-                                     <SelectItem value="other">Other</SelectItem>
-                                   </SelectContent>
+                                  <SelectContent
+                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                    position="popper"
+                                    side="bottom"
+                                    avoidCollisions={false}
+                                    onPointerDownOutside={(e) =>
+                                      e.stopPropagation()
+                                    }
+                                  >
+                                    <SelectItem value="damage">
+                                      Physical Damage
+                                    </SelectItem>
+                                    <SelectItem value="theft">Theft</SelectItem>
+                                    <SelectItem value="accident">
+                                      Accident
+                                    </SelectItem>
+                                    <SelectItem value="vandalism">
+                                      Vandalism
+                                    </SelectItem>
+                                    <SelectItem value="mechanical">
+                                      Mechanical Issues
+                                    </SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
                                 </Select>
                                 <FormMessage />
                               </FormItem>
@@ -6004,19 +6026,27 @@ export default function HostCarManagement() {
                                         </span>
                                       </div>
                                     ) : availableTripIds.length > 0 ? (
-                                       <Select
-                                         value={field.value}
-                                         onValueChange={(value) => {
-                                           field.onChange(value);
-                                           // Auto-populate car field based on trip ID
-                                           const expenseWithTripId = expenses.find(
-                                             (e) => e.trip_id === value && e.car_id
-                                           );
-                                           if (expenseWithTripId && expenseWithTripId.car_id) {
-                                             claimForm.setValue("car_id", expenseWithTripId.car_id);
-                                           }
-                                         }}
-                                       >
+                                      <Select
+                                        value={field.value}
+                                        onValueChange={(value) => {
+                                          field.onChange(value);
+                                          // Auto-populate car field based on trip ID
+                                          const expenseWithTripId =
+                                            expenses.find(
+                                              (e) =>
+                                                e.trip_id === value && e.car_id
+                                            );
+                                          if (
+                                            expenseWithTripId &&
+                                            expenseWithTripId.car_id
+                                          ) {
+                                            claimForm.setValue(
+                                              "car_id",
+                                              expenseWithTripId.car_id
+                                            );
+                                          }
+                                        }}
+                                      >
                                         <SelectTrigger>
                                           <SelectValue
                                             placeholder={
@@ -6026,22 +6056,24 @@ export default function HostCarManagement() {
                                             }
                                           />
                                         </SelectTrigger>
-                                          <SelectContent 
-                                             className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                             position="popper"
-                                             side="bottom"
-                                             avoidCollisions={false}
-                                              onPointerDownOutside={(e) => e.stopPropagation()}
-                                           >
-                                           {availableTripIds.map((tripId) => (
-                                             <SelectItem
-                                               key={tripId}
-                                               value={tripId}
-                                             >
-                                               {tripId}
-                                             </SelectItem>
-                                           ))}
-                                         </SelectContent>
+                                        <SelectContent
+                                          className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                          position="popper"
+                                          side="bottom"
+                                          avoidCollisions={false}
+                                          onPointerDownOutside={(e) =>
+                                            e.stopPropagation()
+                                          }
+                                        >
+                                          {availableTripIds.map((tripId) => (
+                                            <SelectItem
+                                              key={tripId}
+                                              value={tripId}
+                                            >
+                                              {tripId}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
                                       </Select>
                                     ) : selectedCarId ? (
                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
@@ -6120,26 +6152,28 @@ export default function HostCarManagement() {
                                       <SelectValue placeholder="Select payment source" />
                                     </SelectTrigger>
                                   </FormControl>
-                                    <SelectContent 
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                      onPointerDownOutside={(e) => e.stopPropagation()}
-                                    >
-                                     <SelectItem value="Turo">Turo</SelectItem>
-                                     <SelectItem value="Eon">Eon</SelectItem>
-                                     <SelectItem value="GetAround">
-                                       GetAround
-                                     </SelectItem>
-                                     <SelectItem value="Private">
-                                       Private
-                                     </SelectItem>
-                                     <SelectItem value="Insurance">
-                                       Insurance
-                                     </SelectItem>
-                                     <SelectItem value="Other">Other</SelectItem>
-                                   </SelectContent>
+                                  <SelectContent
+                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                    position="popper"
+                                    side="bottom"
+                                    avoidCollisions={false}
+                                    onPointerDownOutside={(e) =>
+                                      e.stopPropagation()
+                                    }
+                                  >
+                                    <SelectItem value="Turo">Turo</SelectItem>
+                                    <SelectItem value="Eon">Eon</SelectItem>
+                                    <SelectItem value="GetAround">
+                                      GetAround
+                                    </SelectItem>
+                                    <SelectItem value="Private">
+                                      Private
+                                    </SelectItem>
+                                    <SelectItem value="Insurance">
+                                      Insurance
+                                    </SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
                                 </Select>
                                 <FormMessage />
                               </FormItem>
@@ -6783,29 +6817,29 @@ export default function HostCarManagement() {
                                         <MoreVertical className="h-4 w-4" />
                                       </Button>
                                     </DropdownMenuTrigger>
-                                     <DropdownMenuContent align="end">
-                                       <DropdownMenuItem
-                                         onClick={() => handleEditClaim(claim)}
-                                       >
-                                         <Edit className="h-3 w-3 mr-2" /> Edit
-                                         Claim
-                                       </DropdownMenuItem>
-                                       {claim.claim_status === "pending" && (
-                                         <>
-                                           <DropdownMenuSeparator />
-                                           <DropdownMenuItem
-                                             onClick={() => {
-                                               setDeleteClaimId(claim.id);
-                                               setDeleteClaimDialogOpen(true);
-                                             }}
-                                             className="text-destructive focus:text-destructive"
-                                           >
-                                             <Trash className="h-3 w-3 mr-2" /> Delete
-                                             Claim
-                                           </DropdownMenuItem>
-                                         </>
-                                       )}
-                                     </DropdownMenuContent>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        onClick={() => handleEditClaim(claim)}
+                                      >
+                                        <Edit className="h-3 w-3 mr-2" /> Edit
+                                        Claim
+                                      </DropdownMenuItem>
+                                      {claim.claim_status === "pending" && (
+                                        <>
+                                          <DropdownMenuSeparator />
+                                          <DropdownMenuItem
+                                            onClick={() => {
+                                              setDeleteClaimId(claim.id);
+                                              setDeleteClaimDialogOpen(true);
+                                            }}
+                                            className="text-destructive focus:text-destructive"
+                                          >
+                                            <Trash className="h-3 w-3 mr-2" />{" "}
+                                            Delete Claim
+                                          </DropdownMenuItem>
+                                        </>
+                                      )}
+                                    </DropdownMenuContent>
                                   </DropdownMenu>
                                 </div>
                                 <p className="font-bold text-lg">
@@ -6846,18 +6880,24 @@ export default function HostCarManagement() {
             </TabsContent>
           </Tabs>
         </PageContainer>
-        
+
         {/* Delete Claim Confirmation Dialog */}
-        <AlertDialog open={deleteClaimDialogOpen} onOpenChange={setDeleteClaimDialogOpen}>
+        <AlertDialog
+          open={deleteClaimDialogOpen}
+          onOpenChange={setDeleteClaimDialogOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Claim</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete this claim? This action cannot be undone.
+                Are you sure you want to delete this claim? This action cannot
+                be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setDeleteClaimDialogOpen(false)}>
+              <AlertDialogCancel
+                onClick={() => setDeleteClaimDialogOpen(false)}
+              >
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction

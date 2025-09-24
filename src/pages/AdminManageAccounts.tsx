@@ -124,7 +124,7 @@ export default function AdminManageAccounts() {
   return (
     <DashboardLayout>
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between gap-2 py-2 mb-4">
+      <header className="flex items-center justify-between gap-2 py-2 mb-4">
         <Button
           variant="ghost"
           size="icon"

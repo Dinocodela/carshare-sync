@@ -157,9 +157,12 @@ export default function HostRequests() {
       console.log("Found request:", request);
 
       // Use secure database function to handle the request
-      const functionName = action === "accepted" ? "accept_hosting_request" : "reject_hosting_request";
+      const functionName =
+        action === "accepted"
+          ? "accept_hosting_request"
+          : "reject_hosting_request";
       console.log(`Calling ${functionName} function...`);
-      
+
       const { data: result, error: functionError } = await supabase.rpc(
         functionName,
         { p_request_id: requestId }
@@ -253,7 +256,7 @@ export default function HostRequests() {
 
   return (
     <DashboardLayout>
-      <header className="sticky top-0 z-10">
+      <header className="sz-10">
         <div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
           <Button
             variant="ghost"

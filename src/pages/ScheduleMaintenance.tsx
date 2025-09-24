@@ -155,7 +155,7 @@ export default function ScheduleMaintenance() {
 
   return (
     <DashboardLayout>
-      <header className="sticky top-0 z-10">
+      <header className="z-10">
         <div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
           <Button
             variant="ghost"

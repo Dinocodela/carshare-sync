@@ -132,18 +132,22 @@ export default function HostingDetails() {
         toast({
           title: "Error",
           description: "Failed to update car status",
-          variant: "destructive"
+          variant: "destructive",
         });
         return;
       }
 
       // Format the return request message
       const formattedDate = format(returnDate, "PPPP");
-      const returnMessage = `I would like to request the return of my ${car.year} ${car.make} ${car.model}.
+      const returnMessage = `I would like to request the return of my ${
+        car.year
+      } ${car.make} ${car.model}.
 
 Preferred Return Date: ${formattedDate}
 
-Please note: This request provides the required 30-day notice period.${message ? `\n\nAdditional Details:\n${message}` : ''}`;
+Please note: This request provides the required 30-day notice period.${
+        message ? `\n\nAdditional Details:\n${message}` : ""
+      }`;
 
       // Send notification to host
       const { error: notificationError } = await supabase.functions.invoke(
@@ -153,7 +157,7 @@ Please note: This request provides the required 30-day notice period.${message ?
             carId: car.id,
             hostUserId: car.host.id,
             clientId: user.id,
-            message: returnMessage
+            message: returnMessage,
           },
         }
       );
@@ -162,13 +166,14 @@ Please note: This request provides the required 30-day notice period.${message ?
         console.error("Error sending notification:", notificationError);
         toast({
           title: "Warning",
-          description: "Car return request submitted, but notification may not have been sent",
-          variant: "destructive"
+          description:
+            "Car return request submitted, but notification may not have been sent",
+          variant: "destructive",
         });
       } else {
         toast({
           title: "Success",
-          description: "Car return request sent to host successfully!"
+          description: "Car return request sent to host successfully!",
         });
       }
 
@@ -179,7 +184,7 @@ Please note: This request provides the required 30-day notice period.${message ?
       toast({
         title: "Error",
         description: "Failed to request car return",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -212,7 +217,7 @@ Please note: This request provides the required 30-day notice period.${message ?
 
   return (
     <DashboardLayout>
-      <header className="sticky top-0 z-10">
+      <header className=" z-10">
         <div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
           <Button
             variant="ghost"

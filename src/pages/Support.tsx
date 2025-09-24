@@ -77,8 +77,7 @@ export default function Support() {
         "Please describe your issue here:",
         "",
         "—",
-        `Account Email: ${email || "(not signed in)"}`,
-        `User ID: ${uid || "(not signed in)"}`,
+        `Account Email: ${email || ""}`,
         `App Version: ${appVersion || "unknown"}`,
         `Device: ${deviceInfo.model || ""}`,
         `OS: ${deviceInfo.os || ""} ${deviceInfo.osVersion || ""}`,
@@ -125,6 +124,10 @@ export default function Support() {
                 <CardContent className="space-y-2">
                   <p className="text-sm text-muted-foreground">
                     Open your{" "}
+                    {Capacitor.isNativePlatform() &&
+                      (Capacitor.getPlatform() === "ios"
+                        ? "App Store"
+                        : "Play Store")}
                     {Capacitor.getPlatform() === "ios"
                       ? "App Store"
                       : "Play Store"}{" "}
