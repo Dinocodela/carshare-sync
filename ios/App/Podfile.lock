@@ -8,6 +8,8 @@ PODS:
   - CapacitorCamera (7.0.2):
     - Capacitor
   - CapacitorCordova (7.4.3)
+  - CapacitorDevice (7.0.2):
+    - Capacitor
   - CapacitorFirebaseMessaging (7.3.1):
     - Capacitor
     - FirebaseMessaging (~> 11.7.0)
@@ -87,6 +89,7 @@ DEPENDENCIES:
   - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
   - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorFirebaseMessaging (from `../../node_modules/@capacitor-firebase/messaging`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
@@ -119,6 +122,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/camera"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
+  CapacitorDevice:
+    :path: "../../node_modules/@capacitor/device"
   CapacitorFirebaseMessaging:
     :path: "../../node_modules/@capacitor-firebase/messaging"
   CapacitorKeyboard:
@@ -140,6 +145,7 @@ SPEC CHECKSUMS:
   CapacitorBrowser: 22541e48442de44dc629c214388290d6eecc6ae9
   CapacitorCamera: f9e54db0a18bb218a8dc360907d63aaefe9209ff
   CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
+  CapacitorDevice: 81ae78d5d1942707caad79276badd458bf6ec603
   CapacitorFirebaseMessaging: 71ea2cde4484e172de29e4b4e68100c2f84fb441
   CapacitorKeyboard: a86aa9e4741b6444a802df26440a92ae041b34a6
   CapacitorPushNotifications: 7c0659b349b149ee3936a682da31a9d269de9582
@@ -158,6 +164,6 @@ SPEC CHECKSUMS:
   RevenueCat: 47d52620419dcf3dce4e724eade9d390e16ab4b0
   RevenuecatPurchasesCapacitor: 51cd81cec7db693a2552b45c36261d849e1cf574
 
-PODFILE CHECKSUM: 89049a3f044b109bf78e90e705e3953041141378
+PODFILE CHECKSUM: a9ab5c999e614323ce71d1e401e48d77d82af122
 
 COCOAPODS: 1.16.2

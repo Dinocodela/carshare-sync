@@ -298,7 +298,7 @@ export default function Settings() {
 
   return (
     <DashboardLayout>
-      <header className="sticky top-0 z-10 flex items-center justify-center gap-2 py-2 mb-4">
+      <header className="sticky bg-white top-0 z-10 flex items-center justify-center gap-2 py-2 mb-4">
         <div className="flex items-center gap-2">
           <h1 className="text-xl sm:text-2xl font-bold">Account Settings</h1>
         </div>

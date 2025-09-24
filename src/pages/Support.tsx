@@ -106,34 +106,54 @@ export default function Support() {
           </header>
 
           {/* Quick actions */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Manage Subscription</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Open your{" "}
-                  {Capacitor.getPlatform() === "ios"
-                    ? "App Store"
-                    : "Play Store"}{" "}
-                  subscription settings to cancel or change plans.
-                </p>
-                <Button
-                  className="w-full justify-between"
-                  onClick={onOpenManage}
-                >
-                  Open{" "}
-                  {Capacitor.getPlatform() === "ios"
-                    ? "App Store"
-                    : "Play Store"}{" "}
-                  Subscriptions
-                  <ExternalLink className="w-4 h-4" />
-                </Button>
-              </CardContent>
-            </Card>
+          <div className={`grid gap-4 grid-cols-12`}>
+            {Capacitor.isNativePlatform() && (
+              <Card
+                className={`
+              ${
+                Capacitor.isNativePlatform()
+                  ? "col-span-6"
+                  : "sm:col-start-1 sm:col-span-6 col-span-12"
+              }
+            `}
+              >
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">
+                    Manage Subscription
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Open your{" "}
+                    {Capacitor.getPlatform() === "ios"
+                      ? "App Store"
+                      : "Play Store"}{" "}
+                    subscription settings to cancel or change plans.
+                  </p>
+                  <Button
+                    className="w-full justify-between"
+                    onClick={onOpenManage}
+                  >
+                    Open{" "}
+                    {Capacitor.getPlatform() === "ios"
+                      ? "App Store"
+                      : "Play Store"}{" "}
+                    Subscriptions
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
-            <Card>
+            <Card
+              className={`
+              ${
+                Capacitor.isNativePlatform()
+                  ? "col-span-6"
+                  : "sm:col-start-1 sm:col-span-6 col-span-12"
+              }
+            `}
+            >
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Contact Support</CardTitle>
               </CardHeader>
@@ -141,11 +161,8 @@ export default function Support() {
                 <p className="text-sm text-muted-foreground">
                   Email us with your account details and a brief description.
                 </p>
-                <Button
-                  className="w-full justify-between"
-                  onClick={openSupportMail}
-                >
-                  Email support@teslys.app
+                <Button className=" justify-between" onClick={openSupportMail}>
+                  support@teslys.app
                   <Mail className="w-4 h-4" />
                 </Button>
               </CardContent>
@@ -158,31 +175,40 @@ export default function Support() {
               <CardTitle className="text-base">FAQ</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-gray dark:prose-invert">
-              <h3>How do I subscribe or change my plan?</h3>
-              <p>
-                Go to <strong>Settings → Subscription</strong> and tap{" "}
-                <em>View Plans</em>. On{" "}
-                {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"}{" "}
-                you’ll see local pricing and can purchase through{" "}
-                {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"}
-                . To change or cancel, tap{" "}
-                <em>
-                  Manage on{" "}
-                  {Capacitor.getPlatform() === "ios"
-                    ? "App Store"
-                    : "Play Store"}{" "}
-                  Subscriptions
-                </em>{" "}
-                or use the button above.
-              </p>
+              {Capacitor.isNativePlatform() && (
+                <>
+                  <h3>How do I subscribe or change my plan?</h3>
+                  <p>
+                    Go to <strong>Settings → Subscription</strong> and tap{" "}
+                    <em>View Plans</em>. On{" "}
+                    {Capacitor.getPlatform() === "ios"
+                      ? "App Store"
+                      : "Play Store"}{" "}
+                    you’ll see local pricing and can purchase through{" "}
+                    {Capacitor.getPlatform() === "ios"
+                      ? "App Store"
+                      : "Play Store"}
+                    . To change or cancel, tap{" "}
+                    <em>
+                      Manage on{" "}
+                      {Capacitor.getPlatform() === "ios"
+                        ? "App Store"
+                        : "Play Store"}{" "}
+                      Subscriptions
+                    </em>{" "}
+                    or use the button above.
+                  </p>
 
-              <h3>How do I restore purchases?</h3>
-              <p>
-                In the paywall or the Subscription card, tap{" "}
-                <em>Restore Purchases</em>. Make sure you’re signed in with the
-                same {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"}{" "}
-                you used to buy the subscription.
-              </p>
+                  <h3>How do I restore purchases?</h3>
+                  <p>
+                    In the paywall or the Subscription card, tap{" "}
+                    <em>Restore Purchases</em>. Make sure you’re signed in with
+                    the same{" "}
+                    {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"} you
+                    used to buy the subscription.
+                  </p>
+                </>
+              )}
 
               <h3>Where can I read the Terms and Privacy Policy?</h3>
               <p>
@@ -211,56 +237,27 @@ export default function Support() {
                 .
               </p>
 
-              <h3>Refunds</h3>
-              <p>
-                Purchases on{" "}
-                {Capacitor.getPlatform() === "ios" ? "iOS" : "Android"} are
-                processed by{" "}
-                {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"}.
-                Refunds are handled under{" "}
-                {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"} Media
-                Services terms. You can request a refund or manage your
-                subscription in{" "}
-                {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"} ID
-                settings.
-              </p>
+              {Capacitor.isNativePlatform() && (
+                <>
+                  <h3>Refunds</h3>
+                  <p>
+                    Purchases on{" "}
+                    {Capacitor.getPlatform() === "ios" ? "iOS" : "Android"} are
+                    processed by{" "}
+                    {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"}.
+                    Refunds are handled under{" "}
+                    {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"}{" "}
+                    Media Services terms. You can request a refund or manage
+                    your subscription in{" "}
+                    {Capacitor.getPlatform() === "ios" ? "Apple" : "Google"} ID
+                    settings.
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
 
           {/* Small diagnostic footer */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">
-                Your Info (include when emailing)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-1 text-muted-foreground">
-              <div>
-                <span className="font-medium">Email:</span> {email || "—"}
-              </div>
-              <div>
-                <span className="font-medium">User ID:</span> {uid || "—"}
-              </div>
-              <div>
-                <span className="font-medium">App:</span> {appVersion || "—"}
-              </div>
-              <div>
-                <span className="font-medium">Device:</span>{" "}
-                {[deviceInfo.model, deviceInfo.os, deviceInfo.osVersion]
-                  .filter(Boolean)
-                  .join(" ") || "—"}
-              </div>
-              <div>
-                <span className="font-medium">Platform:</span>{" "}
-                {deviceInfo.platform || "—"}
-              </div>
-              <div className="flex items-center gap-2 pt-2 text-xs">
-                <Info className="w-4 h-4" />
-                This info helps us diagnose store and device-specific issues
-                faster.
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </PageContainer>
     </>

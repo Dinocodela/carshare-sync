@@ -52,18 +52,22 @@ export default function TermsOfUse() {
           <p>
             Pricing is shown clearly in-app at the time of purchase and may vary
             by region and currency. Payment is charged to your{" "}
-            {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"}{" "}
-            account upon confirmation of purchase. Subscriptions renew
-            automatically unless canceled at least 24 hours before the end of
-            the current period. Your account will be charged for renewal within
-            24 hours prior to the end of the current period.
+            {Capacitor.isNativePlatform() &&
+              (Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store")}
+            {!Capacitor.isNativePlatform() && "App Store / Play Store"} account
+            upon confirmation of purchase. Subscriptions renew automatically
+            unless canceled at least 24 hours before the end of the current
+            period. Your account will be charged for renewal within 24 hours
+            prior to the end of the current period.
           </p>
           <p>
             You can manage or cancel your subscription in your{" "}
-            {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"}{" "}
-            account settings (e.g., Settings &gt; {`[your name]`} &gt;
-            Subscriptions). If you uninstall the app, your subscription does not
-            automatically cancel.
+            {Capacitor.isNativePlatform() &&
+              (Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store")}
+            {!Capacitor.isNativePlatform() && "App Store / Play Store"} account
+            settings (e.g., Settings &gt; {`[your name]`} &gt; Subscriptions).
+            If you uninstall the app, your subscription does not automatically
+            cancel.
           </p>
 
           <h3>Free Trials</h3>
@@ -76,14 +80,25 @@ export default function TermsOfUse() {
           <h3>Refunds</h3>
           <p>
             Refunds for purchases made via the{" "}
-            {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"} are
-            handled by
-            {Capacitor.getPlatform() === "ios" ? "Apple" : "Play Store"} under
-            the {Capacitor.getPlatform() === "ios" ? "Apple" : "Play Store"}{" "}
-            Media Services terms. For help, visit{" "}
-            {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"}’s
-            support resources or manage your subscription in{" "}
-            {Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store"} ID
+            {Capacitor.isNativePlatform() &&
+              (Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store")}
+            {!Capacitor.isNativePlatform() && "App Store / Play Store"} are
+            handled by{" "}
+            {Capacitor.isNativePlatform() &&
+              (Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store")}
+            {!Capacitor.isNativePlatform() && "App Store / Play Store"} under
+            the{" "}
+            {Capacitor.isNativePlatform() &&
+              (Capacitor.getPlatform() === "ios" ? "Apple" : "Play Store")}
+            {!Capacitor.isNativePlatform() && "Apple / Play Store"} Media
+            Services terms. For help, visit{" "}
+            {Capacitor.isNativePlatform() &&
+              (Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store")}
+            {!Capacitor.isNativePlatform() && "App Store / Play Store"}
+            ’s support resources or manage your subscription in{" "}
+            {Capacitor.isNativePlatform() &&
+              (Capacitor.getPlatform() === "ios" ? "App Store" : "Play Store")}
+            {!Capacitor.isNativePlatform() && "App Store / Play Store"} ID
             settings.
           </p>
 
