@@ -40,6 +40,7 @@ import RequireUnsubscribed from "./components/auth/RequireUnsusbscribed";
 import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
+import ScrollReset from "./components/router/ScrollReset";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,8 @@ const App = () => (
           <BrowserRouter>
             <AuthCallbackHandler />
             <PushNavHandler />
+            <ScrollReset />
+
             <Routes>
               {/* Public */}
               <Route path="/" element={<Index />} />

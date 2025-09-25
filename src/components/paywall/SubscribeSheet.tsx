@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { Purchases } from "@revenuecat/purchases-capacitor";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
+import { LegalFooter } from "../LegalFooter";
 type Props = { open: boolean; onOpenChange: (v: boolean) => void };
 
 export function SubscribeSheet({ open, onOpenChange }: Props) {
@@ -254,33 +255,7 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
             {Capacitor.getPlatform() === "ios" ? "Apple" : "Play Store"}{" "}
             subscriptions.
           </p>
-          <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
-            <div>
-              By subscribing, you agree to our{" "}
-              <button
-                className="underline underline-offset-2"
-                onClick={async () => {
-                  const url = "https://teslys.app/terms";
-                  if (Capacitor.isNativePlatform()) await Browser.open({ url });
-                  else window.open(url, "_blank");
-                }}
-              >
-                Terms of Use
-              </button>{" "}
-              and{" "}
-              <button
-                className="underline underline-offset-2"
-                onClick={async () => {
-                  const url = "https://teslys.app/privacy";
-                  if (Capacitor.isNativePlatform()) await Browser.open({ url });
-                  else window.open(url, "_blank");
-                }}
-              >
-                Privacy Policy
-              </button>
-              .
-            </div>
-          </div>
+          <LegalFooter />
         </div>
       </SheetContent>
     </Sheet>

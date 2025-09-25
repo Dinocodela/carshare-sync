@@ -1,101 +1,114 @@
 import { SEO } from "@/components/SEO";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { ScreenHeader } from "@/components/ScreenHeader";
 
-const PrivacyPolicy = () => {
+export default function PrivacyPolicy() {
   return (
     <>
-      <SEO 
-        title="Privacy Policy - Teslys"
-        description="Privacy Policy for Teslys Tesla rental and fleet management platform. Learn how we collect, use, and protect your information."
+      <SEO
+        title="Privacy Policy – Teslys"
+        description="Privacy Policy for the Teslys app and services."
       />
-      <PageContainer className="py-8">
-        <div className="max-w-4xl mx-auto prose prose-gray dark:prose-invert">
-          <header>
-            <h1>Privacy Policy for Teslys</h1>
-            <p className="text-muted-foreground">Last updated: 01/01/2021</p>
-          </header>
-
-          <main>
-            <p>
-              Teslys ("we," "our," "us") operates the Teslys mobile application ("App") and website ("Service") to provide Tesla rental and fleet management solutions. Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information.
+      <DashboardLayout>
+        <ScreenHeader title="Privacy Policy" fallbackHref="/settings" />
+        <PageContainer className="py-4">
+          <div className="max-w-4xl mx-auto prose prose-gray dark:prose-invert">
+            <p className="text-muted-foreground">
+              Last updated: September 25, 2025
             </p>
 
-            <section>
-              <h2>1. Information We Collect</h2>
-              <ul>
-                <li><strong>Personal Information:</strong> Name, email, phone number, driver's license, and payment details.</li>
-                <li><strong>Vehicle Information:</strong> VIN, mileage, charging status, location data (when enabled).</li>
-                <li><strong>Usage Data:</strong> App activity, logs, device type, crash reports.</li>
-              </ul>
-            </section>
+            <p>
+              This Privacy Policy explains how Teslys (“we”, “our”, “us”)
+              collects, uses, and shares information when you use the Teslys app
+              and services (the “Service”). By using the Service, you agree to
+              this policy.
+            </p>
 
-            <section>
-              <h2>2. How We Use Your Information</h2>
-              <ul>
-                <li>To provide and improve the Teslys platform.</li>
-                <li>To facilitate bookings, payments, and fleet management.</li>
-                <li>To communicate with you about rentals, updates, and support.</li>
-                <li>To comply with legal obligations and fraud prevention.</li>
-              </ul>
-            </section>
+            <h2>Information We Collect</h2>
+            <ul>
+              <li>
+                <strong>Account data</strong> (e.g., name, email) to create and
+                manage your account.
+              </li>
+              <li>
+                <strong>Usage data</strong> to improve app performance and
+                features.
+              </li>
+              <li>
+                <strong>Purchase data</strong> (subscription status and product
+                identifiers) from the App Store to enable premium features. We
+                do not receive your full payment card details.
+              </li>
+            </ul>
 
-            <section>
-              <h2>3. Sharing of Information</h2>
-              <p>We do not sell your data. We may share data with:</p>
-              <ul>
-                <li>Service providers (e.g., payment processors, hosting services).</li>
-                <li>Business partners (e.g., Tesla rental hosts, fleet managers).</li>
-                <li>Legal authorities when required by law.</li>
-              </ul>
-            </section>
+            <h2>How We Use Information</h2>
+            <ul>
+              <li>Provide, maintain, and improve the Service.</li>
+              <li>
+                Enable subscriptions, restore purchases, and manage access.
+              </li>
+              <li>
+                Communicate with you about updates, support, and account
+                notices.
+              </li>
+              <li>
+                Protect against fraud, abuse, and violations of our Terms.
+              </li>
+            </ul>
 
-            <section>
-              <h2>4. Data Security</h2>
-              <p>We use encryption, secure servers, and industry-standard practices to protect your data.</p>
-            </section>
+            <h2>Sharing</h2>
+            <p>
+              We share data with service providers (e.g., authentication,
+              analytics, purchase validation) that help us operate the Service.
+              We do not sell your personal information.
+            </p>
 
-            <section>
-              <h2>5. Your Rights</h2>
-              <p>
-                You can request access, correction, or deletion of your personal data at any time. Contact us at:{" "}
-                <a href="mailto:support@teslys.app" className="text-primary hover:underline">
-                  support@teslys.app
-                </a>
-                .
-              </p>
-            </section>
+            <h2>Data Retention</h2>
+            <p>
+              We retain information for as long as your account is active or as
+              needed to provide the Service and comply with legal obligations.
+              You can delete your account in
+              <em> Settings → Delete Account</em>.
+            </p>
 
-            <section>
-              <h2>6. Third-Party Services</h2>
-              <p>
-                Teslys may link to third-party apps (e.g., Turo, Eon). Their policies govern how they handle your data.
-              </p>
-            </section>
+            <h2>Your Choices</h2>
+            <ul>
+              <li>
+                Access and update profile information in <em>Settings</em>.
+              </li>
+              <li>Manage subscriptions in Apple ID settings.</li>
+              <li>
+                Delete your account in <em>Settings → Delete Account</em>.
+              </li>
+            </ul>
 
-            <section>
-              <h2>7. Children's Privacy</h2>
-              <p>Teslys is not intended for users under 18.</p>
-            </section>
+            <h2>Children</h2>
+            <p>
+              The Service is not intended for children under the age where
+              consent is required by law.
+            </p>
 
-            <section>
-              <h2>8. Changes</h2>
-              <p>We may update this policy. Updates will be posted here with a revised date.</p>
-            </section>
+            <h2>Changes</h2>
+            <p>
+              We may update this policy. Material changes will be posted in-app
+              with an updated date.
+            </p>
 
-            <section>
-              <h2>Contact Us</h2>
-              <p>
-                If you have questions, email us at:{" "}
-                <a href="mailto:support@teslys.app" className="text-primary hover:underline">
-                  support@teslys.app
-                </a>
-              </p>
-            </section>
-          </main>
-        </div>
-      </PageContainer>
+            <h2>Contact</h2>
+            <p>
+              Questions? Email{" "}
+              <a
+                className="underline underline-offset-2"
+                href="mailto:support@teslys.app"
+              >
+                support@teslys.app
+              </a>
+              .
+            </p>
+          </div>
+        </PageContainer>
+      </DashboardLayout>
     </>
   );
-};
-
-export default PrivacyPolicy;
+}

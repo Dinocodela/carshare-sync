@@ -578,7 +578,6 @@ export default function Settings() {
               >
                 <NotificationsCard />
               </section>
-
               <section aria-labelledby="help-support" className="md:col-span-2">
                 <Card>
                   <CardHeader className="pb-2">
@@ -590,12 +589,7 @@ export default function Settings() {
                     <Button
                       variant="outline"
                       className="w-full justify-between"
-                      onClick={async () => {
-                        const url = "https://teslys.app/support";
-                        if (Capacitor.isNativePlatform())
-                          await Browser.open({ url });
-                        else window.open(url, "_blank");
-                      }}
+                      onClick={() => navigate("/support")}
                     >
                       Open Support Page
                       <ExternalLink className="w-4 h-4" />
@@ -608,6 +602,34 @@ export default function Settings() {
                       }
                     >
                       Email support@teslys.app
+                    </Button>
+                  </CardContent>
+                </Card>
+              </section>
+              <section
+                aria-labelledby="legal-policies"
+                className="md:col-span-2"
+              >
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle id="legal-policies" className="text-xl">
+                      Legal & Policies
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-2 sm:grid-cols-2">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => navigate("/terms")}
+                    >
+                      Terms of Use
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => navigate("/privacy")}
+                    >
+                      Privacy Policy
                     </Button>
                   </CardContent>
                 </Card>
