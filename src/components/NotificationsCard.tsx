@@ -147,7 +147,9 @@ export function NotificationsCard() {
               </Label>
               <div className="text-sm text-muted-foreground">
                 {isNative
-                  ? "Use device notifications on iOS/Android."
+                  ? `Use device notifications on ${
+                      Capacitor.getPlatform() === "ios" ? "iOS" : "Android"
+                    }`
                   : "Allow TESLYS to send updates in your browser."}
               </div>
             </div>
