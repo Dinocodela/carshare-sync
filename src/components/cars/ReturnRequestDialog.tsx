@@ -45,7 +45,10 @@ interface ReturnRequestDialogProps {
   loading?: boolean;
 }
 
-export function ReturnRequestDialog({ onSubmit, loading = false }: ReturnRequestDialogProps) {
+export function ReturnRequestDialog({
+  onSubmit,
+  loading = false,
+}: ReturnRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const minDate = addDays(new Date(), 30);
 
@@ -69,20 +72,22 @@ export function ReturnRequestDialog({ onSubmit, loading = false }: ReturnRequest
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full">
-          Request Car Return
-        </Button>
+        <Button className="w-full">Request Car Return</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Request Car Return</DialogTitle>
           <DialogDescription>
-            Select your preferred return date. A minimum of 30 days notice is required.
+            Select your preferred return date. A minimum of 30 days notice is
+            required.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="returnDate"
@@ -108,7 +113,10 @@ export function ReturnRequestDialog({ onSubmit, loading = false }: ReturnRequest
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent
+                      className="w-auto p-0 z-[5000]"
+                      align="start"
+                    >
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
