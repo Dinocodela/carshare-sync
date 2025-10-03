@@ -15,9 +15,10 @@ interface FixedExpensesListProps {
 export function FixedExpensesList({ carId, carName, readOnly = false }: FixedExpensesListProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<any>(null);
-  const { expenses, getExpensesByCarId, getMonthlyFixedCosts, deleteExpense, loading } = useClientCarExpenses();
+  const { expenses, getMonthlyFixedCosts, deleteExpense, loading } = useClientCarExpenses();
   
-  const carExpenses = getExpensesByCarId(carId);
+  // Filter expenses directly using the expenses state to ensure re-render
+  const carExpenses = expenses.filter(expense => expense.car_id === carId);
   const monthlyTotal = getMonthlyFixedCosts(carId);
 
   const handleDelete = async (expenseId: string) => {
