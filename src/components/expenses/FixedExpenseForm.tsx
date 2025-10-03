@@ -60,11 +60,20 @@ export function FixedExpenseForm({ carId, carName, onClose, onSuccess, editExpen
   const onSubmit = async (data: CreateClientCarExpenseData) => {
     setLoading(true);
     try {
+      // Convert empty strings to undefined for optional fields
+      const sanitizedData = {
+        ...data,
+        end_date: data.end_date || undefined,
+        notes: data.notes || undefined,
+        provider_name: data.provider_name || undefined,
+        policy_number: data.policy_number || undefined,
+      };
+
       let success;
       if (editExpense) {
-        success = await updateExpense(editExpense.id, data);
+        success = await updateExpense(editExpense.id, sanitizedData);
       } else {
-        success = await createExpense(data);
+        success = await createExpense(sanitizedData);
       }
       if (success) {
         onSuccess?.();
