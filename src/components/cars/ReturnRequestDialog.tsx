@@ -108,7 +108,7 @@ export function ReturnRequestDialog({ onSubmit, loading = false }: ReturnRequest
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 z-[100] pointer-events-auto" align="start">
                       <CalendarComponent
                         mode="single"
                         selected={field.value}
