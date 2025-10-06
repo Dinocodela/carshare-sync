@@ -36,6 +36,14 @@ const Index = () => {
   const [submitting, setSubmitting] = useState(false);
   const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
 
+  // Check if user has seen onboarding
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
+    if (!hasSeenOnboarding && !user && !loading) {
+      navigate("/onboarding");
+    }
+  }, [navigate, user, loading]);
+
   useEffect(() => {
     if (isNative) {
       StatusBar.setBackgroundColor({ color: "#000000" });
@@ -47,7 +55,7 @@ const Index = () => {
         ScreenOrientation.unlock();
       }
     };
-  }, []);
+  }, [isNative]);
 
   //   useEffect(() => {
   //     if (user) navigate("/dashboard");

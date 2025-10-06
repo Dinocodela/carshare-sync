@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Onboarding from "./pages/Onboarding";
 import Support from "@/pages/Support";
 
 import RegisterClient from "./pages/RegisterClient";
@@ -58,6 +59,7 @@ const App = () => (
 
             <Routes>
               {/* Public */}
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<Index />} />
               {/* <Route path="/login" element={<Login />} /> */}
               <Route path="/register/client" element={<RegisterClient />} />
