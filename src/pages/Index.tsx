@@ -21,6 +21,8 @@ import { ScreenOrientation } from "@capacitor/screen-orientation";
 import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
 import HostRegisterCard from "@/components/auth/HostRegisterCard";
 import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
+import { SEO } from "@/components/SEO";
+import { StructuredData } from "@/components/StructuredData";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
@@ -153,9 +155,22 @@ const Index = () => {
   );
 
   return (
-    <div className="h-full pt-safe-top bg-gradient-hero flex items-center justify-center p-4 overflow-y-scroll">
-      <div className="w-full max-w-xl h-full">
-        {Hero}
+    <>
+      <SEO
+        title="Teslys - Tesla Car Sharing Platform | Turn Your Tesla Into Passive Income"
+        description="Premium Tesla car sharing platform. We handle rentals, cleaning, and guest support so you can earn passive income from your Tesla. Join Teslys today."
+        keywords="Tesla car sharing, Tesla passive income, rent out Tesla, Tesla rental management, Tesla Model 3 rental, Tesla Model Y income, car sharing platform"
+        canonical="https://teslys.app/"
+        ogImage="https://teslys.app/icons/icon-512.webp"
+      />
+      <StructuredData type="organization" />
+      <StructuredData type="website" />
+      <StructuredData type="service" />
+      <StructuredData type="software" />
+      
+      <div className="h-full pt-safe-top bg-gradient-hero flex items-center justify-center p-4 overflow-y-scroll">
+        <div className="w-full max-w-xl h-full">
+          {Hero}
 
         {/* ✅ Switch the content panel inline */}
         {panel === "login" && (
@@ -235,6 +250,7 @@ const Index = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 export default Index;
