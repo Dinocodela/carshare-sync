@@ -41,6 +41,7 @@ import RequireUnsubscribed from "./components/auth/RequireUnsusbscribed";
 import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
+import FAQ from "./pages/FAQ";
 import ScrollReset from "./components/router/ScrollReset";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/faq" element={<FAQ />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
