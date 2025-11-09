@@ -16,7 +16,7 @@ export function SEO({
   description,
   canonical,
   keywords,
-  ogImage,
+  ogImage = "/og-image.jpg",
   ogType = "website",
   twitterCard = "summary_large_image",
   noIndex = false,
