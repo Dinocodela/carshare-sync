@@ -34,6 +34,7 @@ const routeLabels: Record<string, string> = {
   settings: "Settings",
   support: "Support",
   faq: "FAQ",
+  blog: "Blog",
   privacy: "Privacy Policy",
   terms: "Terms of Use",
   onboarding: "Welcome",

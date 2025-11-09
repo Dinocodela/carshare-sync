@@ -144,6 +144,21 @@ export default function FAQ() {
 
             <div className="mt-12 p-8 bg-primary/5 border border-primary/20 rounded-lg text-center">
               <h2 className="text-2xl font-bold mb-3 text-foreground">
+                Want to Learn More?
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Check out our blog for detailed guides on maximizing Tesla rental income, insurance tips, and maintenance best practices
+              </p>
+              <a
+                href="/blog"
+                className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                Visit Our Blog
+              </a>
+            </div>
+
+            <div className="mt-8 p-8 bg-primary/5 border border-primary/20 rounded-lg text-center">
+              <h2 className="text-2xl font-bold mb-3 text-foreground">
                 Still have questions?
               </h2>
               <p className="text-muted-foreground mb-6">

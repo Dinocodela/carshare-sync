@@ -42,6 +42,8 @@ import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import ScrollReset from "./components/router/ScrollReset";
 
 const queryClient = new QueryClient();
@@ -69,6 +71,8 @@ const App = () => (
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/support" element={<Support />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
