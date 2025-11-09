@@ -349,11 +349,7 @@ export default function HostRequests() {
                     {request.car?.images?.[0] && (
                       <img
                         src={request.car.images[0]}
-                        alt={
-                          request.car
-                            ? `${request.car.make} ${request.car.model}`
-                            : "Vehicle"
-                        }
+                        alt={`${request.car.year || ''} ${request.car.make || ''} ${request.car.model || ''} - Tesla rental request vehicle`}
                         className="w-24 h-24 object-cover rounded-lg"
                       />
                     )}

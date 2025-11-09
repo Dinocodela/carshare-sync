@@ -538,7 +538,7 @@ export default function EditCar() {
                           <div key={index} className="relative">
                             <img
                               src={image}
-                              alt={`Car image ${index + 1}`}
+                              alt={`Tesla vehicle photo ${index + 1} - Current car listing image`}
                               className="w-full aspect-square object-cover rounded-md"
                             />
                             <Button
@@ -637,7 +637,7 @@ export default function EditCar() {
                             <div key={index} className="relative">
                               <img
                                 src={URL.createObjectURL(file)}
-                                alt={`Upload preview ${index + 1}`}
+                                alt={`New Tesla car photo preview ${index + 1} - Upload preview for vehicle update`}
                                 className="w-full aspect-square object-cover rounded-md"
                               />
                               <Button

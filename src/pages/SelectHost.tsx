@@ -332,7 +332,7 @@ export default function SelectHost() {
                 <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted">
                   <img
                     src={car.images[0]}
-                    alt={`${car.make} ${car.model}`}
+                    alt={`${car.year} ${car.make} ${car.model} - Tesla vehicle available for management`}
                     className="w-full h-full object-cover"
                   />
                 </div>

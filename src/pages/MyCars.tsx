@@ -164,7 +164,7 @@ export default function MyCars() {
                       {car.images?.[0] ? (
                         <img
                           src={car.images[0]}
-                          alt={`${car.year} ${car.make} ${car.model}`}
+                          alt={`${car.year} ${car.make} ${car.model} - Tesla car sharing vehicle in your fleet`}
                           className="h-full w-full object-cover"
                           loading="lazy"
                         />

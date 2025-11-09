@@ -581,11 +581,11 @@ export default function AddCar() {
 
                   {selectedImages.length > 0 && (
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                      {selectedImages.map((file, index) => (
+                        {selectedImages.map((file, index) => (
                         <div key={index} className="relative group">
                           <img
                             src={URL.createObjectURL(file)}
-                            alt={`Preview ${index + 1}`}
+                            alt={`Tesla car photo preview ${index + 1} - Upload preview for vehicle listing`}
                             className="w-full h-24 object-cover rounded-lg border"
                           />
                           <button

@@ -251,7 +251,7 @@ export default function CarDetails() {
             <div className="aspect-video bg-muted">
               <img
                 src={car.images[0]}
-                alt={`${car.make} ${car.model}`}
+                alt={`${car.year} ${car.make} ${car.model} - Tesla car sharing vehicle photo`}
                 className="h-full w-full object-cover"
               />
             </div>
