@@ -1,13 +1,15 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 
 interface PageContainerProps {
   children: React.ReactNode;
   className?: string;
+  showBreadcrumbs?: boolean;
 }
 
 // A simple responsive container to keep content readable on mobile
-export function PageContainer({ children, className }: PageContainerProps) {
+export function PageContainer({ children, className, showBreadcrumbs = true }: PageContainerProps) {
   return (
     <div
       className={cn(
@@ -15,6 +17,7 @@ export function PageContainer({ children, className }: PageContainerProps) {
         className
       )}
     >
+      {showBreadcrumbs && <BreadcrumbNav />}
       {children}
     </div>
   );

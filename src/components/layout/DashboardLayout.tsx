@@ -6,6 +6,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { BottomNavBar } from "./BottomNavBar";
 import { PaywallGate } from "../paywall/PaywallGate";
+import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -46,6 +47,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             style={{ WebkitOverflowScrolling: "touch" }}
             className="flex-1 overflow-y-auto overscroll-contain pt-4 pt-safe-top px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 w-full"
           >
+            <div className="px-4 sm:px-6">
+              <BreadcrumbNav />
+            </div>
             {children}
           </main>
           {/* <PaywallGate /> */}

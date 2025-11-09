@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 interface StructuredDataProps {
-  type: "organization" | "website" | "service" | "faq" | "software";
+  type: "organization" | "website" | "service" | "faq" | "software" | "breadcrumblist";
   data?: Record<string, any>;
 }
 
@@ -150,6 +150,13 @@ function getStructuredData(type: string, customData?: Record<string, any>) {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         mainEntity: customData?.questions || [],
+      };
+
+    case "breadcrumblist":
+      return {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: customData?.itemListElement || [],
       };
 
     default:
