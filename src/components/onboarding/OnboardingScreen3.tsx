@@ -1,4 +1,5 @@
 import { Calendar, CircleDollarSign, TrendingUp } from "lucide-react";
+import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 
 export function OnboardingScreen3() {
   return (
@@ -17,7 +18,7 @@ export function OnboardingScreen3() {
         Receive your earnings like clockwork on the 1st and 15th of every month
       </p>
 
-      <div className="space-y-4 text-left max-w-md w-full">
+      <div className="space-y-4 text-left max-w-md w-full mb-8">
         <div className="flex items-start gap-3">
           <Calendar className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
           <div>
@@ -42,6 +43,8 @@ export function OnboardingScreen3() {
           </div>
         </div>
       </div>
+
+      <AppStoreBadges heading="Or download our mobile app" />
     </div>
   );
 }

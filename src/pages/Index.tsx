@@ -20,6 +20,7 @@ import { ScreenOrientation } from "@capacitor/screen-orientation";
 
 import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
 import HostRegisterCard from "@/components/auth/HostRegisterCard";
+import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
@@ -228,6 +229,10 @@ const Index = () => {
         {panel === "register-host" && (
           <HostRegisterCard onBackToLogin={() => setPanel("login")} />
         )}
+
+        <div className="mt-8 mb-4">
+          <AppStoreBadges heading="Available on mobile" size="small" />
+        </div>
       </div>
     </div>
   );
