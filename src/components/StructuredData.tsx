@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 interface StructuredDataProps {
-  type: "organization" | "website" | "service" | "faq" | "software" | "breadcrumblist" | "localbusiness";
+  type: "organization" | "website" | "service" | "faq" | "software" | "breadcrumblist" | "localbusiness" | "aggregaterating";
   data?: Record<string, any>;
 }
 
@@ -264,12 +264,34 @@ function getStructuredData(type: string, customData?: Record<string, any>) {
             },
           ],
         },
+        aggregateRating: customData?.aggregateRating || {
+          "@type": "AggregateRating",
+          ratingValue: "5.0",
+          reviewCount: "4",
+        },
+        review: customData?.reviews || [],
+        ...customData,
+      };
+
+    case "aggregaterating":
+      return {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: "Teslys Tesla Car Sharing Service",
+        description: "Premium Tesla car sharing platform with full rental management",
+        image: `${baseUrl}/og-image.jpg`,
+        brand: {
+          "@type": "Brand",
+          name: "Teslys",
+        },
         aggregateRating: {
           "@type": "AggregateRating",
-          ratingValue: "4.8",
-          reviewCount: "150",
+          ratingValue: customData?.ratingValue || "5.0",
+          reviewCount: customData?.reviewCount || 4,
+          bestRating: "5",
+          worstRating: "1",
         },
-        ...customData,
+        review: customData?.reviews || [],
       };
 
     default:

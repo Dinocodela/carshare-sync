@@ -23,6 +23,7 @@ import HostRegisterCard from "@/components/auth/HostRegisterCard";
 import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
+import { Testimonials } from "@/components/Testimonials";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
@@ -169,9 +170,10 @@ const Index = () => {
       <StructuredData type="software" />
       <StructuredData type="localbusiness" />
       
-      <div className="h-full pt-safe-top bg-gradient-hero flex items-center justify-center p-4 overflow-y-scroll">
-        <div className="w-full max-w-xl h-full">
-          {Hero}
+      <div className="h-full pt-safe-top bg-gradient-hero overflow-y-scroll">
+        <div className="flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-xl">
+            {Hero}
 
         {/* ✅ Switch the content panel inline */}
         {panel === "login" && (
@@ -249,8 +251,14 @@ const Index = () => {
         <div className="mt-8 mb-4">
           <AppStoreBadges heading="Available on mobile" size="small" />
         </div>
+          </div>
+
+          {/* Testimonials Section */}
+          <div className="w-full bg-background/50 backdrop-blur-sm py-8 mt-12">
+            <Testimonials />
+          </div>
+        </div>
       </div>
-    </div>
     </>
   );
 };
