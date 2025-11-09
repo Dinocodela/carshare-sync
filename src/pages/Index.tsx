@@ -167,6 +167,7 @@ const Index = () => {
       <StructuredData type="website" />
       <StructuredData type="service" />
       <StructuredData type="software" />
+      <StructuredData type="localbusiness" />
       
       <div className="h-full pt-safe-top bg-gradient-hero flex items-center justify-center p-4 overflow-y-scroll">
         <div className="w-full max-w-xl h-full">

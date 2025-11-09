@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 interface StructuredDataProps {
-  type: "organization" | "website" | "service" | "faq" | "software" | "breadcrumblist";
+  type: "organization" | "website" | "service" | "faq" | "software" | "breadcrumblist" | "localbusiness";
   data?: Record<string, any>;
 }
 
@@ -157,6 +157,119 @@ function getStructuredData(type: string, customData?: Record<string, any>) {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: customData?.itemListElement || [],
+      };
+
+    case "localbusiness":
+      return {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        name: "Teslys",
+        image: `${baseUrl}/icons/icon-512.webp`,
+        "@id": baseUrl,
+        url: baseUrl,
+        telephone: "+1-555-TESLYS1",
+        priceRange: "$$",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "123 Electric Avenue",
+          addressLocality: "San Francisco",
+          addressRegion: "CA",
+          postalCode: "94102",
+          addressCountry: "US",
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: 37.7749,
+          longitude: -122.4194,
+        },
+        openingHoursSpecification: [
+          {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+            opens: "09:00",
+            closes: "18:00",
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: ["Saturday"],
+            opens: "10:00",
+            closes: "16:00",
+          },
+        ],
+        sameAs: [
+          "https://www.facebook.com/teslys",
+          "https://twitter.com/teslys",
+          "https://www.linkedin.com/company/teslys",
+          "https://www.instagram.com/teslys",
+          "https://apps.apple.com/us/app/teslys/id6751721668",
+          "https://play.google.com/store/apps/details?id=com.app.teslys",
+        ],
+        contactPoint: {
+          "@type": "ContactPoint",
+          telephone: "+1-555-TESLYS1",
+          contactType: "customer service",
+          email: "support@teslys.app",
+          areaServed: "US",
+          availableLanguage: ["English"],
+        },
+        areaServed: [
+          {
+            "@type": "State",
+            name: "California",
+          },
+          {
+            "@type": "State",
+            name: "New York",
+          },
+          {
+            "@type": "State",
+            name: "Texas",
+          },
+          {
+            "@type": "State",
+            name: "Florida",
+          },
+          {
+            "@type": "Country",
+            name: "United States",
+          },
+        ],
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: "Tesla Car Sharing Services",
+          itemListElement: [
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Tesla Model 3 Rental",
+                description: "Rent your Tesla Model 3 through our platform and earn passive income",
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Tesla Model Y Rental",
+                description: "Rent your Tesla Model Y through our platform and earn passive income",
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Full Rental Management",
+                description: "Complete rental management including cleaning, guest support, and maintenance coordination",
+              },
+            },
+          ],
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.8",
+          reviewCount: "150",
+        },
+        ...customData,
       };
 
     default:
