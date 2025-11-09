@@ -7,8 +7,11 @@ export default function PrivacyPolicy() {
   return (
     <>
       <SEO
-        title="Privacy Policy – Teslys"
-        description="Privacy Policy for the Teslys app and services."
+        title="Privacy Policy - Teslys Tesla Car Sharing Platform"
+        description="Teslys privacy policy. Learn how we collect, use, and protect your personal information on our Tesla car sharing platform. Your data security is our priority."
+        keywords="Teslys privacy policy, Tesla car sharing privacy, data protection, personal information security, car rental privacy"
+        canonical="https://teslys.app/privacy-policy"
+        ogType="article"
       />
       <DashboardLayout>
         <ScreenHeader title="Privacy Policy" fallbackHref="/settings" />

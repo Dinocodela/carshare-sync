@@ -97,8 +97,10 @@ export default function Support() {
         <ScreenHeader title="Support" fallbackHref="/settings" />
 
         <SEO
-          title="Help & Support – Teslys"
-          description="Get help with subscriptions, restore purchases, account deletion, and contacting Teslys support."
+          title="Help & Support - Teslys Tesla Car Sharing Platform"
+          description="Get help with your Teslys account. Contact support for Tesla car sharing questions, manage subscriptions, restore purchases, and find answers to common questions."
+          keywords="Teslys support, Tesla car sharing help, customer service, account help, subscription management, technical support"
+          canonical="https://teslys.app/support"
         />
         <PageContainer className="py-4">
           <div className="max-w-4xl mx-auto space-y-6">

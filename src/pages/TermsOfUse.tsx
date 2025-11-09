@@ -7,13 +7,15 @@ import { PageContainer } from "@/components/layout/PageContainer";
 export default function TermsOfUse() {
   return (
     <>
+      <SEO 
+        title="Terms of Use - Teslys Tesla Car Sharing Platform"
+        description="Teslys terms of use and service agreement. Review the terms and conditions for using our Tesla car sharing platform, including subscription details and acceptable use policy."
+        keywords="Teslys terms of use, Tesla car sharing agreement, service terms, car rental terms, subscription terms and conditions"
+        canonical="https://teslys.app/terms-of-use"
+        ogType="article"
+      />
       <DashboardLayout>
         <ScreenHeader title="Terms of Use" fallbackHref="/settings" />
-
-        <SEO
-          title="Terms of Use – Teslys"
-          description="End-user Terms of Use for the Teslys app and services."
-        />
         <PageContainer className="py-8">
           <div className="max-w-4xl mx-auto prose prose-gray dark:prose-invert">
             <h1>Terms of Use</h1>
