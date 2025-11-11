@@ -32,6 +32,7 @@ import RequireApproved from "@/components/auth/RequireApproved";
 import RequireRole from "@/components/auth/RequireRole";
 import AccountPending from "@/pages/AccountPending";
 import AdminManageAccounts from "./pages/AdminManageAccounts";
+import AdminNewsletterManagement from "./pages/AdminNewsletterManagement";
 import RequirePending from "./components/auth/RequirePending";
 import PushNavHandler from "./components/push/PushNavHandler";
 import { SubscriptionProvider } from "./hooks/useSubscription";
@@ -123,6 +124,10 @@ const App = () => (
                       <Route
                         path="/admin/manage-accounts"
                         element={<AdminManageAccounts />}
+                      />
+                      <Route
+                        path="/admin/newsletter-management"
+                        element={<AdminNewsletterManagement />}
                       />
                     </Route>
                   </Route>

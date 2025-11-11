@@ -42,6 +42,7 @@ const routeLabels: Record<string, string> = {
   subscribe: "Subscribe",
   admin: "Admin",
   "manage-accounts": "Manage Accounts",
+  "newsletter-management": "Newsletter Management",
 };
 
 export function BreadcrumbNav() {
