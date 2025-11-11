@@ -5,6 +5,7 @@ import { ScreenHeader } from "@/components/ScreenHeader";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { BlogCard } from "@/components/blog/BlogCard";
+import { NewsletterSignup } from "@/components/blog/NewsletterSignup";
 import { blogPosts, getAllCategories } from "@/data/blogPosts";
 import { Button } from "@/components/ui/button";
 
@@ -32,6 +33,9 @@ export default function Blog() {
           <ScreenHeader
             title="Blog"
           />
+
+          {/* Newsletter Signup */}
+          <NewsletterSignup />
 
           {/* Category Filter */}
           <div className="flex flex-wrap gap-2 mb-8">

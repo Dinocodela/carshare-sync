@@ -520,6 +520,30 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscriptions: {
+        Row: {
+          email: string
+          id: string
+          is_active: boolean
+          source: string | null
+          subscribed_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+          subscribed_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+          subscribed_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_status: string
@@ -731,10 +755,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      accept_hosting_request: {
-        Args: { p_request_id: string }
-        Returns: Json
-      }
+      accept_hosting_request: { Args: { p_request_id: string }; Returns: Json }
       check_earning_date_conflicts: {
         Args: {
           p_car_id: string
@@ -776,10 +797,7 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
       get_emergency_contact: {
         Args: { p_target_user_id: string }
         Returns: {
@@ -855,17 +873,38 @@ export type Database = {
           partial_vin: string
         }[]
       }
-      is_super: {
-        Args: { uid: string }
-        Returns: boolean
-      }
-      reject_hosting_request: {
-        Args: { p_request_id: string }
-        Returns: Json
-      }
-      update_user_profile: {
-        Args:
-          | {
+      is_super: { Args: { uid: string }; Returns: boolean }
+      reject_hosting_request: { Args: { p_request_id: string }; Returns: Json }
+      update_user_profile:
+        | {
+            Args: {
+              p_bio?: string
+              p_company_name?: string
+              p_first_name?: string
+              p_last_name?: string
+              p_location?: string
+              p_phone?: string
+              p_services?: string[]
+              p_turo_profile_url?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_bio?: string
+              p_company_name?: string
+              p_first_name?: string
+              p_last_name?: string
+              p_location?: string
+              p_phone?: string
+              p_role?: string
+              p_services?: string[]
+              p_turo_profile_url?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
               p_bio?: string
               p_company_name?: string
               p_first_name?: string
@@ -878,29 +917,8 @@ export type Database = {
               p_turo_profile_url?: string
               p_turo_reviews_count?: number
             }
-          | {
-              p_bio?: string
-              p_company_name?: string
-              p_first_name?: string
-              p_last_name?: string
-              p_location?: string
-              p_phone?: string
-              p_role?: string
-              p_services?: string[]
-              p_turo_profile_url?: string
-            }
-          | {
-              p_bio?: string
-              p_company_name?: string
-              p_first_name?: string
-              p_last_name?: string
-              p_location?: string
-              p_phone?: string
-              p_services?: string[]
-              p_turo_profile_url?: string
-            }
-        Returns: Json
-      }
+            Returns: Json
+          }
     }
     Enums: {
       [_ in never]: never

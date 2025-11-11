@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowLeft, Tag } from "lucide-react";
 import { getBlogPostBySlug, blogPosts } from "@/data/blogPosts";
 import { BlogCard } from "@/components/blog/BlogCard";
+import { NewsletterSignup } from "@/components/blog/NewsletterSignup";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -146,6 +147,11 @@ export default function BlogPost() {
               dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, "<br />") }}
             />
           </article>
+
+          {/* Newsletter Signup */}
+          <div className="mt-12">
+            <NewsletterSignup />
+          </div>
 
           {/* CTA Section */}
           <div className="mt-12 p-8 bg-primary/5 rounded-lg border border-primary/10">
