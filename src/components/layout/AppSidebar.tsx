@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Mail } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Mail, Send } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -148,7 +148,15 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to="/admin/newsletter-management">
                       <Mail />
-                      <span>Newsletter</span>
+                      <span>Subscribers</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/admin/newsletter-campaigns">
+                      <Send />
+                      <span>Campaigns</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
