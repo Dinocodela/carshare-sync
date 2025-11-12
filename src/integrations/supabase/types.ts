@@ -634,6 +634,8 @@ export type Database = {
           is_active: boolean
           source: string | null
           subscribed_at: string
+          unsubscribe_token: string | null
+          unsubscribed_at: string | null
         }
         Insert: {
           email: string
@@ -641,6 +643,8 @@ export type Database = {
           is_active?: boolean
           source?: string | null
           subscribed_at?: string
+          unsubscribe_token?: string | null
+          unsubscribed_at?: string | null
         }
         Update: {
           email?: string
@@ -648,6 +652,8 @@ export type Database = {
           is_active?: boolean
           source?: string | null
           subscribed_at?: string
+          unsubscribe_token?: string | null
+          unsubscribed_at?: string | null
         }
         Relationships: []
       }
