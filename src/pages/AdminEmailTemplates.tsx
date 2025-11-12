@@ -177,7 +177,7 @@ export default function AdminEmailTemplates() {
                         />
                       </div>
                       <div>
-                        <Label>Subject Template * (supports {{variables}})</Label>
+                        <Label>Subject Template * (supports {"{"}{"{"} variables {"}"}{"}"} )</Label>
                         <Input
                           value={formData.subject_template}
                           onChange={(e) => setFormData({ ...formData, subject_template: e.target.value })}
@@ -207,7 +207,13 @@ export default function AdminEmailTemplates() {
                   <TabsContent value="preview" className="mt-4">
                     <TemplatePreview
                       sections={formData.html_content.sections}
-                      variables={{ first_name: "John", email: "john@example.com", title: "Sample Title", subtitle: "Sample Subtitle", body: "Sample body text" }}
+                      variables={{
+                        first_name: "John",
+                        email: "john@example.com",
+                        title: "Sample Title",
+                        subtitle: "Sample Subtitle",
+                        body: "Sample body text"
+                      }}
                     />
                   </TabsContent>
                 </Tabs>
@@ -252,7 +258,7 @@ export default function AdminEmailTemplates() {
                         <strong>Subject:</strong> {template.subject_template}
                       </p>
                       <p className="text-muted-foreground">
-                        <strong>Sections:</strong> {template.html_content?.sections?.length || 0}
+                        <strong>Sections:</strong> {(template.html_content as { sections?: any[] })?.sections?.length || 0}
                       </p>
                     </div>
                     <div className="flex gap-2 mt-4">
@@ -314,7 +320,7 @@ export default function AdminEmailTemplates() {
                       />
                     </div>
                     <div>
-                      <Label>Subject Template * (supports {{variables}})</Label>
+                      <Label>Subject Template * (supports {"{"}{"{"} variables {"}"}{"}"} )</Label>
                       <Input
                         value={formData.subject_template}
                         onChange={(e) => setFormData({ ...formData, subject_template: e.target.value })}
@@ -341,7 +347,13 @@ export default function AdminEmailTemplates() {
                 <TabsContent value="preview" className="mt-4">
                   <TemplatePreview
                     sections={formData.html_content.sections}
-                    variables={{ first_name: "John", email: "john@example.com" }}
+                    variables={{
+                      first_name: "John",
+                      email: "john@example.com",
+                      title: "Sample Title",
+                      subtitle: "Sample Subtitle",
+                      body: "Sample content"
+                    }}
                   />
                 </TabsContent>
               </Tabs>
@@ -361,8 +373,14 @@ export default function AdminEmailTemplates() {
                 <DialogDescription>Template Preview</DialogDescription>
               </DialogHeader>
               <TemplatePreview
-                sections={(selectedTemplate?.html_content as any)?.sections || []}
-                variables={{ first_name: "John", email: "john@example.com", title: "Sample Title", subtitle: "Sample Subtitle", body: "Sample content" }}
+                sections={(selectedTemplate?.html_content as { sections?: any[] })?.sections || []}
+                variables={{
+                  first_name: "John",
+                  email: "john@example.com",
+                  title: "Sample Title",
+                  subtitle: "Sample Subtitle",
+                  body: "Sample content"
+                }}
               />
             </DialogContent>
           </Dialog>
