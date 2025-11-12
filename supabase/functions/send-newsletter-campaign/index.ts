@@ -9,14 +9,98 @@ const corsHeaders = {
 
 interface SendCampaignRequest {
   campaignId: string;
+  variables?: Record<string, string>;
 }
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 
+const replaceVariables = (text: string, variables: Record<string, string>): string => {
+  if (!text) return "";
+  let result = text;
+  Object.entries(variables).forEach(([key, value]) => {
+    result = result.replace(new RegExp(`{{${key}}}`, "g"), value);
+  });
+  return result;
+};
+
+const generateHtmlFromTemplate = (sections: any[], variables: Record<string, string>): string => {
+  const sectionHtml = sections.map(section => {
+    switch (section.type) {
+      case "header":
+        return `
+          <div style="background-color: ${section.content.backgroundColor || '#0EA5E9'}; padding: 20px; text-align: center;">
+            <h1 style="color: white; font-size: 24px; margin: 0;">
+              ${replaceVariables(section.content.logo || "Logo", variables)}
+            </h1>
+          </div>`;
+      case "hero":
+        return `
+          <div style="background-color: ${section.content.backgroundColor || '#F0F9FF'}; padding: 40px 20px; text-align: center;">
+            <h2 style="font-size: 32px; margin: 0 0 10px 0; color: #1a1a1a;">
+              ${replaceVariables(section.content.title || "", variables)}
+            </h2>
+            <p style="font-size: 18px; margin: 0; color: #666;">
+              ${replaceVariables(section.content.subtitle || "", variables)}
+            </p>
+          </div>`;
+      case "text":
+        return `
+          <div style="padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.6; color: #333; white-space: pre-wrap;">
+              ${replaceVariables(section.content.body || "", variables)}
+            </p>
+          </div>`;
+      case "image":
+        return `
+          <div style="padding: 20px; text-align: center;">
+            <img src="${replaceVariables(section.content.url || "", variables)}" 
+                 alt="${replaceVariables(section.content.alt || "Image", variables)}" 
+                 style="max-width: 100%; height: auto;" />
+          </div>`;
+      case "button":
+        return `
+          <div style="padding: 20px; text-align: center;">
+            <a href="${replaceVariables(section.content.url || "#", variables)}" 
+               style="display: inline-block; padding: 12px 24px; background-color: ${section.content.backgroundColor || '#0EA5E9'}; color: white; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 500;">
+              ${replaceVariables(section.content.text || "Button", variables)}
+            </a>
+          </div>`;
+      case "divider":
+        return `<div style="padding: 20px;"><hr style="border: none; border-top: 1px solid #e5e5e5; margin: 0;" /></div>`;
+      case "footer":
+        return `
+          <div style="background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 14px; color: #666;">
+            <p style="margin: 0 0 10px 0;">${replaceVariables(section.content.text || "", variables)}</p>
+            <p style="margin: 0; font-size: 12px;">
+              <a href="#" style="color: #666; text-decoration: underline;">
+                ${replaceVariables(section.content.unsubscribeText || "Unsubscribe", variables)}
+              </a>
+            </p>
+          </div>`;
+      default:
+        return "";
+    }
+  }).join("");
+
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto;">
+          ${sectionHtml}
+        </div>
+      </body>
+    </html>
+  `;
+};
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -24,7 +108,6 @@ serve(async (req) => {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify user is authenticated and is super admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       throw new Error("No authorization header");
@@ -37,7 +120,6 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    // Check if user is super admin
     const { data: profile } = await supabase
       .from("profiles")
       .select("is_super_admin")
@@ -48,7 +130,7 @@ serve(async (req) => {
       throw new Error("Unauthorized: Super admin access required");
     }
 
-    const { campaignId }: SendCampaignRequest = await req.json();
+    const { campaignId, variables = {} }: SendCampaignRequest = await req.json();
 
     if (!campaignId) {
       throw new Error("Campaign ID is required");
@@ -56,11 +138,14 @@ serve(async (req) => {
 
     console.log(`Starting campaign send for campaign: ${campaignId}`);
 
-    // Get campaign details
+    // Fetch campaign with template
     const { data: campaign, error: campaignError } = await supabase
-      .from("newsletter_campaigns")
-      .select("*")
-      .eq("id", campaignId)
+      .from('newsletter_campaigns')
+      .select(`
+        *,
+        template:newsletter_templates(*)
+      `)
+      .eq('id', campaignId)
       .single();
 
     if (campaignError || !campaign) {
@@ -71,13 +156,11 @@ serve(async (req) => {
       throw new Error("Campaign already sent");
     }
 
-    // Update campaign status to sending
     await supabase
       .from("newsletter_campaigns")
       .update({ status: "sending" })
       .eq("id", campaignId);
 
-    // Get active subscribers
     const { data: subscribers, error: subscribersError } = await supabase
       .from("newsletter_subscriptions")
       .select("id, email")
@@ -106,7 +189,6 @@ serve(async (req) => {
     let deliveredCount = 0;
     let failedCount = 0;
 
-    // Send emails in batches
     const batchSize = 50;
     for (let i = 0; i < subscribers.length; i += batchSize) {
       const batch = subscribers.slice(i, i + batchSize);
@@ -114,19 +196,37 @@ serve(async (req) => {
       await Promise.all(
         batch.map(async (subscriber) => {
           try {
-            // Send email via Resend
+            // Personalize content with subscriber data
+            const subscriberVariables = {
+              ...variables,
+              email: subscriber.email,
+            };
+
+            let subject: string;
+            let htmlContent: string;
+
+            if (campaign.template) {
+              // Use template with variable substitution
+              const template = campaign.template as any;
+              subject = replaceVariables(template.subject_template, subscriberVariables);
+              htmlContent = generateHtmlFromTemplate(template.html_content.sections, subscriberVariables);
+            } else {
+              // Fallback to campaign content
+              subject = campaign.subject;
+              htmlContent = campaign.content;
+            }
+
             const { error: emailError } = await resend.emails.send({
               from: "Teslys <onboarding@resend.dev>",
               to: [subscriber.email],
-              subject: campaign.subject,
-              html: campaign.content,
+              subject: subject,
+              html: htmlContent,
             });
 
             if (emailError) {
               throw emailError;
             }
 
-            // Record successful send
             await supabase
               .from("newsletter_campaign_sends")
               .insert({
@@ -140,7 +240,6 @@ serve(async (req) => {
             deliveredCount++;
             console.log(`Sent to: ${subscriber.email}`);
           } catch (error) {
-            // Record failed send
             await supabase
               .from("newsletter_campaign_sends")
               .insert({
@@ -158,7 +257,6 @@ serve(async (req) => {
       );
     }
 
-    // Update campaign with final stats
     await supabase
       .from("newsletter_campaigns")
       .update({

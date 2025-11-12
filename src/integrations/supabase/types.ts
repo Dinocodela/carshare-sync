@@ -581,6 +581,7 @@ export type Database = {
           sent_at: string | null
           status: string
           subject: string
+          template_id: string | null
           title: string
           updated_at: string | null
         }
@@ -596,6 +597,7 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subject: string
+          template_id?: string | null
           title: string
           updated_at?: string | null
         }
@@ -611,10 +613,19 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subject?: string
+          template_id?: string | null
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_campaigns_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_subscriptions: {
         Row: {
@@ -637,6 +648,45 @@ export type Database = {
           is_active?: boolean
           source?: string | null
           subscribed_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          html_content: Json
+          id: string
+          is_default: boolean | null
+          name: string
+          preview_text: string | null
+          subject_template: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          html_content: Json
+          id?: string
+          is_default?: boolean | null
+          name: string
+          preview_text?: string | null
+          subject_template: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          html_content?: Json
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          preview_text?: string | null
+          subject_template?: string
+          updated_at?: string
         }
         Relationships: []
       }
