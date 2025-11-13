@@ -56,6 +56,9 @@ verify_jwt = false
 [functions.process-welcome-emails]
 verify_jwt = false
 
+[functions.track-email-event]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324

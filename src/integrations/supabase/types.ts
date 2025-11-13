@@ -184,6 +184,232 @@ export type Database = {
         }
         Relationships: []
       }
+      email_ab_assignments: {
+        Row: {
+          assigned_at: string
+          clicked_at: string | null
+          id: string
+          opened_at: string | null
+          queue_item_id: string | null
+          sent_at: string | null
+          test_id: string
+          user_id: string
+          variant_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          clicked_at?: string | null
+          id?: string
+          opened_at?: string | null
+          queue_item_id?: string | null
+          sent_at?: string | null
+          test_id: string
+          user_id: string
+          variant_id: string
+        }
+        Update: {
+          assigned_at?: string
+          clicked_at?: string | null
+          id?: string
+          opened_at?: string | null
+          queue_item_id?: string | null
+          sent_at?: string | null
+          test_id?: string
+          user_id?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_ab_assignments_queue_item_id_fkey"
+            columns: ["queue_item_id"]
+            isOneToOne: false
+            referencedRelation: "welcome_email_queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_ab_assignments_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "email_ab_tests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_ab_assignments_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "email_ab_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_ab_events: {
+        Row: {
+          assignment_id: string
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_ab_events_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "email_ab_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_ab_tests: {
+        Row: {
+          completed_at: string | null
+          confidence_level: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          min_sample_size: number
+          name: string
+          started_at: string | null
+          status: string
+          step_id: string
+          test_type: string
+          traffic_split: number
+          updated_at: string
+          winner_metric: string | null
+          winner_variant_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          confidence_level?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          min_sample_size?: number
+          name: string
+          started_at?: string | null
+          status?: string
+          step_id: string
+          test_type?: string
+          traffic_split?: number
+          updated_at?: string
+          winner_metric?: string | null
+          winner_variant_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          confidence_level?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          min_sample_size?: number
+          name?: string
+          started_at?: string | null
+          status?: string
+          step_id?: string
+          test_type?: string
+          traffic_split?: number
+          updated_at?: string
+          winner_metric?: string | null
+          winner_variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_ab_tests_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "welcome_email_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_ab_variants: {
+        Row: {
+          click_rate: number | null
+          clicks_count: number
+          combined_score: number | null
+          created_at: string
+          html_content: string
+          id: string
+          is_control: boolean
+          name: string
+          open_rate: number | null
+          opens_count: number
+          send_delay_hours: number | null
+          sends_count: number
+          subject: string
+          test_id: string
+          traffic_allocation: number
+          updated_at: string
+        }
+        Insert: {
+          click_rate?: number | null
+          clicks_count?: number
+          combined_score?: number | null
+          created_at?: string
+          html_content: string
+          id?: string
+          is_control?: boolean
+          name: string
+          open_rate?: number | null
+          opens_count?: number
+          send_delay_hours?: number | null
+          sends_count?: number
+          subject: string
+          test_id: string
+          traffic_allocation?: number
+          updated_at?: string
+        }
+        Update: {
+          click_rate?: number | null
+          clicks_count?: number
+          combined_score?: number | null
+          created_at?: string
+          html_content?: string
+          id?: string
+          is_control?: boolean
+          name?: string
+          open_rate?: number | null
+          opens_count?: number
+          send_delay_hours?: number | null
+          sends_count?: number
+          subject?: string
+          test_id?: string
+          traffic_allocation?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_ab_variants_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "email_ab_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       host_claims: {
         Row: {
           accident_description: string | null
@@ -1049,6 +1275,7 @@ export type Database = {
     }
     Functions: {
       accept_hosting_request: { Args: { p_request_id: string }; Returns: Json }
+      auto_select_winner: { Args: { p_test_id: string }; Returns: Json }
       check_earning_date_conflicts: {
         Args: {
           p_car_id: string

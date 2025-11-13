@@ -32,6 +32,10 @@ serve(async (req) => {
       .eq("status", "pending")
       .lte("scheduled_for", new Date().toISOString())
       .limit(50);
+    
+    if (queueError) {
+      throw new Error(`Failed to fetch queue: ${queueError.message}`);
+    }
 
     if (queueError) {
       throw new Error(`Failed to fetch queue: ${queueError.message}`);
@@ -62,17 +66,90 @@ serve(async (req) => {
           throw new Error("User email not found");
         }
 
-        // Replace variables in content
+        let subject = step.subject;
         let htmlContent = step.html_content;
+        let assignmentId: string | null = null;
+
+        // Check for active A/B test
+        const { data: activeTest } = await supabase
+          .from("email_ab_tests")
+          .select(`
+            *,
+            variants:email_ab_variants(*)
+          `)
+          .eq("step_id", step.id)
+          .eq("status", "active")
+          .single();
+
+        if (activeTest && activeTest.variants && activeTest.variants.length > 0) {
+          // Check if user already has an assignment
+          let assignment = await supabase
+            .from("email_ab_assignments")
+            .select("*, variant:email_ab_variants(*)")
+            .eq("test_id", activeTest.id)
+            .eq("user_id", item.user_id)
+            .single();
+
+          if (!assignment.data) {
+            // Assign variant based on traffic allocation
+            const variants = activeTest.variants as any[];
+            const random = Math.random() * 100;
+            let cumulative = 0;
+            let selectedVariant = variants[0];
+
+            for (const variant of variants) {
+              cumulative += variant.traffic_allocation;
+              if (random <= cumulative) {
+                selectedVariant = variant;
+                break;
+              }
+            }
+
+            // Create assignment
+            const { data: newAssignment } = await supabase
+              .from("email_ab_assignments")
+              .insert({
+                test_id: activeTest.id,
+                variant_id: selectedVariant.id,
+                user_id: item.user_id,
+                queue_item_id: item.id,
+              })
+              .select("*, variant:email_ab_variants(*)")
+              .single();
+
+            assignment = newAssignment;
+          }
+
+          if (assignment.data) {
+            assignmentId = assignment.data.id;
+            const variant = assignment.data.variant as any;
+            subject = variant.subject;
+            htmlContent = variant.html_content;
+          }
+        }
+
+        // Replace variables in content
         htmlContent = htmlContent.replace(/{{first_name}}/g, user.first_name || "");
         htmlContent = htmlContent.replace(/{{last_name}}/g, user.last_name || "");
         htmlContent = htmlContent.replace(/{{email}}/g, user.email);
+
+        // Add tracking pixel if A/B test is active
+        if (assignmentId) {
+          const trackingPixel = `<img src="${supabaseUrl}/functions/v1/track-email-event?a=${assignmentId}&e=open" width="1" height="1" style="display:none" />`;
+          htmlContent = htmlContent.replace("</body>", `${trackingPixel}</body>`);
+          
+          // Replace links with tracked links
+          htmlContent = htmlContent.replace(
+            /href="([^"]+)"/g,
+            `href="${supabaseUrl}/functions/v1/track-email-event?a=${assignmentId}&e=click&url=$1"`
+          );
+        }
 
         // Send email
         const { error: emailError } = await resend.emails.send({
           from: "Teslys <onboarding@resend.dev>",
           to: [user.email],
-          subject: step.subject,
+          subject: subject,
           html: htmlContent,
         });
 
@@ -89,8 +166,16 @@ serve(async (req) => {
           })
           .eq("id", item.id);
 
+        // Update assignment sent_at
+        if (assignmentId) {
+          await supabase
+            .from("email_ab_assignments")
+            .update({ sent_at: new Date().toISOString() })
+            .eq("id", assignmentId);
+        }
+
         successCount++;
-        console.log(`Sent welcome email to: ${user.email}`);
+        console.log(`Sent welcome email to: ${user.email}${assignmentId ? ` (A/B test assignment: ${assignmentId})` : ""}`);
       } catch (error) {
         // Update queue item as failed
         await supabase

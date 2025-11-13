@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Edit, Wand2 } from "lucide-react";
+import { Plus, Trash2, Edit, Wand2, FlaskConical } from "lucide-react";
 import { toast } from "sonner";
 import { EmailTemplateBuilder } from "./EmailTemplateBuilder";
+import { ABTestManager } from "./ABTestManager";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,8 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
   const [editingStep, setEditingStep] = useState<Step | null>(null);
   const [visualEditorOpen, setVisualEditorOpen] = useState(false);
   const [visualEditingStep, setVisualEditingStep] = useState<Step | null>(null);
+  const [abTestDialogOpen, setAbTestDialogOpen] = useState(false);
+  const [abTestStepId, setAbTestStepId] = useState<string | null>(null);
 
   // Fetch steps
   const { data: steps, isLoading } = useQuery({
@@ -196,6 +199,17 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => {
+                        setAbTestStepId(step.id);
+                        setAbTestDialogOpen(true);
+                      }}
+                      title="A/B Testing"
+                    >
+                      <FlaskConical className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => openVisualEditor(step)}
                       title="Visual Editor"
                     >
@@ -341,6 +355,23 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* A/B Test Dialog */}
+      {abTestStepId && (
+        <Dialog open={abTestDialogOpen} onOpenChange={setAbTestDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>A/B Testing</DialogTitle>
+              <DialogDescription>
+                Optimize your email performance with A/B tests
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <ABTestManager stepId={abTestStepId} />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
