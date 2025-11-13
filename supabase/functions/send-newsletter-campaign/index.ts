@@ -163,7 +163,7 @@ serve(async (req) => {
 
     const { data: subscribers, error: subscribersError } = await supabase
       .from("newsletter_subscriptions")
-      .select("id, email")
+      .select("id, email, unsubscribe_token")
       .eq("is_active", true);
 
     if (subscribersError) {
@@ -216,11 +216,22 @@ serve(async (req) => {
               htmlContent = campaign.content;
             }
 
+            // Generate unsubscribe link
+            const unsubscribeUrl = `https://teslys.app/unsubscribe?token=${subscriber.unsubscribe_token}`;
+            
+            // Add unsubscribe footer to HTML content
+            const htmlWithUnsubscribe = htmlContent + `
+              <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px;">
+                <p>You're receiving this email because you subscribed to the Teslys newsletter.</p>
+                <p><a href="${unsubscribeUrl}" style="color: #6b7280; text-decoration: underline;">Unsubscribe</a> from future emails</p>
+              </div>
+            `;
+
             const { error: emailError } = await resend.emails.send({
               from: "Teslys <onboarding@resend.dev>",
               to: [subscriber.email],
               subject: subject,
-              html: htmlContent,
+              html: htmlWithUnsubscribe,
             });
 
             if (emailError) {

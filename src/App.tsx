@@ -35,6 +35,7 @@ import AdminManageAccounts from "./pages/AdminManageAccounts";
 import AdminNewsletterManagement from "./pages/AdminNewsletterManagement";
 import AdminNewsletterCampaigns from "./pages/AdminNewsletterCampaigns";
 import AdminEmailTemplates from "./pages/AdminEmailTemplates";
+import Unsubscribe from "./pages/Unsubscribe";
 import RequirePending from "./components/auth/RequirePending";
 import PushNavHandler from "./components/push/PushNavHandler";
 import { SubscriptionProvider } from "./hooks/useSubscription";
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
