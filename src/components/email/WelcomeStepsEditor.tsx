@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { EmailTemplateBuilder } from "./EmailTemplateBuilder";
 import { ABTestManager } from "./ABTestManager";
 import { TemplateGallery } from "./TemplateGallery";
+import { PersonalizationTokenPicker } from "./PersonalizationTokenPicker";
 import {
   Dialog,
   DialogContent,
@@ -328,18 +329,33 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
                 />
               </div>
               <div>
-                <Label htmlFor="html_content">HTML Content</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="html_content">HTML Content</Label>
+                  <PersonalizationTokenPicker 
+                    onInsert={(token) => {
+                      const textarea = document.getElementById('html_content') as HTMLTextAreaElement;
+                      if (textarea) {
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const text = textarea.value;
+                        textarea.value = text.substring(0, start) + token + text.substring(end);
+                        textarea.focus();
+                        textarea.setSelectionRange(start + token.length, start + token.length);
+                      }
+                    }}
+                  />
+                </div>
                 <Textarea
                   id="html_content"
                   name="html_content"
                   defaultValue={editingStep?.html_content || ""}
-                  placeholder="<h1>Welcome {{first_name}}!</h1>"
+                  placeholder="<h1>Welcome {{user_first_name}}!</h1>"
                   rows={12}
                   className="font-mono text-sm"
                   required
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Available variables: {"{"}{"{"} first_name{"}"}{"}"}, {"{"}{"{"} last_name{"}"}{"}"}, {"{"}{"{"} email {"}"}{"}"}
+                  Use personalization tokens and conditional blocks for targeted content
                 </p>
               </div>
             </div>

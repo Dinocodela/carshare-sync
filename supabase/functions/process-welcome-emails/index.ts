@@ -11,6 +11,107 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 
+// Advanced personalization function
+const personalizeContent = (content: string, user: any): string => {
+  if (!content) return "";
+  
+  // Build personalization context
+  const context = {
+    user_first_name: user.first_name || '',
+    user_last_name: user.last_name || '',
+    user_full_name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+    user_email: user.email || '',
+    first_name: user.first_name || '', // Legacy support
+    last_name: user.last_name || '', // Legacy support
+    email: user.email || '', // Legacy support
+    company_name: user.company_name || '',
+    location: user.location || '',
+    role: user.role || '',
+    phone: user.phone || '',
+    signup_source: user.signup_source || '',
+    user_segment: user.user_segment || '',
+    tags: (user.tags || []).join(', '),
+    login_count: user.login_count || 0,
+    last_login_at: user.last_login_at || '',
+    account_status: user.account_status || '',
+    is_subscribed: user.is_subscribed || false,
+    ...user.custom_properties || {},
+  };
+  
+  let result = content;
+  
+  // Process conditional blocks {{#if condition}}...{{/if}}
+  const ifBlockRegex = /{{#if\s+([^}]+)}}([\s\S]*?){{\/if}}/g;
+  result = result.replace(ifBlockRegex, (_match: string, condition: string, blockContent: string) => {
+    const shouldShow = evaluateCondition(condition.trim(), context);
+    return shouldShow ? blockContent : '';
+  });
+  
+  // Process {{#unless condition}}...{{/unless}} blocks
+  const unlessBlockRegex = /{{#unless\s+([^}]+)}}([\s\S]*?){{\/unless}}/g;
+  result = result.replace(unlessBlockRegex, (_match: string, condition: string, blockContent: string) => {
+    const shouldShow = !evaluateCondition(condition.trim(), context);
+    return shouldShow ? blockContent : '';
+  });
+  
+  // Replace all variables
+  Object.entries(context).forEach(([key, value]) => {
+    const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+    result = result.replace(regex, String(value || ''));
+  });
+  
+  return result;
+};
+
+// Evaluate conditional expressions
+const evaluateCondition = (condition: string, context: Record<string, any>): boolean => {
+  try {
+    const operators = ['==', '!=', '>', '<', '>=', '<=', 'includes', 'not includes'];
+    
+    let operator = '';
+    let parts: string[] = [];
+    
+    for (const op of operators) {
+      if (condition.includes(op)) {
+        operator = op;
+        parts = condition.split(op).map(p => p.trim());
+        break;
+      }
+    }
+    
+    if (!operator || parts.length !== 2) return false;
+    
+    const [leftSide, rightSide] = parts;
+    const leftValue: any = context[leftSide];
+    let rightValue: any = rightSide.replace(/^['"]|['"]$/g, '');
+    
+    if (!isNaN(Number(rightValue))) rightValue = Number(rightValue);
+    if (rightValue === 'true') rightValue = true;
+    if (rightValue === 'false') rightValue = false;
+    
+    switch (operator) {
+      case '==': return leftValue == rightValue;
+      case '!=': return leftValue != rightValue;
+      case '>': return Number(leftValue) > Number(rightValue);
+      case '<': return Number(leftValue) < Number(rightValue);
+      case '>=': return Number(leftValue) >= Number(rightValue);
+      case '<=': return Number(leftValue) <= Number(rightValue);
+      case 'includes':
+        if (Array.isArray(leftValue)) return leftValue.includes(rightValue);
+        if (typeof leftValue === 'string') return leftValue.includes(rightValue);
+        return false;
+      case 'not includes':
+        if (Array.isArray(leftValue)) return !leftValue.includes(rightValue);
+        if (typeof leftValue === 'string') return !leftValue.includes(rightValue);
+        return true;
+      default: return false;
+    }
+  } catch (error) {
+    console.error('Error evaluating condition:', error);
+    return false;
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -27,7 +128,7 @@ serve(async (req) => {
       .select(`
         *,
         step:welcome_email_steps(*),
-        user:profiles(email, first_name, last_name)
+        user:profiles(*)
       `)
       .eq("status", "pending")
       .lte("scheduled_for", new Date().toISOString())
@@ -128,10 +229,9 @@ serve(async (req) => {
           }
         }
 
-        // Replace variables in content
-        htmlContent = htmlContent.replace(/{{first_name}}/g, user.first_name || "");
-        htmlContent = htmlContent.replace(/{{last_name}}/g, user.last_name || "");
-        htmlContent = htmlContent.replace(/{{email}}/g, user.email);
+        // Use advanced personalization
+        subject = personalizeContent(subject, user);
+        htmlContent = personalizeContent(htmlContent, user);
 
         // Add tracking pixel if A/B test is active
         if (assignmentId) {

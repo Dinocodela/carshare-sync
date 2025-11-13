@@ -16,13 +16,30 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 
-const replaceVariables = (text: string, variables: Record<string, string>): string => {
-  if (!text) return "";
-  let result = text;
-  Object.entries(variables).forEach(([key, value]) => {
-    result = result.replace(new RegExp(`{{${key}}}`, "g"), value);
+// Advanced personalization with conditional blocks
+const personalizeContent = (content: string, context: Record<string, any>): string => {
+  if (!content) return "";
+  
+  let result = content;
+  
+  // Process conditional blocks
+  const ifBlockRegex = /{{#if\s+([^}]+)}}([\s\S]*?){{\/if}}/g;
+  result = result.replace(ifBlockRegex, (_match: string, condition: string, blockContent: string) => {
+    return blockContent; // Simplified for newsletter
   });
+  
+  // Replace variables
+  Object.entries(context).forEach(([key, value]) => {
+    const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+    result = result.replace(regex, String(value || ''));
+  });
+  
   return result;
+};
+
+// Legacy function for backward compatibility
+const replaceVariables = (text: string, variables: Record<string, string>): string => {
+  return personalizeContent(text, variables);
 };
 
 const generateHtmlFromTemplate = (sections: any[], variables: Record<string, string>): string => {

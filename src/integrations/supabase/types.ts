@@ -985,6 +985,7 @@ export type Database = {
           bio: string | null
           company_name: string | null
           created_at: string
+          custom_properties: Json | null
           decided_at: string | null
           decided_by: string | null
           decision_reason: string | null
@@ -993,8 +994,10 @@ export type Database = {
           id: string
           is_subscribed: boolean
           is_super_admin: boolean
+          last_login_at: string | null
           last_name: string | null
           location: string | null
+          login_count: number | null
           phone: string
           rating: number | null
           rc_entitlements: Json | null
@@ -1007,17 +1010,22 @@ export type Database = {
           requested_at: string
           role: string
           services: string[] | null
+          signup_metadata: Json | null
+          signup_source: string | null
+          tags: string[] | null
           turo_last_synced: string | null
           turo_profile_url: string | null
           turo_reviews_count: number | null
           updated_at: string
           user_id: string
+          user_segment: string | null
         }
         Insert: {
           account_status?: string
           bio?: string | null
           company_name?: string | null
           created_at?: string
+          custom_properties?: Json | null
           decided_at?: string | null
           decided_by?: string | null
           decision_reason?: string | null
@@ -1026,8 +1034,10 @@ export type Database = {
           id?: string
           is_subscribed?: boolean
           is_super_admin?: boolean
+          last_login_at?: string | null
           last_name?: string | null
           location?: string | null
+          login_count?: number | null
           phone: string
           rating?: number | null
           rc_entitlements?: Json | null
@@ -1040,17 +1050,22 @@ export type Database = {
           requested_at?: string
           role: string
           services?: string[] | null
+          signup_metadata?: Json | null
+          signup_source?: string | null
+          tags?: string[] | null
           turo_last_synced?: string | null
           turo_profile_url?: string | null
           turo_reviews_count?: number | null
           updated_at?: string
           user_id: string
+          user_segment?: string | null
         }
         Update: {
           account_status?: string
           bio?: string | null
           company_name?: string | null
           created_at?: string
+          custom_properties?: Json | null
           decided_at?: string | null
           decided_by?: string | null
           decision_reason?: string | null
@@ -1059,8 +1074,10 @@ export type Database = {
           id?: string
           is_subscribed?: boolean
           is_super_admin?: boolean
+          last_login_at?: string | null
           last_name?: string | null
           location?: string | null
+          login_count?: number | null
           phone?: string
           rating?: number | null
           rc_entitlements?: Json | null
@@ -1073,11 +1090,15 @@ export type Database = {
           requested_at?: string
           role?: string
           services?: string[] | null
+          signup_metadata?: Json | null
+          signup_source?: string | null
+          tags?: string[] | null
           turo_last_synced?: string | null
           turo_profile_url?: string | null
           turo_reviews_count?: number | null
           updated_at?: string
           user_id?: string
+          user_segment?: string | null
         }
         Relationships: []
       }

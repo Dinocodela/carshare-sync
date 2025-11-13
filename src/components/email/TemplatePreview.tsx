@@ -1,11 +1,21 @@
+import { personalizeEmailContent } from "@/lib/emailPersonalization";
+
 interface TemplatePreviewProps {
   sections: Array<{ type: string; content: Record<string, any> }>;
   variables?: Record<string, string>;
+  personalizationContext?: any;
 }
 
-export const TemplatePreview = ({ sections, variables = {} }: TemplatePreviewProps) => {
+export const TemplatePreview = ({ sections, variables = {}, personalizationContext }: TemplatePreviewProps) => {
   const replaceVariables = (text: string): string => {
     if (!text) return "";
+    
+    // Use advanced personalization if context provided
+    if (personalizationContext) {
+      return personalizeEmailContent(text, personalizationContext);
+    }
+    
+    // Fallback to simple variable replacement
     let result = text;
     Object.entries(variables).forEach(([key, value]) => {
       result = result.replace(new RegExp(`{{${key}}}`, "g"), value);
