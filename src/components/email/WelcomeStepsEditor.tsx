@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Edit, Wand2, FlaskConical } from "lucide-react";
+import { Plus, Trash2, Edit, Wand2, FlaskConical, Library } from "lucide-react";
 import { toast } from "sonner";
 import { EmailTemplateBuilder } from "./EmailTemplateBuilder";
 import { ABTestManager } from "./ABTestManager";
+import { TemplateGallery } from "./TemplateGallery";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +49,7 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
   const [visualEditingStep, setVisualEditingStep] = useState<Step | null>(null);
   const [abTestDialogOpen, setAbTestDialogOpen] = useState(false);
   const [abTestStepId, setAbTestStepId] = useState<string | null>(null);
+  const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
 
   // Fetch steps
   const { data: steps, isLoading } = useQuery({
@@ -156,20 +158,42 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
     }
   };
 
+  const handleImportTemplate = (template: any) => {
+    // Pre-fill the create form with template data
+    saveStep.mutate({
+      step_order: (steps?.length || 0) + 1,
+      delay_days: 0,
+      delay_hours: 0,
+      subject: template.subject,
+      html_content: template.html_content,
+    });
+    setGalleryDialogOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Email Steps</h3>
-        <Button
-          onClick={() => {
-            setEditingStep(null);
-            setCreateDialogOpen(true);
-          }}
-          size="sm"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Step
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setGalleryDialogOpen(true)}
+            size="sm"
+            variant="outline"
+          >
+            <Library className="mr-2 h-4 w-4" />
+            Template Gallery
+          </Button>
+          <Button
+            onClick={() => {
+              setEditingStep(null);
+              setCreateDialogOpen(true);
+            }}
+            size="sm"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Step
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -372,6 +396,19 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Template Gallery Dialog */}
+      <Dialog open={galleryDialogOpen} onOpenChange={setGalleryDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <div className="sr-only">
+            <DialogTitle>Email Template Gallery</DialogTitle>
+            <DialogDescription>
+              Browse and import professional email templates
+            </DialogDescription>
+          </div>
+          <TemplateGallery onImport={handleImportTemplate} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

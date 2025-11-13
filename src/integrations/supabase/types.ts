@@ -410,6 +410,63 @@ export type Database = {
           },
         ]
       }
+      email_template_gallery: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          html_content: string
+          id: string
+          industry: string
+          is_featured: boolean | null
+          name: string
+          preview_image: string | null
+          rating: number | null
+          subject: string
+          tags: string[] | null
+          thumbnail_image: string | null
+          updated_at: string
+          use_count: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          html_content: string
+          id?: string
+          industry: string
+          is_featured?: boolean | null
+          name: string
+          preview_image?: string | null
+          rating?: number | null
+          subject: string
+          tags?: string[] | null
+          thumbnail_image?: string | null
+          updated_at?: string
+          use_count?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          html_content?: string
+          id?: string
+          industry?: string
+          is_featured?: boolean | null
+          name?: string
+          preview_image?: string | null
+          rating?: number | null
+          subject?: string
+          tags?: string[] | null
+          thumbnail_image?: string | null
+          updated_at?: string
+          use_count?: number | null
+        }
+        Relationships: []
+      }
       host_claims: {
         Row: {
           accident_description: string | null

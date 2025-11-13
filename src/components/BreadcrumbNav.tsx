@@ -44,6 +44,8 @@ const routeLabels: Record<string, string> = {
   "manage-accounts": "Manage Accounts",
   "newsletter-management": "Newsletter Management",
   "newsletter-campaigns": "Email Campaigns",
+  "email-template-gallery": "Email Templates",
+  "welcome-sequences": "Welcome Sequences",
 };
 
 export function BreadcrumbNav() {
