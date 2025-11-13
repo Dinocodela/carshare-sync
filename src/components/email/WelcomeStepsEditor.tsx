@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Wand2 } from "lucide-react";
 import { toast } from "sonner";
+import { EmailTemplateBuilder } from "./EmailTemplateBuilder";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +43,8 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
   const queryClient = useQueryClient();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingStep, setEditingStep] = useState<Step | null>(null);
+  const [visualEditorOpen, setVisualEditorOpen] = useState(false);
+  const [visualEditingStep, setVisualEditingStep] = useState<Step | null>(null);
 
   // Fetch steps
   const { data: steps, isLoading } = useQuery({
@@ -125,6 +128,31 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
     });
   };
 
+  const openVisualEditor = (step: Step) => {
+    setVisualEditingStep(step);
+    setVisualEditorOpen(true);
+  };
+
+  const saveVisualTemplate = async (html: string) => {
+    if (!visualEditingStep) return;
+    
+    try {
+      const { error } = await supabase
+        .from("welcome_email_steps")
+        .update({ html_content: html })
+        .eq("id", visualEditingStep.id);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["welcome-steps", sequenceId] });
+      toast.success("Template saved");
+      setVisualEditorOpen(false);
+      setVisualEditingStep(null);
+    } catch (error: any) {
+      toast.error(`Failed to save template: ${error.message}`);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -165,6 +193,14 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openVisualEditor(step)}
+                      title="Visual Editor"
+                    >
+                      <Wand2 className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -285,6 +321,24 @@ export const WelcomeStepsEditor = ({ sequenceId }: WelcomeStepsEditorProps) => {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Visual Template Editor Dialog */}
+      <Dialog open={visualEditorOpen} onOpenChange={setVisualEditorOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0">
+          <div className="sr-only">
+            <DialogTitle>Visual Email Template Editor</DialogTitle>
+            <DialogDescription>
+              Build your email template using drag-and-drop components
+            </DialogDescription>
+          </div>
+          {visualEditingStep && (
+            <EmailTemplateBuilder
+              initialHtml={visualEditingStep.html_content}
+              onSave={saveVisualTemplate}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
