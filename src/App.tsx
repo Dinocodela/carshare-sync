@@ -35,6 +35,7 @@ import AdminManageAccounts from "./pages/AdminManageAccounts";
 import AdminNewsletterManagement from "./pages/AdminNewsletterManagement";
 import AdminNewsletterCampaigns from "./pages/AdminNewsletterCampaigns";
 import AdminEmailTemplates from "./pages/AdminEmailTemplates";
+import AdminWelcomeSequences from "./pages/AdminWelcomeSequences";
 import Unsubscribe from "./pages/Unsubscribe";
 import RequirePending from "./components/auth/RequirePending";
 import PushNavHandler from "./components/push/PushNavHandler";
@@ -140,6 +141,10 @@ const App = () => (
                       <Route
                         path="/admin/email-templates"
                         element={<AdminEmailTemplates />}
+                      />
+                      <Route
+                        path="/admin/welcome-sequences"
+                        element={<AdminWelcomeSequences />}
                       />
                     </Route>
                   </Route>

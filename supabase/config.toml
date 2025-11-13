@@ -53,6 +53,9 @@ verify_jwt = true
 [functions.newsletter-unsubscribe]
 verify_jwt = false
 
+[functions.process-welcome-emails]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324

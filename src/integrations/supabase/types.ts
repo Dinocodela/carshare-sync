@@ -902,6 +902,147 @@ export type Database = {
           },
         ]
       }
+      welcome_email_queue: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          scheduled_for: string
+          sent_at: string | null
+          sequence_id: string
+          status: string
+          step_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          scheduled_for: string
+          sent_at?: string | null
+          sequence_id: string
+          status?: string
+          step_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          sequence_id?: string
+          status?: string
+          step_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "welcome_email_queue_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "welcome_email_sequences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "welcome_email_queue_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "welcome_email_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      welcome_email_sequences: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          target_role: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          target_role?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          target_role?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      welcome_email_steps: {
+        Row: {
+          created_at: string
+          delay_days: number
+          delay_hours: number
+          html_content: string
+          id: string
+          sequence_id: string
+          step_order: number
+          subject: string
+          template_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delay_days?: number
+          delay_hours?: number
+          html_content: string
+          id?: string
+          sequence_id: string
+          step_order: number
+          subject: string
+          template_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delay_days?: number
+          delay_hours?: number
+          html_content?: string
+          id?: string
+          sequence_id?: string
+          step_order?: number
+          subject?: string
+          template_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "welcome_email_steps_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "welcome_email_sequences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "welcome_email_steps_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
