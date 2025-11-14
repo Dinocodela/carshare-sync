@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Mail, Send } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Mail, Send, LayoutTemplate, BarChart } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -162,9 +162,17 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/email-templates">
-                      <Mail />
-                      <span>Templates</span>
+                    <NavLink to="/admin/email-template-gallery">
+                      <LayoutTemplate />
+                      <span>Email Templates</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/admin/email-deliverability">
+                      <BarChart />
+                      <span>Deliverability</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

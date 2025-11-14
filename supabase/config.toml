@@ -59,6 +59,9 @@ verify_jwt = false
 [functions.track-email-event]
 verify_jwt = false
 
+[functions.validate-dns-records]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324
