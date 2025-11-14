@@ -51,6 +51,7 @@ import FAQ from "./pages/FAQ";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import ScrollReset from "./components/router/ScrollReset";
+import AdminEmailDeliverability from "./pages/AdminEmailDeliverability";
 
 const queryClient = new QueryClient();
 
@@ -150,6 +151,10 @@ const App = () => (
                       <Route
                         path="/admin/email-template-gallery"
                         element={<AdminEmailTemplateGallery />}
+                      />
+                      <Route
+                        path="/admin/email-deliverability"
+                        element={<AdminEmailDeliverability />}
                       />
                     </Route>
                   </Route>
