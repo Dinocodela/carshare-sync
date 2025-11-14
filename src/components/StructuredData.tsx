@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 interface StructuredDataProps {
-  type: "organization" | "website" | "service" | "faq" | "software" | "breadcrumblist" | "localbusiness" | "aggregaterating" | "article";
+  type: "organization" | "website" | "service" | "faq" | "software" | "breadcrumblist" | "localbusiness" | "aggregaterating";
   data?: Record<string, any>;
 }
 
@@ -292,37 +292,6 @@ function getStructuredData(type: string, customData?: Record<string, any>) {
           worstRating: "1",
         },
         review: customData?.reviews || [],
-      };
-
-    case "article":
-      return {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: customData?.headline || "Teslys Article",
-        description: customData?.description || "",
-        image: customData?.image || `${baseUrl}/og-image.jpg`,
-        author: customData?.author || {
-          "@type": "Organization",
-          name: "Teslys",
-        },
-        publisher: customData?.publisher || {
-          "@type": "Organization",
-          name: "Teslys",
-          logo: {
-            "@type": "ImageObject",
-            url: `${baseUrl}/icons/icon-512.webp`,
-          },
-        },
-        datePublished: customData?.datePublished || new Date().toISOString(),
-        dateModified: customData?.dateModified || new Date().toISOString(),
-        mainEntityOfPage: customData?.mainEntityOfPage || {
-          "@type": "WebPage",
-          "@id": baseUrl,
-        },
-        keywords: customData?.keywords || "",
-        articleSection: customData?.articleSection || "Car Sharing",
-        wordCount: customData?.wordCount || 1000,
-        ...customData,
       };
 
     default:

@@ -257,21 +257,6 @@ const Index = () => {
           <div className="w-full bg-background/50 backdrop-blur-sm py-8 mt-12">
             <Testimonials />
           </div>
-
-          {/* Blog CTA */}
-          <div className="w-full max-w-4xl mx-auto px-4 py-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-3">Learn More About Tesla Car Sharing</h2>
-              <p className="text-muted-foreground mb-6">
-                Expert guides on maximizing rental income, insurance tips, and maintenance best practices
-              </p>
-              <Link to="/blog">
-                <Button size="lg" variant="outline">
-                  Visit Our Blog
-                </Button>
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </>

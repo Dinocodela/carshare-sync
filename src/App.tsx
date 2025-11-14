@@ -32,12 +32,6 @@ import RequireApproved from "@/components/auth/RequireApproved";
 import RequireRole from "@/components/auth/RequireRole";
 import AccountPending from "@/pages/AccountPending";
 import AdminManageAccounts from "./pages/AdminManageAccounts";
-import AdminNewsletterManagement from "./pages/AdminNewsletterManagement";
-import AdminNewsletterCampaigns from "./pages/AdminNewsletterCampaigns";
-import AdminEmailTemplates from "./pages/AdminEmailTemplates";
-import AdminWelcomeSequences from "./pages/AdminWelcomeSequences";
-import AdminEmailTemplateGallery from "./pages/AdminEmailTemplateGallery";
-import Unsubscribe from "./pages/Unsubscribe";
 import RequirePending from "./components/auth/RequirePending";
 import PushNavHandler from "./components/push/PushNavHandler";
 import { SubscriptionProvider } from "./hooks/useSubscription";
@@ -48,10 +42,7 @@ import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
 import ScrollReset from "./components/router/ScrollReset";
-import AdminEmailDeliverability from "./pages/AdminEmailDeliverability";
 
 const queryClient = new QueryClient();
 
@@ -78,9 +69,6 @@ const App = () => (
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/support" element={<Support />} />
               <Route path="/faq" element={<FAQ />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/unsubscribe" element={<Unsubscribe />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
@@ -131,30 +119,6 @@ const App = () => (
                       <Route
                         path="/admin/manage-accounts"
                         element={<AdminManageAccounts />}
-                      />
-                      <Route
-                        path="/admin/newsletter-management"
-                        element={<AdminNewsletterManagement />}
-                      />
-                      <Route
-                        path="/admin/newsletter-campaigns"
-                        element={<AdminNewsletterCampaigns />}
-                      />
-                      <Route
-                        path="/admin/email-templates"
-                        element={<AdminEmailTemplates />}
-                      />
-                      <Route
-                        path="/admin/welcome-sequences"
-                        element={<AdminWelcomeSequences />}
-                      />
-                      <Route
-                        path="/admin/email-template-gallery"
-                        element={<AdminEmailTemplateGallery />}
-                      />
-                      <Route
-                        path="/admin/email-deliverability"
-                        element={<AdminEmailDeliverability />}
                       />
                     </Route>
                   </Route>

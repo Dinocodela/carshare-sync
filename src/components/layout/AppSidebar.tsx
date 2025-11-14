@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Mail, Send, LayoutTemplate, BarChart } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,13 +18,11 @@ interface Profile {
   role: 'client' | 'host';
   name?: string;
   company_name?: string;
-  is_super_admin?: boolean;
 }
 
 export function AppSidebar() {
   const { user } = useAuth();
   const [userRole, setUserRole] = useState<'client' | 'host' | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -32,13 +30,12 @@ export function AppSidebar() {
       
       const { data: profile } = await supabase
         .from('profiles')
-        .select('role, is_super_admin')
+        .select('role')
         .eq('user_id', user.id)
         .single();
       
       if (profile) {
         setUserRole(profile.role as 'client' | 'host');
-        setIsAdmin(profile.is_super_admin || false);
       }
     };
 
@@ -129,57 +126,6 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {/* Admin Section */}
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/admin/manage-accounts">
-                      <Users />
-                      <span>Manage Accounts</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/admin/newsletter-management">
-                      <Mail />
-                      <span>Subscribers</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/admin/newsletter-campaigns">
-                      <Send />
-                      <span>Campaigns</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/admin/email-template-gallery">
-                      <LayoutTemplate />
-                      <span>Email Templates</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/admin/email-deliverability">
-                      <BarChart />
-                      <span>Deliverability</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
     </Sidebar>
   );
