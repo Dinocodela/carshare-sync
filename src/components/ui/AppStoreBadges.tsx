@@ -11,7 +11,7 @@ export function AppStoreBadges({ heading, size = "default" }: AppStoreBadgesProp
   const playStoreUrl = "https://play.google.com/store/apps/details?id=com.app.teslys&hl=en_US";
   
   const appStoreBadgeSize = size === "small" ? "h-[40px]" : "h-[50px]";
-  const googlePlayBadgeSize = size === "small" ? "h-[48px]" : "h-[60px]";
+  const googlePlayBadgeSize = size === "small" ? "h-[55px]" : "h-[70px]";
   
   return (
     <div className="flex flex-col items-center gap-3">
