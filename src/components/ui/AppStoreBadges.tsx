@@ -10,7 +10,7 @@ export function AppStoreBadges({ heading, size = "default" }: AppStoreBadgesProp
   const appStoreUrl = "https://apps.apple.com/us/app/teslys/id6751721668";
   const playStoreUrl = "https://play.google.com/store/apps/details?id=com.app.teslys&hl=en_US";
   
-  const badgeSize = size === "small" ? "h-10 w-[135px]" : "h-12 md:h-14 w-[162px] md:w-[189px]";
+  const badgeSize = size === "small" ? "h-[40px]" : "h-[50px]";
   
   return (
     <div className="flex flex-col items-center gap-3">
@@ -39,7 +39,7 @@ export function AppStoreBadges({ heading, size = "default" }: AppStoreBadgesProp
           <img 
             src={googlePlayBadge} 
             alt="Get it on Google Play" 
-            className={size === "small" ? "h-10 w-[135px] object-contain" : "h-14 md:h-16 w-[189px] md:w-[216px] object-contain"}
+            className={`${badgeSize} object-contain`}
           />
         </a>
       </div>
