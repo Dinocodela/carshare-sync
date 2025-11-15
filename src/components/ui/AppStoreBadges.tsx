@@ -39,7 +39,7 @@ export function AppStoreBadges({ heading, size = "default" }: AppStoreBadgesProp
           <img 
             src={googlePlayBadge} 
             alt="Get it on Google Play" 
-            className={`${badgeSize} object-contain`}
+            className={size === "small" ? "h-10 w-[135px] object-contain" : "h-14 md:h-16 w-[189px] md:w-[216px] object-contain"}
           />
         </a>
       </div>
