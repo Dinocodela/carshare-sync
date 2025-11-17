@@ -15,6 +15,8 @@ import {
   User,
   Info,
   ChevronLeft,
+  Mail,
+  Phone,
 } from "lucide-react";
 
 interface RequestWithDetails {
@@ -35,6 +37,8 @@ interface RequestWithDetails {
   client: {
     first_name: string;
     last_name: string;
+    email: string;
+    phone: string;
   };
 }
 
@@ -106,7 +110,7 @@ export default function HostRequests() {
         (requestsData ?? []).map(async (r: any) => {
           const { data: clientData } = await supabase
             .from("profiles")
-            .select("first_name, last_name")
+            .select("first_name, last_name, email, phone")
             .eq("user_id", r.client_id)
             .maybeSingle();
 
@@ -122,6 +126,8 @@ export default function HostRequests() {
             client: clientData ?? {
               first_name: "Unknown",
               last_name: "Client",
+              email: "No email",
+              phone: "No phone",
             },
           };
         })
@@ -338,6 +344,26 @@ export default function HostRequests() {
                           {request.status}
                         </Badge>
                       </div>
+                      <div className="space-y-1 mt-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <a 
+                            href={`mailto:${request.client.email}`}
+                            className="text-primary hover:underline"
+                          >
+                            {request.client.email}
+                          </a>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <a 
+                            href={`tel:${request.client.phone}`}
+                            className="text-primary hover:underline"
+                          >
+                            {request.client.phone}
+                          </a>
+                        </div>
+                      </div>
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {new Date(request.created_at).toLocaleDateString()}
@@ -436,6 +462,26 @@ export default function HostRequests() {
                           >
                             {request.status}
                           </Badge>
+                        </div>
+                        <div className="space-y-1 mt-2">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <a 
+                              href={`mailto:${request.client.email}`}
+                              className="text-primary hover:underline"
+                            >
+                              {request.client.email}
+                            </a>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <a 
+                              href={`tel:${request.client.phone}`}
+                              className="text-primary hover:underline"
+                            >
+                              {request.client.phone}
+                            </a>
+                          </div>
                         </div>
                       </div>
                       <div className="text-sm text-muted-foreground">
