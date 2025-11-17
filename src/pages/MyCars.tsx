@@ -26,6 +26,7 @@ import { useCars } from "@/hooks/useCars";
 import { ShareCarDialog } from "@/components/cars/ShareCarDialog";
 import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
+import { CompleteReturnButton } from "@/components/cars/CompleteReturnButton";
 
 interface CarData {
   id: string;
@@ -297,15 +298,44 @@ export default function MyCars() {
                               View Host Contact
                             </Button>
                           ) : car.status === "ready_for_return" ? (
-                            <CancelReturnButton
-                              carId={car.id}
-                              afterSuccess={() => {
-                                // If you have refetch in useCars, call it here
-                                // refetch?.();
-                                // Fallback:
-                                window.location.reload();
-                              }}
-                            />
+                            (() => {
+                              const updatedAt = new Date(car.created_at);
+                              const now = new Date();
+                              const daysSinceRequest = Math.floor(
+                                (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60 * 24)
+                              );
+                              const canCompleteReturn = daysSinceRequest >= 3;
+
+                              return (
+                                <div className="space-y-2">
+                                  {canCompleteReturn && (
+                                    <div className="mb-2 p-2 bg-muted rounded-md">
+                                      <p className="text-xs text-muted-foreground flex items-start gap-1">
+                                        <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                                        <span>
+                                          Host hasn't confirmed return yet. You can complete it yourself.
+                                        </span>
+                                      </p>
+                                    </div>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <CancelReturnButton
+                                      carId={car.id}
+                                      afterSuccess={() => window.location.reload()}
+                                      fullWidth={!canCompleteReturn}
+                                    />
+                                    {canCompleteReturn && (
+                                      <CompleteReturnButton
+                                        carId={car.id}
+                                        carName={`${car.year} ${car.make} ${car.model}`}
+                                        afterSuccess={() => window.location.reload()}
+                                        fullWidth={false}
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })()
                           ) : (
                             <Button
                               variant="outline"
