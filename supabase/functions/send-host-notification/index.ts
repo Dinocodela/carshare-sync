@@ -102,25 +102,25 @@ const handler = async (req: Request): Promise<Response> => {
     // Send push notification for new host request
     if (hostId) {
       try {
-        const pushResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push-send`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-          },
-          body: JSON.stringify({
+        const supabaseAdmin = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+
+        const pushResponse = await supabaseAdmin.functions.invoke('push-send', {
+          body: {
             targetUserId: hostId,
             title: 'New Hosting Request!',
             body: `${clientName} wants to host their ${carDetails}`,
             icon: '/favicon.ico',
             url: '/dashboard'
-          }),
+          }
         });
         
-        if (pushResponse.ok) {
-          console.log("Push notification sent successfully");
+        if (pushResponse.error) {
+          console.log("Push notification failed:", pushResponse.error);
         } else {
-          console.log("Push notification failed, but email sent successfully");
+          console.log("Push notification sent successfully");
         }
       } catch (pushError) {
         console.error("Push notification error:", pushError);

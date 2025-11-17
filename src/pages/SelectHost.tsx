@@ -216,6 +216,7 @@ export default function SelectHost() {
         {
           body: {
             requestId: requestData.id,
+            hostId: host.user_id,
             hostEmail: hostEmail,
             hostName: `${host.first_name} ${host.last_name}`,
             clientName: clientName,
