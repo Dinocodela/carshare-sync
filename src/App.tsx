@@ -20,6 +20,7 @@ import EditCar from "./pages/EditCar";
 import HostRequests from "./pages/HostRequests";
 import HostingDetails from "./pages/HostingDetails";
 import HostCarManagement from "./pages/HostCarManagement";
+import RegisteredClients from "./pages/RegisteredClients";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
 import ClientFixedExpenses from "./pages/ClientFixedExpenses";
@@ -103,6 +104,7 @@ const App = () => (
                       path="/host-car-management"
                       element={<HostCarManagement />}
                     />
+                    <Route path="/registered-clients" element={<RegisteredClients />} />
                     <Route path="/cars/:id/view" element={<CarDetails />} />
                     <Route path="/cars/:id/edit" element={<EditCar />} />
                     <Route

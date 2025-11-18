@@ -1571,6 +1571,21 @@ export type Database = {
           total_trips: number
         }[]
       }
+      get_clients_for_hosts: {
+        Args: never
+        Returns: {
+          car_count: number
+          company_name: string
+          created_at: string
+          email: string
+          first_name: string
+          has_cars: boolean
+          hosted_car_count: number
+          last_name: string
+          phone: string
+          user_id: string
+        }[]
+      }
       get_conflicting_earnings: {
         Args: { p_car_id: string; p_end_date: string; p_start_date: string }
         Returns: {
