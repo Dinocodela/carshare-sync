@@ -51,6 +51,7 @@ export function BreadcrumbNav() {
   if (
     pathSegments.length === 0 ||
     location.pathname === "/" ||
+    location.pathname === "/dashboard" ||
     location.pathname.startsWith("/register") ||
     location.pathname === "/login"
   ) {
