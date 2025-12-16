@@ -50,6 +50,9 @@ verify_jwt = false
 [functions.sync-turo-rating]
 verify_jwt = true
 
+[functions.create-client-expense]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324
