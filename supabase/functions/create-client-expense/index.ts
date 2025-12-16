@@ -6,15 +6,16 @@ const corsHeaders = {
 };
 
 interface ExpensePayload {
-  car_id: string;
-  expense_type: string;
-  amount: number;
-  frequency: "monthly" | "quarterly" | "yearly";
-  provider_name?: string;
-  policy_number?: string;
-  start_date: string;
-  end_date?: string;
-  notes?: string;
+  trip_id: string;
+  car_id?: string;
+  guest_name?: string;
+  ev_charge_cost?: number;
+  carwash_cost?: number;
+  delivery_cost?: number;
+  toll_cost?: number;
+  amount?: number;
+  description?: string;
+  expense_date: string;
 }
 
 Deno.serve(async (req) => {
@@ -58,62 +59,47 @@ Deno.serve(async (req) => {
     console.log("Received payload:", JSON.stringify(payload));
 
     // Validate required fields
-    if (!payload.car_id || !payload.expense_type || !payload.amount || !payload.frequency || !payload.start_date) {
+    if (!payload.trip_id) {
       return new Response(
-        JSON.stringify({ 
-          error: "Missing required fields",
-          required: ["car_id", "expense_type", "amount", "frequency", "start_date"]
-        }),
+        JSON.stringify({ error: "trip_id is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Validate expense_type
-    const validTypes = ["insurance", "registration", "loan_payment", "lease_payment", "parking", "storage", "other"];
-    if (!validTypes.includes(payload.expense_type)) {
+    if (!payload.expense_date) {
       return new Response(
-        JSON.stringify({ 
-          error: "Invalid expense_type",
-          valid_types: validTypes
-        }),
+        JSON.stringify({ error: "expense_date is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Validate frequency
-    const validFrequencies = ["monthly", "quarterly", "yearly"];
-    if (!validFrequencies.includes(payload.frequency)) {
-      return new Response(
-        JSON.stringify({ 
-          error: "Invalid frequency",
-          valid_frequencies: validFrequencies
-        }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Parse and calculate costs
+    const evChargeCost = parseFloat(String(payload.ev_charge_cost)) || 0;
+    const carwashCost = parseFloat(String(payload.carwash_cost)) || 0;
+    const deliveryCost = parseFloat(String(payload.delivery_cost)) || 0;
+    const tollCost = parseFloat(String(payload.toll_cost)) || 0;
+    const baseAmount = parseFloat(String(payload.amount)) || 0;
+    const totalExpenses = evChargeCost + carwashCost + deliveryCost + tollCost + baseAmount;
 
-    // Validate amount is positive
-    if (payload.amount <= 0) {
-      return new Response(
-        JSON.stringify({ error: "Amount must be greater than 0" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    console.log("Calculated costs:", { evChargeCost, carwashCost, deliveryCost, tollCost, baseAmount, totalExpenses });
 
-    // Insert the expense (RLS will verify car ownership)
+    // Insert into host_expenses table
     const { data, error } = await supabase
-      .from("client_car_expenses")
+      .from("host_expenses")
       .insert({
-        car_id: payload.car_id,
-        client_id: user.id,
-        expense_type: payload.expense_type,
-        amount: payload.amount,
-        frequency: payload.frequency,
-        provider_name: payload.provider_name || null,
-        policy_number: payload.policy_number || null,
-        start_date: payload.start_date,
-        end_date: payload.end_date || null,
-        notes: payload.notes || null,
+        host_id: user.id,
+        trip_id: payload.trip_id,
+        car_id: payload.car_id || null,
+        guest_name: payload.guest_name || null,
+        expense_type: "general",
+        amount: baseAmount,
+        ev_charge_cost: evChargeCost,
+        carwash_cost: carwashCost,
+        delivery_cost: deliveryCost,
+        toll_cost: tollCost,
+        total_expenses: totalExpenses,
+        description: payload.description || null,
+        expense_date: payload.expense_date,
       })
       .select()
       .single();
