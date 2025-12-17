@@ -94,13 +94,11 @@ Deno.serve(async (req) => {
     const clientProfitPercentage = parseFloat(String(payload.client_profit_percentage)) || 70;
     const hostProfitPercentage = parseFloat(String(payload.host_profit_percentage)) || 30;
     
-    // Calculate profit amounts
+    // Calculate all profit amounts on the backend
     const clientProfitAmount = (grossEarnings * clientProfitPercentage) / 100;
     const hostProfitAmount = (grossEarnings * hostProfitPercentage) / 100;
-    
-    // For backwards compatibility
-    const commission = hostProfitAmount;
-    const netAmount = clientProfitAmount;
+    const commission = hostProfitAmount;  // Host's share
+    const netAmount = clientProfitAmount; // Client's share (backwards compatibility)
 
     console.log("Calculated values:", { 
       grossEarnings, 
