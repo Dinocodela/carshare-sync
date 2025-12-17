@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
 
     console.log("Calculated costs:", { evChargeCost, carwashCost, deliveryCost, tollCost, baseAmount, totalExpenses });
 
-    // Insert into host_expenses table
+    // Insert into host_expenses table (total_expenses is computed by database)
     const { data, error } = await supabase
       .from("host_expenses")
       .insert({
@@ -97,7 +97,6 @@ Deno.serve(async (req) => {
         carwash_cost: carwashCost,
         delivery_cost: deliveryCost,
         toll_cost: tollCost,
-        total_expenses: totalExpenses,
         description: payload.description || null,
         expense_date: payload.expense_date,
       })
