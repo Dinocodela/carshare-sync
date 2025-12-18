@@ -681,7 +681,7 @@ export default function HostCarManagement() {
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
       filtered = filtered.filter((expense) => {
-        const expenseDate = new Date(expense.created_at);
+        const expenseDate = new Date(expense.expense_date);
 
         switch (expenseFilters.dateRange) {
           case "today":
@@ -702,7 +702,7 @@ export default function HostCarManagement() {
 
     return filtered.sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime()
     );
   }, [expenses, earnings, expenseFilters]);
 
@@ -795,7 +795,7 @@ export default function HostCarManagement() {
 
     return filtered.sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.earning_period_start).getTime() - new Date(a.earning_period_start).getTime()
     );
   }, [earnings, earningsFilters]);
 
@@ -3135,7 +3135,7 @@ export default function HostCarManagement() {
                             </p>
                             <p className="text-sm text-muted-foreground break-words">
                               {new Date(
-                                expense.created_at
+                                expense.expense_date
                               ).toLocaleDateString()}
                             </p>
 
