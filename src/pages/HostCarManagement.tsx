@@ -692,7 +692,7 @@ export default function HostCarManagement() {
     }
 
     return filtered.sort(
-      (a, b) => new Date(b.earning_period_start).getTime() - new Date(a.earning_period_start).getTime(),
+      (a, b) => new Date(b.earning_period_date_int).getTime() - new Date(a.earning_period_date_int).getTime(),
     );
   }, [earnings, earningsFilters]);
 
@@ -897,6 +897,9 @@ export default function HostCarManagement() {
         .order("earning_period_date_int", { ascending: false });
 
       if (error) throw error;
+
+      //ppppppp
+      console.log(data);
 
       setEarnings(data || []);
     } catch (error) {
