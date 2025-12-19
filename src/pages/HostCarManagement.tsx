@@ -898,9 +898,6 @@ export default function HostCarManagement() {
 
       if (error) throw error;
 
-      //ppppppp
-      console.log(data);
-
       setEarnings(data || []);
     } catch (error) {
       console.error("Error fetching earnings:", error);
