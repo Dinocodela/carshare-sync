@@ -11,7 +11,7 @@ interface HostEarning {
   payment_status: string;
   earning_period_start: string;
   earning_period_end: string;
-  earning_period_date_int: int;
+  earning_period_date_int: number;
   guest_name: string | null;
   payment_date: string | null;
   earning_type: string;
