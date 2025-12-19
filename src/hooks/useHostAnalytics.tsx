@@ -92,7 +92,7 @@ export function useHostAnalytics() {
         .from("host_earnings")
         .select("*")
         .eq("host_id", user.id)
-        .order("earning_period_start", { ascending: false });
+        .order("earning_period_date_int", { ascending: false });
 
       if (earningsError) throw earningsError;
 
