@@ -11,7 +11,6 @@ interface HostEarning {
   payment_status: string;
   earning_period_start: string;
   earning_period_end: string;
-  earning_period_date_int: number;
   guest_name: string | null;
   payment_date: string | null;
   earning_type: string;
@@ -93,7 +92,7 @@ export function useHostAnalytics() {
         .from("host_earnings")
         .select("*")
         .eq("host_id", user.id)
-        .order("earning_period_date_int", { ascending: false });
+        .order("earning_period_start", { ascending: false });
 
       if (earningsError) throw earningsError;
 

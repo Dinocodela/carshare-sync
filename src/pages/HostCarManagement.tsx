@@ -24,9 +24,20 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -55,10 +66,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import {
@@ -68,7 +92,11 @@ import {
   SheetTitle as SheetTit,
   SheetDescription as SheetDesc,
 } from "@/components/ui/sheet";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -139,7 +167,6 @@ interface Earning {
   client_profit_amount?: number;
   host_profit_amount?: number;
   payment_source?: string;
-  earning_period_date_int: number;
   earning_period_start: string;
   earning_period_end: string;
   payment_status: string;
@@ -198,7 +225,13 @@ type EarningsFilters = {
   dateRange: EarningsDateRange; // 👈 update
 };
 
-const VALID_TABS = ["active", "returns", "expenses", "earnings", "claims"] as const;
+const VALID_TABS = [
+  "active",
+  "returns",
+  "expenses",
+  "earnings",
+  "claims",
+] as const;
 type Tab = (typeof VALID_TABS)[number];
 
 const tabFromHash = (hash: string): Tab => {
@@ -243,7 +276,9 @@ const claimSchema = z.object({
   payment_source: z.string().min(1, "Payment source is required"),
   claim_type: z.string().min(1, "Claim type is required"),
   description: z.string().min(1, "Description is required"),
-  accident_description: z.string().min(1, "Detailed accident description is required"),
+  accident_description: z
+    .string()
+    .min(1, "Detailed accident description is required"),
   claim_amount: z.number().min(0.01, "Amount must be greater than 0"),
   incident_date: z.string().min(1, "Incident date is required"),
   adjuster_name: z.string().optional(),
@@ -276,10 +311,12 @@ const formatDetailedCarInfo = (car: CarWithClient) => (
       <span className="text-muted-foreground">Color:</span> {car.color || "N/A"}
     </div>
     <div>
-      <span className="text-muted-foreground">License:</span> {car.license_plate || "N/A"}
+      <span className="text-muted-foreground">License:</span>{" "}
+      {car.license_plate || "N/A"}
     </div>
     <div>
-      <span className="text-muted-foreground">VIN:</span> {car.vin_number || "N/A"}
+      <span className="text-muted-foreground">VIN:</span>{" "}
+      {car.vin_number || "N/A"}
     </div>
   </div>
 );
@@ -411,11 +448,18 @@ export default function HostCarManagement() {
     if (watchedTripId && expenses.length > 0) {
       // Use setTimeout to ensure form state is ready
       const timer = setTimeout(() => {
-        const expenseWithData = expenses.find((expense) => expense.trip_id === watchedTripId);
+        const expenseWithData = expenses.find(
+          (expense) => expense.trip_id === watchedTripId
+        );
 
         // Calculate total expenses for this trip
-        const tripExpenses = expenses.filter((expense) => expense.trip_id === watchedTripId);
-        const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.total_expenses || 0), 0);
+        const tripExpenses = expenses.filter(
+          (expense) => expense.trip_id === watchedTripId
+        );
+        const totalExpenses = tripExpenses.reduce(
+          (sum, expense) => sum + (expense.total_expenses || 0),
+          0
+        );
         setSelectedTripExpenses(totalExpenses);
 
         if (expenseWithData) {
@@ -439,8 +483,13 @@ export default function HostCarManagement() {
           }
         } else if (watchedTripId) {
           // Clear fields if no matching expense found but still calculate expenses
-          const tripExpenses = expenses.filter((expense) => expense.trip_id === watchedTripId);
-          const totalExpenses = tripExpenses.reduce((sum, expense) => sum + (expense.total_expenses || 0), 0);
+          const tripExpenses = expenses.filter(
+            (expense) => expense.trip_id === watchedTripId
+          );
+          const totalExpenses = tripExpenses.reduce(
+            (sum, expense) => sum + (expense.total_expenses || 0),
+            0
+          );
           setSelectedTripExpenses(totalExpenses);
 
           earningForm.setValue("guest_name", "", { shouldValidate: true });
@@ -474,13 +523,18 @@ export default function HostCarManagement() {
   useEffect(() => {
     if (watchedClaimTripId) {
       // Find the guest name from expenses first
-      const expenseWithData = expenses.find((expense) => expense.trip_id === watchedClaimTripId);
+      const expenseWithData = expenses.find(
+        (expense) => expense.trip_id === watchedClaimTripId
+      );
 
       // Then check earnings for both guest name and payment source
-      const earningWithData = earnings.find((earning) => earning.trip_id === watchedClaimTripId);
+      const earningWithData = earnings.find(
+        (earning) => earning.trip_id === watchedClaimTripId
+      );
 
       // Auto-populate guest name (check both expenses and earnings)
-      const guestName = expenseWithData?.guest_name || earningWithData?.guest_name;
+      const guestName =
+        expenseWithData?.guest_name || earningWithData?.guest_name;
       if (guestName) {
         claimForm.setValue("guest_name", guestName);
       }
@@ -501,10 +555,21 @@ export default function HostCarManagement() {
 
   useEffect(() => {
     const validateBookingDates = async () => {
-      if (watchedCarId && watchedStartDate && watchedStartTime && watchedEndDate && watchedEndTime) {
+      if (
+        watchedCarId &&
+        watchedStartDate &&
+        watchedStartTime &&
+        watchedEndDate &&
+        watchedEndTime
+      ) {
         const startDateTime = `${watchedStartDate}T${watchedStartTime}:00`;
         const endDateTime = `${watchedEndDate}T${watchedEndTime}:00`;
-        const result = await validateDateTimes(watchedCarId, startDateTime, endDateTime, editingEarning?.id);
+        const result = await validateDateTimes(
+          watchedCarId,
+          startDateTime,
+          endDateTime,
+          editingEarning?.id
+        );
         setDateConflicts(result.conflicts);
       } else {
         setDateConflicts([]);
@@ -529,7 +594,9 @@ export default function HostCarManagement() {
   useEffect(() => {
     if (watchedExpenseTripId && expenses.length > 0) {
       // Find existing data for this trip
-      const existingExpense = expenses.find((expense) => expense.trip_id === watchedExpenseTripId);
+      const existingExpense = expenses.find(
+        (expense) => expense.trip_id === watchedExpenseTripId
+      );
 
       if (existingExpense) {
         // Auto-populate car if available
@@ -563,7 +630,11 @@ export default function HostCarManagement() {
           const hasTripId = expense.trip_id && expense.trip_id.trim() !== "";
           return hasCarMatch && hasTripId;
         })
-        .sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
+        .sort(
+          (a, b) =>
+            new Date(b.expense_date).getTime() -
+            new Date(a.expense_date).getTime()
+        );
 
       if (carExpenses.length > 0 && carExpenses[0].trip_id) {
         claimForm.setValue("trip_id", carExpenses[0].trip_id, {
@@ -581,17 +652,27 @@ export default function HostCarManagement() {
 
     // Filter by car
     if (expenseFilters.carId && expenseFilters.carId !== "all") {
-      filtered = filtered.filter((expense) => expense.car_id === expenseFilters.carId);
+      filtered = filtered.filter(
+        (expense) => expense.car_id === expenseFilters.carId
+      );
     }
 
     // Filter by payment source (via earnings with matching trip_id)
-    if (expenseFilters.paymentSource && expenseFilters.paymentSource !== "all") {
+    if (
+      expenseFilters.paymentSource &&
+      expenseFilters.paymentSource !== "all"
+    ) {
       const matchingTripIds = earnings
-        .filter((earning) => earning.payment_source === expenseFilters.paymentSource)
+        .filter(
+          (earning) => earning.payment_source === expenseFilters.paymentSource
+        )
         .map((earning) => earning.trip_id)
         .filter(Boolean);
 
-      filtered = filtered.filter((expense) => expense.trip_id && matchingTripIds.includes(expense.trip_id));
+      filtered = filtered.filter(
+        (expense) =>
+          expense.trip_id && matchingTripIds.includes(expense.trip_id)
+      );
     }
 
     // Filter by date range
@@ -609,7 +690,9 @@ export default function HostCarManagement() {
             const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
             return expenseDate >= weekAgo;
           case "month":
-            const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(
+              today.getTime() - 30 * 24 * 60 * 60 * 1000
+            );
             return expenseDate >= monthAgo;
           default:
             return true;
@@ -617,7 +700,10 @@ export default function HostCarManagement() {
       });
     }
 
-    return filtered.sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
+    return filtered.sort(
+      (a, b) =>
+        new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime()
+    );
   }, [expenses, earnings, expenseFilters]);
 
   // Clear all filters
@@ -653,17 +739,29 @@ export default function HostCarManagement() {
 
     // Filter by car
     if (earningsFilters.carId && earningsFilters.carId !== "all") {
-      filtered = filtered.filter((earning) => earning.car_id === earningsFilters.carId);
+      filtered = filtered.filter(
+        (earning) => earning.car_id === earningsFilters.carId
+      );
     }
 
     // Filter by payment source
-    if (earningsFilters.paymentSource && earningsFilters.paymentSource !== "all") {
-      filtered = filtered.filter((earning) => earning.payment_source === earningsFilters.paymentSource);
+    if (
+      earningsFilters.paymentSource &&
+      earningsFilters.paymentSource !== "all"
+    ) {
+      filtered = filtered.filter(
+        (earning) => earning.payment_source === earningsFilters.paymentSource
+      );
     }
 
     // Filter by payment status
-    if (earningsFilters.paymentStatus && earningsFilters.paymentStatus !== "all") {
-      filtered = filtered.filter((earning) => earning.payment_status === earningsFilters.paymentStatus);
+    if (
+      earningsFilters.paymentStatus &&
+      earningsFilters.paymentStatus !== "all"
+    ) {
+      filtered = filtered.filter(
+        (earning) => earning.payment_status === earningsFilters.paymentStatus
+      );
     }
 
     // Filter by date range
@@ -682,16 +780,23 @@ export default function HostCarManagement() {
           break;
         case "week":
           filterDate.setDate(today.getDate() - 7);
-          filtered = filtered.filter((earning) => new Date(earning.earning_period_start) >= filterDate);
+          filtered = filtered.filter(
+            (earning) => new Date(earning.earning_period_start) >= filterDate
+          );
           break;
         case "month":
           filterDate.setMonth(today.getMonth() - 1);
-          filtered = filtered.filter((earning) => new Date(earning.earning_period_start) >= filterDate);
+          filtered = filtered.filter(
+            (earning) => new Date(earning.earning_period_start) >= filterDate
+          );
           break;
       }
     }
 
-    return filtered.sort((a, b) => b.earning_period_date_int - a.earning_period_date_int);
+    return filtered.sort(
+      (a, b) =>
+        new Date(b.earning_period_start).getTime() - new Date(a.earning_period_start).getTime()
+    );
   }, [earnings, earningsFilters]);
 
   // Filtered claims based on filters
@@ -700,17 +805,23 @@ export default function HostCarManagement() {
 
     // Filter by car
     if (claimsFilters.carId && claimsFilters.carId !== "all") {
-      filtered = filtered.filter((claim) => claim.car_id === claimsFilters.carId);
+      filtered = filtered.filter(
+        (claim) => claim.car_id === claimsFilters.carId
+      );
     }
 
     // Filter by claim status
     if (claimsFilters.claimStatus && claimsFilters.claimStatus !== "all") {
-      filtered = filtered.filter((claim) => claim.claim_status === claimsFilters.claimStatus);
+      filtered = filtered.filter(
+        (claim) => claim.claim_status === claimsFilters.claimStatus
+      );
     }
 
     // Filter by claim type
     if (claimsFilters.claimType && claimsFilters.claimType !== "all") {
-      filtered = filtered.filter((claim) => claim.claim_type === claimsFilters.claimType);
+      filtered = filtered.filter(
+        (claim) => claim.claim_type === claimsFilters.claimType
+      );
     }
 
     // Filter by date range
@@ -729,22 +840,35 @@ export default function HostCarManagement() {
           break;
         case "week":
           filterDate.setDate(today.getDate() - 7);
-          filtered = filtered.filter((claim) => new Date(claim.incident_date) >= filterDate);
+          filtered = filtered.filter(
+            (claim) => new Date(claim.incident_date) >= filterDate
+          );
           break;
         case "month":
           filterDate.setMonth(today.getMonth() - 1);
-          filtered = filtered.filter((claim) => new Date(claim.incident_date) >= filterDate);
+          filtered = filtered.filter(
+            (claim) => new Date(claim.incident_date) >= filterDate
+          );
           break;
       }
     }
 
-    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return filtered.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
   }, [claims, claimsFilters]);
 
   // Count active filters
-  const activeFiltersCount = Object.values(expenseFilters).filter((value) => value && value !== "all").length;
-  const activeEarningsFiltersCount = Object.values(earningsFilters).filter((value) => value && value !== "all").length;
-  const activeClaimsFiltersCount = Object.values(claimsFilters).filter((value) => value && value !== "all").length;
+  const activeFiltersCount = Object.values(expenseFilters).filter(
+    (value) => value && value !== "all"
+  ).length;
+  const activeEarningsFiltersCount = Object.values(earningsFilters).filter(
+    (value) => value && value !== "all"
+  ).length;
+  const activeClaimsFiltersCount = Object.values(claimsFilters).filter(
+    (value) => value && value !== "all"
+  ).length;
 
   useEffect(() => {
     if (user) {
@@ -772,7 +896,9 @@ export default function HostCarManagement() {
       }
 
       // Get unique client IDs
-      const clientIds = [...new Set(carsData.map((car) => car.client_id).filter(Boolean))];
+      const clientIds = [
+        ...new Set(carsData.map((car) => car.client_id).filter(Boolean)),
+      ];
 
       // Fetch client profiles
       const { data: profilesData, error: profilesError } = await supabase
@@ -783,7 +909,9 @@ export default function HostCarManagement() {
 
       // Map cars with client information
       const transformedCars = carsData.map((car) => {
-        const clientProfile = profilesData?.find((profile) => profile.user_id === car.client_id);
+        const clientProfile = profilesData?.find(
+          (profile) => profile.user_id === car.client_id
+        );
         return {
           ...car,
           client: clientProfile
@@ -835,7 +963,8 @@ export default function HostCarManagement() {
       if (clearError) throw clearError;
       toast({
         title: "Car returned successfully",
-        description: "The car has been marked as returned and is now available for new requests.",
+        description:
+          "The car has been marked as returned and is now available for new requests.",
       });
 
       // Refresh the list
@@ -892,12 +1021,9 @@ export default function HostCarManagement() {
         .from("host_earnings")
         .select("*")
         .eq("host_id", user.id)
-        .order("earning_period_date_int", { ascending: false });
+        .order("earning_period_start", { ascending: false });
 
       if (error) throw error;
-
-      //ppppppp
-      console.log(data);
 
       setEarnings(data || []);
     } catch (error) {
@@ -965,7 +1091,10 @@ export default function HostCarManagement() {
 
       if (editingExpense) {
         // Update existing expense
-        const { error } = await supabase.from("host_expenses").update(expenseData).eq("id", editingExpense.id);
+        const { error } = await supabase
+          .from("host_expenses")
+          .update(expenseData)
+          .eq("id", editingExpense.id);
 
         if (error) throw error;
 
@@ -975,7 +1104,9 @@ export default function HostCarManagement() {
         });
       } else {
         // Create new expense
-        const { error } = await supabase.from("host_expenses").insert(expenseData);
+        const { error } = await supabase
+          .from("host_expenses")
+          .insert(expenseData);
 
         if (error) throw error;
 
@@ -1008,11 +1139,14 @@ export default function HostCarManagement() {
       fetchEarnings(); // Refresh earnings to sync guest names and trip data
     } catch (error) {
       console.error("Error managing expense:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
 
       toast({
         title: "Error",
-        description: `Failed to ${editingExpense ? "update" : "add"} expense: ${errorMessage}`,
+        description: `Failed to ${
+          editingExpense ? "update" : "add"
+        } expense: ${errorMessage}`,
         variant: "destructive",
       });
     }
@@ -1020,7 +1154,10 @@ export default function HostCarManagement() {
 
   const onDeleteExpense = async (expenseId: string) => {
     try {
-      const { error } = await supabase.from("host_expenses").delete().eq("id", expenseId);
+      const { error } = await supabase
+        .from("host_expenses")
+        .delete()
+        .eq("id", expenseId);
 
       if (error) throw error;
 
@@ -1042,7 +1179,10 @@ export default function HostCarManagement() {
 
   const onDeleteEarning = async (earningId: string) => {
     try {
-      const { error } = await supabase.from("host_earnings").delete().eq("id", earningId);
+      const { error } = await supabase
+        .from("host_earnings")
+        .delete()
+        .eq("id", earningId);
 
       if (error) throw error;
 
@@ -1094,7 +1234,12 @@ export default function HostCarManagement() {
     const endDateTimeLocal = `${values.earning_period_end_date}T${values.earning_period_end_time}:00`;
     const startDateTime = new Date(startDateTimeLocal).toISOString();
     const endDateTime = new Date(endDateTimeLocal).toISOString();
-    const validationResult = await validateDateTimes(values.car_id, startDateTime, endDateTime, editingEarning?.id);
+    const validationResult = await validateDateTimes(
+      values.car_id,
+      startDateTime,
+      endDateTime,
+      editingEarning?.id
+    );
 
     if (!validationResult.isValid) {
       toast({
@@ -1129,8 +1274,10 @@ export default function HostCarManagement() {
       const netEarnings = grossEarnings - selectedTripExpenses;
 
       // Apply profit split to NET earnings (after expenses)
-      const clientProfit = (netEarnings * Number(values.client_profit_percentage)) / 100;
-      const hostProfit = (netEarnings * Number(values.host_profit_percentage)) / 100;
+      const clientProfit =
+        (netEarnings * Number(values.client_profit_percentage)) / 100;
+      const hostProfit =
+        (netEarnings * Number(values.host_profit_percentage)) / 100;
 
       const earningData = {
         host_id: currentSession.user.id,
@@ -1173,9 +1320,12 @@ export default function HostCarManagement() {
 
         if (values.payment_status === "paid" && !wasPaidBefore) {
           try {
-            const { error: notifyError } = await supabase.functions.invoke("send-client-commission-paid", {
-              body: { earningId: editingEarning.id },
-            });
+            const { error: notifyError } = await supabase.functions.invoke(
+              "send-client-commission-paid",
+              {
+                body: { earningId: editingEarning.id },
+              }
+            );
             if (notifyError) {
               console.error("Commission email failed:", notifyError);
               toast({
@@ -1210,9 +1360,12 @@ export default function HostCarManagement() {
 
         if (inserted?.payment_status === "paid" && inserted?.id) {
           try {
-            const { error: notifyError } = await supabase.functions.invoke("send-client-commission-paid", {
-              body: { earningId: inserted.id },
-            });
+            const { error: notifyError } = await supabase.functions.invoke(
+              "send-client-commission-paid",
+              {
+                body: { earningId: inserted.id },
+              }
+            );
             if (notifyError) {
               console.error("Commission email failed:", notifyError);
               toast({
@@ -1258,11 +1411,14 @@ export default function HostCarManagement() {
       }, 300);
     } catch (error) {
       console.error("Error managing earning:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
 
       toast({
         title: "Error",
-        description: `Failed to ${editingEarning ? "update" : "add"} earning: ${errorMessage}`,
+        description: `Failed to ${
+          editingEarning ? "update" : "add"
+        } earning: ${errorMessage}`,
         variant: "destructive",
       });
     }
@@ -1299,9 +1455,11 @@ export default function HostCarManagement() {
       gross_earnings: earning.gross_earnings || 0,
       payment_source: earning.payment_source || "Turo",
       earning_period_start_date: earning.earning_period_start.split("T")[0],
-      earning_period_start_time: earning.earning_period_start.split("T")[1]?.slice(0, 5) || "",
+      earning_period_start_time:
+        earning.earning_period_start.split("T")[1]?.slice(0, 5) || "",
       earning_period_end_date: earning.earning_period_end.split("T")[0],
-      earning_period_end_time: earning.earning_period_end.split("T")[1]?.slice(0, 5) || "",
+      earning_period_end_time:
+        earning.earning_period_end.split("T")[1]?.slice(0, 5) || "",
       client_profit_percentage: earning.client_profit_percentage || 70,
       host_profit_percentage: earning.host_profit_percentage || 30,
       payment_status: earning.payment_status,
@@ -1334,7 +1492,10 @@ export default function HostCarManagement() {
 
       if (editingClaim) {
         // Update existing claim
-        const { error } = await supabase.from("host_claims").update(claimData).eq("id", editingClaim.id);
+        const { error } = await supabase
+          .from("host_claims")
+          .update(claimData)
+          .eq("id", editingClaim.id);
 
         if (error) throw error;
 
@@ -1362,7 +1523,9 @@ export default function HostCarManagement() {
       console.error("Error managing claim:", error);
       toast({
         title: "Error",
-        description: `Failed to ${editingClaim ? "update" : "submit"} claim. Please try again.`,
+        description: `Failed to ${
+          editingClaim ? "update" : "submit"
+        } claim. Please try again.`,
         variant: "destructive",
       });
     }
@@ -1393,7 +1556,11 @@ export default function HostCarManagement() {
     if (!deleteClaimId) return;
 
     try {
-      const { error } = await supabase.from("host_claims").delete().eq("id", deleteClaimId).eq("host_id", user?.id);
+      const { error } = await supabase
+        .from("host_claims")
+        .delete()
+        .eq("id", deleteClaimId)
+        .eq("host_id", user?.id);
 
       if (error) throw error;
 
@@ -1417,7 +1584,10 @@ export default function HostCarManagement() {
     }
   };
 
-  const handleUpdateClaimStatus = async (claimId: string, newStatus: string) => {
+  const handleUpdateClaimStatus = async (
+    claimId: string,
+    newStatus: string
+  ) => {
     try {
       const updateData: any = {
         claim_status: newStatus,
@@ -1429,7 +1599,10 @@ export default function HostCarManagement() {
         updateData.approval_date = new Date().toISOString().split("T")[0];
       }
 
-      const { error } = await supabase.from("host_claims").update(updateData).eq("id", claimId);
+      const { error } = await supabase
+        .from("host_claims")
+        .update(updateData)
+        .eq("id", claimId);
 
       if (error) throw error;
 
@@ -1497,12 +1670,16 @@ export default function HostCarManagement() {
     Number(earningsFilters.dateRange !== "all");
 
   const activeHostedCars = cars.filter((car) => car.status === "hosted");
-  const readyForReturnCars = cars.filter((car) => car.status === "ready_for_return");
+  const readyForReturnCars = cars.filter(
+    (car) => car.status === "ready_for_return"
+  );
   if (loading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-muted-foreground">Loading hosted cars...</div>
+          <div className="text-lg text-muted-foreground">
+            Loading hosted cars...
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -1516,7 +1693,10 @@ export default function HostCarManagement() {
           </div>
         </header>
 
-        <SEO title="Host Car Management" description="Manage hosted cars, returns, expenses, earnings, and claims." />
+        <SEO
+          title="Host Car Management"
+          description="Manage hosted cars, returns, expenses, earnings, and claims."
+        />
         <PageContainer className="pb-24">
           <Tabs value={tab} onValueChange={onTabChange} className="w-full">
             {/* Tabs header */}
@@ -1596,19 +1776,29 @@ export default function HostCarManagement() {
                 <Card className="w-full mx-0 max-w-none">
                   <CardContent className="text-center p-4 sm:p-6">
                     <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No cars currently hosted</h3>
-                    <p className="text-muted-foreground">Cars you're hosting will appear here.</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No cars currently hosted
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Cars you're hosting will appear here.
+                    </p>
                   </CardContent>
                 </Card>
               ) : (
                 <Accordion
                   /* multiple so desktop can keep several open; mobile starts collapsed */
                   type="multiple"
-                  defaultValue={!isMobile ? activeHostedCars.map((c) => c.id) : []}
+                  defaultValue={
+                    !isMobile ? activeHostedCars.map((c) => c.id) : []
+                  }
                   className="grid gap-3 md:gap-4 md:grid-cols-2"
                 >
                   {activeHostedCars.map((car) => (
-                    <AccordionItem key={car.id} value={car.id} className="border-none group">
+                    <AccordionItem
+                      key={car.id}
+                      value={car.id}
+                      className="border-none group"
+                    >
                       <Card className="w-full mx-0 max-w-none">
                         {/* Header becomes the accordion trigger */}
                         <CardHeader className="p-3 sm:p-4 md:p-6 items-center">
@@ -1624,7 +1814,9 @@ export default function HostCarManagement() {
                                 <CardTitle className="text-sm sm:text-lg break-words">
                                   {formatCarDisplayName(car)}
                                 </CardTitle>
-                                <CardDescription className="break-words">Location: {car.location}</CardDescription>
+                                <CardDescription className="break-words">
+                                  Location: {car.location}
+                                </CardDescription>
                                 <Badge className="mt-2" variant="default">
                                   Hosting
                                 </Badge>
@@ -1637,7 +1829,9 @@ export default function HostCarManagement() {
                               variant="outline"
                               size="sm"
                               className="w-full sm:w-auto"
-                              onClick={() => window.open(`tel:${car.client.phone}`)}
+                              onClick={() =>
+                                window.open(`tel:${car.client.phone}`)
+                              }
                             >
                               <Phone className="h-4 w-4 mr-2" />
                               Call Client
@@ -1645,17 +1839,32 @@ export default function HostCarManagement() {
 
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full sm:w-auto"
+                                >
                                   <Settings className="h-4 w-4 mr-2" />
                                   Manage
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleManagementAction("view-details", car)
+                                  }
+                                >
                                   <FileText className="h-4 w-4 mr-2" />
                                   View Car Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleManagementAction(
+                                      "schedule-maintenance",
+                                      car
+                                    )
+                                  }
+                                >
                                   <Calendar className="h-4 w-4 mr-2" />
                                   Schedule Maintenance
                                 </DropdownMenuItem>
@@ -1671,38 +1880,63 @@ export default function HostCarManagement() {
                             {/* Car information */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                               <div>
-                                <span className="text-muted-foreground">Color:</span>
-                                <p className="font-medium">{car.color || "N/A"}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Mileage:</span>
+                                <span className="text-muted-foreground">
+                                  Color:
+                                </span>
                                 <p className="font-medium">
-                                  {car.mileage ? `${car.mileage.toLocaleString()} mi` : "N/A"}
+                                  {car.color || "N/A"}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Hosting Since:</span>
-                                <p className="font-medium">{new Date(car.created_at).toLocaleDateString()}</p>
+                                <span className="text-muted-foreground">
+                                  Mileage:
+                                </span>
+                                <p className="font-medium">
+                                  {car.mileage
+                                    ? `${car.mileage.toLocaleString()} mi`
+                                    : "N/A"}
+                                </p>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Status:</span>
-                                <p className="font-medium text-green-600">Active</p>
+                                <span className="text-muted-foreground">
+                                  Hosting Since:
+                                </span>
+                                <p className="font-medium">
+                                  {new Date(
+                                    car.created_at
+                                  ).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Status:
+                                </span>
+                                <p className="font-medium text-green-600">
+                                  Active
+                                </p>
                               </div>
                             </div>
 
                             {/* Client Contact */}
                             <div className="border-t pt-4">
-                              <h4 className="font-medium mb-2">Client Contact</h4>
+                              <h4 className="font-medium mb-2">
+                                Client Contact
+                              </h4>
                               <div className="space-y-2">
                                 <p className="text-sm">
                                   <strong>Name:</strong>{" "}
                                   {car.client.first_name || car.client.last_name
-                                    ? `${car.client.first_name || ""} ${car.client.last_name || ""}`.trim()
+                                    ? `${car.client.first_name || ""} ${
+                                        car.client.last_name || ""
+                                      }`.trim()
                                     : "Name not available"}
                                 </p>
                                 <div className="flex items-center gap-2">
                                   <Phone className="h-4 w-4 text-muted-foreground" />
-                                  <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
+                                  <a
+                                    href={`tel:${car.client.phone}`}
+                                    className="text-sm hover:underline"
+                                  >
                                     {car.client.phone}
                                   </a>
                                 </div>
@@ -1715,7 +1949,9 @@ export default function HostCarManagement() {
                                 variant="outline"
                                 size="sm"
                                 className="w-full sm:w-auto"
-                                onClick={() => window.open(`tel:${car.client.phone}`)}
+                                onClick={() =>
+                                  window.open(`tel:${car.client.phone}`)
+                                }
                               >
                                 <Phone className="h-4 w-4 mr-2" />
                                 Call Client
@@ -1723,17 +1959,38 @@ export default function HostCarManagement() {
 
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full sm:w-auto"
+                                  >
                                     <Settings className="h-4 w-4 mr-2" />
                                     Manage
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                  <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="w-48"
+                                >
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleManagementAction(
+                                        "view-details",
+                                        car
+                                      )
+                                    }
+                                  >
                                     <FileText className="h-4 w-4 mr-2" />
                                     View Car Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleManagementAction(
+                                        "schedule-maintenance",
+                                        car
+                                      )
+                                    }
+                                  >
                                     <Calendar className="h-4 w-4 mr-2" />
                                     Schedule Maintenance
                                   </DropdownMenuItem>
@@ -1755,15 +2012,21 @@ export default function HostCarManagement() {
                 <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
                   <CardContent className="text-center p-4 sm:p-6">
                     <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No cars ready for return</h3>
-                    <p className="text-muted-foreground">Cars ready to be returned will appear here.</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No cars ready for return
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Cars ready to be returned will appear here.
+                    </p>
                   </CardContent>
                 </Card>
               ) : (
                 <Accordion
                   type="single"
                   collapsible
-                  defaultValue={!isMobile ? readyForReturnCars[0]?.id : undefined}
+                  defaultValue={
+                    !isMobile ? readyForReturnCars[0]?.id : undefined
+                  }
                   className="grid gap-4 md:grid-cols-2"
                 >
                   {readyForReturnCars.map((car) => (
@@ -1780,9 +2043,14 @@ export default function HostCarManagement() {
                               <CardTitle className="text-sm sm:text-lg break-words">
                                 {formatCarDisplayName(car)}
                               </CardTitle>
-                              <CardDescription className="break-words">Location: {car.location}</CardDescription>
+                              <CardDescription className="break-words">
+                                Location: {car.location}
+                              </CardDescription>
                             </div>
-                            <Badge className="w-full sm:w-auto flex items-center justify-center" variant="secondary">
+                            <Badge
+                              className="w-full sm:w-auto flex items-center justify-center"
+                              variant="secondary"
+                            >
                               Ready for Return
                             </Badge>
                           </div>
@@ -1795,12 +2063,18 @@ export default function HostCarManagement() {
                               variant="outline"
                               size="sm"
                               className="w-full sm:w-auto"
-                              onClick={() => window.open(`tel:${car.client.phone}`)}
+                              onClick={() =>
+                                window.open(`tel:${car.client.phone}`)
+                              }
                             >
                               <Phone className="h-4 w-4 mr-2" />
                               Call Client
                             </Button>
-                            <Button size="sm" className="w-full sm:w-auto" onClick={() => handleCarReturn(car.id)}>
+                            <Button
+                              size="sm"
+                              className="w-full sm:w-auto"
+                              onClick={() => handleCarReturn(car.id)}
+                            >
                               <CheckCircle className="h-4 w-4 mr-2" />
                               Confirm Return
                             </Button>
@@ -1811,21 +2085,31 @@ export default function HostCarManagement() {
                         <AccordionContent>
                           <CardContent className="p-3 sm:p-4 space-y-4">
                             <div className="space-y-2">
-                              <p className="text-sm text-orange-600 font-medium">⚠ Client has requested car return</p>
+                              <p className="text-sm text-orange-600 font-medium">
+                                ⚠ Client has requested car return
+                              </p>
 
                               {/* Client Contact */}
                               <div>
-                                <h4 className="font-medium mb-2">Client Contact</h4>
+                                <h4 className="font-medium mb-2">
+                                  Client Contact
+                                </h4>
                                 <div className="space-y-2">
                                   <p className="text-sm">
                                     <strong>Name:</strong>{" "}
-                                    {car.client.first_name || car.client.last_name
-                                      ? `${car.client.first_name || ""} ${car.client.last_name || ""}`.trim()
+                                    {car.client.first_name ||
+                                    car.client.last_name
+                                      ? `${car.client.first_name || ""} ${
+                                          car.client.last_name || ""
+                                        }`.trim()
                                       : "Name not available"}
                                   </p>
                                   <div className="flex items-center gap-2">
                                     <Phone className="h-4 w-4 text-muted-foreground" />
-                                    <a href={`tel:${car.client.phone}`} className="text-sm hover:underline">
+                                    <a
+                                      href={`tel:${car.client.phone}`}
+                                      className="text-sm hover:underline"
+                                    >
                                       {car.client.phone}
                                     </a>
                                   </div>
@@ -1838,12 +2122,18 @@ export default function HostCarManagement() {
                                   variant="outline"
                                   size="sm"
                                   className="w-full sm:w-auto"
-                                  onClick={() => window.open(`tel:${car.client.phone}`)}
+                                  onClick={() =>
+                                    window.open(`tel:${car.client.phone}`)
+                                  }
                                 >
                                   <Phone className="h-4 w-4 mr-2" />
                                   Call Client
                                 </Button>
-                                <Button size="sm" className="w-full sm:w-auto" onClick={() => handleCarReturn(car.id)}>
+                                <Button
+                                  size="sm"
+                                  className="w-full sm:w-auto"
+                                  onClick={() => handleCarReturn(car.id)}
+                                >
                                   <CheckCircle className="h-4 w-4 mr-2" />
                                   Confirm Return
                                 </Button>
@@ -1908,19 +2198,31 @@ export default function HostCarManagement() {
                     </div>
 
                     {/* Add/Edit Expense bottom sheet (unchanged) */}
-                    <Sheet open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
+                    <Sheet
+                      open={expenseDialogOpen}
+                      onOpenChange={setExpenseDialogOpen}
+                    >
                       <SheetContent
                         side="bottom"
                         className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
                       >
                         <SheetHead>
-                          <SheetTit>{editingExpense ? "Edit Expense" : "Add New Expense"}</SheetTit>
+                          <SheetTit>
+                            {editingExpense
+                              ? "Edit Expense"
+                              : "Add New Expense"}
+                          </SheetTit>
                           <SheetDesc>
-                            {editingExpense ? "Update your expense details." : "Record a new hosting-related expense."}
+                            {editingExpense
+                              ? "Update your expense details."
+                              : "Record a new hosting-related expense."}
                           </SheetDesc>
                         </SheetHead>
                         <Form {...expenseForm}>
-                          <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
+                          <form
+                            onSubmit={expenseForm.handleSubmit(onExpenseSubmit)}
+                            className="space-y-4"
+                          >
                             <FormField
                               control={expenseForm.control}
                               name="trip_id"
@@ -1928,7 +2230,10 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel>Trip# *</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Enter Trip ID" {...field} />
+                                    <Input
+                                      placeholder="Enter Trip ID"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -1950,7 +2255,10 @@ export default function HostCarManagement() {
                                       </Badge>
                                     )}
                                   </FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
                                     <FormControl>
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select a car (optional)" />
@@ -1985,7 +2293,10 @@ export default function HostCarManagement() {
                                     )}
                                   </FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Enter guest name" {...field} />
+                                    <Input
+                                      placeholder="Enter guest name"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -2008,7 +2319,11 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 0
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2028,7 +2343,11 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 0
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2048,7 +2367,11 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 0
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2068,7 +2391,11 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 0
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2090,7 +2417,11 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2105,7 +2436,10 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel>Description</FormLabel>
                                   <FormControl>
-                                    <Textarea placeholder="Describe the expense..." {...field} />
+                                    <Textarea
+                                      placeholder="Describe the expense..."
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -2136,7 +2470,11 @@ export default function HostCarManagement() {
                               >
                                 Cancel
                               </Button>
-                              <Button type="submit">{editingExpense ? "Update Expense" : "Add Expense"}</Button>
+                              <Button type="submit">
+                                {editingExpense
+                                  ? "Update Expense"
+                                  : "Add Expense"}
+                              </Button>
                             </div>
                           </form>
                         </Form>
@@ -2144,7 +2482,10 @@ export default function HostCarManagement() {
                     </Sheet>
 
                     {/* Filters bottom sheet (keeps Clear inside header too) */}
-                    <Sheet open={expenseFiltersOpen} onOpenChange={setExpenseFiltersOpen}>
+                    <Sheet
+                      open={expenseFiltersOpen}
+                      onOpenChange={setExpenseFiltersOpen}
+                    >
                       <SheetContent
                         side="bottom"
                         className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto text-base" // normalize base size
@@ -2157,7 +2498,9 @@ export default function HostCarManagement() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Filter className="h-4 w-4" />
-                              <span className="text-sm font-medium">Filters</span>
+                              <span className="text-sm font-medium">
+                                Filters
+                              </span>
                               {activeFiltersCount > 0 && (
                                 <Badge variant="secondary" className="text-xs">
                                   {activeFiltersCount} active
@@ -2165,7 +2508,12 @@ export default function HostCarManagement() {
                               )}
                             </div>
                             {activeFiltersCount > 0 && (
-                              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearFilters}
+                                className="h-8 px-2"
+                              >
                                 <X className="h-3 w-3 mr-1" />
                                 Clear
                               </Button>
@@ -2197,7 +2545,9 @@ export default function HostCarManagement() {
                               </Select>
                             </div>
                             <div className="space-y-2">
-                              <Label className="text-sm font-medium">Payment Source</Label>
+                              <Label className="text-sm font-medium">
+                                Payment Source
+                              </Label>
                               <Select
                                 value={expenseFilters.paymentSource}
                                 onValueChange={(value) =>
@@ -2211,18 +2561,28 @@ export default function HostCarManagement() {
                                   <SelectValue placeholder="All sources" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="all">All sources</SelectItem>
+                                  <SelectItem value="all">
+                                    All sources
+                                  </SelectItem>
                                   <SelectItem value="Turo">Turo</SelectItem>
                                   <SelectItem value="Eon">Eon</SelectItem>
-                                  <SelectItem value="GetAround">GetAround</SelectItem>
-                                  <SelectItem value="Private">Private</SelectItem>
-                                  <SelectItem value="Insurance">Insurance</SelectItem>
+                                  <SelectItem value="GetAround">
+                                    GetAround
+                                  </SelectItem>
+                                  <SelectItem value="Private">
+                                    Private
+                                  </SelectItem>
+                                  <SelectItem value="Insurance">
+                                    Insurance
+                                  </SelectItem>
                                   <SelectItem value="Other">Other</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
                             <div className="space-y-2">
-                              <Label className="text-sm font-medium">Added Recently</Label>
+                              <Label className="text-sm font-medium">
+                                Added Recently
+                              </Label>
                               <RadioGroup
                                 value={expenseFilters.dateRange}
                                 onValueChange={(value) =>
@@ -2234,7 +2594,11 @@ export default function HostCarManagement() {
                                 className="flex flex-wrap gap-4"
                               >
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="all" id="m-all" className="h-4 w-4" />
+                                  <RadioGroupItem
+                                    value="all"
+                                    id="m-all"
+                                    className="h-4 w-4"
+                                  />
                                   <Label htmlFor="m-all" className="text-sm">
                                     All
                                   </Label>
@@ -2261,14 +2625,21 @@ export default function HostCarManagement() {
                             </div>
                           </div>
                           <div className="pt-2 flex justify-end">
-                            <Button onClick={() => setExpenseFiltersOpen(false)}>Apply</Button>
+                            <Button
+                              onClick={() => setExpenseFiltersOpen(false)}
+                            >
+                              Apply
+                            </Button>
                           </div>
                         </div>
                       </SheetContent>
                     </Sheet>
                   </>
                 ) : (
-                  <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
+                  <Dialog
+                    open={expenseDialogOpen}
+                    onOpenChange={setExpenseDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button aria-label="Add expense">
                         <Plus className="h-4 w-4 mr-2" />
@@ -2277,13 +2648,20 @@ export default function HostCarManagement() {
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>{editingExpense ? "Edit Expense" : "Add New Expense"}</DialogTitle>
+                        <DialogTitle>
+                          {editingExpense ? "Edit Expense" : "Add New Expense"}
+                        </DialogTitle>
                         <DialogDescription>
-                          {editingExpense ? "Update your expense details." : "Record a new hosting-related expense."}
+                          {editingExpense
+                            ? "Update your expense details."
+                            : "Record a new hosting-related expense."}
                         </DialogDescription>
                       </DialogHeader>
                       <Form {...expenseForm}>
-                        <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
+                        <form
+                          onSubmit={expenseForm.handleSubmit(onExpenseSubmit)}
+                          className="space-y-4"
+                        >
                           <FormField
                             control={expenseForm.control}
                             name="trip_id"
@@ -2291,7 +2669,10 @@ export default function HostCarManagement() {
                               <FormItem>
                                 <FormLabel>Trip# *</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter Trip ID" {...field} />
+                                  <Input
+                                    placeholder="Enter Trip ID"
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -2313,7 +2694,10 @@ export default function HostCarManagement() {
                                     </Badge>
                                   )}
                                 </FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select a car (optional)" />
@@ -2348,7 +2732,10 @@ export default function HostCarManagement() {
                                   )}
                                 </FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter guest name" {...field} />
+                                  <Input
+                                    placeholder="Enter guest name"
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -2371,7 +2758,11 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2391,7 +2782,11 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2411,7 +2806,11 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2431,7 +2830,11 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2453,7 +2856,11 @@ export default function HostCarManagement() {
                                       step="0.01"
                                       placeholder="0.00"
                                       {...field}
-                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          parseFloat(e.target.value) || 0
+                                        )
+                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -2468,7 +2875,10 @@ export default function HostCarManagement() {
                               <FormItem>
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                  <Textarea placeholder="Describe the expense..." {...field} />
+                                  <Textarea
+                                    placeholder="Describe the expense..."
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -2499,7 +2909,11 @@ export default function HostCarManagement() {
                             >
                               Cancel
                             </Button>
-                            <Button type="submit">{editingExpense ? "Update Expense" : "Add Expense"}</Button>
+                            <Button type="submit">
+                              {editingExpense
+                                ? "Update Expense"
+                                : "Add Expense"}
+                            </Button>
                           </div>
                         </form>
                       </Form>
@@ -2523,7 +2937,12 @@ export default function HostCarManagement() {
                         )}
                       </div>
                       {activeFiltersCount > 0 && (
-                        <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={clearFilters}
+                          className="h-8 px-2"
+                        >
                           <X className="h-3 w-3 mr-1" />
                           Clear
                         </Button>
@@ -2560,7 +2979,9 @@ export default function HostCarManagement() {
 
                       {/* Payment Source Filter */}
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Payment Source</Label>
+                        <Label className="text-sm font-medium">
+                          Payment Source
+                        </Label>
                         <Select
                           value={expenseFilters.paymentSource}
                           onValueChange={(value) =>
@@ -2587,7 +3008,9 @@ export default function HostCarManagement() {
 
                       {/* Date Range Filter */}
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Added Recently</Label>
+                        <Label className="text-sm font-medium">
+                          Added Recently
+                        </Label>
                         <RadioGroup
                           value={expenseFilters.dateRange}
                           onValueChange={(value) =>
@@ -2629,11 +3052,14 @@ export default function HostCarManagement() {
                     {/* Results Summary */}
                     <div className="flex items-center justify-between pt-2 border-t">
                       <p className="text-sm text-muted-foreground">
-                        Showing {filteredExpenses.length} of {expenses.length} expenses
+                        Showing {filteredExpenses.length} of {expenses.length}{" "}
+                        expenses
                       </p>
                       {activeFiltersCount > 0 && (
                         <p className="text-sm text-muted-foreground">
-                          {activeFiltersCount === 1 ? "1 filter applied" : `${activeFiltersCount} filters applied`}
+                          {activeFiltersCount === 1
+                            ? "1 filter applied"
+                            : `${activeFiltersCount} filters applied`}
                         </p>
                       )}
                     </div>
@@ -2644,16 +3070,25 @@ export default function HostCarManagement() {
               {expensesLoading ? (
                 <Card>
                   <CardContent className="text-center py-12">
-                    <div className="text-lg text-muted-foreground">Loading expenses...</div>
+                    <div className="text-lg text-muted-foreground">
+                      Loading expenses...
+                    </div>
                   </CardContent>
                 </Card>
               ) : expenses.length === 0 ? (
                 <Card>
                   <CardContent className="text-center py-12">
                     <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No expenses recorded</h3>
-                    <p className="text-muted-foreground">Start tracking your hosting expenses.</p>
-                    <Button onClick={() => fetchExpenses(true)} className="mt-4">
+                    <h3 className="text-lg font-medium mb-2">
+                      No expenses recorded
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Start tracking your hosting expenses.
+                    </p>
+                    <Button
+                      onClick={() => fetchExpenses(true)}
+                      className="mt-4"
+                    >
                       Refresh Expenses
                     </Button>
                   </CardContent>
@@ -2662,8 +3097,12 @@ export default function HostCarManagement() {
                 <Card>
                   <CardContent className="text-center py-12">
                     <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No expenses match your filters</h3>
-                    <p className="text-muted-foreground mb-4">Try adjusting your filters to see more results.</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No expenses match your filters
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Try adjusting your filters to see more results.
+                    </p>
                     <Button variant="outline" onClick={clearFilters}>
                       Clear Filters
                     </Button>
@@ -2677,7 +3116,9 @@ export default function HostCarManagement() {
                         <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                           <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-medium capitalize break-words">{expense.expense_type}</h4>
+                              <h4 className="font-medium capitalize break-words">
+                                {expense.expense_type}
+                              </h4>
                               {expense.trip_id && (
                                 <Badge variant="outline" className="text-xs">
                                   Trip# {expense.trip_id}
@@ -2685,11 +3126,17 @@ export default function HostCarManagement() {
                               )}
                             </div>
                             {expense.guest_name && (
-                              <p className="text-sm text-muted-foreground break-words">Guest: {expense.guest_name}</p>
+                              <p className="text-sm text-muted-foreground break-words">
+                                Guest: {expense.guest_name}
+                              </p>
                             )}
-                            <p className="text-sm text-muted-foreground break-words">{expense.description}</p>
                             <p className="text-sm text-muted-foreground break-words">
-                              {new Date(expense.expense_date).toLocaleDateString()}
+                              {expense.description}
+                            </p>
+                            <p className="text-sm text-muted-foreground break-words">
+                              {new Date(
+                                expense.expense_date
+                              ).toLocaleDateString()}
                             </p>
 
                             {/* Cost Breakdown */}
@@ -2697,19 +3144,25 @@ export default function HostCarManagement() {
                               {expense.ev_charge_cost > 0 && (
                                 <div className="flex justify-between text-sm">
                                   <span>EV Charge:</span>
-                                  <span>${expense.ev_charge_cost.toFixed(2)}</span>
+                                  <span>
+                                    ${expense.ev_charge_cost.toFixed(2)}
+                                  </span>
                                 </div>
                               )}
                               {expense.carwash_cost > 0 && (
                                 <div className="flex justify-between text-sm">
                                   <span>Carwash:</span>
-                                  <span>${expense.carwash_cost.toFixed(2)}</span>
+                                  <span>
+                                    ${expense.carwash_cost.toFixed(2)}
+                                  </span>
                                 </div>
                               )}
                               {expense.delivery_cost > 0 && (
                                 <div className="flex justify-between text-sm">
                                   <span>Delivery:</span>
-                                  <span>${expense.delivery_cost.toFixed(2)}</span>
+                                  <span>
+                                    ${expense.delivery_cost.toFixed(2)}
+                                  </span>
                                 </div>
                               )}
                               {expense.toll_cost > 0 && (
@@ -2728,11 +3181,15 @@ export default function HostCarManagement() {
 
                             {/* Car Details */}
                             {(() => {
-                              const expenseCar = cars.find((car) => car.id === expense.car_id);
+                              const expenseCar = cars.find(
+                                (car) => car.id === expense.car_id
+                              );
                               if (!expenseCar) return null;
                               return (
                                 <div className="border-t mt-3 pt-3">
-                                  <p className="text-sm font-medium mb-2">Vehicle Details:</p>
+                                  <p className="text-sm font-medium mb-2">
+                                    Vehicle Details:
+                                  </p>
                                   {formatDetailedCarInfo(expenseCar)}
                                 </div>
                               );
@@ -2747,7 +3204,9 @@ export default function HostCarManagement() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleEditExpense(expense)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditExpense(expense)}
+                                  >
                                     <Edit className="h-3 w-3 mr-2" /> Edit
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
@@ -2761,9 +3220,13 @@ export default function HostCarManagement() {
                               </DropdownMenu>
                             </div>
                             <p className="font-bold text-lg">
-                              ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
+                              $
+                              {expense.total_expenses?.toFixed(2) ||
+                                expense.amount.toFixed(2)}
                             </p>
-                            <p className="text-xs text-muted-foreground">Total</p>
+                            <p className="text-xs text-muted-foreground">
+                              Total
+                            </p>
                           </div>
                         </div>
                       </CardContent>
@@ -2824,17 +3287,32 @@ export default function HostCarManagement() {
                         </div>
                       </div>
 
-                      <Sheet open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
+                      <Sheet
+                        open={earningDialogOpen}
+                        onOpenChange={setEarningDialogOpen}
+                      >
                         <SheetContent
                           side="bottom"
                           className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
                         >
                           <SheetHead>
-                            <SheetTit>{editingEarning ? "Edit Earning" : "Record New Earning"}</SheetTit>
-                            <SheetDesc>Add a new earning record from your hosting activities.</SheetDesc>
+                            <SheetTit>
+                              {editingEarning
+                                ? "Edit Earning"
+                                : "Record New Earning"}
+                            </SheetTit>
+                            <SheetDesc>
+                              Add a new earning record from your hosting
+                              activities.
+                            </SheetDesc>
                           </SheetHead>
                           <Form {...earningForm}>
-                            <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
+                            <form
+                              onSubmit={earningForm.handleSubmit(
+                                onEarningSubmit
+                              )}
+                              className="space-y-4"
+                            >
                               <FormField
                                 control={earningForm.control}
                                 name="trip_id"
@@ -2842,15 +3320,21 @@ export default function HostCarManagement() {
                                   const existingTripIds = [
                                     ...new Set(
                                       expenses
-                                        .filter((e) => e.trip_id && e.trip_id.trim() !== "")
+                                        .filter(
+                                          (e) =>
+                                            e.trip_id && e.trip_id.trim() !== ""
+                                        )
                                         .map((e) => e.trip_id)
-                                        .filter(Boolean),
+                                        .filter(Boolean)
                                     ),
                                   ] as string[];
                                   return (
                                     <FormItem>
                                       <FormLabel>Trip# *</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select existing Trip# or enter new" />
@@ -2858,14 +3342,25 @@ export default function HostCarManagement() {
                                         </FormControl>
                                         <SelectContent>
                                           {existingTripIds.map((tripId) => {
-                                            const tripExpenses = expenses.filter((e) => e.trip_id === tripId);
-                                            const totalExpenses = tripExpenses.reduce(
-                                              (sum, e) => sum + (e.total_expenses || e.amount),
-                                              0,
-                                            );
+                                            const tripExpenses =
+                                              expenses.filter(
+                                                (e) => e.trip_id === tripId
+                                              );
+                                            const totalExpenses =
+                                              tripExpenses.reduce(
+                                                (sum, e) =>
+                                                  sum +
+                                                  (e.total_expenses ||
+                                                    e.amount),
+                                                0
+                                              );
                                             return (
-                                              <SelectItem key={tripId} value={tripId}>
-                                                {tripId} (Expenses: ${totalExpenses.toFixed(2)})
+                                              <SelectItem
+                                                key={tripId}
+                                                value={tripId}
+                                              >
+                                                {tripId} (Expenses: $
+                                                {totalExpenses.toFixed(2)})
                                               </SelectItem>
                                             );
                                           })}
@@ -2900,7 +3395,10 @@ export default function HostCarManagement() {
                                           </Badge>
                                         )}
                                       </FormLabel>
-                                      <Select onValueChange={field.onChange} value={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select a car" />
@@ -2908,7 +3406,10 @@ export default function HostCarManagement() {
                                         </FormControl>
                                         <SelectContent>
                                           {cars.map((car) => (
-                                            <SelectItem key={car.id} value={car.id}>
+                                            <SelectItem
+                                              key={car.id}
+                                              value={car.id}
+                                            >
                                               {formatCarDisplayName(car)}
                                             </SelectItem>
                                           ))}
@@ -2935,7 +3436,10 @@ export default function HostCarManagement() {
                                         )}
                                       </FormLabel>
                                       <FormControl>
-                                        <Input placeholder="Enter guest name" {...field} />
+                                        <Input
+                                          placeholder="Enter guest name"
+                                          {...field}
+                                        />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -2950,18 +3454,31 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Earning Type</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select earning type" />
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                          <SelectItem value="hosting">Hosting</SelectItem>
-                                          <SelectItem value="delivery">Delivery</SelectItem>
-                                          <SelectItem value="subscription">Subscription</SelectItem>
-                                          <SelectItem value="bonus">Bonus</SelectItem>
-                                          <SelectItem value="other">Other</SelectItem>
+                                          <SelectItem value="hosting">
+                                            Hosting
+                                          </SelectItem>
+                                          <SelectItem value="delivery">
+                                            Delivery
+                                          </SelectItem>
+                                          <SelectItem value="subscription">
+                                            Subscription
+                                          </SelectItem>
+                                          <SelectItem value="bonus">
+                                            Bonus
+                                          </SelectItem>
+                                          <SelectItem value="other">
+                                            Other
+                                          </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <FormMessage />
@@ -2974,18 +3491,31 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Payment Source</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select payment source" />
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                          <SelectItem value="Turo">Turo</SelectItem>
-                                          <SelectItem value="Eon">Eon</SelectItem>
-                                          <SelectItem value="GetAround">GetAround</SelectItem>
-                                          <SelectItem value="Private">Private</SelectItem>
-                                          <SelectItem value="Other">Other</SelectItem>
+                                          <SelectItem value="Turo">
+                                            Turo
+                                          </SelectItem>
+                                          <SelectItem value="Eon">
+                                            Eon
+                                          </SelectItem>
+                                          <SelectItem value="GetAround">
+                                            GetAround
+                                          </SelectItem>
+                                          <SelectItem value="Private">
+                                            Private
+                                          </SelectItem>
+                                          <SelectItem value="Other">
+                                            Other
+                                          </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <FormMessage />
@@ -3007,7 +3537,11 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -3017,15 +3551,25 @@ export default function HostCarManagement() {
 
                               {earningForm.watch("gross_earnings") > 0 && (
                                 <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                                  <h4 className="font-medium text-sm">Profit Calculation</h4>
+                                  <h4 className="font-medium text-sm">
+                                    Profit Calculation
+                                  </h4>
                                   <div className="space-y-1 text-sm">
                                     <div className="flex justify-between">
                                       <span>Gross Earnings:</span>
-                                      <span>${Number(earningForm.watch("gross_earnings") || 0).toFixed(2)}</span>
+                                      <span>
+                                        $
+                                        {Number(
+                                          earningForm.watch("gross_earnings") ||
+                                            0
+                                        ).toFixed(2)}
+                                      </span>
                                     </div>
                                     <div className="flex justify-between text-red-600">
                                       <span>Trip Expenses:</span>
-                                      <span>-${selectedTripExpenses.toFixed(2)}</span>
+                                      <span>
+                                        -${selectedTripExpenses.toFixed(2)}
+                                      </span>
                                     </div>
                                     <hr className="my-1" />
                                     <div className="flex justify-between font-medium">
@@ -3033,34 +3577,62 @@ export default function HostCarManagement() {
                                       <span>
                                         $
                                         {(
-                                          Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses
+                                          Number(
+                                            earningForm.watch(
+                                              "gross_earnings"
+                                            ) || 0
+                                          ) - selectedTripExpenses
                                         ).toFixed(2)}
                                       </span>
                                     </div>
                                     <div className="flex justify-between text-blue-600">
                                       <span>
-                                        Client Profit ({earningForm.watch("client_profit_percentage")}
+                                        Client Profit (
+                                        {earningForm.watch(
+                                          "client_profit_percentage"
+                                        )}
                                         %):
                                       </span>
                                       <span>
                                         $
                                         {(
-                                          ((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) *
-                                            Number(earningForm.watch("client_profit_percentage"))) /
+                                          ((Number(
+                                            earningForm.watch(
+                                              "gross_earnings"
+                                            ) || 0
+                                          ) -
+                                            selectedTripExpenses) *
+                                            Number(
+                                              earningForm.watch(
+                                                "client_profit_percentage"
+                                              )
+                                            )) /
                                           100
                                         ).toFixed(2)}
                                       </span>
                                     </div>
                                     <div className="flex justify-between text-green-600">
                                       <span>
-                                        Host Profit ({earningForm.watch("host_profit_percentage")}
+                                        Host Profit (
+                                        {earningForm.watch(
+                                          "host_profit_percentage"
+                                        )}
                                         %):
                                       </span>
                                       <span>
                                         $
                                         {(
-                                          ((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) *
-                                            Number(earningForm.watch("host_profit_percentage"))) /
+                                          ((Number(
+                                            earningForm.watch(
+                                              "gross_earnings"
+                                            ) || 0
+                                          ) -
+                                            selectedTripExpenses) *
+                                            Number(
+                                              earningForm.watch(
+                                                "host_profit_percentage"
+                                              )
+                                            )) /
                                           100
                                         ).toFixed(2)}
                                       </span>
@@ -3083,7 +3655,11 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="30"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 30)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 30
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3103,7 +3679,11 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="70"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 70)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 70
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3174,11 +3754,15 @@ export default function HostCarManagement() {
                                 <ConflictWarning
                                   conflicts={dateConflicts}
                                   selectedDates={{
-                                    start: `${earningForm.watch("earning_period_start_date")}T${earningForm.watch(
-                                      "earning_period_start_time",
+                                    start: `${earningForm.watch(
+                                      "earning_period_start_date"
+                                    )}T${earningForm.watch(
+                                      "earning_period_start_time"
                                     )}:00`,
-                                    end: `${earningForm.watch("earning_period_end_date")}T${earningForm.watch(
-                                      "earning_period_end_time",
+                                    end: `${earningForm.watch(
+                                      "earning_period_end_date"
+                                    )}T${earningForm.watch(
+                                      "earning_period_end_time"
                                     )}:00`,
                                   }}
                                 />
@@ -3190,17 +3774,22 @@ export default function HostCarManagement() {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setShowCalendar(!showCalendar)}
+                                    onClick={() =>
+                                      setShowCalendar(!showCalendar)
+                                    }
                                     className="flex items-center gap-2"
                                   >
                                     <Calendar className="h-4 w-4" />
-                                    {showCalendar ? "Hide" : "Show"} Booking Calendar
+                                    {showCalendar ? "Hide" : "Show"} Booking
+                                    Calendar
                                   </Button>
                                 </div>
                               )}
 
                               {showCalendar && earningForm.watch("car_id") && (
-                                <AvailabilityCalendar carId={earningForm.watch("car_id")} />
+                                <AvailabilityCalendar
+                                  carId={earningForm.watch("car_id")}
+                                />
                               )}
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -3210,17 +3799,28 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Payment Status</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select payment status" />
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                          <SelectItem value="pending">Pending</SelectItem>
-                                          <SelectItem value="paid">Paid</SelectItem>
-                                          <SelectItem value="processing">Processing</SelectItem>
-                                          <SelectItem value="failed">Failed</SelectItem>
+                                          <SelectItem value="pending">
+                                            Pending
+                                          </SelectItem>
+                                          <SelectItem value="paid">
+                                            Paid
+                                          </SelectItem>
+                                          <SelectItem value="processing">
+                                            Processing
+                                          </SelectItem>
+                                          <SelectItem value="failed">
+                                            Failed
+                                          </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <FormMessage />
@@ -3232,7 +3832,9 @@ export default function HostCarManagement() {
                                   name="date_paid"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Date Paid (Optional)</FormLabel>
+                                      <FormLabel>
+                                        Date Paid (Optional)
+                                      </FormLabel>
                                       <FormControl>
                                         <Input type="date" {...field} />
                                       </FormControl>
@@ -3254,7 +3856,11 @@ export default function HostCarManagement() {
                                 >
                                   Cancel
                                 </Button>
-                                <Button type="submit">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
+                                <Button type="submit">
+                                  {editingEarning
+                                    ? "Update Earning"
+                                    : "Record Earning"}
+                                </Button>
                               </div>
                             </form>
                           </Form>
@@ -3262,7 +3868,10 @@ export default function HostCarManagement() {
                       </Sheet>
 
                       {/* Earnings Filters Sheet (mobile) */}
-                      <Sheet open={earningFiltersOpen} onOpenChange={setEarningFiltersOpen}>
+                      <Sheet
+                        open={earningFiltersOpen}
+                        onOpenChange={setEarningFiltersOpen}
+                      >
                         <SheetContent
                           side="bottom"
                           className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto text-base"
@@ -3277,15 +3886,25 @@ export default function HostCarManagement() {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <Filter className="h-4 w-4" />
-                                <span className="text-sm font-medium">Filters</span>
+                                <span className="text-sm font-medium">
+                                  Filters
+                                </span>
                                 {earningsActiveFiltersCount > 0 && (
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     {earningsActiveFiltersCount} active
                                   </Badge>
                                 )}
                               </div>
                               {earningsActiveFiltersCount > 0 && (
-                                <Button variant="ghost" size="sm" onClick={clearEarningsFilters} className="h-8 px-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={clearEarningsFilters}
+                                  className="h-8 px-2"
+                                >
                                   <X className="h-3 w-3 mr-1" />
                                   Clear
                                 </Button>
@@ -3296,7 +3915,9 @@ export default function HostCarManagement() {
                             <div className="grid grid-cols-1 gap-4">
                               {/* Car */}
                               <div className="space-y-2">
-                                <Label className="text-sm font-medium">Car</Label>
+                                <Label className="text-sm font-medium">
+                                  Car
+                                </Label>
                                 <Select
                                   value={earningsFilters.carId}
                                   onValueChange={(value) =>
@@ -3310,7 +3931,9 @@ export default function HostCarManagement() {
                                     <SelectValue placeholder="All cars" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="all">All cars</SelectItem>
+                                    <SelectItem value="all">
+                                      All cars
+                                    </SelectItem>
                                     {cars.map((car) => (
                                       <SelectItem key={car.id} value={car.id}>
                                         {formatCarDisplayName(car)}
@@ -3322,7 +3945,9 @@ export default function HostCarManagement() {
 
                               {/* Payment Source */}
                               <div className="space-y-2">
-                                <Label className="text-sm font-medium">Payment Source</Label>
+                                <Label className="text-sm font-medium">
+                                  Payment Source
+                                </Label>
                                 <Select
                                   value={earningsFilters.paymentSource}
                                   onValueChange={(value) =>
@@ -3336,11 +3961,17 @@ export default function HostCarManagement() {
                                     <SelectValue placeholder="All sources" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="all">All sources</SelectItem>
+                                    <SelectItem value="all">
+                                      All sources
+                                    </SelectItem>
                                     <SelectItem value="Turo">Turo</SelectItem>
                                     <SelectItem value="Eon">Eon</SelectItem>
-                                    <SelectItem value="GetAround">GetAround</SelectItem>
-                                    <SelectItem value="Private">Private</SelectItem>
+                                    <SelectItem value="GetAround">
+                                      GetAround
+                                    </SelectItem>
+                                    <SelectItem value="Private">
+                                      Private
+                                    </SelectItem>
                                     <SelectItem value="Other">Other</SelectItem>
                                   </SelectContent>
                                 </Select>
@@ -3348,7 +3979,9 @@ export default function HostCarManagement() {
 
                               {/* Payment Status */}
                               <div className="space-y-2">
-                                <Label className="text-sm font-medium">Payment Status</Label>
+                                <Label className="text-sm font-medium">
+                                  Payment Status
+                                </Label>
                                 <Select
                                   value={earningsFilters.paymentStatus}
                                   onValueChange={(value) =>
@@ -3362,11 +3995,19 @@ export default function HostCarManagement() {
                                     <SelectValue placeholder="All statuses" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="all">All statuses</SelectItem>
-                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="all">
+                                      All statuses
+                                    </SelectItem>
+                                    <SelectItem value="pending">
+                                      Pending
+                                    </SelectItem>
                                     <SelectItem value="paid">Paid</SelectItem>
-                                    <SelectItem value="processing">Processing</SelectItem>
-                                    <SelectItem value="failed">Failed</SelectItem>
+                                    <SelectItem value="processing">
+                                      Processing
+                                    </SelectItem>
+                                    <SelectItem value="failed">
+                                      Failed
+                                    </SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
@@ -3374,7 +4015,9 @@ export default function HostCarManagement() {
                               {/* Date Range */}
                               {/* Date Range (match Expenses modal) */}
                               <div className="space-y-2">
-                                <Label className="text-sm font-medium">Date Range</Label>
+                                <Label className="text-sm font-medium">
+                                  Date Range
+                                </Label>
                                 <RadioGroup
                                   value={earningsFilters.dateRange}
                                   onValueChange={(value) =>
@@ -3386,26 +4029,48 @@ export default function HostCarManagement() {
                                   className="flex flex-wrap gap-4"
                                 >
                                   <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="all" id="e-all" className="h-4 w-4" />
+                                    <RadioGroupItem
+                                      value="all"
+                                      id="e-all"
+                                      className="h-4 w-4"
+                                    />
                                     <Label htmlFor="e-all" className="text-sm">
                                       All
                                     </Label>
                                   </div>
                                   <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="today" id="e-today" className="h-4 w-4" />
-                                    <Label htmlFor="e-today" className="text-sm">
+                                    <RadioGroupItem
+                                      value="today"
+                                      id="e-today"
+                                      className="h-4 w-4"
+                                    />
+                                    <Label
+                                      htmlFor="e-today"
+                                      className="text-sm"
+                                    >
                                       Today
                                     </Label>
                                   </div>
                                   <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="week" id="e-week" className="h-4 w-4" />
+                                    <RadioGroupItem
+                                      value="week"
+                                      id="e-week"
+                                      className="h-4 w-4"
+                                    />
                                     <Label htmlFor="e-week" className="text-sm">
                                       This Week
                                     </Label>
                                   </div>
                                   <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="month" id="e-month" className="h-4 w-4" />
-                                    <Label htmlFor="e-month" className="text-sm">
+                                    <RadioGroupItem
+                                      value="month"
+                                      id="e-month"
+                                      className="h-4 w-4"
+                                    />
+                                    <Label
+                                      htmlFor="e-month"
+                                      className="text-sm"
+                                    >
                                       This Month
                                     </Label>
                                   </div>
@@ -3414,7 +4079,11 @@ export default function HostCarManagement() {
                             </div>
 
                             <div className="pt-2 flex justify-end">
-                              <Button onClick={() => setEarningFiltersOpen(false)}>Apply</Button>
+                              <Button
+                                onClick={() => setEarningFiltersOpen(false)}
+                              >
+                                Apply
+                              </Button>
                             </div>
                           </div>
                         </SheetContent>
@@ -3422,20 +4091,37 @@ export default function HostCarManagement() {
                     </>
                   ) : (
                     <>
-                      <Button size="sm" onClick={handleAddEarningClick} aria-label="Add earning">
+                      <Button
+                        size="sm"
+                        onClick={handleAddEarningClick}
+                        aria-label="Add earning"
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Earning
                       </Button>
-                      <Dialog open={earningDialogOpen} onOpenChange={setEarningDialogOpen}>
+                      <Dialog
+                        open={earningDialogOpen}
+                        onOpenChange={setEarningDialogOpen}
+                      >
                         <DialogContent className="max-w-2xl">
                           <DialogHeader>
-                            <DialogTitle>{editingEarning ? "Edit Earning" : "Record New Earning"}</DialogTitle>
+                            <DialogTitle>
+                              {editingEarning
+                                ? "Edit Earning"
+                                : "Record New Earning"}
+                            </DialogTitle>
                             <DialogDescription>
-                              Add a new earning record from your hosting activities.
+                              Add a new earning record from your hosting
+                              activities.
                             </DialogDescription>
                           </DialogHeader>
                           <Form {...earningForm}>
-                            <form onSubmit={earningForm.handleSubmit(onEarningSubmit)} className="space-y-4">
+                            <form
+                              onSubmit={earningForm.handleSubmit(
+                                onEarningSubmit
+                              )}
+                              className="space-y-4"
+                            >
                               <FormField
                                 control={earningForm.control}
                                 name="trip_id"
@@ -3443,15 +4129,21 @@ export default function HostCarManagement() {
                                   const existingTripIds = [
                                     ...new Set(
                                       expenses
-                                        .filter((e) => e.trip_id && e.trip_id.trim() !== "")
+                                        .filter(
+                                          (e) =>
+                                            e.trip_id && e.trip_id.trim() !== ""
+                                        )
                                         .map((e) => e.trip_id)
-                                        .filter(Boolean),
+                                        .filter(Boolean)
                                     ),
                                   ] as string[];
                                   return (
                                     <FormItem>
                                       <FormLabel>Trip# *</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select existing Trip# or enter new" />
@@ -3459,14 +4151,25 @@ export default function HostCarManagement() {
                                         </FormControl>
                                         <SelectContent>
                                           {existingTripIds.map((tripId) => {
-                                            const tripExpenses = expenses.filter((e) => e.trip_id === tripId);
-                                            const totalExpenses = tripExpenses.reduce(
-                                              (sum, e) => sum + (e.total_expenses || e.amount),
-                                              0,
-                                            );
+                                            const tripExpenses =
+                                              expenses.filter(
+                                                (e) => e.trip_id === tripId
+                                              );
+                                            const totalExpenses =
+                                              tripExpenses.reduce(
+                                                (sum, e) =>
+                                                  sum +
+                                                  (e.total_expenses ||
+                                                    e.amount),
+                                                0
+                                              );
                                             return (
-                                              <SelectItem key={tripId} value={tripId}>
-                                                {tripId} (Expenses: ${totalExpenses.toFixed(2)})
+                                              <SelectItem
+                                                key={tripId}
+                                                value={tripId}
+                                              >
+                                                {tripId} (Expenses: $
+                                                {totalExpenses.toFixed(2)})
                                               </SelectItem>
                                             );
                                           })}
@@ -3501,7 +4204,10 @@ export default function HostCarManagement() {
                                           </Badge>
                                         )}
                                       </FormLabel>
-                                      <Select onValueChange={field.onChange} value={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select a car" />
@@ -3509,7 +4215,10 @@ export default function HostCarManagement() {
                                         </FormControl>
                                         <SelectContent>
                                           {cars.map((car) => (
-                                            <SelectItem key={car.id} value={car.id}>
+                                            <SelectItem
+                                              key={car.id}
+                                              value={car.id}
+                                            >
                                               {formatCarDisplayName(car)}
                                             </SelectItem>
                                           ))}
@@ -3536,7 +4245,10 @@ export default function HostCarManagement() {
                                         )}
                                       </FormLabel>
                                       <FormControl>
-                                        <Input placeholder="Enter guest name" {...field} />
+                                        <Input
+                                          placeholder="Enter guest name"
+                                          {...field}
+                                        />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -3551,18 +4263,31 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Earning Type</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select earning type" />
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                          <SelectItem value="hosting">Hosting</SelectItem>
-                                          <SelectItem value="delivery">Delivery</SelectItem>
-                                          <SelectItem value="subscription">Subscription</SelectItem>
-                                          <SelectItem value="bonus">Bonus</SelectItem>
-                                          <SelectItem value="other">Other</SelectItem>
+                                          <SelectItem value="hosting">
+                                            Hosting
+                                          </SelectItem>
+                                          <SelectItem value="delivery">
+                                            Delivery
+                                          </SelectItem>
+                                          <SelectItem value="subscription">
+                                            Subscription
+                                          </SelectItem>
+                                          <SelectItem value="bonus">
+                                            Bonus
+                                          </SelectItem>
+                                          <SelectItem value="other">
+                                            Other
+                                          </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <FormMessage />
@@ -3575,18 +4300,31 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Payment Source</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select payment source" />
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                          <SelectItem value="Turo">Turo</SelectItem>
-                                          <SelectItem value="Eon">Eon</SelectItem>
-                                          <SelectItem value="GetAround">GetAround</SelectItem>
-                                          <SelectItem value="Private">Private</SelectItem>
-                                          <SelectItem value="Other">Other</SelectItem>
+                                          <SelectItem value="Turo">
+                                            Turo
+                                          </SelectItem>
+                                          <SelectItem value="Eon">
+                                            Eon
+                                          </SelectItem>
+                                          <SelectItem value="GetAround">
+                                            GetAround
+                                          </SelectItem>
+                                          <SelectItem value="Private">
+                                            Private
+                                          </SelectItem>
+                                          <SelectItem value="Other">
+                                            Other
+                                          </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <FormMessage />
@@ -3608,7 +4346,11 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                          field.onChange(
+                                            parseFloat(e.target.value) || 0
+                                          )
+                                        }
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -3618,15 +4360,25 @@ export default function HostCarManagement() {
 
                               {earningForm.watch("gross_earnings") > 0 && (
                                 <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                                  <h4 className="font-medium text-sm">Profit Calculation</h4>
+                                  <h4 className="font-medium text-sm">
+                                    Profit Calculation
+                                  </h4>
                                   <div className="space-y-1 text-sm">
                                     <div className="flex justify-between">
                                       <span>Gross Earnings:</span>
-                                      <span>${Number(earningForm.watch("gross_earnings") || 0).toFixed(2)}</span>
+                                      <span>
+                                        $
+                                        {Number(
+                                          earningForm.watch("gross_earnings") ||
+                                            0
+                                        ).toFixed(2)}
+                                      </span>
                                     </div>
                                     <div className="flex justify-between text-red-600">
                                       <span>Trip Expenses:</span>
-                                      <span>-${selectedTripExpenses.toFixed(2)}</span>
+                                      <span>
+                                        -${selectedTripExpenses.toFixed(2)}
+                                      </span>
                                     </div>
                                     <hr className="my-1" />
                                     <div className="flex justify-between font-medium">
@@ -3634,34 +4386,62 @@ export default function HostCarManagement() {
                                       <span>
                                         $
                                         {(
-                                          Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses
+                                          Number(
+                                            earningForm.watch(
+                                              "gross_earnings"
+                                            ) || 0
+                                          ) - selectedTripExpenses
                                         ).toFixed(2)}
                                       </span>
                                     </div>
                                     <div className="flex justify-between text-blue-600">
                                       <span>
-                                        Client Profit ({earningForm.watch("client_profit_percentage")}
+                                        Client Profit (
+                                        {earningForm.watch(
+                                          "client_profit_percentage"
+                                        )}
                                         %):
                                       </span>
                                       <span>
                                         $
                                         {(
-                                          ((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) *
-                                            Number(earningForm.watch("client_profit_percentage"))) /
+                                          ((Number(
+                                            earningForm.watch(
+                                              "gross_earnings"
+                                            ) || 0
+                                          ) -
+                                            selectedTripExpenses) *
+                                            Number(
+                                              earningForm.watch(
+                                                "client_profit_percentage"
+                                              )
+                                            )) /
                                           100
                                         ).toFixed(2)}
                                       </span>
                                     </div>
                                     <div className="flex justify-between text-green-600">
                                       <span>
-                                        Host Profit ({earningForm.watch("host_profit_percentage")}
+                                        Host Profit (
+                                        {earningForm.watch(
+                                          "host_profit_percentage"
+                                        )}
                                         %):
                                       </span>
                                       <span>
                                         $
                                         {(
-                                          ((Number(earningForm.watch("gross_earnings") || 0) - selectedTripExpenses) *
-                                            Number(earningForm.watch("host_profit_percentage"))) /
+                                          ((Number(
+                                            earningForm.watch(
+                                              "gross_earnings"
+                                            ) || 0
+                                          ) -
+                                            selectedTripExpenses) *
+                                            Number(
+                                              earningForm.watch(
+                                                "host_profit_percentage"
+                                              )
+                                            )) /
                                           100
                                         ).toFixed(2)}
                                       </span>
@@ -3684,7 +4464,11 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="30"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 30)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 30
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3704,7 +4488,11 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="70"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 70)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseFloat(e.target.value) || 70
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3775,11 +4563,15 @@ export default function HostCarManagement() {
                                 <ConflictWarning
                                   conflicts={dateConflicts}
                                   selectedDates={{
-                                    start: `${earningForm.watch("earning_period_start_date")}T${earningForm.watch(
-                                      "earning_period_start_time",
+                                    start: `${earningForm.watch(
+                                      "earning_period_start_date"
+                                    )}T${earningForm.watch(
+                                      "earning_period_start_time"
                                     )}:00`,
-                                    end: `${earningForm.watch("earning_period_end_date")}T${earningForm.watch(
-                                      "earning_period_end_time",
+                                    end: `${earningForm.watch(
+                                      "earning_period_end_date"
+                                    )}T${earningForm.watch(
+                                      "earning_period_end_time"
                                     )}:00`,
                                   }}
                                 />
@@ -3791,17 +4583,22 @@ export default function HostCarManagement() {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setShowCalendar(!showCalendar)}
+                                    onClick={() =>
+                                      setShowCalendar(!showCalendar)
+                                    }
                                     className="flex items-center gap-2"
                                   >
                                     <Calendar className="h-4 w-4" />
-                                    {showCalendar ? "Hide" : "Show"} Booking Calendar
+                                    {showCalendar ? "Hide" : "Show"} Booking
+                                    Calendar
                                   </Button>
                                 </div>
                               )}
 
                               {showCalendar && earningForm.watch("car_id") && (
-                                <AvailabilityCalendar carId={earningForm.watch("car_id")} />
+                                <AvailabilityCalendar
+                                  carId={earningForm.watch("car_id")}
+                                />
                               )}
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -3811,17 +4608,28 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Payment Status</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
                                         <FormControl>
                                           <SelectTrigger>
                                             <SelectValue placeholder="Select payment status" />
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                          <SelectItem value="pending">Pending</SelectItem>
-                                          <SelectItem value="paid">Paid</SelectItem>
-                                          <SelectItem value="processing">Processing</SelectItem>
-                                          <SelectItem value="failed">Failed</SelectItem>
+                                          <SelectItem value="pending">
+                                            Pending
+                                          </SelectItem>
+                                          <SelectItem value="paid">
+                                            Paid
+                                          </SelectItem>
+                                          <SelectItem value="processing">
+                                            Processing
+                                          </SelectItem>
+                                          <SelectItem value="failed">
+                                            Failed
+                                          </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <FormMessage />
@@ -3833,7 +4641,9 @@ export default function HostCarManagement() {
                                   name="date_paid"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Date Paid (Optional)</FormLabel>
+                                      <FormLabel>
+                                        Date Paid (Optional)
+                                      </FormLabel>
                                       <FormControl>
                                         <Input type="date" {...field} />
                                       </FormControl>
@@ -3855,7 +4665,11 @@ export default function HostCarManagement() {
                                 >
                                   Cancel
                                 </Button>
-                                <Button type="submit">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
+                                <Button type="submit">
+                                  {editingEarning
+                                    ? "Update Earning"
+                                    : "Record Earning"}
+                                </Button>
                               </div>
                             </form>
                           </Form>
@@ -3874,7 +4688,12 @@ export default function HostCarManagement() {
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">Filter Earnings</h4>
                         {activeEarningsFiltersCount > 0 && (
-                          <Button variant="outline" size="sm" onClick={clearEarningsFilters} className="h-8">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={clearEarningsFilters}
+                            className="h-8"
+                          >
                             <X className="h-3 w-3 mr-1" />
                             Clear Filters
                           </Button>
@@ -3883,7 +4702,9 @@ export default function HostCarManagement() {
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Car Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Car</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Car
+                          </Label>
                           <Select
                             value={earningsFilters.carId}
                             onValueChange={(value) =>
@@ -3909,7 +4730,9 @@ export default function HostCarManagement() {
 
                         {/* Payment Source Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Payment Source</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Payment Source
+                          </Label>
                           <Select
                             value={earningsFilters.paymentSource}
                             onValueChange={(value) =>
@@ -3926,7 +4749,9 @@ export default function HostCarManagement() {
                               <SelectItem value="all">All sources</SelectItem>
                               <SelectItem value="Turo">Turo</SelectItem>
                               <SelectItem value="Eon">Eon</SelectItem>
-                              <SelectItem value="GetAround">GetAround</SelectItem>
+                              <SelectItem value="GetAround">
+                                GetAround
+                              </SelectItem>
                               <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                           </Select>
@@ -3934,7 +4759,9 @@ export default function HostCarManagement() {
 
                         {/* Payment Status Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Payment Status</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Payment Status
+                          </Label>
                           <Select
                             value={earningsFilters.paymentStatus}
                             onValueChange={(value) =>
@@ -3957,7 +4784,9 @@ export default function HostCarManagement() {
 
                         {/* Date Range Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Date Range
+                          </Label>
                           <Select
                             value={earningsFilters.dateRange}
                             onValueChange={(value) =>
@@ -3983,7 +4812,8 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredEarnings.length} of {earnings.length} earnings
+                          Showing {filteredEarnings.length} of {earnings.length}{" "}
+                          earnings
                         </p>
                         {activeEarningsFiltersCount > 0 && (
                           <p className="text-sm text-muted-foreground">
@@ -4002,16 +4832,24 @@ export default function HostCarManagement() {
                 <Card>
                   <CardContent className="text-center py-12">
                     <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No earnings recorded</h3>
-                    <p className="text-muted-foreground">Start tracking your hosting earnings.</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No earnings recorded
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Start tracking your hosting earnings.
+                    </p>
                   </CardContent>
                 </Card>
               ) : filteredEarnings.length === 0 ? (
                 <Card>
                   <CardContent className="text-center py-12">
                     <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No earnings match your filters</h3>
-                    <p className="text-muted-foreground mb-4">Try adjusting your filters to see more results.</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No earnings match your filters
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Try adjusting your filters to see more results.
+                    </p>
                     <Button variant="outline" onClick={clearEarningsFilters}>
                       Clear Filters
                     </Button>
@@ -4025,9 +4863,14 @@ export default function HostCarManagement() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">Total Earnings</p>
+                            <p className="text-sm text-muted-foreground">
+                              Total Earnings
+                            </p>
                             <p className="text-2xl font-bold text-green-600">
-                              ${earnings.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
+                              $
+                              {earnings
+                                .reduce((sum, e) => sum + e.amount, 0)
+                                .toFixed(2)}
                             </p>
                           </div>
                           <DollarSign className="h-8 w-8 text-green-600" />
@@ -4038,7 +4881,9 @@ export default function HostCarManagement() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">Pending Payments</p>
+                            <p className="text-sm text-muted-foreground">
+                              Pending Payments
+                            </p>
                             <p className="text-2xl font-bold text-yellow-600">
                               $
                               {earnings
@@ -4055,11 +4900,18 @@ export default function HostCarManagement() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">This Month</p>
+                            <p className="text-sm text-muted-foreground">
+                              This Month
+                            </p>
                             <p className="text-2xl font-bold text-blue-600">
                               $
                               {earnings
-                                .filter((e) => new Date(e.earning_period_start).getMonth() === new Date().getMonth())
+                                .filter(
+                                  (e) =>
+                                    new Date(
+                                      e.earning_period_start
+                                    ).getMonth() === new Date().getMonth()
+                                )
                                 .reduce((sum, e) => sum + e.amount, 0)
                                 .toFixed(2)}
                             </p>
@@ -4077,7 +4929,10 @@ export default function HostCarManagement() {
                       const relatedExpenses = earning.trip_id
                         ? expenses.filter((e) => e.trip_id === earning.trip_id)
                         : [];
-                      const totalExpenses = relatedExpenses.reduce((sum, e) => sum + (e.total_expenses || e.amount), 0);
+                      const totalExpenses = relatedExpenses.reduce(
+                        (sum, e) => sum + (e.total_expenses || e.amount),
+                        0
+                      );
                       const netProfit = earning.amount - totalExpenses;
 
                       return (
@@ -4085,15 +4940,23 @@ export default function HostCarManagement() {
                           <CardContent className="p-3 sm:p-4">
                             {/* Row 1: Title (Hosting) + actions */}
                             <div className="flex items-start justify-between gap-2">
-                              <h4 className="font-semibold capitalize">{earning.earning_type}</h4>
+                              <h4 className="font-semibold capitalize">
+                                {earning.earning_type}
+                              </h4>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm" className="shrink-0">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="shrink-0"
+                                  >
                                     <MoreVertical className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleEditEarning(earning)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditEarning(earning)}
+                                  >
                                     <Edit className="h-3 w-3 mr-2" /> Edit
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
@@ -4112,10 +4975,15 @@ export default function HostCarManagement() {
                               <p className="font-bold text-2xl text-green-600 leading-none">
                                 ${earning.amount.toFixed(2)}
                               </p>
-                              <p className="text-xs text-muted-foreground mt-1">Amount</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Amount
+                              </p>
                               {earning.date_paid && (
                                 <p className="text-xs text-muted-foreground">
-                                  Paid: {new Date(earning.date_paid).toLocaleDateString()}
+                                  Paid:{" "}
+                                  {new Date(
+                                    earning.date_paid
+                                  ).toLocaleDateString()}
                                 </p>
                               )}
                             </div>
@@ -4127,7 +4995,13 @@ export default function HostCarManagement() {
                                   Trip# {earning.trip_id}
                                 </Badge>
                               )}
-                              <Badge variant={earning.payment_status === "paid" ? "default" : "secondary"}>
+                              <Badge
+                                variant={
+                                  earning.payment_status === "paid"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
                                 {earning.payment_status}
                               </Badge>
                             </div>
@@ -4135,11 +5009,18 @@ export default function HostCarManagement() {
                             {/* Rest (unchanged content) */}
                             <div className="space-y-2">
                               {earning.guest_name && (
-                                <p className="text-sm text-muted-foreground break-words">Guest: {earning.guest_name}</p>
+                                <p className="text-sm text-muted-foreground break-words">
+                                  Guest: {earning.guest_name}
+                                </p>
                               )}
                               <p className="text-sm text-muted-foreground break-words">
-                                {new Date(earning.earning_period_start).toLocaleDateString()} –{" "}
-                                {new Date(earning.earning_period_end).toLocaleDateString()}
+                                {new Date(
+                                  earning.earning_period_start
+                                ).toLocaleDateString()}{" "}
+                                –{" "}
+                                {new Date(
+                                  earning.earning_period_end
+                                ).toLocaleDateString()}
                               </p>
                               <p className="text-sm text-muted-foreground break-words">
                                 Source: {earning.payment_source}
@@ -4148,44 +5029,72 @@ export default function HostCarManagement() {
                               {/* Profit breakdown */}
                               <div className="grid grid-cols-2 gap-4 text-sm pt-1">
                                 <div>
-                                  <span className="text-muted-foreground">Gross Earnings:</span>
-                                  <p className="font-medium">${earning.gross_earnings?.toFixed(2) || "0.00"}</p>
+                                  <span className="text-muted-foreground">
+                                    Gross Earnings:
+                                  </span>
+                                  <p className="font-medium">
+                                    $
+                                    {earning.gross_earnings?.toFixed(2) ||
+                                      "0.00"}
+                                  </p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">
-                                    Client Profit ({earning.client_profit_percentage}%):
+                                    Client Profit (
+                                    {earning.client_profit_percentage}%):
                                   </span>
-                                  <p className="font-medium">${earning.client_profit_amount?.toFixed(2) || "0.00"}</p>
+                                  <p className="font-medium">
+                                    $
+                                    {earning.client_profit_amount?.toFixed(2) ||
+                                      "0.00"}
+                                  </p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">
-                                    Host Profit ({earning.host_profit_percentage}%):
+                                    Host Profit (
+                                    {earning.host_profit_percentage}%):
                                   </span>
-                                  <p className="font-medium">${earning.host_profit_amount?.toFixed(2) || "0.00"}</p>
+                                  <p className="font-medium">
+                                    $
+                                    {earning.host_profit_amount?.toFixed(2) ||
+                                      "0.00"}
+                                  </p>
                                 </div>
 
                                 {/* Expenses + net profit (if any) */}
                                 {(() => {
                                   const relatedExpenses = earning.trip_id
-                                    ? expenses.filter((e) => e.trip_id === earning.trip_id)
+                                    ? expenses.filter(
+                                        (e) => e.trip_id === earning.trip_id
+                                      )
                                     : [];
                                   const totalExpenses = relatedExpenses.reduce(
-                                    (sum, e) => sum + (e.total_expenses || e.amount),
-                                    0,
+                                    (sum, e) =>
+                                      sum + (e.total_expenses || e.amount),
+                                    0
                                   );
-                                  const netProfit = earning.amount - totalExpenses;
+                                  const netProfit =
+                                    earning.amount - totalExpenses;
 
                                   return totalExpenses > 0 ? (
                                     <>
                                       <div>
-                                        <span className="text-muted-foreground">Total Expenses:</span>
-                                        <p className="font-medium text-red-600">-${totalExpenses.toFixed(2)}</p>
+                                        <span className="text-muted-foreground">
+                                          Total Expenses:
+                                        </span>
+                                        <p className="font-medium text-red-600">
+                                          -${totalExpenses.toFixed(2)}
+                                        </p>
                                       </div>
                                       <div>
-                                        <span className="text-muted-foreground">Net Profit:</span>
+                                        <span className="text-muted-foreground">
+                                          Net Profit:
+                                        </span>
                                         <p
                                           className={`font-medium ${
-                                            netProfit >= 0 ? "text-green-600" : "text-red-600"
+                                            netProfit >= 0
+                                              ? "text-green-600"
+                                              : "text-red-600"
                                           }`}
                                         >
                                           ${netProfit.toFixed(2)}
@@ -4197,19 +5106,31 @@ export default function HostCarManagement() {
                               </div>
 
                               {/* Related expenses count */}
-                              {earning.trip_id && expenses.some((e) => e.trip_id === earning.trip_id) && (
-                                <div className="text-xs text-muted-foreground">
-                                  Related expenses: {expenses.filter((e) => e.trip_id === earning.trip_id).length}{" "}
-                                  item(s)
-                                </div>
-                              )}
+                              {earning.trip_id &&
+                                expenses.some(
+                                  (e) => e.trip_id === earning.trip_id
+                                ) && (
+                                  <div className="text-xs text-muted-foreground">
+                                    Related expenses:{" "}
+                                    {
+                                      expenses.filter(
+                                        (e) => e.trip_id === earning.trip_id
+                                      ).length
+                                    }{" "}
+                                    item(s)
+                                  </div>
+                                )}
 
                               {/* Vehicle details */}
                               {(() => {
-                                const earningCar = cars.find((car) => car.id === earning.car_id);
+                                const earningCar = cars.find(
+                                  (car) => car.id === earning.car_id
+                                );
                                 return earningCar ? (
                                   <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">Vehicle Details:</p>
+                                    <p className="text-sm font-medium mb-2">
+                                      Vehicle Details:
+                                    </p>
                                     {formatDetailedCarInfo(earningCar)}
                                   </div>
                                 ) : null;
@@ -4228,13 +5149,22 @@ export default function HostCarManagement() {
               {/* <h3 className="text-lg font-medium">Claims</h3> */}
               {isMobile ? (
                 <div className="flex items-center justify-between w-full">
-                  <Button size="sm" onClick={() => setClaimDialogOpen(true)} className="h-8 px-3">
+                  <Button
+                    size="sm"
+                    onClick={() => setClaimDialogOpen(true)}
+                    className="h-8 px-3"
+                  >
                     <Plus className="h-4 w-4 mr-1" />
                     File Claim
                   </Button>
 
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setClaimsFiltersOpen(true)} className="h-8 px-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setClaimsFiltersOpen(true)}
+                      className="h-8 px-3"
+                    >
                       <Filter className="h-4 w-4 mr-2" />
                       Filters
                       {activeClaimsFiltersCount > 0 && (
@@ -4245,26 +5175,41 @@ export default function HostCarManagement() {
                     </Button>
 
                     {activeClaimsFiltersCount > 0 && (
-                      <Button variant="ghost" size="sm" onClick={clearClaimsFilters} className="h-8 px-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearClaimsFilters}
+                        className="h-8 px-2"
+                      >
                         <X className="h-3 w-3 mr-1" />
                         Clear
                       </Button>
                     )}
                   </div>
 
-                  <Sheet open={claimDialogOpen} onOpenChange={setClaimDialogOpen}>
+                  <Sheet
+                    open={claimDialogOpen}
+                    onOpenChange={setClaimDialogOpen}
+                  >
                     <SheetContent
                       side="bottom"
                       className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
                     >
                       <SheetHead>
-                        <SheetTit>{editingClaim ? "Edit Claim" : "File New Claim"}</SheetTit>
+                        <SheetTit>
+                          {editingClaim ? "Edit Claim" : "File New Claim"}
+                        </SheetTit>
                         <SheetDesc>
-                          {editingClaim ? "Update your claim details." : "Submit a claim for damages or incidents."}
+                          {editingClaim
+                            ? "Update your claim details."
+                            : "Submit a claim for damages or incidents."}
                         </SheetDesc>
                       </SheetHead>
                       <Form {...claimForm}>
-                        <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
+                        <form
+                          onSubmit={claimForm.handleSubmit(onClaimSubmit)}
+                          className="space-y-4"
+                        >
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField
                               control={claimForm.control}
@@ -4272,7 +5217,10 @@ export default function HostCarManagement() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Car *</FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
                                     <FormControl>
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select a car" />
@@ -4283,7 +5231,9 @@ export default function HostCarManagement() {
                                       position="popper"
                                       side="bottom"
                                       avoidCollisions={false}
-                                      onPointerDownOutside={(e) => e.stopPropagation()}
+                                      onPointerDownOutside={(e) =>
+                                        e.stopPropagation()
+                                      }
                                     >
                                       {cars.map((car) => (
                                         <SelectItem key={car.id} value={car.id}>
@@ -4302,7 +5252,10 @@ export default function HostCarManagement() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Claim Type *</FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
                                     <FormControl>
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select claim type" />
@@ -4313,14 +5266,28 @@ export default function HostCarManagement() {
                                       position="popper"
                                       side="bottom"
                                       avoidCollisions={false}
-                                      onPointerDownOutside={(e) => e.stopPropagation()}
+                                      onPointerDownOutside={(e) =>
+                                        e.stopPropagation()
+                                      }
                                     >
-                                      <SelectItem value="damage">Physical Damage</SelectItem>
-                                      <SelectItem value="theft">Theft</SelectItem>
-                                      <SelectItem value="accident">Accident</SelectItem>
-                                      <SelectItem value="vandalism">Vandalism</SelectItem>
-                                      <SelectItem value="mechanical">Mechanical Issues</SelectItem>
-                                      <SelectItem value="other">Other</SelectItem>
+                                      <SelectItem value="damage">
+                                        Physical Damage
+                                      </SelectItem>
+                                      <SelectItem value="theft">
+                                        Theft
+                                      </SelectItem>
+                                      <SelectItem value="accident">
+                                        Accident
+                                      </SelectItem>
+                                      <SelectItem value="vandalism">
+                                        Vandalism
+                                      </SelectItem>
+                                      <SelectItem value="mechanical">
+                                        Mechanical Issues
+                                      </SelectItem>
+                                      <SelectItem value="other">
+                                        Other
+                                      </SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -4337,9 +5304,12 @@ export default function HostCarManagement() {
                               const allTripIds = [
                                 ...new Set(
                                   expenses
-                                    .filter((e) => e.trip_id && e.trip_id.trim() !== "")
+                                    .filter(
+                                      (e) =>
+                                        e.trip_id && e.trip_id.trim() !== ""
+                                    )
                                     .map((e) => e.trip_id)
-                                    .filter(Boolean),
+                                    .filter(Boolean)
                                 ),
                               ] as string[];
                               const availableTripIds = selectedCarId
@@ -4347,10 +5317,13 @@ export default function HostCarManagement() {
                                     ...new Set(
                                       expenses
                                         .filter(
-                                          (e) => e.car_id === selectedCarId && e.trip_id && e.trip_id.trim() !== "",
+                                          (e) =>
+                                            e.car_id === selectedCarId &&
+                                            e.trip_id &&
+                                            e.trip_id.trim() !== ""
                                         )
                                         .map((e) => e.trip_id)
-                                        .filter(Boolean),
+                                        .filter(Boolean)
                                     ),
                                   ] as string[])
                                 : allTripIds;
@@ -4372,7 +5345,9 @@ export default function HostCarManagement() {
                                       {loading ? (
                                         <div className="flex items-center gap-2">
                                           <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                          <span className="text-sm text-muted-foreground">Loading trip IDs...</span>
+                                          <span className="text-sm text-muted-foreground">
+                                            Loading trip IDs...
+                                          </span>
                                         </div>
                                       ) : availableTripIds.length > 0 ? (
                                         <Select
@@ -4380,11 +5355,20 @@ export default function HostCarManagement() {
                                           onValueChange={(value) => {
                                             field.onChange(value);
                                             // Auto-populate car field based on trip ID
-                                            const expenseWithTripId = expenses.find(
-                                              (e) => e.trip_id === value && e.car_id,
-                                            );
-                                            if (expenseWithTripId && expenseWithTripId.car_id) {
-                                              claimForm.setValue("car_id", expenseWithTripId.car_id);
+                                            const expenseWithTripId =
+                                              expenses.find(
+                                                (e) =>
+                                                  e.trip_id === value &&
+                                                  e.car_id
+                                              );
+                                            if (
+                                              expenseWithTripId &&
+                                              expenseWithTripId.car_id
+                                            ) {
+                                              claimForm.setValue(
+                                                "car_id",
+                                                expenseWithTripId.car_id
+                                              );
                                             }
                                           }}
                                         >
@@ -4402,10 +5386,15 @@ export default function HostCarManagement() {
                                             position="popper"
                                             side="bottom"
                                             avoidCollisions={false}
-                                            onPointerDownOutside={(e) => e.stopPropagation()}
+                                            onPointerDownOutside={(e) =>
+                                              e.stopPropagation()
+                                            }
                                           >
                                             {availableTripIds.map((tripId) => (
-                                              <SelectItem key={tripId} value={tripId}>
+                                              <SelectItem
+                                                key={tripId}
+                                                value={tripId}
+                                              >
                                                 {tripId}
                                               </SelectItem>
                                             ))}
@@ -4413,16 +5402,20 @@ export default function HostCarManagement() {
                                         </Select>
                                       ) : selectedCarId ? (
                                         <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                          No existing trip IDs found for this car. You can enter a new one below.
+                                          No existing trip IDs found for this
+                                          car. You can enter a new one below.
                                         </div>
                                       ) : (
                                         <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                          No trip IDs found in expenses. You can enter a new one below.
+                                          No trip IDs found in expenses. You can
+                                          enter a new one below.
                                         </div>
                                       )}
                                       <Input
                                         placeholder={
-                                          availableTripIds.length > 0 ? "Or enter new trip ID" : "Enter trip ID"
+                                          availableTripIds.length > 0
+                                            ? "Or enter new trip ID"
+                                            : "Enter trip ID"
                                         }
                                         value={field.value}
                                         onChange={field.onChange}
@@ -4453,7 +5446,10 @@ export default function HostCarManagement() {
                                     )}
                                   </FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Guest name" {...field} />
+                                    <Input
+                                      placeholder="Guest name"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -4475,7 +5471,10 @@ export default function HostCarManagement() {
                                       </Badge>
                                     )}
                                   </FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                  >
                                     <FormControl>
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select payment source" />
@@ -4484,10 +5483,18 @@ export default function HostCarManagement() {
                                     <SelectContent>
                                       <SelectItem value="Turo">Turo</SelectItem>
                                       <SelectItem value="Eon">Eon</SelectItem>
-                                      <SelectItem value="GetAround">GetAround</SelectItem>
-                                      <SelectItem value="Private">Private</SelectItem>
-                                      <SelectItem value="Insurance">Insurance</SelectItem>
-                                      <SelectItem value="Other">Other</SelectItem>
+                                      <SelectItem value="GetAround">
+                                        GetAround
+                                      </SelectItem>
+                                      <SelectItem value="Private">
+                                        Private
+                                      </SelectItem>
+                                      <SelectItem value="Insurance">
+                                        Insurance
+                                      </SelectItem>
+                                      <SelectItem value="Other">
+                                        Other
+                                      </SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -4517,7 +5524,10 @@ export default function HostCarManagement() {
                               <FormItem>
                                 <FormLabel>Incident Description</FormLabel>
                                 <FormControl>
-                                  <Textarea placeholder="Describe what happened..." {...field} />
+                                  <Textarea
+                                    placeholder="Describe what happened..."
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -4529,9 +5539,14 @@ export default function HostCarManagement() {
                             name="accident_description"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Detailed Accident Description</FormLabel>
+                                <FormLabel>
+                                  Detailed Accident Description
+                                </FormLabel>
                                 <FormControl>
-                                  <Textarea placeholder="Provide additional details about the accident..." {...field} />
+                                  <Textarea
+                                    placeholder="Provide additional details about the accident..."
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -4551,7 +5566,11 @@ export default function HostCarManagement() {
                                     step="0.01"
                                     placeholder="0.00"
                                     {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        parseFloat(e.target.value) || 0
+                                      )
+                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -4560,7 +5579,9 @@ export default function HostCarManagement() {
                           />
 
                           <div className="space-y-4">
-                            <h4 className="font-medium">Insurance & Repair Information</h4>
+                            <h4 className="font-medium">
+                              Insurance & Repair Information
+                            </h4>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <FormField
@@ -4568,9 +5589,14 @@ export default function HostCarManagement() {
                                 name="adjuster_name"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Adjuster Name (Optional)</FormLabel>
+                                    <FormLabel>
+                                      Adjuster Name (Optional)
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Enter adjuster name" {...field} />
+                                      <Input
+                                        placeholder="Enter adjuster name"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -4581,9 +5607,14 @@ export default function HostCarManagement() {
                                 name="adjuster_contact"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Adjuster Contact (Optional)</FormLabel>
+                                    <FormLabel>
+                                      Adjuster Contact (Optional)
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Phone or email" {...field} />
+                                      <Input
+                                        placeholder="Phone or email"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -4597,9 +5628,14 @@ export default function HostCarManagement() {
                                 name="autobody_shop_name"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Auto Body Shop (Optional)</FormLabel>
+                                    <FormLabel>
+                                      Auto Body Shop (Optional)
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Shop name" {...field} />
+                                      <Input
+                                        placeholder="Shop name"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -4610,9 +5646,14 @@ export default function HostCarManagement() {
                                 name="shop_contact_info"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Shop Contact (Optional)</FormLabel>
+                                    <FormLabel>
+                                      Shop Contact (Optional)
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Phone or address" {...field} />
+                                      <Input
+                                        placeholder="Phone or address"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -4634,7 +5675,9 @@ export default function HostCarManagement() {
                                     />
                                   </FormControl>
                                   <div className="space-y-1 leading-none">
-                                    <FormLabel>Photos taken of damage/incident</FormLabel>
+                                    <FormLabel>
+                                      Photos taken of damage/incident
+                                    </FormLabel>
                                   </div>
                                 </FormItem>
                               )}
@@ -4653,14 +5696,19 @@ export default function HostCarManagement() {
                             >
                               Cancel
                             </Button>
-                            <Button type="submit">{editingClaim ? "Update Claim" : "Submit Claim"}</Button>
+                            <Button type="submit">
+                              {editingClaim ? "Update Claim" : "Submit Claim"}
+                            </Button>
                           </div>
                         </form>
                       </Form>
                     </SheetContent>
                   </Sheet>
 
-                  <Sheet open={claimsFiltersOpen} onOpenChange={setClaimsFiltersOpen}>
+                  <Sheet
+                    open={claimsFiltersOpen}
+                    onOpenChange={setClaimsFiltersOpen}
+                  >
                     <SheetContent
                       side="bottom"
                       className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
@@ -4681,7 +5729,12 @@ export default function HostCarManagement() {
                           )}
                         </div>
                         {activeClaimsFiltersCount > 0 && (
-                          <Button variant="ghost" size="sm" onClick={clearClaimsFilters} className="h-8 px-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearClaimsFilters}
+                            className="h-8 px-2"
+                          >
                             <X className="h-3 w-3 mr-1" />
                             Clear
                           </Button>
@@ -4691,7 +5744,9 @@ export default function HostCarManagement() {
                       <div className="space-y-4 mt-4">
                         <div className="grid grid-cols-1 gap-4">
                           <div>
-                            <Label className="text-xs font-medium mb-2 block">Car</Label>
+                            <Label className="text-xs font-medium mb-2 block">
+                              Car
+                            </Label>
                             <Select
                               value={claimsFilters.carId}
                               onValueChange={(value) =>
@@ -4715,7 +5770,9 @@ export default function HostCarManagement() {
                             </Select>
                           </div>
                           <div>
-                            <Label className="text-xs font-medium mb-2 block">Claim Status</Label>
+                            <Label className="text-xs font-medium mb-2 block">
+                              Claim Status
+                            </Label>
                             <Select
                               value={claimsFilters.claimStatus}
                               onValueChange={(value) =>
@@ -4729,16 +5786,24 @@ export default function HostCarManagement() {
                                 <SelectValue placeholder="All statuses" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="all">All statuses</SelectItem>
+                                <SelectItem value="all">
+                                  All statuses
+                                </SelectItem>
                                 <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="approved">
+                                  Approved
+                                </SelectItem>
                                 <SelectItem value="denied">Denied</SelectItem>
-                                <SelectItem value="processing">Processing</SelectItem>
+                                <SelectItem value="processing">
+                                  Processing
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                           <div>
-                            <Label className="text-xs font-medium mb-2 block">Claim Type</Label>
+                            <Label className="text-xs font-medium mb-2 block">
+                              Claim Type
+                            </Label>
                             <Select
                               value={claimsFilters.claimType}
                               onValueChange={(value) =>
@@ -4754,14 +5819,18 @@ export default function HostCarManagement() {
                               <SelectContent>
                                 <SelectItem value="all">All types</SelectItem>
                                 <SelectItem value="damage">Damage</SelectItem>
-                                <SelectItem value="accident">Accident</SelectItem>
+                                <SelectItem value="accident">
+                                  Accident
+                                </SelectItem>
                                 <SelectItem value="theft">Theft</SelectItem>
                                 <SelectItem value="other">Other</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                           <div>
-                            <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                            <Label className="text-xs font-medium mb-2 block">
+                              Date Range
+                            </Label>
                             <Select
                               value={claimsFilters.dateRange}
                               onValueChange={(value) =>
@@ -4778,20 +5847,28 @@ export default function HostCarManagement() {
                                 <SelectItem value="all">All time</SelectItem>
                                 <SelectItem value="today">Today</SelectItem>
                                 <SelectItem value="week">This Week</SelectItem>
-                                <SelectItem value="month">This Month</SelectItem>
+                                <SelectItem value="month">
+                                  This Month
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                         </div>
                         <div className="pt-2 flex justify-end">
-                          <Button onClick={() => setClaimsFiltersOpen(false)}>Apply</Button>
+                          <Button onClick={() => setClaimsFiltersOpen(false)}>
+                            Apply
+                          </Button>
                         </div>
                       </div>
                     </SheetContent>
                   </Sheet>
                 </div>
               ) : (
-                <Dialog open={claimDialogOpen} onOpenChange={setClaimDialogOpen} modal={!isMobile}>
+                <Dialog
+                  open={claimDialogOpen}
+                  onOpenChange={setClaimDialogOpen}
+                  modal={!isMobile}
+                >
                   <DialogTrigger asChild>
                     <Button>
                       <Plus className="h-4 w-4 mr-2" />
@@ -4800,13 +5877,20 @@ export default function HostCarManagement() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>{editingClaim ? "Edit Claim" : "File New Claim"}</DialogTitle>
+                      <DialogTitle>
+                        {editingClaim ? "Edit Claim" : "File New Claim"}
+                      </DialogTitle>
                       <DialogDescription>
-                        {editingClaim ? "Update your claim details." : "Submit a claim for damages or incidents."}
+                        {editingClaim
+                          ? "Update your claim details."
+                          : "Submit a claim for damages or incidents."}
                       </DialogDescription>
                     </DialogHeader>
                     <Form {...claimForm}>
-                      <form onSubmit={claimForm.handleSubmit(onClaimSubmit)} className="space-y-4">
+                      <form
+                        onSubmit={claimForm.handleSubmit(onClaimSubmit)}
+                        className="space-y-4"
+                      >
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <FormField
                             control={claimForm.control}
@@ -4814,7 +5898,10 @@ export default function HostCarManagement() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Car *</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select a car" />
@@ -4825,7 +5912,9 @@ export default function HostCarManagement() {
                                     position="popper"
                                     side="bottom"
                                     avoidCollisions={false}
-                                    onPointerDownOutside={(e) => e.stopPropagation()}
+                                    onPointerDownOutside={(e) =>
+                                      e.stopPropagation()
+                                    }
                                   >
                                     {cars.map((car) => (
                                       <SelectItem key={car.id} value={car.id}>
@@ -4844,7 +5933,10 @@ export default function HostCarManagement() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Claim Type *</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select claim type" />
@@ -4855,13 +5947,23 @@ export default function HostCarManagement() {
                                     position="popper"
                                     side="bottom"
                                     avoidCollisions={false}
-                                    onPointerDownOutside={(e) => e.stopPropagation()}
+                                    onPointerDownOutside={(e) =>
+                                      e.stopPropagation()
+                                    }
                                   >
-                                    <SelectItem value="damage">Physical Damage</SelectItem>
+                                    <SelectItem value="damage">
+                                      Physical Damage
+                                    </SelectItem>
                                     <SelectItem value="theft">Theft</SelectItem>
-                                    <SelectItem value="accident">Accident</SelectItem>
-                                    <SelectItem value="vandalism">Vandalism</SelectItem>
-                                    <SelectItem value="mechanical">Mechanical Issues</SelectItem>
+                                    <SelectItem value="accident">
+                                      Accident
+                                    </SelectItem>
+                                    <SelectItem value="vandalism">
+                                      Vandalism
+                                    </SelectItem>
+                                    <SelectItem value="mechanical">
+                                      Mechanical Issues
+                                    </SelectItem>
                                     <SelectItem value="other">Other</SelectItem>
                                   </SelectContent>
                                 </Select>
@@ -4879,18 +5981,25 @@ export default function HostCarManagement() {
                             const allTripIds = [
                               ...new Set(
                                 expenses
-                                  .filter((e) => e.trip_id && e.trip_id.trim() !== "")
+                                  .filter(
+                                    (e) => e.trip_id && e.trip_id.trim() !== ""
+                                  )
                                   .map((e) => e.trip_id)
-                                  .filter(Boolean),
+                                  .filter(Boolean)
                               ),
                             ] as string[];
                             const availableTripIds = selectedCarId
                               ? ([
                                   ...new Set(
                                     expenses
-                                      .filter((e) => e.car_id === selectedCarId && e.trip_id && e.trip_id.trim() !== "")
+                                      .filter(
+                                        (e) =>
+                                          e.car_id === selectedCarId &&
+                                          e.trip_id &&
+                                          e.trip_id.trim() !== ""
+                                      )
                                       .map((e) => e.trip_id)
-                                      .filter(Boolean),
+                                      .filter(Boolean)
                                   ),
                                 ] as string[])
                               : allTripIds;
@@ -4912,7 +6021,9 @@ export default function HostCarManagement() {
                                     {loading ? (
                                       <div className="flex items-center gap-2">
                                         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                        <span className="text-sm text-muted-foreground">Loading trip IDs...</span>
+                                        <span className="text-sm text-muted-foreground">
+                                          Loading trip IDs...
+                                        </span>
                                       </div>
                                     ) : availableTripIds.length > 0 ? (
                                       <Select
@@ -4920,11 +6031,19 @@ export default function HostCarManagement() {
                                         onValueChange={(value) => {
                                           field.onChange(value);
                                           // Auto-populate car field based on trip ID
-                                          const expenseWithTripId = expenses.find(
-                                            (e) => e.trip_id === value && e.car_id,
-                                          );
-                                          if (expenseWithTripId && expenseWithTripId.car_id) {
-                                            claimForm.setValue("car_id", expenseWithTripId.car_id);
+                                          const expenseWithTripId =
+                                            expenses.find(
+                                              (e) =>
+                                                e.trip_id === value && e.car_id
+                                            );
+                                          if (
+                                            expenseWithTripId &&
+                                            expenseWithTripId.car_id
+                                          ) {
+                                            claimForm.setValue(
+                                              "car_id",
+                                              expenseWithTripId.car_id
+                                            );
                                           }
                                         }}
                                       >
@@ -4942,10 +6061,15 @@ export default function HostCarManagement() {
                                           position="popper"
                                           side="bottom"
                                           avoidCollisions={false}
-                                          onPointerDownOutside={(e) => e.stopPropagation()}
+                                          onPointerDownOutside={(e) =>
+                                            e.stopPropagation()
+                                          }
                                         >
                                           {availableTripIds.map((tripId) => (
-                                            <SelectItem key={tripId} value={tripId}>
+                                            <SelectItem
+                                              key={tripId}
+                                              value={tripId}
+                                            >
                                               {tripId}
                                             </SelectItem>
                                           ))}
@@ -4953,16 +6077,20 @@ export default function HostCarManagement() {
                                       </Select>
                                     ) : selectedCarId ? (
                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                        No existing trip IDs found for this car. You can enter a new one below.
+                                        No existing trip IDs found for this car.
+                                        You can enter a new one below.
                                       </div>
                                     ) : (
                                       <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                        No trip IDs found in expenses. You can enter a new one below.
+                                        No trip IDs found in expenses. You can
+                                        enter a new one below.
                                       </div>
                                     )}
                                     <Input
                                       placeholder={
-                                        availableTripIds.length > 0 ? "Or enter new trip ID" : "Enter trip ID"
+                                        availableTripIds.length > 0
+                                          ? "Or enter new trip ID"
+                                          : "Enter trip ID"
                                       }
                                       value={field.value}
                                       onChange={field.onChange}
@@ -5015,7 +6143,10 @@ export default function HostCarManagement() {
                                     </Badge>
                                   )}
                                 </FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select payment source" />
@@ -5026,13 +6157,21 @@ export default function HostCarManagement() {
                                     position="popper"
                                     side="bottom"
                                     avoidCollisions={false}
-                                    onPointerDownOutside={(e) => e.stopPropagation()}
+                                    onPointerDownOutside={(e) =>
+                                      e.stopPropagation()
+                                    }
                                   >
                                     <SelectItem value="Turo">Turo</SelectItem>
                                     <SelectItem value="Eon">Eon</SelectItem>
-                                    <SelectItem value="GetAround">GetAround</SelectItem>
-                                    <SelectItem value="Private">Private</SelectItem>
-                                    <SelectItem value="Insurance">Insurance</SelectItem>
+                                    <SelectItem value="GetAround">
+                                      GetAround
+                                    </SelectItem>
+                                    <SelectItem value="Private">
+                                      Private
+                                    </SelectItem>
+                                    <SelectItem value="Insurance">
+                                      Insurance
+                                    </SelectItem>
                                     <SelectItem value="Other">Other</SelectItem>
                                   </SelectContent>
                                 </Select>
@@ -5063,7 +6202,10 @@ export default function HostCarManagement() {
                             <FormItem>
                               <FormLabel>Incident Description</FormLabel>
                               <FormControl>
-                                <Textarea placeholder="Describe what happened..." {...field} />
+                                <Textarea
+                                  placeholder="Describe what happened..."
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -5075,9 +6217,14 @@ export default function HostCarManagement() {
                           name="accident_description"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Detailed Accident Description</FormLabel>
+                              <FormLabel>
+                                Detailed Accident Description
+                              </FormLabel>
                               <FormControl>
-                                <Textarea placeholder="Provide additional details about the accident..." {...field} />
+                                <Textarea
+                                  placeholder="Provide additional details about the accident..."
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -5097,7 +6244,11 @@ export default function HostCarManagement() {
                                   step="0.01"
                                   placeholder="0.00"
                                   {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      parseFloat(e.target.value) || 0
+                                    )
+                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -5106,7 +6257,9 @@ export default function HostCarManagement() {
                         />
 
                         <div className="space-y-4">
-                          <h4 className="font-medium">Insurance & Repair Information</h4>
+                          <h4 className="font-medium">
+                            Insurance & Repair Information
+                          </h4>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField
@@ -5114,9 +6267,14 @@ export default function HostCarManagement() {
                               name="adjuster_name"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Adjuster Name (Optional)</FormLabel>
+                                  <FormLabel>
+                                    Adjuster Name (Optional)
+                                  </FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Enter adjuster name" {...field} />
+                                    <Input
+                                      placeholder="Enter adjuster name"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -5127,9 +6285,14 @@ export default function HostCarManagement() {
                               name="adjuster_contact"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Adjuster Contact (Optional)</FormLabel>
+                                  <FormLabel>
+                                    Adjuster Contact (Optional)
+                                  </FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Phone or email" {...field} />
+                                    <Input
+                                      placeholder="Phone or email"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -5143,7 +6306,9 @@ export default function HostCarManagement() {
                               name="autobody_shop_name"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Auto Body Shop (Optional)</FormLabel>
+                                  <FormLabel>
+                                    Auto Body Shop (Optional)
+                                  </FormLabel>
                                   <FormControl>
                                     <Input placeholder="Shop name" {...field} />
                                   </FormControl>
@@ -5158,7 +6323,10 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel>Shop Contact (Optional)</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Phone or address" {...field} />
+                                    <Input
+                                      placeholder="Phone or address"
+                                      {...field}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -5180,7 +6348,9 @@ export default function HostCarManagement() {
                                   />
                                 </FormControl>
                                 <div className="space-y-1 leading-none">
-                                  <FormLabel>Photos taken of damage/incident</FormLabel>
+                                  <FormLabel>
+                                    Photos taken of damage/incident
+                                  </FormLabel>
                                 </div>
                               </FormItem>
                             )}
@@ -5199,7 +6369,9 @@ export default function HostCarManagement() {
                           >
                             Cancel
                           </Button>
-                          <Button type="submit">{editingClaim ? "Update Claim" : "Submit Claim"}</Button>
+                          <Button type="submit">
+                            {editingClaim ? "Update Claim" : "Submit Claim"}
+                          </Button>
                         </div>
                       </form>
                     </Form>
@@ -5215,7 +6387,12 @@ export default function HostCarManagement() {
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">Filter Claims</h4>
                         {activeClaimsFiltersCount > 0 && (
-                          <Button variant="outline" size="sm" onClick={clearClaimsFilters} className="h-8">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={clearClaimsFilters}
+                            className="h-8"
+                          >
                             <X className="h-3 w-3 mr-1" />
                             Clear Filters
                           </Button>
@@ -5225,7 +6402,9 @@ export default function HostCarManagement() {
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Car Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Car</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Car
+                          </Label>
                           <Select
                             value={claimsFilters.carId}
                             onValueChange={(value) =>
@@ -5251,7 +6430,9 @@ export default function HostCarManagement() {
 
                         {/* Claim Status Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Claim Status</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Claim Status
+                          </Label>
                           <Select
                             value={claimsFilters.claimStatus}
                             onValueChange={(value) =>
@@ -5269,14 +6450,18 @@ export default function HostCarManagement() {
                               <SelectItem value="pending">Pending</SelectItem>
                               <SelectItem value="approved">Approved</SelectItem>
                               <SelectItem value="denied">Denied</SelectItem>
-                              <SelectItem value="processing">Processing</SelectItem>
+                              <SelectItem value="processing">
+                                Processing
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         {/* Claim Type Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Claim Type</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Claim Type
+                          </Label>
                           <Select
                             value={claimsFilters.claimType}
                             onValueChange={(value) =>
@@ -5301,7 +6486,9 @@ export default function HostCarManagement() {
 
                         {/* Date Range Filter */}
                         <div>
-                          <Label className="text-xs font-medium mb-2 block">Date Range</Label>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Date Range
+                          </Label>
                           <Select
                             value={claimsFilters.dateRange}
                             onValueChange={(value) =>
@@ -5327,7 +6514,8 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredClaims.length} of {claims.length} claims
+                          Showing {filteredClaims.length} of {claims.length}{" "}
+                          claims
                         </p>
                         {activeClaimsFiltersCount > 0 && (
                           <p className="text-sm text-muted-foreground">
@@ -5346,16 +6534,24 @@ export default function HostCarManagement() {
                 <Card>
                   <CardContent className="text-center py-12">
                     <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No claims filed</h3>
-                    <p className="text-muted-foreground">File claims for damages or incidents here.</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No claims filed
+                    </h3>
+                    <p className="text-muted-foreground">
+                      File claims for damages or incidents here.
+                    </p>
                   </CardContent>
                 </Card>
               ) : filteredClaims.length === 0 ? (
                 <Card>
                   <CardContent className="text-center py-12">
                     <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No claims match your filters</h3>
-                    <p className="text-muted-foreground mb-4">Try adjusting your filters to see more results.</p>
+                    <h3 className="text-lg font-medium mb-2">
+                      No claims match your filters
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Try adjusting your filters to see more results.
+                    </p>
                     <Button variant="outline" onClick={clearClaimsFilters}>
                       Clear Filters
                     </Button>
@@ -5369,8 +6565,12 @@ export default function HostCarManagement() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">Total Claims</p>
-                            <p className="text-2xl font-bold">{claims.length}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Total Claims
+                            </p>
+                            <p className="text-2xl font-bold">
+                              {claims.length}
+                            </p>
                           </div>
                           <FileText className="h-8 w-8 text-blue-600" />
                         </div>
@@ -5380,9 +6580,15 @@ export default function HostCarManagement() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">Pending</p>
+                            <p className="text-sm text-muted-foreground">
+                              Pending
+                            </p>
                             <p className="text-2xl font-bold text-yellow-600">
-                              {claims.filter((c) => c.claim_status === "pending").length}
+                              {
+                                claims.filter(
+                                  (c) => c.claim_status === "pending"
+                                ).length
+                              }
                             </p>
                           </div>
                           <AlertTriangle className="h-8 w-8 text-yellow-600" />
@@ -5393,9 +6599,15 @@ export default function HostCarManagement() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">Approved</p>
+                            <p className="text-sm text-muted-foreground">
+                              Approved
+                            </p>
                             <p className="text-2xl font-bold text-green-600">
-                              {claims.filter((c) => c.claim_status === "approved").length}
+                              {
+                                claims.filter(
+                                  (c) => c.claim_status === "approved"
+                                ).length
+                              }
                             </p>
                           </div>
                           <CheckCircle className="h-8 w-8 text-green-600" />
@@ -5406,9 +6618,17 @@ export default function HostCarManagement() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">Total Amount</p>
+                            <p className="text-sm text-muted-foreground">
+                              Total Amount
+                            </p>
                             <p className="text-2xl font-bold">
-                              ${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}
+                              $
+                              {claims
+                                .reduce(
+                                  (sum, c) => sum + (c.claim_amount || 0),
+                                  0
+                                )
+                                .toFixed(2)}
                             </p>
                           </div>
                           <DollarSign className="h-8 w-8 text-purple-600" />
@@ -5421,7 +6641,9 @@ export default function HostCarManagement() {
                   <div className="grid gap-4">
                     {filteredClaims.map((claim) => {
                       // Find the car for this claim
-                      const claimCar = cars.find((car) => car.id === claim.car_id);
+                      const claimCar = cars.find(
+                        (car) => car.id === claim.car_id
+                      );
 
                       return (
                         <Card key={claim.id}>
@@ -5429,34 +6651,50 @@ export default function HostCarManagement() {
                             <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
-                                  <h4 className="font-medium capitalize break-words">{claim.claim_type} Claim</h4>
+                                  <h4 className="font-medium capitalize break-words">
+                                    {claim.claim_type} Claim
+                                  </h4>
                                   <Badge
                                     variant={
                                       claim.claim_status === "approved"
                                         ? "default"
                                         : claim.claim_status === "denied"
-                                          ? "destructive"
-                                          : "secondary"
+                                        ? "destructive"
+                                        : "secondary"
                                     }
                                   >
                                     {claim.claim_status}
                                   </Badge>
-                                  {claim.trip_id && <Badge variant="outline">Trip# {claim.trip_id}</Badge>}
+                                  {claim.trip_id && (
+                                    <Badge variant="outline">
+                                      Trip# {claim.trip_id}
+                                    </Badge>
+                                  )}
                                 </div>
 
                                 {/* Trip Details */}
                                 <div className="flex flex-wrap items-center gap-2 text-sm">
                                   {claim.guest_name && (
                                     <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">Guest:</span>
-                                      <span className="font-medium">{claim.guest_name}</span>
+                                      <span className="text-muted-foreground">
+                                        Guest:
+                                      </span>
+                                      <span className="font-medium">
+                                        {claim.guest_name}
+                                      </span>
                                     </div>
                                   )}
                                   {claim.payment_source && (
                                     <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">•</span>
-                                      <span className="text-muted-foreground">Source:</span>
-                                      <span className="font-medium">{claim.payment_source}</span>
+                                      <span className="text-muted-foreground">
+                                        •
+                                      </span>
+                                      <span className="text-muted-foreground">
+                                        Source:
+                                      </span>
+                                      <span className="font-medium">
+                                        {claim.payment_source}
+                                      </span>
                                     </div>
                                   )}
                                 </div>
@@ -5464,37 +6702,57 @@ export default function HostCarManagement() {
                                 {/* Car Details */}
                                 {claimCar && (
                                   <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">Vehicle Details:</p>
+                                    <p className="text-sm font-medium mb-2">
+                                      Vehicle Details:
+                                    </p>
                                     {formatDetailedCarInfo(claimCar)}
                                   </div>
                                 )}
-                                <p className="text-sm text-muted-foreground">{claim.description}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {claim.description}
+                                </p>
                                 {claim.accident_description && (
                                   <p className="text-sm text-muted-foreground">
-                                    <strong>Details:</strong> {claim.accident_description}
+                                    <strong>Details:</strong>{" "}
+                                    {claim.accident_description}
                                   </p>
                                 )}
                                 <p className="text-sm text-muted-foreground">
-                                  <strong>Incident Date:</strong> {new Date(claim.incident_date).toLocaleDateString()}
+                                  <strong>Incident Date:</strong>{" "}
+                                  {new Date(
+                                    claim.incident_date
+                                  ).toLocaleDateString()}
                                 </p>
 
                                 {/* Additional Details */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                   {claim.adjuster_name && (
                                     <div>
-                                      <span className="text-muted-foreground">Adjuster:</span>
-                                      <p className="font-medium">{claim.adjuster_name}</p>
+                                      <span className="text-muted-foreground">
+                                        Adjuster:
+                                      </span>
+                                      <p className="font-medium">
+                                        {claim.adjuster_name}
+                                      </p>
                                       {claim.adjuster_contact && (
-                                        <p className="text-xs text-muted-foreground">{claim.adjuster_contact}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {claim.adjuster_contact}
+                                        </p>
                                       )}
                                     </div>
                                   )}
                                   {claim.autobody_shop_name && (
                                     <div>
-                                      <span className="text-muted-foreground">Repair Shop:</span>
-                                      <p className="font-medium">{claim.autobody_shop_name}</p>
+                                      <span className="text-muted-foreground">
+                                        Repair Shop:
+                                      </span>
+                                      <p className="font-medium">
+                                        {claim.autobody_shop_name}
+                                      </p>
                                       {claim.shop_contact_info && (
-                                        <p className="text-xs text-muted-foreground">{claim.shop_contact_info}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {claim.shop_contact_info}
+                                        </p>
                                       )}
                                     </div>
                                   )}
@@ -5510,9 +6768,19 @@ export default function HostCarManagement() {
                                 {/* Progress Indicators */}
                                 {claim.claim_status !== "pending" && (
                                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span>Filed: {new Date(claim.created_at).toLocaleDateString()}</span>
+                                    <span>
+                                      Filed:{" "}
+                                      {new Date(
+                                        claim.created_at
+                                      ).toLocaleDateString()}
+                                    </span>
                                     {claim.approval_date && (
-                                      <span>• Approved: {new Date(claim.approval_date).toLocaleDateString()}</span>
+                                      <span>
+                                        • Approved:{" "}
+                                        {new Date(
+                                          claim.approval_date
+                                        ).toLocaleDateString()}
+                                      </span>
                                     )}
                                   </div>
                                 )}
@@ -5521,16 +6789,26 @@ export default function HostCarManagement() {
                                 <div className="flex items-start gap-2 mb-2">
                                   <Select
                                     value={claim.claim_status}
-                                    onValueChange={(status) => handleUpdateClaimStatus(claim.id, status)}
+                                    onValueChange={(status) =>
+                                      handleUpdateClaimStatus(claim.id, status)
+                                    }
                                   >
                                     <SelectTrigger className="w-32 h-8 text-xs">
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="pending">Pending</SelectItem>
-                                      <SelectItem value="approved">Approved</SelectItem>
-                                      <SelectItem value="denied">Denied</SelectItem>
-                                      <SelectItem value="closed">Closed</SelectItem>
+                                      <SelectItem value="pending">
+                                        Pending
+                                      </SelectItem>
+                                      <SelectItem value="approved">
+                                        Approved
+                                      </SelectItem>
+                                      <SelectItem value="denied">
+                                        Denied
+                                      </SelectItem>
+                                      <SelectItem value="closed">
+                                        Closed
+                                      </SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <DropdownMenu>
@@ -5540,8 +6818,11 @@ export default function HostCarManagement() {
                                       </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                      <DropdownMenuItem onClick={() => handleEditClaim(claim)}>
-                                        <Edit className="h-3 w-3 mr-2" /> Edit Claim
+                                      <DropdownMenuItem
+                                        onClick={() => handleEditClaim(claim)}
+                                      >
+                                        <Edit className="h-3 w-3 mr-2" /> Edit
+                                        Claim
                                       </DropdownMenuItem>
                                       {claim.claim_status === "pending" && (
                                         <>
@@ -5553,21 +6834,28 @@ export default function HostCarManagement() {
                                             }}
                                             className="text-destructive focus:text-destructive"
                                           >
-                                            <Trash className="h-3 w-3 mr-2" /> Delete Claim
+                                            <Trash className="h-3 w-3 mr-2" />{" "}
+                                            Delete Claim
                                           </DropdownMenuItem>
                                         </>
                                       )}
                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 </div>
-                                <p className="font-bold text-lg">${claim.claim_amount?.toFixed(2) || "0.00"}</p>
-                                <p className="text-xs text-muted-foreground">Claimed</p>
+                                <p className="font-bold text-lg">
+                                  ${claim.claim_amount?.toFixed(2) || "0.00"}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Claimed
+                                </p>
                                 {claim.approved_amount && (
                                   <div className="mt-1">
                                     <p className="text-sm font-medium text-green-600">
                                       ${claim.approved_amount.toFixed(2)}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">Approved</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      Approved
+                                    </p>
                                   </div>
                                 )}
                                 {claim.payout_amount && (
@@ -5575,7 +6863,9 @@ export default function HostCarManagement() {
                                     <p className="text-sm font-medium text-blue-600">
                                       ${claim.payout_amount.toFixed(2)}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">Paid Out</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      Paid Out
+                                    </p>
                                   </div>
                                 )}
                               </div>
@@ -5592,16 +6882,24 @@ export default function HostCarManagement() {
         </PageContainer>
 
         {/* Delete Claim Confirmation Dialog */}
-        <AlertDialog open={deleteClaimDialogOpen} onOpenChange={setDeleteClaimDialogOpen}>
+        <AlertDialog
+          open={deleteClaimDialogOpen}
+          onOpenChange={setDeleteClaimDialogOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Claim</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete this claim? This action cannot be undone.
+                Are you sure you want to delete this claim? This action cannot
+                be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setDeleteClaimDialogOpen(false)}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel
+                onClick={() => setDeleteClaimDialogOpen(false)}
+              >
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteClaim}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
