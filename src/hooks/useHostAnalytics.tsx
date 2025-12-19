@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
 
 interface HostEarning {
   id: string;
@@ -9,7 +9,7 @@ interface HostEarning {
   amount: number;
   host_profit_amount: number;
   payment_status: string;
-  earning_period_start: string;
+  earning_period_start: datetime;
   earning_period_end: string;
   guest_name: string | null;
   payment_date: string | null;
@@ -89,28 +89,28 @@ export function useHostAnalytics() {
 
       // Fetch host earnings
       const { data: earningsData, error: earningsError } = await supabase
-        .from('host_earnings')
-        .select('*')
-        .eq('host_id', user.id)
-        .order('earning_period_start', { ascending: false });
+        .from("host_earnings")
+        .select("*")
+        .eq("host_id", user.id)
+        .order("earning_period_start", { ascending: false });
 
       if (earningsError) throw earningsError;
 
       // Fetch host expenses
       const { data: expensesData, error: expensesError } = await supabase
-        .from('host_expenses')
-        .select('*')
-        .eq('host_id', user.id)
-        .order('expense_date', { ascending: false });
+        .from("host_expenses")
+        .select("*")
+        .eq("host_id", user.id)
+        .order("expense_date", { ascending: false });
 
       if (expensesError) throw expensesError;
 
       // Fetch host claims
       const { data: claimsData, error: claimsError } = await supabase
-        .from('host_claims')
-        .select('*')
-        .eq('host_id', user.id)
-        .order('incident_date', { ascending: false });
+        .from("host_claims")
+        .select("*")
+        .eq("host_id", user.id)
+        .order("incident_date", { ascending: false });
 
       if (claimsError) throw claimsError;
 
@@ -118,8 +118,8 @@ export function useHostAnalytics() {
       setExpenses(expensesData || []);
       setClaims(claimsData || []);
     } catch (err) {
-      console.error('Error fetching host analytics:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch analytics data');
+      console.error("Error fetching host analytics:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch analytics data");
     } finally {
       setLoading(false);
     }
@@ -149,20 +149,29 @@ export function useHostAnalytics() {
 
     // Calculate unique hosting days
     const uniqueDates = new Set(
-      earnings.flatMap(earning => {
+      earnings.flatMap((earning) => {
         const start = new Date(earning.earning_period_start);
         const end = new Date(earning.earning_period_end);
         const dates = [];
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-          dates.push(d.toISOString().split('T')[0]);
+          dates.push(d.toISOString().split("T")[0]);
         }
         return dates;
-      })
+      }),
     );
     const activeHostingDays = uniqueDates.size;
 
     // Calculate expense metrics
-    const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount ?? 0) + (e.delivery_cost ?? 0) + (e.toll_cost ?? 0) + (e.ev_charge_cost ?? 0) + (e.carwash_cost ?? 0), 0);
+    const totalExpenses = expenses.reduce(
+      (sum, e) =>
+        sum +
+        (e.amount ?? 0) +
+        (e.delivery_cost ?? 0) +
+        (e.toll_cost ?? 0) +
+        (e.ev_charge_cost ?? 0) +
+        (e.carwash_cost ?? 0),
+      0,
+    );
 
     // Calculate net profit
     const netProfit = totalEarnings - totalExpenses;
@@ -171,9 +180,9 @@ export function useHostAnalytics() {
     const totalClaims = claims.length;
     const totalClaimAmount = claims.reduce((sum, claim) => sum + (claim.claim_amount || 0), 0);
     const approvedClaimAmount = claims
-      .filter(claim => claim.claim_status === 'approved')
+      .filter((claim) => claim.claim_status === "approved")
       .reduce((sum, claim) => sum + (claim.approved_amount || 0), 0);
-    const pendingClaims = claims.filter(claim => claim.claim_status === 'pending').length;
+    const pendingClaims = claims.filter((claim) => claim.claim_status === "pending").length;
 
     setSummary({
       totalEarnings,
