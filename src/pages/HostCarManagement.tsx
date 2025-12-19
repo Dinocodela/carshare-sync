@@ -691,9 +691,7 @@ export default function HostCarManagement() {
       }
     }
 
-    return filtered.sort(
-      (a, b) => b.earning_period_date_int) - a.earning_period_date_int,
-    );
+    return filtered.sort((a, b) => b.earning_period_date_int - a.earning_period_date_int);
   }, [earnings, earningsFilters]);
 
   // Filtered claims based on filters
