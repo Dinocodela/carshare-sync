@@ -139,6 +139,7 @@ interface Earning {
   client_profit_amount?: number;
   host_profit_amount?: number;
   payment_source?: string;
+  earning_period_date_int: number;
   earning_period_start: string;
   earning_period_end: string;
   payment_status: string;
