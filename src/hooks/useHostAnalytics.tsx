@@ -9,7 +9,7 @@ interface HostEarning {
   amount: number;
   host_profit_amount: number;
   payment_status: string;
-  earning_period_start: datetime;
+  earning_period_start: string;
   earning_period_end: string;
   guest_name: string | null;
   payment_date: string | null;
