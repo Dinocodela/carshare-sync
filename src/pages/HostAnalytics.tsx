@@ -7,7 +7,14 @@ import { ClaimsSummary } from "@/components/analytics/ClaimsSummary";
 import { RecentClaims } from "@/components/analytics/RecentClaims";
 import { useHostAnalytics } from "@/hooks/useHostAnalytics";
 import { Button } from "@/components/ui/button";
-import { Info, RefreshCw } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Info, RefreshCw, Calendar } from "lucide-react";
 import { useEffect } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 
@@ -52,8 +59,18 @@ const transformClaimsForDisplay = (hostClaims: any[]) =>
   }));
 
 export default function HostAnalytics() {
-  const { earnings, expenses, claims, summary, loading, error, refetch } =
-    useHostAnalytics();
+  const {
+    earnings,
+    expenses,
+    claims,
+    summary,
+    loading,
+    error,
+    refetch,
+    selectedYear,
+    setSelectedYear,
+    availableYears,
+  } = useHostAnalytics();
 
   // Auto-refresh data every 30 seconds for real-time updates
   useEffect(() => {
@@ -65,6 +82,34 @@ export default function HostAnalytics() {
 
     return () => clearInterval(interval);
   }, [loading, refetch]);
+
+  const handleYearChange = (value: string) => {
+    if (value === "all") {
+      setSelectedYear(null);
+    } else {
+      setSelectedYear(parseInt(value, 10));
+    }
+  };
+
+  const YearSelector = () => (
+    <Select
+      value={selectedYear?.toString() ?? "all"}
+      onValueChange={handleYearChange}
+    >
+      <SelectTrigger className="w-[130px]">
+        <Calendar className="h-4 w-4 mr-2" />
+        <SelectValue placeholder="Select year" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All Time</SelectItem>
+        {availableYears.map((year) => (
+          <SelectItem key={year} value={year.toString()}>
+            {year}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
   if (error) {
     return (
@@ -80,16 +125,19 @@ export default function HostAnalytics() {
                   Track your hosting performance and profitability
                 </p>
               </div>
-              <Button
-                onClick={refetch}
-                variant="outline"
-                size="sm"
-                aria-label="Refresh analytics"
-                className="flex items-center"
-              >
-                <RefreshCw className="h-4 w-4" />
-                <span className="ml-2">Refresh</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <YearSelector />
+                <Button
+                  onClick={refetch}
+                  variant="outline"
+                  size="sm"
+                  aria-label="Refresh analytics"
+                  className="flex items-center"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span className="ml-2">Refresh</span>
+                </Button>
+              </div>
             </div>
 
             {/* sm and below : compact banner + refresh inline */}
@@ -101,15 +149,18 @@ export default function HostAnalytics() {
                 <p className="text-sm text-muted-foreground leading-relaxed grow">
                   Track your hosting performance and profitability.
                 </p>
-                <Button
-                  onClick={refetch}
-                  variant="outline"
-                  size="icon"
-                  aria-label="Refresh analytics"
-                  className="h-9 w-9 shrink-0"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <YearSelector />
+                  <Button
+                    onClick={refetch}
+                    variant="outline"
+                    size="icon"
+                    aria-label="Refresh analytics"
+                    className="h-9 w-9"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </section>
@@ -140,7 +191,7 @@ export default function HostAnalytics() {
     totalEarnings: `Sum of your host share (~${hostPct}% of gross) across all trips. Gross: $${grossTotal.toFixed(
       2
     )} • Your share: $${uiSummary.totalEarnings.toFixed(2)}`,
-    totalExpenses: `Sum of all expenses you’ve recorded across your vehicles. Total: $${(
+    totalExpenses: `Sum of all expenses you've recorded across your vehicles. Total: $${(
       uiSummary.totalExpenses ?? 0
     ).toFixed(2)}`,
   };
@@ -158,19 +209,22 @@ export default function HostAnalytics() {
                 </p>
               </div>
 
-              <Button
-                onClick={refetch}
-                variant="outline"
-                size="sm"
-                aria-label="Refresh analytics"
-                disabled={loading}
-                className="flex items-center"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                />
-                <span className="ml-2">Refresh</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <YearSelector />
+                <Button
+                  onClick={refetch}
+                  variant="outline"
+                  size="sm"
+                  aria-label="Refresh analytics"
+                  disabled={loading}
+                  className="flex items-center"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                  />
+                  <span className="ml-2">Refresh</span>
+                </Button>
+              </div>
             </div>
 
             {/* Mobile (sm and below): compact banner + refresh in one row */}
@@ -182,18 +236,21 @@ export default function HostAnalytics() {
                 <p className="text-sm text-muted-foreground leading-relaxed grow">
                   Track your hosting performance and profitability.
                 </p>
-                <Button
-                  onClick={refetch}
-                  variant="outline"
-                  size="icon"
-                  aria-label="Refresh analytics"
-                  disabled={loading}
-                  className="h-9 w-9 shrink-0"
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                  />
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <YearSelector />
+                  <Button
+                    onClick={refetch}
+                    variant="outline"
+                    size="icon"
+                    aria-label="Refresh analytics"
+                    disabled={loading}
+                    className="h-9 w-9"
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                    />
+                  </Button>
+                </div>
               </div>
             </div>
           </section>
@@ -210,7 +267,10 @@ export default function HostAnalytics() {
           />
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <EarningsChart earnings={transformEarningsForDisplay(earnings)} />
+            <EarningsChart
+              earnings={transformEarningsForDisplay(earnings)}
+              selectedYear={selectedYear}
+            />
             <ExpenseBreakdown
               expenses={transformExpensesForDisplay(expenses)}
             />

@@ -8,14 +8,151 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EarningsChartProps {
   earnings: ClientEarning[];
+  selectedYear?: number | null;
 }
 
-export function EarningsChart({ earnings }: EarningsChartProps) {
-  // Build a fixed 2025 timeline with all 12 months and merge earnings (Paid vs Upcoming)
-  const targetYear = 2025;
+export function EarningsChart({ earnings, selectedYear }: EarningsChartProps) {
   const isMobile = useIsMobile();
+  const currentYear = new Date().getFullYear();
+  const targetYear = selectedYear ?? currentYear;
 
-  // Aggregate earnings only for the target year
+  // If "All Time" (null), aggregate by year instead of month
+  const isAllTime = selectedYear === null;
+
+  if (isAllTime) {
+    // Aggregate earnings by year
+    const aggregatedByYear = earnings.reduce((acc, earning) => {
+      const date = parseISO(earning.earning_period_start);
+      const year = date.getFullYear();
+      const entry = acc[year] || { paid: 0, upcoming: 0, trips: 0 };
+
+      const amount = earning.client_profit_amount || 0;
+      const status = (earning.payment_status || '').toLowerCase();
+
+      if (status === 'paid') {
+        entry.paid += amount;
+      } else if (status === 'pending' || status === 'processing') {
+        entry.upcoming += amount;
+      } else {
+        entry.paid += amount;
+      }
+
+      entry.trips += 1;
+      acc[year] = entry;
+      return acc;
+    }, {} as Record<number, { paid: number; upcoming: number; trips: number }>);
+
+    // Get all years from data
+    const years = Object.keys(aggregatedByYear).map(Number).sort((a, b) => a - b);
+    
+    const chartData = years.map((year) => {
+      const values = aggregatedByYear[year] || { paid: 0, upcoming: 0, trips: 0 };
+      return {
+        key: year.toString(),
+        month: year.toString(),
+        monthFull: year.toString(),
+        monthInitial: year.toString().slice(-2),
+        fullMonth: year.toString(),
+        paid: values.paid,
+        upcoming: values.upcoming,
+        trips: values.trips,
+      };
+    });
+
+    const chartConfig = {
+      paid: {
+        label: 'Paid',
+        color: 'hsl(var(--chart-1))',
+      },
+      upcoming: {
+        label: 'Upcoming',
+        color: 'hsl(var(--chart-2))',
+      },
+    };
+
+    return (
+      <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-card via-card to-muted/20">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+        <CardHeader className="relative pb-4">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-full blur-sm opacity-75"></div>
+              <div className="relative p-2.5 rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-xl">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+            </div>
+            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent font-semibold">
+              Earnings Over Time (All Years)
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="relative">
+          {chartData.length === 0 ? (
+            <div className="h-[260px] sm:h-[350px] flex items-center justify-center text-muted-foreground">
+              <div className="text-center space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-xl"></div>
+                  <div className="relative p-4 rounded-full bg-gradient-to-br from-muted/50 to-muted/30 backdrop-blur-sm">
+                    <TrendingUp className="h-12 w-12 mx-auto opacity-60" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-medium">No earnings data available yet</p>
+                  <p className="text-sm opacity-75">Earnings will appear here once you start hosting cars</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <ChartContainer config={chartConfig} className="h-[260px] sm:h-[350px]">
+              <BarChart data={chartData} margin={{ top: 20, right: 24, left: 10, bottom: isMobile ? 36 : 18 }} barCategoryGap="25%">
+                <CartesianGrid 
+                  strokeDasharray="2 4" 
+                  stroke="hsl(var(--border))" 
+                  opacity={0.4}
+                  vertical={false}
+                />
+                <XAxis 
+                  dataKey="monthFull" 
+                  interval={0}
+                  fontSize={11}
+                  fontWeight={500}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  tickMargin={isMobile ? 16 : 12}
+                />
+                <YAxis 
+                  fontSize={11}
+                  fontWeight={500}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `$${value.toLocaleString()}`}
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  tickMargin={10}
+                  width={60}
+                />
+                <ChartTooltip 
+                  content={<ChartTooltipContent 
+                    className="rounded-xl border-0 bg-background/95 backdrop-blur-sm shadow-2xl ring-1 ring-border/50"
+                  />}
+                  formatter={(value, name) => [
+                    `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    name === 'paid' ? 'Paid' : 'Upcoming'
+                  ]}
+                  labelFormatter={(value) => `Year ${value}`}
+                />
+                <Bar dataKey="paid" stackId="a" fill="hsl(var(--chart-1))" barSize={isMobile ? 16 : 40} />
+                <Bar dataKey="upcoming" stackId="a" fill="hsl(var(--chart-2))" barSize={isMobile ? 16 : 40} />
+              </BarChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Monthly view for specific year
   const aggregated = earnings.reduce((acc, earning) => {
     const date = parseISO(earning.earning_period_start);
     if (date.getFullYear() !== targetYear) return acc;
@@ -31,7 +168,6 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
     } else if (status === 'pending' || status === 'processing') {
       entry.upcoming += amount;
     } else {
-      // Fallback: treat unknown statuses as paid
       entry.paid += amount;
     }
 
@@ -53,10 +189,10 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
 
     return {
       key,
-      month: shortLabel, // short label (MMM)
-      monthFull, // full month name for desktop axis
-      monthInitial, // single-letter label for mobile axis
-      fullMonth: fullLabel, // used in tooltip (MMMM yyyy)
+      month: shortLabel,
+      monthFull,
+      monthInitial,
+      fullMonth: fullLabel,
       paid: values.paid,
       upcoming: values.upcoming,
       trips: values.trips,
@@ -87,7 +223,7 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
             </div>
           </div>
           <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent font-semibold">
-            Earnings Over Time
+            Earnings Over Time ({targetYear})
           </span>
         </CardTitle>
       </CardHeader>
@@ -102,8 +238,8 @@ export function EarningsChart({ earnings }: EarningsChartProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <p className="font-medium">No earnings data available yet</p>
-                <p className="text-sm opacity-75">Earnings will appear here once you start hosting cars</p>
+                <p className="font-medium">No earnings data available for {targetYear}</p>
+                <p className="text-sm opacity-75">Try selecting a different year or check back later</p>
               </div>
             </div>
           </div>
