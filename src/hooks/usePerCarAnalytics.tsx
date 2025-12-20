@@ -36,9 +36,13 @@ export interface CarAnalyticsData {
   claims: ClientClaim[];
 }
 
-export function usePerCarAnalytics(selectedCarId?: string) {
+const currentYear = new Date().getFullYear();
+const availableYears = [2022, 2023, 2024, 2025];
+
+export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear) {
   const { user } = useAuth();
   const { getMonthlyFixedCosts } = useClientCarExpenses();
+  const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [cars, setCars] = useState<any[]>([]);
   const [allData, setAllData] = useState<{
     earnings: ClientEarning[];
@@ -94,25 +98,40 @@ export function usePerCarAnalytics(selectedCarId?: string) {
 
       const carIds = allCars.map(car => car.id);
 
-      // Get all analytics data
+      // Build year filter dates
+      const yearStart = selectedYear ? `${selectedYear}-01-01` : null;
+      const yearEnd = selectedYear ? `${selectedYear}-12-31T23:59:59` : null;
+
+      // Get all analytics data with year filtering
+      let earningsQuery = supabase
+        .from('host_earnings')
+        .select('*')
+        .in('car_id', carIds)
+        .order('earning_period_start', { ascending: false });
+      
+      let expensesQuery = supabase
+        .from('host_expenses')
+        .select('*')
+        .in('car_id', carIds)
+        .order('expense_date', { ascending: false });
+      
+      let claimsQuery = supabase
+        .from('host_claims')
+        .select('*')
+        .in('car_id', carIds)
+        .order('incident_date', { ascending: false });
+
+      // Apply year filter if selected
+      if (yearStart && yearEnd) {
+        earningsQuery = earningsQuery.gte('earning_period_start', yearStart).lte('earning_period_start', yearEnd);
+        expensesQuery = expensesQuery.gte('expense_date', yearStart).lte('expense_date', yearEnd);
+        claimsQuery = claimsQuery.gte('incident_date', yearStart).lte('incident_date', yearEnd);
+      }
+
       const [earningsResult, expensesResult, claimsResult] = await Promise.all([
-        supabase
-          .from('host_earnings')
-          .select('*')
-          .in('car_id', carIds)
-          .order('earning_period_start', { ascending: false }),
-        
-        supabase
-          .from('host_expenses')
-          .select('*')
-          .in('car_id', carIds)
-          .order('expense_date', { ascending: false }),
-        
-        supabase
-          .from('host_claims')
-          .select('*')
-          .in('car_id', carIds)
-          .order('incident_date', { ascending: false })
+        earningsQuery,
+        expensesQuery,
+        claimsQuery
       ]);
 
       if (earningsResult.error) throw earningsResult.error;
@@ -270,7 +289,7 @@ export function usePerCarAnalytics(selectedCarId?: string) {
 
   useEffect(() => {
     fetchAllData();
-  }, [user]);
+  }, [user, selectedYear]);
 
   const refetch = () => {
     fetchAllData();
@@ -285,5 +304,8 @@ export function usePerCarAnalytics(selectedCarId?: string) {
     loading,
     error,
     refetch,
+    selectedYear,
+    setSelectedYear,
+    availableYears,
   };
 }
