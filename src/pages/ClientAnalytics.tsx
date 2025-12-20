@@ -64,7 +64,8 @@ export default function ClientAnalytics() {
     loading: perCarLoading,
     error: perCarError,
     refetch: refetchPerCar,
-  } = usePerCarAnalytics(selectedCarId);
+    setSelectedYear: setPerCarSelectedYear,
+  } = usePerCarAnalytics(selectedCarId, selectedYear);
 
   // Auto-refresh every 30s (avoid spinning while already loading)
   useEffect(() => {
@@ -176,9 +177,11 @@ export default function ClientAnalytics() {
               </div>
               <Select
                 value={selectedYear?.toString() ?? "all"}
-                onValueChange={(value) =>
-                  setSelectedYear(value === "all" ? null : parseInt(value))
-                }
+                onValueChange={(value) => {
+                  const year = value === "all" ? null : parseInt(value);
+                  setSelectedYear(year);
+                  setPerCarSelectedYear(year);
+                }}
               >
                 <SelectTrigger className="w-[110px] shrink-0">
                   <Calendar className="mr-2 h-4 w-4" />
