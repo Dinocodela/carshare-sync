@@ -60,8 +60,12 @@ interface HostAnalyticsSummary {
   averageTripEarning: number;
 }
 
-export function useHostAnalytics() {
+const currentYear = new Date().getFullYear();
+const availableYears = [2022, 2023, 2024, 2025];
+
+export function useHostAnalytics(initialYear: number | null = currentYear) {
   const { user } = useAuth();
+  const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [earnings, setEarnings] = useState<HostEarning[]>([]);
   const [expenses, setExpenses] = useState<HostExpense[]>([]);
   const [claims, setClaims] = useState<HostClaim[]>([]);
@@ -87,31 +91,56 @@ export function useHostAnalytics() {
       setLoading(true);
       setError(null);
 
+      // Build date range for filtering
+      const yearStart = selectedYear ? `${selectedYear}-01-01` : null;
+      const yearEnd = selectedYear ? `${selectedYear}-12-31T23:59:59` : null;
+
       // Fetch host earnings
-      const { data: earningsData, error: earningsError } = await supabase
+      let earningsQuery = supabase
         .from("host_earnings")
         .select("*")
         .eq("host_id", user.id)
         .order("earning_period_start", { ascending: false });
 
+      if (yearStart && yearEnd) {
+        earningsQuery = earningsQuery
+          .gte("earning_period_start", yearStart)
+          .lte("earning_period_start", yearEnd);
+      }
+
+      const { data: earningsData, error: earningsError } = await earningsQuery;
       if (earningsError) throw earningsError;
 
       // Fetch host expenses
-      const { data: expensesData, error: expensesError } = await supabase
+      let expensesQuery = supabase
         .from("host_expenses")
         .select("*")
         .eq("host_id", user.id)
         .order("expense_date", { ascending: false });
 
+      if (yearStart && yearEnd) {
+        expensesQuery = expensesQuery
+          .gte("expense_date", yearStart)
+          .lte("expense_date", yearEnd);
+      }
+
+      const { data: expensesData, error: expensesError } = await expensesQuery;
       if (expensesError) throw expensesError;
 
       // Fetch host claims
-      const { data: claimsData, error: claimsError } = await supabase
+      let claimsQuery = supabase
         .from("host_claims")
         .select("*")
         .eq("host_id", user.id)
         .order("incident_date", { ascending: false });
 
+      if (yearStart && yearEnd) {
+        claimsQuery = claimsQuery
+          .gte("incident_date", yearStart)
+          .lte("incident_date", yearEnd);
+      }
+
+      const { data: claimsData, error: claimsError } = await claimsQuery;
       if (claimsError) throw claimsError;
 
       setEarnings(earningsData || []);
@@ -123,7 +152,7 @@ export function useHostAnalytics() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, selectedYear]);
 
   const calculateSummary = useCallback(() => {
     if (!earnings.length && !expenses.length && !claims.length) {
@@ -220,5 +249,8 @@ export function useHostAnalytics() {
     loading,
     error,
     refetch,
+    selectedYear,
+    setSelectedYear,
+    availableYears,
   };
 }
