@@ -14,7 +14,14 @@ import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { usePerCarAnalytics } from "@/hooks/usePerCarAnalytics";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw, BarChart3, Car, Info } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RefreshCw, BarChart3, Car, Info, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Link } from "react-router-dom";
@@ -22,8 +29,18 @@ import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ClientAnalytics() {
-  const { earnings, expenses, claims, summary, loading, error, refetch } =
-    useClientAnalytics();
+  const {
+    earnings,
+    expenses,
+    claims,
+    summary,
+    loading,
+    error,
+    refetch,
+    selectedYear,
+    setSelectedYear,
+    availableYears,
+  } = useClientAnalytics();
   const [selectedCarId, setSelectedCarId] = useState<string | undefined>(
     undefined
   );
@@ -147,7 +164,7 @@ export default function ClientAnalytics() {
               </p>
             </div>
 
-            {/* Controls row: selector grows, refresh stays small */}
+            {/* Controls row: selector + year filter + refresh */}
             <div className="mt-3 flex items-center gap-2 sm:mt-4">
               <div className="flex-1 min-w-0">
                 <CarSelector
@@ -157,6 +174,25 @@ export default function ClientAnalytics() {
                   loading={perCarLoading}
                 />
               </div>
+              <Select
+                value={selectedYear?.toString() ?? "all"}
+                onValueChange={(value) =>
+                  setSelectedYear(value === "all" ? null : parseInt(value))
+                }
+              >
+                <SelectTrigger className="w-[110px] shrink-0">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  {availableYears.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 onClick={handleRefresh}
                 variant="outline"
@@ -214,7 +250,7 @@ export default function ClientAnalytics() {
                   <ClaimsSummary claims={claims} loading={loading} />
                 </div>
                 <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
-                  <EarningsChart earnings={earnings} />
+                  <EarningsChart earnings={earnings} selectedYear={selectedYear} />
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
                 <div className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
@@ -242,6 +278,7 @@ export default function ClientAnalytics() {
                     <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                       <EarningsChart
                         earnings={selectedCarData?.earnings || []}
+                        selectedYear={selectedYear}
                       />
                       <ExpenseBreakdown
                         expenses={selectedCarData?.expenses || []}

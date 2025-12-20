@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+
+const AVAILABLE_YEARS = [2022, 2023, 2024, 2025];
 
 export interface ClientEarning {
   id: string;
@@ -68,8 +70,9 @@ export interface AnalyticsSummary {
   approvedClaimsAmount: number;
 }
 
-export function useClientAnalytics() {
+export function useClientAnalytics(initialYear: number | null = new Date().getFullYear()) {
   const { user } = useAuth();
+  const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
@@ -87,7 +90,7 @@ export function useClientAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchClientAnalytics = async () => {
+  const fetchClientAnalytics = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -116,41 +119,69 @@ export function useClientAnalytics() {
         setClaims([]);
         return;
       }
-      const { data: earningsData, error: earningsError } = await supabase
+
+      // Build year filter for earnings (based on earning_period_start)
+      let earningsQuery = supabase
         .from('host_earnings')
         .select('*')
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
+      if (selectedYear !== null) {
+        const yearStart = `${selectedYear}-01-01T00:00:00`;
+        const yearEnd = `${selectedYear}-12-31T23:59:59`;
+        earningsQuery = earningsQuery
+          .gte('earning_period_start', yearStart)
+          .lte('earning_period_start', yearEnd);
+      }
+
+      const { data: earningsData, error: earningsError } = await earningsQuery;
       if (earningsError) throw earningsError;
       setEarnings(earningsData || []);
 
-      // Get expenses for user's cars
-      const { data: expensesData, error: expensesError } = await supabase
+      // Build year filter for expenses (based on expense_date)
+      let expensesQuery = supabase
         .from('host_expenses')
         .select('*')
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
+      if (selectedYear !== null) {
+        const yearStart = `${selectedYear}-01-01`;
+        const yearEnd = `${selectedYear}-12-31`;
+        expensesQuery = expensesQuery
+          .gte('expense_date', yearStart)
+          .lte('expense_date', yearEnd);
+      }
+
+      const { data: expensesData, error: expensesError } = await expensesQuery;
       if (expensesError) throw expensesError;
       setExpenses(expensesData || []);
 
-      // Get claims for user's cars
-      const { data: claimsData, error: claimsError } = await supabase
+      // Build year filter for claims (based on incident_date)
+      let claimsQuery = supabase
         .from('host_claims')
         .select('*')
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
+      if (selectedYear !== null) {
+        const yearStart = `${selectedYear}-01-01`;
+        const yearEnd = `${selectedYear}-12-31`;
+        claimsQuery = claimsQuery
+          .gte('incident_date', yearStart)
+          .lte('incident_date', yearEnd);
+      }
+
+      const { data: claimsData, error: claimsError } = await claimsQuery;
       if (claimsError) throw claimsError;
       setClaims(claimsData || []);
-      console.log('Client Analytics - Claims loaded:', claimsData?.length || 0, claimsData);
 
     } catch (err) {
       console.error('Error fetching client analytics:', err);
       setError('Failed to load analytics data');
     }
-  };
+  }, [user, selectedYear]);
 
   const calculateSummary = () => {
     const totalEarnings = earnings.reduce((sum, earning) => sum + (earning.client_profit_amount || 0), 0);
@@ -203,15 +234,15 @@ export function useClientAnalytics() {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, selectedYear, fetchClientAnalytics]);
 
   useEffect(() => {
     calculateSummary();
   }, [earnings, expenses, claims]);
 
-  const refetch = () => {
+  const refetch = useCallback(() => {
     fetchClientAnalytics();
-  };
+  }, [fetchClientAnalytics]);
 
   return {
     earnings,
@@ -221,5 +252,8 @@ export function useClientAnalytics() {
     loading,
     error,
     refetch,
+    selectedYear,
+    setSelectedYear,
+    availableYears: AVAILABLE_YEARS,
   };
 }
