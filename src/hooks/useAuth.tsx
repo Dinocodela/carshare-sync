@@ -109,9 +109,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (Capacitor.isNativePlatform()) await unregisterPushToken();
     } catch (e) {
       console.warn("unregisterPushToken failed:", e);
+    }
+    
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (e) {
+      console.warn("signOut failed:", e);
     } finally {
-      console.log("here");
-      await supabase.auth.signOut();
+      // Always clear local state even if server logout fails
+      setSession(null);
+      setUser(null);
     }
   };
 
