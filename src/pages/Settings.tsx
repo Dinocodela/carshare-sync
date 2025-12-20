@@ -668,7 +668,7 @@ export default function Settings() {
                   className="w-full"
                   onClick={async () => {
                     await signOut();
-                    window.location.reload();
+                    navigate('/login');
                   }}
                 >
                   Sign Out
