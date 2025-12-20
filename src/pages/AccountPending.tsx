@@ -9,7 +9,7 @@ export default function AccountPending() {
   
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login');
+    navigate('/');
   };
   
   return (
