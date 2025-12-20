@@ -390,6 +390,7 @@ export default function HostCarManagement() {
     carId: "all",
     paymentSource: "all",
     dateRange: "all",
+    tripSearch: "",
   });
 
   // Filter state for earnings
@@ -398,6 +399,7 @@ export default function HostCarManagement() {
     paymentSource: "all",
     paymentStatus: "all",
     dateRange: "all",
+    tripSearch: "",
   });
 
   // Filter state for claims
@@ -650,6 +652,14 @@ export default function HostCarManagement() {
   const filteredExpenses = useMemo(() => {
     let filtered = [...expenses];
 
+    // Filter by trip search
+    if (expenseFilters.tripSearch && expenseFilters.tripSearch.trim() !== "") {
+      const searchTerm = expenseFilters.tripSearch.trim().toLowerCase();
+      filtered = filtered.filter(
+        (expense) => expense.trip_id?.toLowerCase().includes(searchTerm)
+      );
+    }
+
     // Filter by car
     if (expenseFilters.carId && expenseFilters.carId !== "all") {
       filtered = filtered.filter(
@@ -712,6 +722,7 @@ export default function HostCarManagement() {
       carId: "all",
       paymentSource: "all",
       dateRange: "all",
+      tripSearch: "",
     });
   };
 
@@ -721,6 +732,7 @@ export default function HostCarManagement() {
       paymentSource: "all",
       paymentStatus: "all",
       dateRange: "all",
+      tripSearch: "",
     });
   };
 
@@ -736,6 +748,14 @@ export default function HostCarManagement() {
   // Filtered earnings based on filters
   const filteredEarnings = useMemo(() => {
     let filtered = [...earnings];
+
+    // Filter by trip search
+    if (earningsFilters.tripSearch && earningsFilters.tripSearch.trim() !== "") {
+      const searchTerm = earningsFilters.tripSearch.trim().toLowerCase();
+      filtered = filtered.filter(
+        (earning) => earning.trip_id?.toLowerCase().includes(searchTerm)
+      );
+    }
 
     // Filter by car
     if (earningsFilters.carId && earningsFilters.carId !== "all") {
@@ -1667,7 +1687,8 @@ export default function HostCarManagement() {
     Number(earningsFilters.carId !== "all") +
     Number(earningsFilters.paymentSource !== "all") +
     Number(earningsFilters.paymentStatus !== "all") +
-    Number(earningsFilters.dateRange !== "all");
+    Number(earningsFilters.dateRange !== "all") +
+    Number(earningsFilters.tripSearch.trim() !== "");
 
   const activeHostedCars = cars.filter((car) => car.status === "hosted");
   const readyForReturnCars = cars.filter(
@@ -2520,6 +2541,19 @@ export default function HostCarManagement() {
                             )}
                           </div>
                           <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Search by Trip#</Label>
+                              <Input
+                                placeholder="Enter trip number..."
+                                value={expenseFilters.tripSearch}
+                                onChange={(e) =>
+                                  setExpenseFilters((prev) => ({
+                                    ...prev,
+                                    tripSearch: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
                             <div className="space-y-2">
                               <Label className="text-sm font-medium">Car</Label>
                               <Select
@@ -3913,6 +3947,22 @@ export default function HostCarManagement() {
 
                             {/* Fields */}
                             <div className="grid grid-cols-1 gap-4">
+                              {/* Trip Search */}
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium">
+                                  Search by Trip#
+                                </Label>
+                                <Input
+                                  placeholder="Enter trip number..."
+                                  value={earningsFilters.tripSearch}
+                                  onChange={(e) =>
+                                    setEarningsFilters((p) => ({
+                                      ...p,
+                                      tripSearch: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </div>
                               {/* Car */}
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium">
@@ -4699,7 +4749,24 @@ export default function HostCarManagement() {
                           </Button>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        {/* Trip Search */}
+                        <div>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Search by Trip#
+                          </Label>
+                          <Input
+                            placeholder="Enter trip#..."
+                            value={earningsFilters.tripSearch}
+                            onChange={(e) =>
+                              setEarningsFilters((prev) => ({
+                                ...prev,
+                                tripSearch: e.target.value,
+                              }))
+                            }
+                            className="h-8"
+                          />
+                        </div>
                         {/* Car Filter */}
                         <div>
                           <Label className="text-xs font-medium mb-2 block">
