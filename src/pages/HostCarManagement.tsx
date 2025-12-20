@@ -2984,7 +2984,22 @@ export default function HostCarManagement() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {/* Trip# Search Filter */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Trip#</Label>
+                        <Input
+                          placeholder="Search by trip#..."
+                          value={expenseFilters.tripSearch}
+                          onChange={(e) =>
+                            setExpenseFilters((prev) => ({
+                              ...prev,
+                              tripSearch: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+
                       {/* Car Filter */}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Car</Label>
