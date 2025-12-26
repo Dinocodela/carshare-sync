@@ -3,12 +3,15 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
-import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import Support from "@/pages/Support";
-
+import {
+  initAppsFlyer,
+  afSetCustomerUserId,
+  afLogEvent,
+} from "@/analytics/appsflyer";
 import RegisterClient from "./pages/RegisterClient";
 import RegisterHost from "./pages/RegisterHost";
 import Dashboard from "./pages/Dashboard";
@@ -37,19 +40,44 @@ import RequirePending from "./components/auth/RequirePending";
 import PushNavHandler from "./components/push/PushNavHandler";
 import { SubscriptionProvider } from "./hooks/useSubscription";
 import RequireSubscribed from "./components/auth/RequireSubscribed";
-import Subscribe from "./pages/Subscribe";
-import RequireUnsubscribed from "./components/auth/RequireUnsusbscribed";
 import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
 import ScrollReset from "./components/router/ScrollReset";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
+
+function AppsFlyerBootstrap() {
+  const { user } = useAuth();
+
+  // 1) Start AppsFlyer immediately on mount
+  useEffect(() => {
+    const init = async () => {
+      await initAppsFlyer({
+        onConversion: (_e) => {},
+        onAppOpenAttribution: (_e) => {},
+      });
+      await afLogEvent("af_sdk_started");
+    };
+    init();
+  }, []);
+
+  // 2) When user logs in later, set customer user id
+  useEffect(() => {
+    if (!user?.id) return;
+    afSetCustomerUserId(user.id);
+  }, [user?.id]);
+
+  return null;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <AppsFlyerBootstrap />
+
       <SubscriptionProvider>
         <TooltipProvider>
           <Toaster />
@@ -58,12 +86,11 @@ const App = () => (
             <AuthCallbackHandler />
             <PushNavHandler />
             <ScrollReset />
-
+            {/* REMOVED: AnalyticsConsentDialog */}
             <Routes>
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<Index />} />
-              {/* <Route path="/login" element={<Login />} /> */}
               <Route path="/register/client" element={<RegisterClient />} />
               <Route path="/register/host" element={<RegisterHost />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -82,9 +109,10 @@ const App = () => (
                 <Route element={<RequireApproved />}>
                   <Route path="/subscribe" element={<SubscribeOverlay />} />
 
-                  {/* 🔓 Let Settings be reachable even if unsubscribed so users can manage/restore */}
+                  {/* Settings reachable even if unsubscribed */}
                   <Route path="/settings" element={<Settings />} />
-                  {/* everything else requires subscription */}
+
+                  {/* Everything else requires subscription */}
                   <Route element={<RequireSubscribed />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route
@@ -104,7 +132,10 @@ const App = () => (
                       path="/host-car-management"
                       element={<HostCarManagement />}
                     />
-                    <Route path="/registered-clients" element={<RegisteredClients />} />
+                    <Route
+                      path="/registered-clients"
+                      element={<RegisteredClients />}
+                    />
                     <Route path="/cars/:id/view" element={<CarDetails />} />
                     <Route path="/cars/:id/edit" element={<EditCar />} />
                     <Route
@@ -116,7 +147,6 @@ const App = () => (
                       element={<ClientFixedExpenses />}
                     />
 
-                    {/* Admin inside the paywall as well (move it out if you want admin to bypass) */}
                     <Route element={<RequireRole />}>
                       <Route
                         path="/admin/manage-accounts"

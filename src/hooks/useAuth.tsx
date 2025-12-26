@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
 import { registerPushToken, unregisterPushToken } from "@/lib/push";
 import { configureRevenueCat } from "@/lib/revenuecat";
+import { afLogEvent } from "@/analytics/appsflyer";
+import { AF_EVENTS } from "@/analytics/events";
 
 // Add an "augmented" user shape we can patch locally
 
@@ -82,6 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
+    if (!error) {
+      await afLogEvent(AF_EVENTS.LOGIN, { af_success: true });
+    }
     return { error };
   };
 
@@ -101,6 +106,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { role, phone, ...other },
       },
     });
+    if (!error) {
+      await afLogEvent(AF_EVENTS.COMPLETE_REGISTRATION, {
+        af_registration_method: "email",
+      });
+    }
     return { error };
   };
 
@@ -110,9 +120,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.warn("unregisterPushToken failed:", e);
     }
-    
+
     try {
-      await supabase.auth.signOut({ scope: 'local' });
+      await supabase.auth.signOut({ scope: "local" });
     } catch (e) {
       console.warn("signOut failed:", e);
     } finally {

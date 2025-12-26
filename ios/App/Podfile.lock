@@ -1,4 +1,10 @@
 PODS:
+  - AppsflyerCapacitorPlugin (6.17.8):
+    - AppsFlyerFramework (= 6.17.8)
+    - Capacitor
+  - AppsFlyerFramework (6.17.8):
+    - AppsFlyerFramework/Main (= 6.17.8)
+  - AppsFlyerFramework/Main (6.17.8)
   - Capacitor (7.4.3):
     - CapacitorCordova
   - CapacitorApp (7.0.2):
@@ -84,6 +90,7 @@ PODS:
     - PurchasesHybridCommon (= 17.0.0)
 
 DEPENDENCIES:
+  - AppsflyerCapacitorPlugin (from `../../node_modules/appsflyer-capacitor-plugin`)
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
@@ -100,6 +107,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AppsFlyerFramework
     - FirebaseCore
     - FirebaseCoreInternal
     - FirebaseInstallations
@@ -112,6 +120,8 @@ SPEC REPOS:
     - RevenueCat
 
 EXTERNAL SOURCES:
+  AppsflyerCapacitorPlugin:
+    :path: "../../node_modules/appsflyer-capacitor-plugin"
   Capacitor:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
@@ -140,6 +150,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@revenuecat/purchases-capacitor"
 
 SPEC CHECKSUMS:
+  AppsflyerCapacitorPlugin: bb320adfb3fcde436a53e6e9132a03e2fbd60d91
+  AppsFlyerFramework: 63577b60d6b9fcdab60135289979e7d1c9ec79b9
   Capacitor: 28d6c01026a9a3f7156529498ec1f389a2a28dbc
   CapacitorApp: 1f6922c9c5c8b1c538d7fbe92ebe44a81b34bed3
   CapacitorBrowser: 22541e48442de44dc629c214388290d6eecc6ae9
@@ -164,6 +176,6 @@ SPEC CHECKSUMS:
   RevenueCat: 47d52620419dcf3dce4e724eade9d390e16ab4b0
   RevenuecatPurchasesCapacitor: 51cd81cec7db693a2552b45c36261d849e1cf574
 
-PODFILE CHECKSUM: a9ab5c999e614323ce71d1e401e48d77d82af122
+PODFILE CHECKSUM: f031ff6039b31e79817e8cfcdad34ecdaaa75d1f
 
 COCOAPODS: 1.16.2

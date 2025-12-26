@@ -14,6 +14,9 @@ import { Purchases } from "@revenuecat/purchases-capacitor";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { LegalFooter } from "../LegalFooter";
+import { afLogEvent } from "@/analytics/appsflyer";
+import { AF_EVENTS } from "@/analytics/events";
+
 type Props = { open: boolean; onOpenChange: (v: boolean) => void };
 
 export function SubscribeSheet({ open, onOpenChange }: Props) {
@@ -34,6 +37,9 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
 
   useEffect(() => {
     if (!open) return;
+    afLogEvent(AF_EVENTS.INITIATED_CHECKOUT, {
+      af_content_type: "subscription",
+    });
     (async () => {
       try {
         setLoading(true);
@@ -70,13 +76,31 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
   async function onPurchase(pkg: any) {
     try {
       // Purchase via RC
-      const { customerInfo } = await Purchases.purchasePackage({
-        aPackage: pkg,
+      const { customerInfo, productIdentifier } =
+        await Purchases.purchasePackage({
+          aPackage: pkg,
+        });
+      console.log("pkg", pkg);
+      const productId = productIdentifier;
+      const price = pkg?.product?.price ?? pkg?.product?.priceAmount;
+
+      const currency = pkg?.product?.currencyCode ?? pkg?.product?.currency;
+
+      await afLogEvent(AF_EVENTS.PURCHASE, {
+        af_content_type: "subscription",
+        af_content_id: productId,
+        ...(price != null ? { af_revenue: price } : {}),
+        ...(currency ? { af_currency: currency } : {}),
       });
-      // Mirror -> DB
-      //   await syncDbWithRevenueCat(customerInfo);
+
+      // Optional: also send subscribe event
+      await afLogEvent(AF_EVENTS.SUBSCRIBE, {
+        af_content_id: productId,
+      });
+
       await refresh();
       toast.success("Purchase successful");
+
       onOpenChange(false);
       navigate("/dashboard", { replace: true });
     } catch (e: any) {
@@ -90,6 +114,7 @@ export function SubscribeSheet({ open, onOpenChange }: Props) {
       setRestoring(true);
       const ci = await restorePurchases();
       //   await syncDbWithRevenueCat(ci);
+      await afLogEvent(AF_EVENTS.RESTORE, { af_content_type: "subscription" });
       await refresh();
       toast.success("Restored subscription");
       onOpenChange(false);

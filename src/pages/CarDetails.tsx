@@ -26,6 +26,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
+import { afLogEvent } from "@/analytics/appsflyer";
+import { AF_EVENTS } from "@/analytics/events";
 
 interface CarData {
   id: string;
@@ -58,6 +60,15 @@ export default function CarDetails() {
       fetchCar();
     }
   }, [id, user]);
+
+  useEffect(() => {
+    if (car?.id) {
+      afLogEvent(AF_EVENTS.VIEW_ITEM, {
+        af_content_type: "car",
+        af_content_id: car.id,
+      });
+    }
+  }, [car?.id]);
 
   const fetchCar = async () => {
     if (!user || !id) return;

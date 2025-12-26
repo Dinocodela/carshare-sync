@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -21,11 +22,12 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
-	<true/>
+	<true />
 	<key>NSCameraUsageDescription</key>
 <string>We use the camera to take photos of your car.</string>
 <key>NSPhotoLibraryUsageDescription</key>
-<string>We need access to your photo library so you can choose car images.</string>
+<string
+    >We need access to your photo library so you can choose car images.</string>
 <key>NSPhotoLibraryAddUsageDescription</key>
 <string>We may save photos to your library at your request.</string>
 
@@ -51,6 +53,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
+	<true />
 </dict>
 </plist>
