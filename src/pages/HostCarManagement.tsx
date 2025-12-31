@@ -186,32 +186,11 @@ interface Claim {
   claim_type: string;
   description: string;
   claim_amount: number | null;
-  approved_amount: number | null;
   incident_date: string;
   claim_status: string;
   claim_number: string | null;
-  supporting_documents: string[] | null;
-  notes: string | null;
-  // Enhanced claim tracking fields
   accident_description?: string;
   photos_taken?: boolean;
-  claim_submitted_date?: string;
-  adjuster_name?: string;
-  adjuster_contact?: string;
-  approval_date?: string;
-  payout_amount?: number;
-  autobody_shop_name?: string;
-  shop_contact_info?: string;
-  estimate_submitted_date?: string;
-  estimate_approved_date?: string;
-  repair_dropoff_date?: string;
-  estimated_completion_date?: string;
-  repair_status?: string;
-  car_ready_pickup_date?: string;
-  actual_pickup_date?: string;
-  post_repair_inspection?: boolean;
-  additional_notes?: string;
-  final_status?: string;
   created_at: string;
   updated_at: string;
 }
@@ -281,10 +260,6 @@ const claimSchema = z.object({
     .min(1, "Detailed accident description is required"),
   claim_amount: z.number().min(0.01, "Amount must be greater than 0"),
   incident_date: z.string().min(1, "Incident date is required"),
-  adjuster_name: z.string().optional(),
-  adjuster_contact: z.string().optional(),
-  autobody_shop_name: z.string().optional(),
-  shop_contact_info: z.string().optional(),
   photos_taken: z.boolean().default(false),
 });
 // Helper function to format car display name
@@ -1503,10 +1478,6 @@ export default function HostCarManagement() {
         accident_description: values.accident_description || null,
         claim_amount: values.claim_amount,
         incident_date: values.incident_date,
-        adjuster_name: values.adjuster_name || null,
-        adjuster_contact: values.adjuster_contact || null,
-        autobody_shop_name: values.autobody_shop_name || null,
-        shop_contact_info: values.shop_contact_info || null,
         photos_taken: values.photos_taken,
       };
 
@@ -1563,10 +1534,6 @@ export default function HostCarManagement() {
       accident_description: claim.accident_description || "",
       claim_amount: claim.claim_amount || 0,
       incident_date: claim.incident_date,
-      adjuster_name: claim.adjuster_name || "",
-      adjuster_contact: claim.adjuster_contact || "",
-      autobody_shop_name: claim.autobody_shop_name || "",
-      shop_contact_info: claim.shop_contact_info || "",
       photos_taken: claim.photos_taken || false,
     });
     setClaimDialogOpen(true);
@@ -5660,90 +5627,7 @@ export default function HostCarManagement() {
                             )}
                           />
 
-                          <div className="space-y-4">
-                            <h4 className="font-medium">
-                              Insurance & Repair Information
-                            </h4>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <FormField
-                                control={claimForm.control}
-                                name="adjuster_name"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      Adjuster Name (Optional)
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Enter adjuster name"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={claimForm.control}
-                                name="adjuster_contact"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      Adjuster Contact (Optional)
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Phone or email"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <FormField
-                                control={claimForm.control}
-                                name="autobody_shop_name"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      Auto Body Shop (Optional)
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Shop name"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={claimForm.control}
-                                name="shop_contact_info"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>
-                                      Shop Contact (Optional)
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Phone or address"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <FormField
+                          <FormField
                               control={claimForm.control}
                               name="photos_taken"
                               render={({ field }) => (
@@ -5764,7 +5648,6 @@ export default function HostCarManagement() {
                                 </FormItem>
                               )}
                             />
-                          </div>
 
                           <div className="pt-2 flex justify-end gap-2">
                             <Button
@@ -6338,106 +6221,27 @@ export default function HostCarManagement() {
                           )}
                         />
 
-                        <div className="space-y-4">
-                          <h4 className="font-medium">
-                            Insurance & Repair Information
-                          </h4>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <FormField
-                              control={claimForm.control}
-                              name="adjuster_name"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Adjuster Name (Optional)
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Enter adjuster name"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={claimForm.control}
-                              name="adjuster_contact"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Adjuster Contact (Optional)
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Phone or email"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <FormField
-                              control={claimForm.control}
-                              name="autobody_shop_name"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Auto Body Shop (Optional)
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="Shop name" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={claimForm.control}
-                              name="shop_contact_info"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Shop Contact (Optional)</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Phone or address"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <FormField
-                            control={claimForm.control}
-                            name="photos_taken"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <input
-                                    type="checkbox"
-                                    checked={field.value}
-                                    onChange={field.onChange}
-                                    className="h-4 w-4"
-                                  />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                  <FormLabel>
-                                    Photos taken of damage/incident
-                                  </FormLabel>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                        <FormField
+                          control={claimForm.control}
+                          name="photos_taken"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="h-4 w-4"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                  Photos taken of damage/incident
+                                </FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
 
                         <div className="pt-2 flex justify-end gap-2">
                           <Button
@@ -6806,40 +6610,6 @@ export default function HostCarManagement() {
                                   ).toLocaleDateString()}
                                 </p>
 
-                                {/* Additional Details */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                  {claim.adjuster_name && (
-                                    <div>
-                                      <span className="text-muted-foreground">
-                                        Adjuster:
-                                      </span>
-                                      <p className="font-medium">
-                                        {claim.adjuster_name}
-                                      </p>
-                                      {claim.adjuster_contact && (
-                                        <p className="text-xs text-muted-foreground">
-                                          {claim.adjuster_contact}
-                                        </p>
-                                      )}
-                                    </div>
-                                  )}
-                                  {claim.autobody_shop_name && (
-                                    <div>
-                                      <span className="text-muted-foreground">
-                                        Repair Shop:
-                                      </span>
-                                      <p className="font-medium">
-                                        {claim.autobody_shop_name}
-                                      </p>
-                                      {claim.shop_contact_info && (
-                                        <p className="text-xs text-muted-foreground">
-                                          {claim.shop_contact_info}
-                                        </p>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-
                                 {claim.photos_taken && (
                                   <div className="flex items-center gap-1 text-sm text-green-600">
                                     <CheckCircle className="h-4 w-4" />
@@ -6856,14 +6626,6 @@ export default function HostCarManagement() {
                                         claim.created_at
                                       ).toLocaleDateString()}
                                     </span>
-                                    {claim.approval_date && (
-                                      <span>
-                                        • Approved:{" "}
-                                        {new Date(
-                                          claim.approval_date
-                                        ).toLocaleDateString()}
-                                      </span>
-                                    )}
                                   </div>
                                 )}
                               </div>
@@ -6928,28 +6690,8 @@ export default function HostCarManagement() {
                                   ${claim.claim_amount?.toFixed(2) || "0.00"}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  Claimed
+                                  Claim Amount
                                 </p>
-                                {claim.approved_amount && (
-                                  <div className="mt-1">
-                                    <p className="text-sm font-medium text-green-600">
-                                      ${claim.approved_amount.toFixed(2)}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                      Approved
-                                    </p>
-                                  </div>
-                                )}
-                                {claim.payout_amount && (
-                                  <div className="mt-1">
-                                    <p className="text-sm font-medium text-blue-600">
-                                      ${claim.payout_amount.toFixed(2)}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                      Paid Out
-                                    </p>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </CardContent>

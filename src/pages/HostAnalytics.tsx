@@ -27,7 +27,7 @@ const transformSummaryForDisplay = (hostSummary: any) => ({
   activeDays: hostSummary.activeHostingDays,
   totalClaims: hostSummary.totalClaims,
   totalClaimAmount: hostSummary.totalClaimAmount,
-  approvedClaimsAmount: hostSummary.approvedClaimAmount,
+  approvedClaimsAmount: hostSummary.approvedClaimsAmount,
   pendingClaims: hostSummary.pendingClaims,
   averagePerTrip: hostSummary.averageTripEarning,
 });
