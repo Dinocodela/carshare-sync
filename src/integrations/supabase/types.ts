@@ -668,115 +668,55 @@ export type Database = {
       host_claims: {
         Row: {
           accident_description: string | null
-          actual_pickup_date: string | null
-          additional_notes: string | null
-          adjuster_contact: string | null
-          adjuster_name: string | null
-          approval_date: string | null
-          approved_amount: number | null
-          autobody_shop_name: string | null
           car_id: string
-          car_ready_pickup_date: string | null
           claim_amount: number | null
           claim_number: string | null
           claim_status: string
-          claim_submitted_date: string | null
           claim_type: string
           created_at: string
           description: string
-          estimate_approved_date: string | null
-          estimate_submitted_date: string | null
-          estimated_completion_date: string | null
-          final_status: string | null
           guest_name: string | null
           host_id: string
           id: string
           incident_date: string
-          notes: string | null
           payment_source: string | null
-          payout_amount: number | null
           photos_taken: boolean | null
-          post_repair_inspection: boolean | null
-          repair_dropoff_date: string | null
-          repair_status: string | null
-          shop_contact_info: string | null
-          supporting_documents: string[] | null
           trip_id: string | null
           updated_at: string
         }
         Insert: {
           accident_description?: string | null
-          actual_pickup_date?: string | null
-          additional_notes?: string | null
-          adjuster_contact?: string | null
-          adjuster_name?: string | null
-          approval_date?: string | null
-          approved_amount?: number | null
-          autobody_shop_name?: string | null
           car_id: string
-          car_ready_pickup_date?: string | null
           claim_amount?: number | null
           claim_number?: string | null
           claim_status?: string
-          claim_submitted_date?: string | null
           claim_type: string
           created_at?: string
           description: string
-          estimate_approved_date?: string | null
-          estimate_submitted_date?: string | null
-          estimated_completion_date?: string | null
-          final_status?: string | null
           guest_name?: string | null
           host_id: string
           id?: string
           incident_date: string
-          notes?: string | null
           payment_source?: string | null
-          payout_amount?: number | null
           photos_taken?: boolean | null
-          post_repair_inspection?: boolean | null
-          repair_dropoff_date?: string | null
-          repair_status?: string | null
-          shop_contact_info?: string | null
-          supporting_documents?: string[] | null
           trip_id?: string | null
           updated_at?: string
         }
         Update: {
           accident_description?: string | null
-          actual_pickup_date?: string | null
-          additional_notes?: string | null
-          adjuster_contact?: string | null
-          adjuster_name?: string | null
-          approval_date?: string | null
-          approved_amount?: number | null
-          autobody_shop_name?: string | null
           car_id?: string
-          car_ready_pickup_date?: string | null
           claim_amount?: number | null
           claim_number?: string | null
           claim_status?: string
-          claim_submitted_date?: string | null
           claim_type?: string
           created_at?: string
           description?: string
-          estimate_approved_date?: string | null
-          estimate_submitted_date?: string | null
-          estimated_completion_date?: string | null
-          final_status?: string | null
           guest_name?: string | null
           host_id?: string
           id?: string
           incident_date?: string
-          notes?: string | null
           payment_source?: string | null
-          payout_amount?: number | null
           photos_taken?: boolean | null
-          post_repair_inspection?: boolean | null
-          repair_dropoff_date?: string | null
-          repair_status?: string | null
-          shop_contact_info?: string | null
-          supporting_documents?: string[] | null
           trip_id?: string | null
           updated_at?: string
         }

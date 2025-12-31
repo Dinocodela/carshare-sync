@@ -81,7 +81,7 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
   const totalAmount = claims.reduce((s, c) => s + (c.claim_amount || 0), 0);
   const approvedAmount = claims
     .filter((c) => c.claim_status === "approved")
-    .reduce((s, c) => s + (c.approved_amount ?? c.claim_amount ?? 0), 0);
+    .reduce((s, c) => s + (c.claim_amount || 0), 0);
 
   const chartData = Object.entries(statusCounts).map(([status, value]) => ({
     status,

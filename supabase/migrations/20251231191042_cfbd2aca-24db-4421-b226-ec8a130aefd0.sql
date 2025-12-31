@@ -1,0 +1,22 @@
+-- Remove unused columns from host_claims table
+ALTER TABLE public.host_claims
+  DROP COLUMN IF EXISTS approved_amount,
+  DROP COLUMN IF EXISTS payout_amount,
+  DROP COLUMN IF EXISTS notes,
+  DROP COLUMN IF EXISTS additional_notes,
+  DROP COLUMN IF EXISTS supporting_documents,
+  DROP COLUMN IF EXISTS claim_submitted_date,
+  DROP COLUMN IF EXISTS approval_date,
+  DROP COLUMN IF EXISTS adjuster_name,
+  DROP COLUMN IF EXISTS adjuster_contact,
+  DROP COLUMN IF EXISTS autobody_shop_name,
+  DROP COLUMN IF EXISTS shop_contact_info,
+  DROP COLUMN IF EXISTS repair_status,
+  DROP COLUMN IF EXISTS estimate_submitted_date,
+  DROP COLUMN IF EXISTS estimate_approved_date,
+  DROP COLUMN IF EXISTS repair_dropoff_date,
+  DROP COLUMN IF EXISTS estimated_completion_date,
+  DROP COLUMN IF EXISTS car_ready_pickup_date,
+  DROP COLUMN IF EXISTS actual_pickup_date,
+  DROP COLUMN IF EXISTS post_repair_inspection,
+  DROP COLUMN IF EXISTS final_status;

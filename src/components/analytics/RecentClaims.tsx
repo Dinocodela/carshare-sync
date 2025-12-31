@@ -68,17 +68,8 @@ export function RecentClaims({ claims }: RecentClaimsProps) {
                   <div className="text-right">
                     <div className="flex items-center gap-1 text-sm font-medium">
                       <DollarSign className="h-4 w-4" />
-                      {claim.claim_status === "approved" &&
-                      claim.approved_amount
-                        ? `$${claim.approved_amount.toFixed(2)}`
-                        : `$${(claim.claim_amount || 0).toFixed(2)}`}
+                      ${(claim.claim_amount || 0).toFixed(2)}
                     </div>
-                    {claim.claim_status === "approved" &&
-                      claim.approved_amount !== claim.claim_amount && (
-                        <div className="text-xs text-muted-foreground">
-                          Requested: ${(claim.claim_amount || 0).toFixed(2)}
-                        </div>
-                      )}
                   </div>
                 </div>
 

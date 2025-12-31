@@ -40,7 +40,6 @@ interface HostClaim {
   claim_type: string;
   claim_status: string;
   claim_amount: number | null;
-  approved_amount: number | null;
   incident_date: string;
   description: string;
   created_at: string;
@@ -55,7 +54,7 @@ interface HostAnalyticsSummary {
   activeHostingDays: number;
   totalClaims: number;
   totalClaimAmount: number;
-  approvedClaimAmount: number;
+  approvedClaimsAmount: number;
   pendingClaims: number;
   averageTripEarning: number;
 }
@@ -77,7 +76,7 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
     activeHostingDays: 0,
     totalClaims: 0,
     totalClaimAmount: 0,
-    approvedClaimAmount: 0,
+    approvedClaimsAmount: 0,
     pendingClaims: 0,
     averageTripEarning: 0,
   });
@@ -164,7 +163,7 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
         activeHostingDays: 0,
         totalClaims: 0,
         totalClaimAmount: 0,
-        approvedClaimAmount: 0,
+        approvedClaimsAmount: 0,
         pendingClaims: 0,
         averageTripEarning: 0,
       });
@@ -208,9 +207,9 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
     // Calculate claims metrics
     const totalClaims = claims.length;
     const totalClaimAmount = claims.reduce((sum, claim) => sum + (claim.claim_amount || 0), 0);
-    const approvedClaimAmount = claims
+    const approvedClaimsAmount = claims
       .filter((claim) => claim.claim_status === "approved")
-      .reduce((sum, claim) => sum + (claim.approved_amount || 0), 0);
+      .reduce((sum, claim) => sum + (claim.claim_amount || 0), 0);
     const pendingClaims = claims.filter((claim) => claim.claim_status === "pending").length;
 
     setSummary({
@@ -221,7 +220,7 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
       activeHostingDays,
       totalClaims,
       totalClaimAmount,
-      approvedClaimAmount,
+      approvedClaimsAmount,
       pendingClaims,
       averageTripEarning,
     });

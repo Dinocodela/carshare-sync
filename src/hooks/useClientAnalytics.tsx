@@ -50,7 +50,6 @@ export interface ClientClaim {
   host_id: string;
   claim_type: string;
   claim_amount: number | null;
-  approved_amount: number | null;
   claim_status: string;
   incident_date: string;
   created_at: string;
@@ -211,7 +210,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     const pendingClaims = claims.filter(claim => claim.claim_status === 'pending').length;
     const approvedClaimsAmount = claims
       .filter(claim => claim.claim_status === 'approved')
-      .reduce((sum, claim) => sum + (claim.approved_amount || claim.claim_amount || 0), 0);
+      .reduce((sum, claim) => sum + (claim.claim_amount || 0), 0);
 
     setSummary({
       totalEarnings,

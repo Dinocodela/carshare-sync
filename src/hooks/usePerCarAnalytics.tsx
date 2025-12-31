@@ -201,7 +201,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
       const totalClaims = carClaims.length;
       const claimsAmount = carClaims.reduce((sum, c) => 
-        sum + (c.approved_amount || c.claim_amount || 0), 0
+        sum + (c.claim_amount || 0), 0
       );
 
       // Get last trip date
