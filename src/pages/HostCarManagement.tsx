@@ -184,6 +184,7 @@ interface Claim {
   guest_name?: string;
   payment_source?: string;
   claim_type: string;
+  incident_id?: string;
   description: string;
   claim_amount: number | null;
   incident_date: string;
@@ -255,6 +256,7 @@ const claimSchema = z.object({
   guest_name: z.string().min(1, "Guest name is required"),
   payment_source: z.string().min(1, "Payment source is required"),
   claim_type: z.string().min(1, "Claim type is required"),
+  incident_id: z.string().optional(),
   description: z.string().min(1, "Description is required"),
   accident_description: z
     .string()
@@ -486,6 +488,7 @@ export default function HostCarManagement() {
     defaultValues: {
       car_id: "",
       claim_type: "",
+      incident_id: "",
       trip_id: "",
       guest_name: "",
       payment_source: "Turo",
@@ -1483,6 +1486,7 @@ export default function HostCarManagement() {
         guest_name: values.guest_name || null,
         payment_source: values.payment_source || null,
         claim_type: values.claim_type,
+        incident_id: values.incident_id || null,
         description: values.description,
         accident_description: values.accident_description || null,
         claim_amount: values.claim_amount,
@@ -1540,6 +1544,7 @@ export default function HostCarManagement() {
       guest_name: claim.guest_name || "",
       payment_source: claim.payment_source || "Turo",
       claim_type: claim.claim_type,
+      incident_id: claim.incident_id || "",
       description: claim.description,
       accident_description: claim.accident_description || "",
       claim_amount: claim.claim_amount || 0,
@@ -5358,6 +5363,23 @@ export default function HostCarManagement() {
 
                           <FormField
                             control={claimForm.control}
+                            name="incident_id"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Incident ID</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Enter incident ID (optional)"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={claimForm.control}
                             name="trip_id"
                             render={({ field }) => {
                               const selectedCarId = claimForm.watch("car_id");
@@ -5966,6 +5988,23 @@ export default function HostCarManagement() {
                             )}
                           />
                         </div>
+
+                        <FormField
+                          control={claimForm.control}
+                          name="incident_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Incident ID</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter incident ID (optional)"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
                         <FormField
                           control={claimForm.control}
@@ -6608,6 +6647,11 @@ export default function HostCarManagement() {
                                   {claim.trip_id && (
                                     <Badge variant="outline">
                                       Trip# {claim.trip_id}
+                                    </Badge>
+                                  )}
+                                  {claim.incident_id && (
+                                    <Badge variant="outline">
+                                      Incident# {claim.incident_id}
                                     </Badge>
                                   )}
                                 </div>
