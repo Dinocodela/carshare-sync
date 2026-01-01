@@ -857,6 +857,12 @@ export default function HostCarManagement() {
     );
   }, [claims, claimsFilters]);
 
+  // Get distinct claim types from claims data
+  const distinctClaimTypes = useMemo(() => {
+    const types = [...new Set(claims.map((c) => c.claim_type).filter(Boolean))];
+    return types.sort();
+  }, [claims]);
+
   // Count active filters
   const activeFiltersCount = Object.values(expenseFilters).filter(
     (value) => value && value !== "all"
@@ -5785,10 +5791,7 @@ export default function HostCarManagement() {
                                 <SelectItem value="approved">
                                   Approved
                                 </SelectItem>
-                                <SelectItem value="denied">Denied</SelectItem>
-                                <SelectItem value="processing">
-                                  Processing
-                                </SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -5810,12 +5813,11 @@ export default function HostCarManagement() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="all">All types</SelectItem>
-                                <SelectItem value="damage">Damage</SelectItem>
-                                <SelectItem value="accident">
-                                  Accident
-                                </SelectItem>
-                                <SelectItem value="theft">Theft</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                {distinctClaimTypes.map((type) => (
+                                  <SelectItem key={type} value={type}>
+                                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                           </div>
@@ -6384,10 +6386,7 @@ export default function HostCarManagement() {
                               <SelectItem value="all">All statuses</SelectItem>
                               <SelectItem value="pending">Pending</SelectItem>
                               <SelectItem value="approved">Approved</SelectItem>
-                              <SelectItem value="denied">Denied</SelectItem>
-                              <SelectItem value="processing">
-                                Processing
-                              </SelectItem>
+                              <SelectItem value="rejected">Rejected</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -6411,10 +6410,11 @@ export default function HostCarManagement() {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="all">All types</SelectItem>
-                              <SelectItem value="damage">Damage</SelectItem>
-                              <SelectItem value="accident">Accident</SelectItem>
-                              <SelectItem value="theft">Theft</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
+                              {distinctClaimTypes.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
