@@ -262,6 +262,7 @@ const claimSchema = z.object({
   claim_amount: z.number().min(0.01, "Amount must be greater than 0"),
   incident_date: z.string().min(1, "Incident date is required"),
   photos_taken: z.boolean().default(false),
+  is_paid: z.boolean().default(false),
 });
 // Helper function to format car display name
 const formatCarDisplayName = (car: CarWithClient) => {
@@ -492,6 +493,7 @@ export default function HostCarManagement() {
       claim_amount: 0,
       incident_date: new Date().toISOString().split("T")[0],
       photos_taken: false,
+      is_paid: false,
     },
   });
 
@@ -1480,6 +1482,7 @@ export default function HostCarManagement() {
         claim_amount: values.claim_amount,
         incident_date: values.incident_date,
         photos_taken: values.photos_taken,
+        is_paid: values.is_paid,
       };
 
       if (editingClaim) {
@@ -1536,6 +1539,7 @@ export default function HostCarManagement() {
       claim_amount: claim.claim_amount || 0,
       incident_date: claim.incident_date,
       photos_taken: claim.photos_taken || false,
+      is_paid: claim.is_paid || false,
     });
     setClaimDialogOpen(true);
   };
@@ -5650,6 +5654,28 @@ export default function HostCarManagement() {
                               )}
                             />
 
+                          <FormField
+                              control={claimForm.control}
+                              name="is_paid"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={field.value}
+                                      onChange={field.onChange}
+                                      className="h-4 w-4"
+                                    />
+                                  </FormControl>
+                                  <div className="space-y-1 leading-none">
+                                    <FormLabel>
+                                      Claim has been paid
+                                    </FormLabel>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+
                           <div className="pt-2 flex justify-end gap-2">
                             <Button
                               type="button"
@@ -6238,6 +6264,28 @@ export default function HostCarManagement() {
                               <div className="space-y-1 leading-none">
                                 <FormLabel>
                                   Photos taken of damage/incident
+                                </FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={claimForm.control}
+                          name="is_paid"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="h-4 w-4"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                  Claim has been paid
                                 </FormLabel>
                               </div>
                             </FormItem>
