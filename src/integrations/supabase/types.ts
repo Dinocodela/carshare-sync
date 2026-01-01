@@ -679,6 +679,7 @@ export type Database = {
           host_id: string
           id: string
           incident_date: string
+          incident_id: string | null
           is_paid: boolean
           payment_source: string | null
           photos_taken: boolean | null
@@ -698,6 +699,7 @@ export type Database = {
           host_id: string
           id?: string
           incident_date: string
+          incident_id?: string | null
           is_paid?: boolean
           payment_source?: string | null
           photos_taken?: boolean | null
@@ -717,6 +719,7 @@ export type Database = {
           host_id?: string
           id?: string
           incident_date?: string
+          incident_id?: string | null
           is_paid?: boolean
           payment_source?: string | null
           photos_taken?: boolean | null
