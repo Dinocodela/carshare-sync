@@ -191,6 +191,7 @@ interface Claim {
   claim_number: string | null;
   accident_description?: string;
   photos_taken?: boolean;
+  is_paid: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -6551,6 +6552,11 @@ export default function HostCarManagement() {
                                   >
                                     {claim.claim_status}
                                   </Badge>
+                                  {claim.is_paid && (
+                                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                                      Paid
+                                    </Badge>
+                                  )}
                                   {claim.trip_id && (
                                     <Badge variant="outline">
                                       Trip# {claim.trip_id}
