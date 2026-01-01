@@ -6729,30 +6729,6 @@ export default function HostCarManagement() {
                               </div>
                               <div className="text-right">
                                 <div className="flex items-start gap-2 mb-2">
-                                  <Select
-                                    value={claim.claim_status}
-                                    onValueChange={(status) =>
-                                      handleUpdateClaimStatus(claim.id, status)
-                                    }
-                                  >
-                                    <SelectTrigger className="w-32 h-8 text-xs">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="pending">
-                                        Pending
-                                      </SelectItem>
-                                      <SelectItem value="approved">
-                                        Approved
-                                      </SelectItem>
-                                      <SelectItem value="denied">
-                                        Denied
-                                      </SelectItem>
-                                      <SelectItem value="closed">
-                                        Closed
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button variant="outline" size="sm">
