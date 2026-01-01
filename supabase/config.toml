@@ -56,6 +56,9 @@ verify_jwt = true
 [functions.create-host-earning]
 verify_jwt = true
 
+[functions.upsert-claim]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324
