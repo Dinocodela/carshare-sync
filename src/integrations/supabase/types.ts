@@ -741,7 +741,6 @@ export type Database = {
           amount: number
           booking_id: string | null
           car_id: string
-          client_profit_amount: number | null
           client_profit_percentage: number | null
           commission: number | null
           created_at: string
@@ -752,7 +751,6 @@ export type Database = {
           gross_earnings: number | null
           guest_name: string | null
           host_id: string
-          host_profit_amount: number | null
           host_profit_percentage: number | null
           id: string
           net_amount: number
@@ -766,7 +764,6 @@ export type Database = {
           amount: number
           booking_id?: string | null
           car_id: string
-          client_profit_amount?: number | null
           client_profit_percentage?: number | null
           commission?: number | null
           created_at?: string
@@ -777,7 +774,6 @@ export type Database = {
           gross_earnings?: number | null
           guest_name?: string | null
           host_id: string
-          host_profit_amount?: number | null
           host_profit_percentage?: number | null
           id?: string
           net_amount: number
@@ -791,7 +787,6 @@ export type Database = {
           amount?: number
           booking_id?: string | null
           car_id?: string
-          client_profit_amount?: number | null
           client_profit_percentage?: number | null
           commission?: number | null
           created_at?: string
@@ -802,7 +797,6 @@ export type Database = {
           gross_earnings?: number | null
           guest_name?: string | null
           host_id?: string
-          host_profit_amount?: number | null
           host_profit_percentage?: number | null
           id?: string
           net_amount?: number
