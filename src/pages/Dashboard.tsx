@@ -92,7 +92,7 @@ function useRecentActivity(
           role === "host"
             ? await supabase
                 .from("host_earnings")
-                .select("id, gross_earnings, host_profit_percentage, payment_date, payment_status")
+                .select("id, net_amount, host_profit_percentage, payment_date, payment_status")
                 .eq("payment_status", "paid")
                 .order("payment_date", { ascending: false })
                 .limit(limit)
@@ -137,7 +137,7 @@ function useRecentActivity(
 
         (earns || []).forEach((e) => {
           if (!e.payment_date) return;
-          const hostProfit = ((e.gross_earnings || 0) * (e.host_profit_percentage || 30)) / 100;
+          const hostProfit = ((e.net_amount || 0) * (e.host_profit_percentage || 30)) / 100;
           mapped.push({
             id: `earn_${e.id}`,
             ts: e.payment_date,
@@ -247,28 +247,28 @@ export default function Dashboard() {
       if (isHost) {
         const { data: rows } = await supabase
           .from("host_earnings")
-          .select("gross_earnings, host_profit_percentage, payment_status, payment_date")
+          .select("net_amount, host_profit_percentage, payment_status, payment_date")
           .eq("payment_status", "paid")
           .gte("payment_date", from.toISOString());
         const total = (rows || []).reduce(
-          (s, r) => s + ((r.gross_earnings || 0) * (r.host_profit_percentage || 30)) / 100,
+          (s, r) => s + ((r.net_amount || 0) * (r.host_profit_percentage || 30)) / 100,
           0
         );
         if (!cancelled) setEarn7Host(total);
       } else {
-        // client: calculate client profit on the fly from gross_earnings and percentage
+        // client: calculate client profit on the fly from net_amount and percentage
         const carIds = (clientData?.cars || []).map((c: any) => c.id);
         if (carIds.length) {
           const { data: rows } = await supabase
             .from("host_earnings")
             .select(
-              "gross_earnings, client_profit_percentage, payment_status, payment_date, car_id"
+              "net_amount, client_profit_percentage, payment_status, payment_date, car_id"
             )
             .eq("payment_status", "paid")
             .gte("payment_date", from.toISOString())
             .in("car_id", carIds);
           const total = (rows || []).reduce(
-            (s, r) => s + ((r.gross_earnings || 0) * (r.client_profit_percentage || 70)) / 100,
+            (s, r) => s + ((r.net_amount || 0) * (r.client_profit_percentage || 70)) / 100,
             0
           );
           if (!cancelled) setEarn7Client(total);
