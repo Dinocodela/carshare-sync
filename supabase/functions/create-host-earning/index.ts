@@ -94,26 +94,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Parse and calculate values
+    // Parse values (profit amounts will be calculated on request, not stored)
     const grossEarnings = parseFloat(String(payload.gross_earnings));
     const clientProfitPercentage = parseFloat(String(payload.client_profit_percentage)) || 70;
     const hostProfitPercentage = parseFloat(String(payload.host_profit_percentage)) || 30;
     
-    // Calculate all profit amounts on the backend
+    // Calculate amounts for backwards compatibility fields (amount, commission, net_amount)
     const clientProfitAmount = (grossEarnings * clientProfitPercentage) / 100;
     const hostProfitAmount = (grossEarnings * hostProfitPercentage) / 100;
-    const commission = hostProfitAmount;  // Host's share
-    const netAmount = clientProfitAmount; // Client's share (backwards compatibility)
 
     console.log("Calculated values:", { 
       grossEarnings, 
       clientProfitPercentage, 
-      hostProfitPercentage,
-      clientProfitAmount,
-      hostProfitAmount
+      hostProfitPercentage
     });
 
-    // Insert into host_earnings table
+    // Insert into host_earnings table (profit amounts calculated on request, not stored)
     const { data, error } = await supabase
       .from("host_earnings")
       .insert({
@@ -124,12 +120,11 @@ Deno.serve(async (req) => {
         earning_type: payload.earning_type || "hosting",
         gross_earnings: grossEarnings,
         amount: grossEarnings,
-        commission: commission,
-        net_amount: netAmount,
+        commission: hostProfitAmount,
+        net_amount: clientProfitAmount,
         client_profit_percentage: clientProfitPercentage,
         host_profit_percentage: hostProfitPercentage,
-        client_profit_amount: clientProfitAmount,
-        host_profit_amount: hostProfitAmount,
+        // Do NOT store client_profit_amount and host_profit_amount - calculated on request
         payment_source: payload.payment_source || "Turo",
         earning_period_start: payload.earning_period_start,
         earning_period_end: payload.earning_period_end,
