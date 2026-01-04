@@ -164,8 +164,6 @@ interface Earning {
   net_amount: number;
   client_profit_percentage?: number;
   host_profit_percentage?: number;
-  client_profit_amount?: number;
-  host_profit_amount?: number;
   payment_source?: string;
   earning_period_start: string;
   earning_period_end: string;
@@ -1295,9 +1293,7 @@ export default function HostCarManagement() {
         amount: grossEarnings,
         gross_earnings: grossEarnings,
         commission: 0,
-        net_amount: hostProfit,
-        client_profit_amount: clientProfit,
-        host_profit_amount: hostProfit,
+        net_amount: clientProfit,
         client_profit_percentage: Number(values.client_profit_percentage),
         host_profit_percentage: Number(values.host_profit_percentage),
         payment_source: values.payment_source,
@@ -5110,8 +5106,7 @@ export default function HostCarManagement() {
                                   </span>
                                   <p className="font-medium">
                                     $
-                                    {earning.client_profit_amount?.toFixed(2) ||
-                                      "0.00"}
+                                    {(((earning.gross_earnings || 0) * (earning.client_profit_percentage || 70)) / 100).toFixed(2)}
                                   </p>
                                 </div>
                                 <div>
@@ -5121,8 +5116,7 @@ export default function HostCarManagement() {
                                   </span>
                                   <p className="font-medium">
                                     $
-                                    {earning.host_profit_amount?.toFixed(2) ||
-                                      "0.00"}
+                                    {(((earning.gross_earnings || 0) * (earning.host_profit_percentage || 30)) / 100).toFixed(2)}
                                   </p>
                                 </div>
 

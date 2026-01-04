@@ -7,7 +7,8 @@ interface HostEarning {
   trip_id: string | null;
   car_id: string;
   amount: number;
-  host_profit_amount: number;
+  gross_earnings: number | null;
+  host_profit_percentage: number | null;
   payment_status: string;
   earning_period_start: string;
   earning_period_end: string;
@@ -170,8 +171,12 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
       return;
     }
 
-    // Calculate earnings metrics
-    const totalEarnings = earnings.reduce((sum, earning) => sum + (earning.host_profit_amount || 0), 0);
+    // Calculate host earnings on the fly from gross_earnings and percentage
+    const totalEarnings = earnings.reduce((sum, earning) => {
+      const gross = earning.gross_earnings || earning.amount || 0;
+      const hostPct = earning.host_profit_percentage || 30;
+      return sum + (gross * hostPct / 100);
+    }, 0);
     const totalTrips = earnings.length;
     const averageTripEarning = totalTrips > 0 ? totalEarnings / totalTrips : 0;
 

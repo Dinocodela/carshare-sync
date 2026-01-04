@@ -159,8 +159,12 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
       const carExpenses = allData.expenses.filter(e => e.car_id === car.id);
       const carClaims = allData.claims.filter(c => c.car_id === car.id);
 
-      // totalEarnings is already net of operational expenses (client_profit_amount)
-      const netEarningsFromTrips = carEarnings.reduce((sum, e) => sum + (e.client_profit_amount || 0), 0);
+      // Calculate client profit on the fly from gross_earnings and percentage
+      const netEarningsFromTrips = carEarnings.reduce((sum, e) => {
+        const gross = e.gross_earnings || 0;
+        const clientPct = e.client_profit_percentage || 70;
+        return sum + (gross * clientPct / 100);
+      }, 0);
       
       // Operational expenses (for reference, but not deducted since client_profit_amount is already net)
       const totalOperationalExpenses = carExpenses.reduce((sum, e) => {

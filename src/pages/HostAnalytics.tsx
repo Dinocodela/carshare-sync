@@ -33,18 +33,23 @@ const transformSummaryForDisplay = (hostSummary: any) => ({
 });
 
 const transformEarningsForDisplay = (hostEarnings: any[]) =>
-  hostEarnings.map((earning) => ({
-    ...earning,
-    host_id: earning.host_id || "",
-    commission: earning.commission ?? 0,
-    // For host view, treat host's share as the primary/net amount
-    net_amount: earning.host_profit_amount,
-    gross_earnings: earning.amount,
-    // Map host share into the expected fields so UI shows 30%
-    client_profit_percentage: earning.host_profit_percentage ?? 30,
-    host_profit_percentage: earning.host_profit_percentage ?? 30,
-    client_profit_amount: earning.host_profit_amount,
-  }));
+  hostEarnings.map((earning) => {
+    const gross = earning.gross_earnings || earning.amount || 0;
+    const hostPct = earning.host_profit_percentage || 30;
+    const hostProfit = (gross * hostPct) / 100;
+    return {
+      ...earning,
+      host_id: earning.host_id || "",
+      commission: earning.commission ?? 0,
+      // For host view, treat host's share as the primary/net amount
+      net_amount: hostProfit,
+      gross_earnings: earning.amount,
+      // Map host share into the expected fields so UI shows 30%
+      client_profit_percentage: earning.host_profit_percentage ?? 30,
+      host_profit_percentage: earning.host_profit_percentage ?? 30,
+      client_profit_amount: hostProfit,
+    };
+  });
 
 const transformExpensesForDisplay = (hostExpenses: any[]) =>
   hostExpenses.map((expense) => ({
