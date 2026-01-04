@@ -34,9 +34,9 @@ const transformSummaryForDisplay = (hostSummary: any) => ({
 
 const transformEarningsForDisplay = (hostEarnings: any[]) =>
   hostEarnings.map((earning) => {
-    const gross = earning.gross_earnings || earning.amount || 0;
+    const netAmount = earning.net_amount || 0;
     const hostPct = earning.host_profit_percentage || 30;
-    const hostProfit = (gross * hostPct) / 100;
+    const hostProfit = (netAmount * hostPct) / 100;
     return {
       ...earning,
       host_id: earning.host_id || "",

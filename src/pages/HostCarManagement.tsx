@@ -5106,7 +5106,7 @@ export default function HostCarManagement() {
                                   </span>
                                   <p className="font-medium">
                                     $
-                                    {(((earning.gross_earnings || 0) * (earning.client_profit_percentage || 70)) / 100).toFixed(2)}
+                                    {(((earning.net_amount || 0) * (earning.client_profit_percentage || 70)) / 100).toFixed(2)}
                                   </p>
                                 </div>
                                 <div>
@@ -5116,7 +5116,7 @@ export default function HostCarManagement() {
                                   </span>
                                   <p className="font-medium">
                                     $
-                                    {(((earning.gross_earnings || 0) * (earning.host_profit_percentage || 30)) / 100).toFixed(2)}
+                                    {(((earning.net_amount || 0) * (earning.host_profit_percentage || 30)) / 100).toFixed(2)}
                                   </p>
                                 </div>
 
