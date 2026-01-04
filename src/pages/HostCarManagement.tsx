@@ -5099,28 +5099,7 @@ export default function HostCarManagement() {
                                       "0.00"}
                                   </p>
                                 </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Client Profit (
-                                    {earning.client_profit_percentage}%):
-                                  </span>
-                                  <p className="font-medium">
-                                    $
-                                    {(((earning.net_amount || 0) * (earning.client_profit_percentage || 70)) / 100).toFixed(2)}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Host Profit (
-                                    {earning.host_profit_percentage}%):
-                                  </span>
-                                  <p className="font-medium">
-                                    $
-                                    {(((earning.net_amount || 0) * (earning.host_profit_percentage || 30)) / 100).toFixed(2)}
-                                  </p>
-                                </div>
-
-                                {/* Expenses + net profit (if any) */}
+                                {/* Calculate profits based on net profit (amount - expenses) */}
                                 {(() => {
                                   const relatedExpenses = earning.trip_id
                                     ? expenses.filter(
@@ -5132,19 +5111,22 @@ export default function HostCarManagement() {
                                       sum + (e.total_expenses || e.amount),
                                     0
                                   );
-                                  const netProfit =
-                                    earning.amount - totalExpenses;
+                                  const netProfit = earning.amount - totalExpenses;
+                                  const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
+                                  const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
 
-                                  return totalExpenses > 0 ? (
+                                  return (
                                     <>
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Total Expenses:
-                                        </span>
-                                        <p className="font-medium text-red-600">
-                                          -${totalExpenses.toFixed(2)}
-                                        </p>
-                                      </div>
+                                      {totalExpenses > 0 && (
+                                        <div>
+                                          <span className="text-muted-foreground">
+                                            Total Expenses:
+                                          </span>
+                                          <p className="font-medium text-red-600">
+                                            -${totalExpenses.toFixed(2)}
+                                          </p>
+                                        </div>
+                                      )}
                                       <div>
                                         <span className="text-muted-foreground">
                                           Net Profit:
@@ -5159,8 +5141,26 @@ export default function HostCarManagement() {
                                           ${netProfit.toFixed(2)}
                                         </p>
                                       </div>
+                                      <div>
+                                        <span className="text-muted-foreground">
+                                          Client Profit (
+                                          {earning.client_profit_percentage || 70}%):
+                                        </span>
+                                        <p className={`font-medium ${clientProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                          ${clientProfit.toFixed(2)}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <span className="text-muted-foreground">
+                                          Host Profit (
+                                          {earning.host_profit_percentage || 30}%):
+                                        </span>
+                                        <p className={`font-medium ${hostProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                          ${hostProfit.toFixed(2)}
+                                        </p>
+                                      </div>
                                     </>
-                                  ) : null;
+                                  );
                                 })()}
                               </div>
 

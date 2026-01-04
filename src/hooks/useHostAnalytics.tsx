@@ -172,11 +172,18 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
       return;
     }
 
-    // Calculate host earnings on the fly from net_amount and percentage
+    // Calculate host earnings: (earning.amount - related expenses) * host_profit_percentage
     const totalEarnings = earnings.reduce((sum, earning) => {
-      const netAmount = earning.net_amount || earning.amount || 0;
+      // Find related expenses for this earning's trip
+      const relatedExpenses = earning.trip_id 
+        ? expenses.filter(exp => exp.trip_id === earning.trip_id)
+        : [];
+      const totalExp = relatedExpenses.reduce((expSum, exp) => 
+        expSum + (exp.amount || 0) + (exp.delivery_cost || 0) + (exp.toll_cost || 0) + 
+        (exp.ev_charge_cost || 0) + (exp.carwash_cost || 0), 0);
+      const netProfit = (earning.amount || 0) - totalExp;
       const hostPct = earning.host_profit_percentage || 30;
-      return sum + (netAmount * hostPct / 100);
+      return sum + (netProfit * hostPct / 100);
     }, 0);
     const totalTrips = earnings.length;
     const averageTripEarning = totalTrips > 0 ? totalEarnings / totalTrips : 0;
