@@ -32,19 +32,24 @@ const transformSummaryForDisplay = (hostSummary: any) => ({
   averagePerTrip: hostSummary.averageTripEarning,
 });
 
-const transformEarningsForDisplay = (hostEarnings: any[]) =>
+const transformEarningsForDisplay = (hostEarnings: any[], hostExpenses: any[] = []) =>
   hostEarnings.map((earning) => {
-    const netAmount = earning.net_amount || 0;
+    // Calculate net profit: amount - related expenses
+    const relatedExpenses = earning.trip_id 
+      ? hostExpenses.filter((exp: any) => exp.trip_id === earning.trip_id)
+      : [];
+    const totalExpenses = relatedExpenses.reduce((sum: number, exp: any) => 
+      sum + (exp.amount || 0) + (exp.delivery_cost || 0) + (exp.toll_cost || 0) + 
+      (exp.ev_charge_cost || 0) + (exp.carwash_cost || 0), 0);
+    const netProfit = (earning.amount || 0) - totalExpenses;
     const hostPct = earning.host_profit_percentage || 30;
-    const hostProfit = (netAmount * hostPct) / 100;
+    const hostProfit = (netProfit * hostPct) / 100;
     return {
       ...earning,
       host_id: earning.host_id || "",
       commission: earning.commission ?? 0,
-      // For host view, treat host's share as the primary/net amount
       net_amount: hostProfit,
       gross_earnings: earning.amount,
-      // Map host share into the expected fields so UI shows 30%
       client_profit_percentage: earning.host_profit_percentage ?? 30,
       host_profit_percentage: earning.host_profit_percentage ?? 30,
       client_profit_amount: hostProfit,
@@ -273,7 +278,7 @@ export default function HostAnalytics() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <EarningsChart
-              earnings={transformEarningsForDisplay(earnings)}
+              earnings={transformEarningsForDisplay(earnings, expenses)}
               selectedYear={selectedYear}
             />
             <ExpenseBreakdown
@@ -282,7 +287,7 @@ export default function HostAnalytics() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-1">
-            <RecentTrips earnings={transformEarningsForDisplay(earnings)} />
+            <RecentTrips earnings={transformEarningsForDisplay(earnings, expenses)} />
             <RecentClaims claims={transformClaimsForDisplay(claims)} />
           </div>
         </div>
