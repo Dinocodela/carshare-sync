@@ -5146,7 +5146,7 @@ export default function HostCarManagement() {
                                           Client Profit (
                                           {earning.client_profit_percentage || 70}%):
                                         </span>
-                                        <p className={`font-medium ${clientProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                        <p className="font-medium">
                                           ${clientProfit.toFixed(2)}
                                         </p>
                                       </div>
@@ -5155,7 +5155,7 @@ export default function HostCarManagement() {
                                           Host Profit (
                                           {earning.host_profit_percentage || 30}%):
                                         </span>
-                                        <p className={`font-medium ${hostProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                        <p className="font-medium">
                                           ${hostProfit.toFixed(2)}
                                         </p>
                                       </div>
