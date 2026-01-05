@@ -2669,7 +2669,7 @@ export default function HostCarManagement() {
                         Expense
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>
                           {editingExpense ? "Edit Expense" : "Add New Expense"}
@@ -4200,7 +4200,7 @@ export default function HostCarManagement() {
                         open={earningDialogOpen}
                         onOpenChange={setEarningDialogOpen}
                       >
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle>
                               {editingEarning
@@ -5997,7 +5997,7 @@ export default function HostCarManagement() {
                       File Claim
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>
                         {editingClaim ? "Edit Claim" : "File New Claim"}
