@@ -59,6 +59,9 @@ verify_jwt = true
 [functions.upsert-claim]
 verify_jwt = true
 
+[functions.update-earning-contact]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324
