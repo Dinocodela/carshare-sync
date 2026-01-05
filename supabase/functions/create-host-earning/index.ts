@@ -9,6 +9,8 @@ interface EarningPayload {
   trip_id: string;
   car_id: string;
   guest_name?: string;
+  guest_phone?: string;
+  guest_email?: string;
   gross_earnings: number;
   earning_period_start: string;
   earning_period_end: string;
@@ -117,6 +119,8 @@ Deno.serve(async (req) => {
         trip_id: payload.trip_id,
         car_id: payload.car_id,
         guest_name: payload.guest_name || null,
+        guest_phone: payload.guest_phone || null,
+        guest_email: payload.guest_email || null,
         earning_type: payload.earning_type || "hosting",
         gross_earnings: grossEarnings,
         amount: grossEarnings,
