@@ -157,6 +157,8 @@ interface Earning {
   car_id: string;
   trip_id?: string;
   guest_name?: string;
+  guest_phone?: string;
+  guest_email?: string;
   earning_type: string;
   amount: number;
   gross_earnings?: number;
@@ -235,6 +237,8 @@ const earningSchema = z.object({
   car_id: z.string().min(1, "Car is required"),
   trip_id: z.string().min(1, "Trip# is required"),
   guest_name: z.string().min(1, "Guest name is required"),
+  guest_phone: z.string().optional(),
+  guest_email: z.string().email("Invalid email").optional().or(z.literal("")),
   earning_type: z.string().min(1, "Earning type is required"),
   gross_earnings: z.number().min(0.01, "Amount must be greater than 0"),
   payment_source: z.string().min(1, "Payment source is required"),
@@ -402,6 +406,8 @@ export default function HostCarManagement() {
       car_id: "",
       trip_id: "",
       guest_name: "",
+      guest_phone: "",
+      guest_email: "",
       earning_type: "hosting",
       gross_earnings: 0,
       payment_source: "Turo",
@@ -1289,6 +1295,8 @@ export default function HostCarManagement() {
         car_id: values.car_id,
         trip_id: values.trip_id,
         guest_name: values.guest_name,
+        guest_phone: values.guest_phone || null,
+        guest_email: values.guest_email || null,
         earning_type: values.earning_type,
         amount: grossEarnings,
         gross_earnings: grossEarnings,
@@ -1454,6 +1462,8 @@ export default function HostCarManagement() {
       car_id: earning.car_id,
       trip_id: earning.trip_id || "",
       guest_name: earning.guest_name || "",
+      guest_phone: earning.guest_phone || "",
+      guest_email: earning.guest_email || "",
       earning_type: earning.earning_type,
       gross_earnings: earning.gross_earnings || 0,
       payment_source: earning.payment_source || "Turo",
@@ -3478,6 +3488,49 @@ export default function HostCarManagement() {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
+                                  name="guest_phone"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <Phone className="h-3 w-3" />
+                                        Guest Phone
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Enter guest phone"
+                                          type="tel"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="guest_email"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <Mail className="h-3 w-3" />
+                                        Guest Email
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Enter guest email"
+                                          type="email"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
                                   name="earning_type"
                                   render={({ field }) => (
                                     <FormItem>
@@ -5067,12 +5120,28 @@ export default function HostCarManagement() {
                               </Badge>
                             </div>
 
-                            {/* Rest (unchanged content) */}
+                            {/* Guest info */}
                             <div className="space-y-2">
                               {earning.guest_name && (
                                 <p className="text-sm text-muted-foreground break-words">
                                   Guest: {earning.guest_name}
                                 </p>
+                              )}
+                              {(earning.guest_phone || earning.guest_email) && (
+                                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                  {earning.guest_phone && (
+                                    <span className="flex items-center gap-1">
+                                      <Phone className="h-3 w-3" />
+                                      {earning.guest_phone}
+                                    </span>
+                                  )}
+                                  {earning.guest_email && (
+                                    <span className="flex items-center gap-1">
+                                      <Mail className="h-3 w-3" />
+                                      {earning.guest_email}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                               <p className="text-sm text-muted-foreground break-words">
                                 {new Date(
