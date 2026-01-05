@@ -75,7 +75,7 @@ export function RecentTrips({ earnings, limit = 10 }: RecentTripsProps) {
                         Your Share
                       </p>
                       <p className="text-sm font-semibold text-green-600">
-                        ${earning.client_profit_amount?.toFixed(2) || "0.00"}
+                        ${((earning.amount * (earning.client_profit_percentage || 70) / 100) || 0).toFixed(2)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {earning.client_profit_percentage?.toFixed(0) || "0"}%
@@ -138,7 +138,7 @@ export function RecentTrips({ earnings, limit = 10 }: RecentTripsProps) {
                         <div className="text-sm">
                           <div className="font-semibold text-green-600">
                             $
-                            {earning.client_profit_amount?.toFixed(2) || "0.00"}
+                            {((earning.amount * (earning.client_profit_percentage || 70) / 100) || 0).toFixed(2)}
                           </div>
                           <div className="text-muted-foreground">
                             {earning.client_profit_percentage?.toFixed(0) ||

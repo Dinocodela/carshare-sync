@@ -14,14 +14,14 @@ export interface ClientEarning {
   gross_earnings: number;
   client_profit_percentage: number;
   host_profit_percentage: number;
-  host_profit_amount: number;
-  client_profit_amount: number;
   payment_date: string | null;
   earning_period_start: string;
   earning_period_end: string;
   payment_status: string;
   trip_id?: string | null;
   guest_name?: string | null;
+  guest_phone?: string | null;
+  guest_email?: string | null;
   earning_type: string;
   payment_source: string;
   created_at: string;
@@ -183,7 +183,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
   }, [user, selectedYear]);
 
   const calculateSummary = () => {
-    const totalEarnings = earnings.reduce((sum, earning) => sum + (earning.client_profit_amount || 0), 0);
+    const totalEarnings = earnings.reduce((sum, earning) => sum + ((earning.amount * (earning.client_profit_percentage || 70) / 100) || 0), 0);
     // Calculate total expenses from individual cost components
     const totalExpenses = expenses.reduce((sum, expense) => {
       const expenseTotal = (expense.amount || 0) + 

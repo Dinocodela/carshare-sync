@@ -26,7 +26,7 @@ export function EarningsChart({ earnings, selectedYear }: EarningsChartProps) {
       const year = date.getFullYear();
       const entry = acc[year] || { paid: 0, upcoming: 0, trips: 0 };
 
-      const amount = earning.client_profit_amount || 0;
+      const amount = (earning.amount * (earning.client_profit_percentage || 70) / 100) || 0;
       const status = (earning.payment_status || '').toLowerCase();
 
       if (status === 'paid') {
@@ -160,7 +160,7 @@ export function EarningsChart({ earnings, selectedYear }: EarningsChartProps) {
     const key = format(date, 'yyyy-MM');
     const entry = acc[key] || { paid: 0, upcoming: 0, trips: 0 };
 
-    const amount = earning.client_profit_amount || 0;
+    const amount = (earning.amount * (earning.client_profit_percentage || 70) / 100) || 0;
     const status = (earning.payment_status || '').toLowerCase();
 
     if (status === 'paid') {
