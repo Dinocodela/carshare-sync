@@ -1494,6 +1494,7 @@ export default function HostCarManagement() {
         guest_name: values.guest_name || null,
         payment_source: values.payment_source || null,
         claim_type: values.claim_type,
+        claim_status: values.claim_status,
         incident_id: values.incident_id || null,
         description: values.description,
         accident_description: values.accident_description || null,
