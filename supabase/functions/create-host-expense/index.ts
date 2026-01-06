@@ -83,25 +83,66 @@ Deno.serve(async (req) => {
 
     console.log("Calculated costs:", { evChargeCost, carwashCost, deliveryCost, tollCost, baseAmount, totalExpenses });
 
-    // Insert into host_expenses table (total_expenses is computed by database)
-    const { data, error } = await supabase
+    // Check if expense with this trip_id already exists
+    const { data: existingExpense } = await supabase
       .from("host_expenses")
-      .insert({
-        host_id: user.id,
-        trip_id: payload.trip_id,
-        car_id: payload.car_id || null,
-        guest_name: payload.guest_name || null,
-        expense_type: "general",
-        amount: baseAmount,
-        ev_charge_cost: evChargeCost,
-        carwash_cost: carwashCost,
-        delivery_cost: deliveryCost,
-        toll_cost: tollCost,
-        description: payload.description || null,
-        expense_date: payload.expense_date,
-      })
-      .select()
+      .select("id, host_id")
+      .eq("trip_id", payload.trip_id)
       .single();
+
+    let data;
+    let error;
+    let action: "created" | "updated";
+
+    const expenseData = {
+      host_id: user.id,
+      trip_id: payload.trip_id,
+      car_id: payload.car_id || null,
+      guest_name: payload.guest_name || null,
+      expense_type: "general",
+      amount: baseAmount,
+      ev_charge_cost: evChargeCost,
+      carwash_cost: carwashCost,
+      delivery_cost: deliveryCost,
+      toll_cost: tollCost,
+      description: payload.description || null,
+      expense_date: payload.expense_date,
+    };
+
+    if (existingExpense) {
+      // Verify ownership
+      if (existingExpense.host_id !== user.id) {
+        return new Response(
+          JSON.stringify({ error: "Not authorized to update this expense" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Update existing expense
+      const result = await supabase
+        .from("host_expenses")
+        .update(expenseData)
+        .eq("id", existingExpense.id)
+        .select()
+        .single();
+      
+      data = result.data;
+      error = result.error;
+      action = "updated";
+      console.log("Updated expense:", existingExpense.id);
+    } else {
+      // Insert new expense
+      const result = await supabase
+        .from("host_expenses")
+        .insert(expenseData)
+        .select()
+        .single();
+      
+      data = result.data;
+      error = result.error;
+      action = "created";
+      console.log("Created expense:", data?.id);
+    }
 
     if (error) {
       console.error("Database error:", error.message);
@@ -111,11 +152,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("Created expense:", data.id);
-
     return new Response(
-      JSON.stringify({ success: true, expense: data }),
-      { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ success: true, expense: data, action }),
+      { status: action === "created" ? 201 : 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {

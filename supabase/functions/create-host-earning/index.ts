@@ -111,32 +111,72 @@ Deno.serve(async (req) => {
       hostProfitPercentage
     });
 
-    // Insert into host_earnings table (profit amounts calculated on request, not stored)
-    const { data, error } = await supabase
+    // Check if earning with this trip_id already exists
+    const { data: existingEarning } = await supabase
       .from("host_earnings")
-      .insert({
-        host_id: user.id,
-        trip_id: payload.trip_id,
-        car_id: payload.car_id,
-        guest_name: payload.guest_name || null,
-        guest_phone: payload.guest_phone || null,
-        guest_email: payload.guest_email || null,
-        earning_type: payload.earning_type || "hosting",
-        gross_earnings: grossEarnings,
-        amount: grossEarnings,
-        commission: hostProfitAmount,
-        net_amount: clientProfitAmount,
-        client_profit_percentage: clientProfitPercentage,
-        host_profit_percentage: hostProfitPercentage,
-        // Do NOT store client_profit_amount and host_profit_amount - calculated on request
-        payment_source: payload.payment_source || "Turo",
-        earning_period_start: payload.earning_period_start,
-        earning_period_end: payload.earning_period_end,
-        payment_status: payload.payment_status || "pending",
-        date_paid: payload.date_paid || null,
-      })
-      .select()
+      .select("id, host_id")
+      .eq("trip_id", payload.trip_id)
       .single();
+
+    let data;
+    let error;
+    let action: "created" | "updated";
+
+    const earningData = {
+      host_id: user.id,
+      trip_id: payload.trip_id,
+      car_id: payload.car_id,
+      guest_name: payload.guest_name || null,
+      guest_phone: payload.guest_phone || null,
+      guest_email: payload.guest_email || null,
+      earning_type: payload.earning_type || "hosting",
+      gross_earnings: grossEarnings,
+      amount: grossEarnings,
+      commission: hostProfitAmount,
+      net_amount: clientProfitAmount,
+      client_profit_percentage: clientProfitPercentage,
+      host_profit_percentage: hostProfitPercentage,
+      payment_source: payload.payment_source || "Turo",
+      earning_period_start: payload.earning_period_start,
+      earning_period_end: payload.earning_period_end,
+      payment_status: payload.payment_status || "pending",
+      date_paid: payload.date_paid || null,
+    };
+
+    if (existingEarning) {
+      // Verify ownership
+      if (existingEarning.host_id !== user.id) {
+        return new Response(
+          JSON.stringify({ error: "Not authorized to update this earning" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Update existing earning
+      const result = await supabase
+        .from("host_earnings")
+        .update(earningData)
+        .eq("id", existingEarning.id)
+        .select()
+        .single();
+      
+      data = result.data;
+      error = result.error;
+      action = "updated";
+      console.log("Updated earning:", existingEarning.id);
+    } else {
+      // Insert new earning
+      const result = await supabase
+        .from("host_earnings")
+        .insert(earningData)
+        .select()
+        .single();
+      
+      data = result.data;
+      error = result.error;
+      action = "created";
+      console.log("Created earning:", data?.id);
+    }
 
     if (error) {
       console.error("Database error:", error.message);
@@ -146,11 +186,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("Created earning:", data.id);
-
     return new Response(
-      JSON.stringify({ success: true, earning: data }),
-      { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ success: true, earning: data, action }),
+      { status: action === "created" ? 201 : 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
