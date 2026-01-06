@@ -5444,24 +5444,11 @@ export default function HostCarManagement() {
                                         e.stopPropagation()
                                       }
                                     >
-                                      <SelectItem value="damage">
-                                        Physical Damage
-                                      </SelectItem>
-                                      <SelectItem value="theft">
-                                        Theft
-                                      </SelectItem>
-                                      <SelectItem value="accident">
-                                        Accident
-                                      </SelectItem>
-                                      <SelectItem value="vandalism">
-                                        Vandalism
-                                      </SelectItem>
-                                      <SelectItem value="mechanical">
-                                        Mechanical Issues
-                                      </SelectItem>
-                                      <SelectItem value="other">
-                                        Other
-                                      </SelectItem>
+                                      {distinctClaimTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>
+                                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                                        </SelectItem>
+                                      ))}
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -6121,20 +6108,11 @@ export default function HostCarManagement() {
                                       e.stopPropagation()
                                     }
                                   >
-                                    <SelectItem value="damage">
-                                      Physical Damage
-                                    </SelectItem>
-                                    <SelectItem value="theft">Theft</SelectItem>
-                                    <SelectItem value="accident">
-                                      Accident
-                                    </SelectItem>
-                                    <SelectItem value="vandalism">
-                                      Vandalism
-                                    </SelectItem>
-                                    <SelectItem value="mechanical">
-                                      Mechanical Issues
-                                    </SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
+                                    {distinctClaimTypes.map((type) => (
+                                      <SelectItem key={type} value={type}>
+                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                      </SelectItem>
+                                    ))}
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
