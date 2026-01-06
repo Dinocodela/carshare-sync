@@ -5485,14 +5485,8 @@ export default function HostCarManagement() {
                                       <SelectItem value="approved">
                                         Approved
                                       </SelectItem>
-                                      <SelectItem value="denied">
-                                        Denied
-                                      </SelectItem>
-                                      <SelectItem value="in_review">
-                                        In Review
-                                      </SelectItem>
-                                      <SelectItem value="closed">
-                                        Closed
+                                      <SelectItem value="rejected">
+                                        Rejected
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>
@@ -6149,14 +6143,8 @@ export default function HostCarManagement() {
                                     <SelectItem value="approved">
                                       Approved
                                     </SelectItem>
-                                    <SelectItem value="denied">
-                                      Denied
-                                    </SelectItem>
-                                    <SelectItem value="in_review">
-                                      In Review
-                                    </SelectItem>
-                                    <SelectItem value="closed">
-                                      Closed
+                                    <SelectItem value="rejected">
+                                      Rejected
                                     </SelectItem>
                                   </SelectContent>
                                 </Select>
