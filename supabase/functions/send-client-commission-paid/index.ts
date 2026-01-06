@@ -44,7 +44,8 @@ const handler = async (req: Request): Promise<Response> => {
         id,
         car_id,
         host_id,
-        client_profit_amount,
+        gross_earnings,
+        client_profit_percentage,
         payment_source,
         trip_id,
         guest_name,
@@ -100,7 +101,11 @@ const handler = async (req: Request): Promise<Response> => {
     const hostName = hostProfile ? `${hostProfile.first_name ?? ''} ${hostProfile.last_name ?? ''}`.trim() : 'Your Host';
     const hostCompany = hostProfile?.company_name ?? 'TESLYS Partner';
 
-    const amount = Number(earning.client_profit_amount ?? 0).toFixed(2);
+    // Calculate client profit amount from gross earnings and percentage
+    const grossEarnings = Number(earning.gross_earnings ?? 0);
+    const clientProfitPercentage = Number(earning.client_profit_percentage ?? 70);
+    const clientProfitAmount = (grossEarnings * clientProfitPercentage) / 100;
+    const amount = clientProfitAmount.toFixed(2);
     const periodStart = new Date(earning.earning_period_start).toLocaleString('en-US');
     const periodEnd = new Date(earning.earning_period_end).toLocaleString('en-US');
     const paidDate = earning.date_paid ? new Date(earning.date_paid).toLocaleDateString('en-US') : 'Today';
