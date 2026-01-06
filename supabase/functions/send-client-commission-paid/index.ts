@@ -64,6 +64,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Fetch trip expenses to calculate net profit
+    let totalTripExpenses = 0;
+    if (earning.trip_id) {
+      const { data: expenses } = await supabaseAdmin
+        .from('host_expenses')
+        .select('total_expenses')
+        .eq('trip_id', earning.trip_id);
+      
+      if (expenses && expenses.length > 0) {
+        totalTripExpenses = expenses.reduce((sum, exp) => sum + (exp.total_expenses || 0), 0);
+      }
+    }
+    console.log('Trip expenses for earning:', totalTripExpenses);
+
     // 2) Fetch car + client
     const { data: car, error: carError } = await supabaseAdmin
       .from('cars')
@@ -101,11 +115,13 @@ const handler = async (req: Request): Promise<Response> => {
     const hostName = hostProfile ? `${hostProfile.first_name ?? ''} ${hostProfile.last_name ?? ''}`.trim() : 'Your Host';
     const hostCompany = hostProfile?.company_name ?? 'TESLYS Partner';
 
-    // Calculate client profit amount from gross earnings and percentage
+    // Calculate client profit using net profit (gross - expenses)
     const grossEarnings = Number(earning.gross_earnings ?? 0);
     const clientProfitPercentage = Number(earning.client_profit_percentage ?? 70);
-    const clientProfitAmount = (grossEarnings * clientProfitPercentage) / 100;
+    const netProfit = grossEarnings - totalTripExpenses;
+    const clientProfitAmount = (netProfit * clientProfitPercentage) / 100;
     const amount = clientProfitAmount.toFixed(2);
+    console.log('Calculated client profit:', { grossEarnings, totalTripExpenses, netProfit, clientProfitPercentage, clientProfitAmount });
     const periodStart = new Date(earning.earning_period_start).toLocaleString('en-US');
     const periodEnd = new Date(earning.earning_period_end).toLocaleString('en-US');
     const paidDate = earning.date_paid ? new Date(earning.date_paid).toLocaleDateString('en-US') : 'Today';
