@@ -258,6 +258,7 @@ const claimSchema = z.object({
   guest_name: z.string().min(1, "Guest name is required"),
   payment_source: z.string().min(1, "Payment source is required"),
   claim_type: z.string().min(1, "Claim type is required"),
+  claim_status: z.string().min(1, "Claim status is required"),
   incident_id: z.string().optional(),
   description: z.string().min(1, "Description is required"),
   accident_description: z
@@ -492,6 +493,7 @@ export default function HostCarManagement() {
     defaultValues: {
       car_id: "",
       claim_type: "",
+      claim_status: "pending",
       incident_id: "",
       trip_id: "",
       guest_name: "",
@@ -1550,6 +1552,7 @@ export default function HostCarManagement() {
       guest_name: claim.guest_name || "",
       payment_source: claim.payment_source || "Turo",
       claim_type: claim.claim_type,
+      claim_status: claim.claim_status || "pending",
       incident_id: claim.incident_id || "",
       description: claim.description,
       accident_description: claim.accident_description || "",
@@ -5465,6 +5468,51 @@ export default function HostCarManagement() {
                                 </FormItem>
                               )}
                             />
+                            <FormField
+                              control={claimForm.control}
+                              name="claim_status"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Claim Status *</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent
+                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                      position="popper"
+                                      side="bottom"
+                                      avoidCollisions={false}
+                                      onPointerDownOutside={(e) =>
+                                        e.stopPropagation()
+                                      }
+                                    >
+                                      <SelectItem value="pending">
+                                        Pending
+                                      </SelectItem>
+                                      <SelectItem value="approved">
+                                        Approved
+                                      </SelectItem>
+                                      <SelectItem value="denied">
+                                        Denied
+                                      </SelectItem>
+                                      <SelectItem value="in_review">
+                                        In Review
+                                      </SelectItem>
+                                      <SelectItem value="closed">
+                                        Closed
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
 
                           <FormField
@@ -6087,6 +6135,51 @@ export default function HostCarManagement() {
                                       Mechanical Issues
                                     </SelectItem>
                                     <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={claimForm.control}
+                            name="claim_status"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Claim Status *</FormLabel>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent
+                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
+                                    position="popper"
+                                    side="bottom"
+                                    avoidCollisions={false}
+                                    onPointerDownOutside={(e) =>
+                                      e.stopPropagation()
+                                    }
+                                  >
+                                    <SelectItem value="pending">
+                                      Pending
+                                    </SelectItem>
+                                    <SelectItem value="approved">
+                                      Approved
+                                    </SelectItem>
+                                    <SelectItem value="denied">
+                                      Denied
+                                    </SelectItem>
+                                    <SelectItem value="in_review">
+                                      In Review
+                                    </SelectItem>
+                                    <SelectItem value="closed">
+                                      Closed
+                                    </SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
