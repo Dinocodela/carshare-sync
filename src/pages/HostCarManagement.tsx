@@ -5325,7 +5325,21 @@ export default function HostCarManagement() {
                 <div className="flex items-center justify-between w-full">
                   <Button
                     size="sm"
-                    onClick={() => setClaimDialogOpen(true)}
+                    onClick={() => {
+                      setEditingClaim(null);
+                      claimForm.reset({
+                        car_id: "",
+                        claim_type: "",
+                        claim_status: "pending",
+                        incident_date: new Date().toISOString().split("T")[0],
+                        description: "",
+                        claim_amount: 0,
+                        incident_id: "",
+                        guest_name: "",
+                        is_paid: false,
+                      });
+                      setClaimDialogOpen(true);
+                    }}
                     className="h-8 px-3"
                   >
                     <Plus className="h-4 w-4 mr-1" />
@@ -6017,11 +6031,31 @@ export default function HostCarManagement() {
               ) : (
                 <Dialog
                   open={claimDialogOpen}
-                  onOpenChange={setClaimDialogOpen}
+                  onOpenChange={(open) => {
+                    if (!open) {
+                      setEditingClaim(null);
+                    }
+                    setClaimDialogOpen(open);
+                  }}
                   modal={!isMobile}
                 >
                   <DialogTrigger asChild>
-                    <Button>
+                    <Button
+                      onClick={() => {
+                        setEditingClaim(null);
+                        claimForm.reset({
+                          car_id: "",
+                          claim_type: "",
+                          claim_status: "pending",
+                          incident_date: new Date().toISOString().split("T")[0],
+                          description: "",
+                          claim_amount: 0,
+                          incident_id: "",
+                          guest_name: "",
+                          is_paid: false,
+                        });
+                      }}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       File Claim
                     </Button>
