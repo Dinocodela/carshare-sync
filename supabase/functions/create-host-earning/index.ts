@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
     // Check if earning with this trip_id already exists
     const { data: existingEarning } = await supabase
       .from("host_earnings")
-      .select("id, host_id")
+      .select("id, host_id, payment_status")
       .eq("trip_id", payload.trip_id)
       .single();
 
@@ -149,6 +149,14 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({ error: "Not authorized to update this earning" }),
           { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Prevent updates to paid earnings
+      if (existingEarning.payment_status === "paid") {
+        return new Response(
+          JSON.stringify({ error: "Cannot update earnings that are already marked as paid" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
