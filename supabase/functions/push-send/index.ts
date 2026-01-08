@@ -51,18 +51,31 @@ export const handler = async (req: Request): Promise<Response> => {
     const body = await req.json().catch(() => ({}));
     let userId: string;
     
-    // If targetUserId is provided, use it (for system notifications)
-    // Otherwise, use the authenticated user's ID
+    // Always authenticate the caller first
+    const { data: authData, error: authErr } = await supabase.auth.getUser();
+    if (authErr || !authData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    
+    // If targetUserId is provided, verify caller is a super admin
     if (body.targetUserId) {
-      userId = body.targetUserId;
-    } else {
-      const { data: authData, error: authErr } = await supabase.auth.getUser();
-      if (authErr || !authData?.user) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
+      const { data: profile, error: profileErr } = await supabase
+        .from("profiles")
+        .select("is_super_admin")
+        .eq("user_id", authData.user.id)
+        .single();
+      
+      if (profileErr || !profile?.is_super_admin) {
+        return new Response(JSON.stringify({ error: "Unauthorized: only admins can target other users" }), {
+          status: 403,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         });
       }
+      userId = body.targetUserId;
+    } else {
       userId = authData.user.id;
     }
 
