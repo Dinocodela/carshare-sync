@@ -66,7 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; margin: 30px 0;">
             <p>Please log in to your dashboard to review and respond to this request.</p>
-            <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || 'https://yourapp.com'}/dashboard" 
+            <a href="${Deno.env.get('APP_URL') || 'https://teslys.app'}/host-requests" 
                style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
               Review Request
             </a>
