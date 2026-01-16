@@ -257,6 +257,25 @@ const Index = () => {
           <div className="w-full bg-background/50 backdrop-blur-sm py-8 mt-12">
             <Testimonials />
           </div>
+
+          {/* Legal Footer */}
+          <footer className="w-full py-6 text-center text-xs text-muted-foreground space-x-3">
+            <Link to="/privacy" className="hover:text-foreground transition underline-offset-2 hover:underline">
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link to="/terms" className="hover:text-foreground transition underline-offset-2 hover:underline">
+              Terms of Service
+            </Link>
+            <span>•</span>
+            <Link to="/sms-consent" className="hover:text-foreground transition underline-offset-2 hover:underline">
+              SMS Consent
+            </Link>
+            <span>•</span>
+            <Link to="/support" className="hover:text-foreground transition underline-offset-2 hover:underline">
+              Support
+            </Link>
+          </footer>
         </div>
       </div>
     </>

@@ -14,14 +14,22 @@ export function LegalFooter({ className = "" }: { className?: string }) {
         onClick={() => navigate("/terms")}
       >
         Terms of Use
-      </button>{" "}
-      and{" "}
+      </button>
+      ,{" "}
       <button
         type="button"
         className="underline underline-offset-2"
         onClick={() => navigate("/privacy")}
       >
         Privacy Policy
+      </button>
+      , and{" "}
+      <button
+        type="button"
+        className="underline underline-offset-2"
+        onClick={() => navigate("/sms-consent")}
+      >
+        SMS Consent
       </button>
       .
     </div>
