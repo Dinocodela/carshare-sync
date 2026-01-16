@@ -44,6 +44,7 @@ import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
+import SMSConsent from "./pages/SMSConsent";
 import ScrollReset from "./components/router/ScrollReset";
 import { useEffect } from "react";
 
@@ -95,6 +96,7 @@ const App = () => (
               <Route path="/register/host" element={<RegisterHost />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfUse />} />
+              <Route path="/sms-consent" element={<SMSConsent />} />
               <Route path="/support" element={<Support />} />
               <Route path="/faq" element={<FAQ />} />
 
