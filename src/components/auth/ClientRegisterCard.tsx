@@ -10,9 +10,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { validatePassword } from "@/lib/passwordValidation";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
+import { Link } from "react-router-dom";
 
 type Props = { onDone?: () => void; onBackToLogin: () => void };
 
@@ -25,6 +27,7 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
     password: "",
     confirmPassword: "",
   });
+  const [smsConsent, setSmsConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState(
     validatePassword("")
@@ -40,6 +43,7 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
     if (!formData.lastName.trim()) e.lastName = "Last name is required";
     if (!formData.email.trim()) e.email = "Email is required";
     if (!formData.phone.trim()) e.phone = "Phone number is required";
+    if (!smsConsent) e.smsConsent = "SMS consent is required";
     if (!passwordValidation.isValid)
       e.password = "Password does not meet requirements";
     if (formData.password !== formData.confirmPassword)
@@ -160,6 +164,34 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
               onChange={handleChange}
               required
             />
+          </div>
+
+          {/* SMS Consent Checkbox */}
+          <div className="flex items-start space-x-3">
+            <Checkbox
+              id="smsConsent"
+              checked={smsConsent}
+              onCheckedChange={(checked) => {
+                setSmsConsent(checked === true);
+                if (fieldErrors.smsConsent) setFieldErrors((p) => ({ ...p, smsConsent: "" }));
+              }}
+              className={fieldErrors.smsConsent ? "border-red-500" : ""}
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label
+                htmlFor="smsConsent"
+                className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
+              >
+                I agree to receive SMS messages from Teslys for booking confirmations, reminders, and support.
+                Message frequency varies. Message and data rates may apply. Reply STOP to cancel.{" "}
+                <Link to="/sms-consent" className="text-primary underline underline-offset-2" target="_blank">
+                  View SMS Terms
+                </Link>
+              </label>
+              {fieldErrors.smsConsent && (
+                <p className="text-sm text-red-600">{fieldErrors.smsConsent}</p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
