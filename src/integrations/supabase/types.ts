@@ -1498,15 +1498,6 @@ export type Database = {
     Functions: {
       accept_hosting_request: { Args: { p_request_id: string }; Returns: Json }
       auto_select_winner: { Args: { p_test_id: string }; Returns: Json }
-      check_earning_date_conflicts: {
-        Args: {
-          p_car_id: string
-          p_end_date: string
-          p_exclude_id?: string
-          p_start_date: string
-        }
-        Returns: boolean
-      }
       get_car_earnings_summary: {
         Args: { p_car_id: string }
         Returns: {
@@ -1530,17 +1521,6 @@ export type Database = {
           last_name: string
           phone: string
           user_id: string
-        }[]
-      }
-      get_conflicting_earnings: {
-        Args: { p_car_id: string; p_end_date: string; p_start_date: string }
-        Returns: {
-          amount: number
-          earning_period_end: string
-          earning_period_start: string
-          guest_name: string
-          id: string
-          trip_id: string
         }[]
       }
       get_contact_info: {
