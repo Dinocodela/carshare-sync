@@ -101,8 +101,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useBookingValidation } from "@/hooks/useBookingValidation";
-import { ConflictWarning } from "@/components/booking/ConflictWarning";
 import { AvailabilityCalendar } from "@/components/booking/AvailabilityCalendar";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -422,9 +420,6 @@ export default function HostCarManagement() {
     },
   });
 
-  // Add booking validation hook
-  const { validateDateTimes, isValidating } = useBookingValidation();
-  const [dateConflicts, setDateConflicts] = useState<any[]>([]);
   const [showCalendar, setShowCalendar] = useState(false);
 
   // Auto-populate guest name and car when trip_id changes
@@ -535,47 +530,6 @@ export default function HostCarManagement() {
     }
   }, [watchedClaimTripId, expenses, earnings, claimForm]);
 
-  // Add date validation for earning form
-  const watchedCarId = earningForm.watch("car_id");
-  const watchedStartDate = earningForm.watch("earning_period_start_date");
-  const watchedStartTime = earningForm.watch("earning_period_start_time");
-  const watchedEndDate = earningForm.watch("earning_period_end_date");
-  const watchedEndTime = earningForm.watch("earning_period_end_time");
-
-  useEffect(() => {
-    const validateBookingDates = async () => {
-      if (
-        watchedCarId &&
-        watchedStartDate &&
-        watchedStartTime &&
-        watchedEndDate &&
-        watchedEndTime
-      ) {
-        const startDateTime = `${watchedStartDate}T${watchedStartTime}:00`;
-        const endDateTime = `${watchedEndDate}T${watchedEndTime}:00`;
-        const result = await validateDateTimes(
-          watchedCarId,
-          startDateTime,
-          endDateTime,
-          editingEarning?.id
-        );
-        setDateConflicts(result.conflicts);
-      } else {
-        setDateConflicts([]);
-      }
-    };
-
-    const debounceTimer = setTimeout(validateBookingDates, 500);
-    return () => clearTimeout(debounceTimer);
-  }, [
-    watchedCarId,
-    watchedStartDate,
-    watchedStartTime,
-    watchedEndDate,
-    watchedEndTime,
-    validateDateTimes,
-    editingEarning?.id,
-  ]);
 
   // Auto-populate car and guest when trip_id changes in expenses form
   const watchedExpenseTripId = expenseForm.watch("trip_id");
@@ -1242,30 +1196,6 @@ export default function HostCarManagement() {
       return;
     }
 
-    // Validate dates before submission
-    const startDateTimeLocal = `${values.earning_period_start_date}T${values.earning_period_start_time}:00`;
-    const endDateTimeLocal = `${values.earning_period_end_date}T${values.earning_period_end_time}:00`;
-    const startDateTime = new Date(startDateTimeLocal).toISOString();
-    const endDateTime = new Date(endDateTimeLocal).toISOString();
-    const validationResult = await validateDateTimes(
-      values.car_id,
-      startDateTime,
-      endDateTime,
-      editingEarning?.id
-    );
-
-    if (!validationResult.isValid) {
-      toast({
-        title: validationResult.error ? "Validation error" : "Date conflict",
-        description:
-          validationResult.error ??
-          "This car is already booked during the selected period. Please choose different dates.",
-        variant: "destructive",
-      });
-      setDateConflicts(validationResult.conflicts || []);
-      setShowCalendar(true);
-      return;
-    }
 
     const {
       data: { session: currentSession },
@@ -1281,6 +1211,12 @@ export default function HostCarManagement() {
     }
 
     try {
+      // Build date-times for earning period
+      const startDateTimeLocal = `${values.earning_period_start_date}T${values.earning_period_start_time}:00`;
+      const endDateTimeLocal = `${values.earning_period_end_date}T${values.earning_period_end_time}:00`;
+      const startDateTime = new Date(startDateTimeLocal).toISOString();
+      const endDateTime = new Date(endDateTimeLocal).toISOString();
+
       const grossEarnings = Number(values.gross_earnings);
 
       // Calculate net earnings by deducting expenses for this trip
@@ -3835,24 +3771,6 @@ export default function HostCarManagement() {
                                 />
                               </div>
 
-                              {dateConflicts.length > 0 && (
-                                <ConflictWarning
-                                  conflicts={dateConflicts}
-                                  selectedDates={{
-                                    start: `${earningForm.watch(
-                                      "earning_period_start_date"
-                                    )}T${earningForm.watch(
-                                      "earning_period_start_time"
-                                    )}:00`,
-                                    end: `${earningForm.watch(
-                                      "earning_period_end_date"
-                                    )}T${earningForm.watch(
-                                      "earning_period_end_time"
-                                    )}:00`,
-                                  }}
-                                />
-                              )}
-
                               {earningForm.watch("car_id") && (
                                 <div className="flex justify-center">
                                   <Button
@@ -4702,24 +4620,6 @@ export default function HostCarManagement() {
                                   )}
                                 />
                               </div>
-
-                              {dateConflicts.length > 0 && (
-                                <ConflictWarning
-                                  conflicts={dateConflicts}
-                                  selectedDates={{
-                                    start: `${earningForm.watch(
-                                      "earning_period_start_date"
-                                    )}T${earningForm.watch(
-                                      "earning_period_start_time"
-                                    )}:00`,
-                                    end: `${earningForm.watch(
-                                      "earning_period_end_date"
-                                    )}T${earningForm.watch(
-                                      "earning_period_end_time"
-                                    )}:00`,
-                                  }}
-                                />
-                              )}
 
                               {earningForm.watch("car_id") && (
                                 <div className="flex justify-center">
