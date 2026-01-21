@@ -3,8 +3,16 @@ import { Calendar, Car, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ConflictingEarning } from '@/hooks/useBookingValidation';
-import { format, isSameDay, isWithinInterval, parseISO } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
+
+interface Booking {
+  id: string;
+  trip_id: string | null;
+  earning_period_start: string;
+  earning_period_end: string;
+  guest_name: string | null;
+  amount: number;
+}
 
 interface AvailabilityCalendarProps {
   carId: string;
@@ -12,7 +20,7 @@ interface AvailabilityCalendarProps {
 }
 
 export function AvailabilityCalendar({ carId, onDateSelect }: AvailabilityCalendarProps) {
-  const [bookings, setBookings] = useState<ConflictingEarning[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCar, setSelectedCar] = useState<any>(null);
 
