@@ -11,8 +11,16 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const tripId = url.searchParams.get("trip_id");
+    let tripId: string | null = null;
+
+    // Support both GET with query params and POST with JSON body
+    if (req.method === "POST") {
+      const body = await req.json();
+      tripId = body.trip_id;
+    } else {
+      const url = new URL(req.url);
+      tripId = url.searchParams.get("trip_id");
+    }
 
     if (!tripId) {
       return new Response(
