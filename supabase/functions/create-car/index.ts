@@ -5,19 +5,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface CarPayload {
-  make: string;
-  model: string;
-  year: number;
-  color?: string;
-  mileage?: number;
-  location?: string;
-  description?: string;
-  images?: string[];
-  license_plate?: string;
-  vin_number?: string;
-}
-
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -61,26 +48,104 @@ Deno.serve(async (req) => {
 
     console.log("Authenticated user:", user.id);
 
-    // Parse request body
-    const payload: CarPayload = await req.json();
-    console.log("Received payload:", JSON.stringify(payload));
+    const contentType = req.headers.get("content-type") || "";
+    
+    let make: string | null = null;
+    let model: string | null = null;
+    let year: number | null = null;
+    let color: string | null = null;
+    let mileage: number | null = null;
+    let location: string | null = null;
+    let description: string | null = null;
+    let licensePlate: string | null = null;
+    let vinNumber: string | null = null;
+    const imageUrls: string[] = [];
+
+    if (contentType.includes("multipart/form-data")) {
+      // Handle multipart form data with image uploads
+      const formData = await req.formData();
+      
+      make = formData.get("make") as string;
+      model = formData.get("model") as string;
+      const yearStr = formData.get("year") as string;
+      year = yearStr ? parseInt(yearStr, 10) : null;
+      color = formData.get("color") as string | null;
+      const mileageStr = formData.get("mileage") as string;
+      mileage = mileageStr ? parseInt(mileageStr, 10) : null;
+      location = formData.get("location") as string | null;
+      description = formData.get("description") as string | null;
+      licensePlate = formData.get("license_plate") as string | null;
+      vinNumber = formData.get("vin_number") as string | null;
+
+      // Process uploaded images
+      const entries = formData.entries();
+      for (const [key, value] of entries) {
+        if (key === "images" && value instanceof File) {
+          const file = value as File;
+          if (file.size > 0) {
+            // Generate unique filename
+            const ext = file.name.split('.').pop() || 'jpg';
+            const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+            
+            // Upload to storage
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from("car-images")
+              .upload(fileName, file, {
+                contentType: file.type,
+                upsert: false,
+              });
+
+            if (uploadError) {
+              console.error("Upload error:", uploadError.message);
+              continue;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from("car-images")
+              .getPublicUrl(fileName);
+            
+            if (urlData?.publicUrl) {
+              imageUrls.push(urlData.publicUrl);
+              console.log("Uploaded image:", urlData.publicUrl);
+            }
+          }
+        }
+      }
+    } else {
+      // Handle JSON body (with image URLs instead of uploads)
+      const payload = await req.json();
+      make = payload.make;
+      model = payload.model;
+      year = payload.year;
+      color = payload.color;
+      mileage = payload.mileage;
+      location = payload.location;
+      description = payload.description;
+      licensePlate = payload.license_plate;
+      vinNumber = payload.vin_number;
+      
+      if (payload.images && Array.isArray(payload.images)) {
+        imageUrls.push(...payload.images);
+      }
+    }
 
     // Validate required fields
-    if (!payload.make || typeof payload.make !== 'string') {
+    if (!make || typeof make !== 'string') {
       return new Response(
         JSON.stringify({ error: "make is required and must be a string" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!payload.model || typeof payload.model !== 'string') {
+    if (!model || typeof model !== 'string') {
       return new Response(
         JSON.stringify({ error: "model is required and must be a string" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!payload.year || typeof payload.year !== 'number') {
+    if (!year || typeof year !== 'number' || isNaN(year)) {
       return new Response(
         JSON.stringify({ error: "year is required and must be a number" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -90,16 +155,16 @@ Deno.serve(async (req) => {
     // Prepare car data
     const carData = {
       client_id: user.id,
-      make: payload.make.trim(),
-      model: payload.model.trim(),
-      year: payload.year,
-      color: payload.color?.trim() || null,
-      mileage: payload.mileage || null,
-      location: payload.location?.trim() || null,
-      description: payload.description?.trim() || null,
-      images: payload.images || null,
-      license_plate: payload.license_plate?.trim() || null,
-      vin_number: payload.vin_number?.trim() || null,
+      make: make.trim(),
+      model: model.trim(),
+      year: year,
+      color: color?.trim() || null,
+      mileage: mileage || null,
+      location: location?.trim() || null,
+      description: description?.trim() || null,
+      images: imageUrls.length > 0 ? imageUrls : null,
+      license_plate: licensePlate?.trim() || null,
+      vin_number: vinNumber?.trim() || null,
       status: 'available',
     };
 
