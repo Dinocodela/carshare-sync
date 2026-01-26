@@ -152,6 +152,13 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (!licensePlate || typeof licensePlate !== 'string' || licensePlate.trim() === '') {
+      return new Response(
+        JSON.stringify({ error: "license_plate is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Prepare car data
     const carData = {
       client_id: user.id,
