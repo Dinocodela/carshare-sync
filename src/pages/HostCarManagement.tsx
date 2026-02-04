@@ -6634,7 +6634,7 @@ export default function HostCarManagement() {
               ) : (
                 <div className="space-y-4">
                   {/* Claims Summary */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <Card>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -6706,6 +6706,28 @@ export default function HostCarManagement() {
                             </p>
                           </div>
                           <DollarSign className="h-8 w-8 text-purple-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              Amount Paid
+                            </p>
+                            <p className="text-2xl font-bold text-green-600">
+                              $
+                              {claims
+                                .filter((c) => c.is_paid)
+                                .reduce(
+                                  (sum, c) => sum + (c.claim_amount || 0),
+                                  0
+                                )
+                                .toFixed(2)}
+                            </p>
+                          </div>
+                          <CheckCircle className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
                     </Card>
