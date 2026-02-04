@@ -63,11 +63,11 @@ interface HostAnalyticsSummary {
 }
 
 const currentYear = new Date().getFullYear();
-const availableYears = [2022, 2023, 2024, 2025];
 
 export function useHostAnalytics(initialYear: number | null = currentYear) {
   const { user } = useAuth();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
+  const [availableYears, setAvailableYears] = useState<number[]>([currentYear]);
   const [earnings, setEarnings] = useState<HostEarning[]>([]);
   const [expenses, setExpenses] = useState<HostExpense[]>([]);
   const [claims, setClaims] = useState<HostClaim[]>([]);
@@ -85,6 +85,63 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Fetch available years from database
+  const fetchAvailableYears = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch years from earnings
+      const { data: earningsData } = await supabase
+        .from("host_earnings")
+        .select("earning_period_start")
+        .eq("host_id", user.id);
+
+      // Fetch years from expenses  
+      const { data: expensesData } = await supabase
+        .from("host_expenses")
+        .select("expense_date")
+        .eq("host_id", user.id);
+
+      // Fetch years from claims
+      const { data: claimsData } = await supabase
+        .from("host_claims")
+        .select("incident_date")
+        .eq("host_id", user.id);
+
+      // Extract unique years from all sources
+      const yearsSet = new Set<number>();
+      
+      earningsData?.forEach(e => {
+        if (e.earning_period_start) {
+          yearsSet.add(new Date(e.earning_period_start).getFullYear());
+        }
+      });
+      
+      expensesData?.forEach(e => {
+        if (e.expense_date) {
+          yearsSet.add(new Date(e.expense_date).getFullYear());
+        }
+      });
+      
+      claimsData?.forEach(c => {
+        if (c.incident_date) {
+          yearsSet.add(new Date(c.incident_date).getFullYear());
+        }
+      });
+
+      // Always include current year
+      yearsSet.add(currentYear);
+
+      // Sort descending (most recent first)
+      const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
+      setAvailableYears(sortedYears);
+    } catch (err) {
+      console.error("Error fetching available years:", err);
+      // Fallback to current year
+      setAvailableYears([currentYear]);
+    }
+  }, [user?.id]);
 
   const fetchHostAnalytics = useCallback(async () => {
     if (!user?.id) return;
@@ -242,17 +299,19 @@ export function useHostAnalytics(initialYear: number | null = currentYear) {
 
   useEffect(() => {
     if (user?.id) {
+      fetchAvailableYears();
       fetchHostAnalytics();
     }
-  }, [user?.id, fetchHostAnalytics]);
+  }, [user?.id, fetchAvailableYears, fetchHostAnalytics]);
 
   useEffect(() => {
     calculateSummary();
   }, [calculateSummary]);
 
   const refetch = useCallback(() => {
+    fetchAvailableYears();
     fetchHostAnalytics();
-  }, [fetchHostAnalytics]);
+  }, [fetchAvailableYears, fetchHostAnalytics]);
 
   return {
     earnings,
