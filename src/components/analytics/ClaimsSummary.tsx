@@ -82,6 +82,9 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
   const approvedAmount = claims
     .filter((c) => c.claim_status === "approved")
     .reduce((s, c) => s + (c.claim_amount || 0), 0);
+  const paidAmount = claims
+    .filter((c) => (c as any).is_paid === true)
+    .reduce((s, c) => s + (c.claim_amount || 0), 0);
 
   const chartData = Object.entries(statusCounts).map(([status, value]) => ({
     status,
@@ -137,6 +140,16 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
               </div>
               <div className="mt-1 text-xl font-semibold text-emerald-600">
                 {fMoney(approvedAmount)}
+              </div>
+            </div>
+
+            {/* Amount Paid */}
+            <div className="rounded-xl border bg-background p-3 sm:p-4">
+              <div className="text-xs text-muted-foreground">
+                Amount Paid
+              </div>
+              <div className="mt-1 text-xl font-semibold text-primary">
+                {fMoney(paidAmount)}
               </div>
             </div>
 

@@ -46,6 +46,7 @@ interface HostClaim {
   description: string;
   created_at: string;
   trip_id: string | null;
+  is_paid: boolean;
 }
 
 interface HostAnalyticsSummary {
