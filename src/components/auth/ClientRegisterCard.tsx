@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Card,
   CardContent,
@@ -81,8 +82,22 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
           title: "Registration successful!",
           description: "Please verify your email.",
         });
-        onDone?.(); // optional: e.g. switch to login automatically
-        onBackToLogin(); // go back to login panel
+
+        // Notify admin about new client registration
+        try {
+          await supabase.functions.invoke('notify-admin-new-client', {
+            body: {
+              clientName: `${formData.firstName} ${formData.lastName}`,
+              clientEmail: formData.email,
+              clientPhone: formData.phone,
+            },
+          });
+        } catch (e) {
+          console.warn("Admin notification failed:", e);
+        }
+
+        onDone?.();
+        onBackToLogin();
       }
     } finally {
       setLoading(false);

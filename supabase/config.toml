@@ -65,6 +65,9 @@ verify_jwt = true
 [functions.assign-host]
 verify_jwt = true
 
+[functions.notify-admin-new-client]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324
