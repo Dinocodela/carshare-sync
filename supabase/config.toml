@@ -10,8 +10,8 @@ max_rows = 1000
 [auth]
 enabled = true
 port = 54324
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://texsltzecmvqprdjxtnh.supabase.co"]
+site_url = "https://teslys.app"
+additional_redirect_urls = ["https://texsltzecmvqprdjxtnh.supabase.co", "https://teslys.app"]
 jwt_expiry = 3600
 refresh_token_rotation_enabled = true
 security_update_password_require_reauthentication = true
