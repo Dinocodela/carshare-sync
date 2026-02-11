@@ -28,7 +28,7 @@ export function usePushNotifications() {
     (async () => {
       try {
         const reg = await navigator.serviceWorker.getRegistration();
-        const sub = await reg?.pushManager.getSubscription();
+        const sub = await (reg as any)?.pushManager?.getSubscription();
         setIsEnabled(Notification.permission === 'granted' && !!sub);
       } catch {
         setIsEnabled(false);
@@ -59,7 +59,7 @@ export function usePushNotifications() {
         return false;
       }
 
-      const subscription = await reg.pushManager.subscribe({
+      const subscription = await (reg as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: base64UrlToUint8Array(keyResp.publicKey) as BufferSource,
       });
@@ -83,7 +83,7 @@ export function usePushNotifications() {
     setLoading(true);
     try {
       const reg = await navigator.serviceWorker.getRegistration();
-      const sub = await reg?.pushManager.getSubscription();
+      const sub = await (reg as any)?.pushManager?.getSubscription();
       const endpoint = sub?.endpoint;
       if (sub) await sub.unsubscribe();
       if (endpoint) {
