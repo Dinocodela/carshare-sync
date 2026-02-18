@@ -96,20 +96,53 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Parse values (profit amounts will be calculated on request, not stored)
-    const grossEarnings = parseFloat(String(payload.gross_earnings));
-    const clientProfitPercentage = parseFloat(String(payload.client_profit_percentage)) || 70;
-    const hostProfitPercentage = parseFloat(String(payload.host_profit_percentage)) || 30;
-    
-    // Calculate amounts for backwards compatibility fields (amount, commission, net_amount)
-    const clientProfitAmount = (grossEarnings * clientProfitPercentage) / 100;
-    const hostProfitAmount = (grossEarnings * hostProfitPercentage) / 100;
+    // Build data object with only provided fields
+    const buildEarningData = (isInsert: boolean) => {
+      const grossEarnings = parseFloat(String(payload.gross_earnings));
+      const clientProfitPercentage = payload.client_profit_percentage !== undefined
+        ? parseFloat(String(payload.client_profit_percentage)) : undefined;
+      const hostProfitPercentage = payload.host_profit_percentage !== undefined
+        ? parseFloat(String(payload.host_profit_percentage)) : undefined;
 
-    console.log("Calculated values:", { 
-      grossEarnings, 
-      clientProfitPercentage, 
-      hostProfitPercentage
-    });
+      const data: Record<string, unknown> = {
+        host_id: user.id,
+        trip_id: payload.trip_id,
+        car_id: payload.car_id,
+        gross_earnings: grossEarnings,
+        amount: grossEarnings,
+        earning_period_start: payload.earning_period_start,
+        earning_period_end: payload.earning_period_end,
+      };
+
+      // Calculate commission/net only when percentages are available
+      const cPct = clientProfitPercentage ?? 70;
+      const hPct = hostProfitPercentage ?? 30;
+      data.commission = (grossEarnings * hPct) / 100;
+      data.net_amount = (grossEarnings * cPct) / 100;
+
+      if (clientProfitPercentage !== undefined) data.client_profit_percentage = clientProfitPercentage;
+      if (hostProfitPercentage !== undefined) data.host_profit_percentage = hostProfitPercentage;
+      if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
+      if (payload.guest_phone !== undefined) data.guest_phone = payload.guest_phone || null;
+      if (payload.guest_email !== undefined) data.guest_email = payload.guest_email || null;
+      if (payload.earning_type !== undefined) data.earning_type = payload.earning_type;
+      if (payload.payment_source !== undefined) data.payment_source = payload.payment_source;
+      if (payload.payment_status !== undefined) data.payment_status = payload.payment_status;
+      if (payload.date_paid !== undefined) data.date_paid = payload.date_paid || null;
+
+      // Set defaults only on insert
+      if (isInsert) {
+        if (!data.earning_type) data.earning_type = "hosting";
+        if (!data.payment_source) data.payment_source = "Turo";
+        if (!data.payment_status) data.payment_status = "pending";
+        if (data.client_profit_percentage === undefined) data.client_profit_percentage = 70;
+        if (data.host_profit_percentage === undefined) data.host_profit_percentage = 30;
+      }
+
+      return data;
+    };
+
+    console.log("Payload keys:", Object.keys(payload));
 
     // Check if earning with this trip_id already exists
     const { data: existingEarning } = await supabase
@@ -121,27 +154,6 @@ Deno.serve(async (req) => {
     let data;
     let error;
     let action: "created" | "updated";
-
-    const earningData = {
-      host_id: user.id,
-      trip_id: payload.trip_id,
-      car_id: payload.car_id,
-      guest_name: payload.guest_name || null,
-      guest_phone: payload.guest_phone || null,
-      guest_email: payload.guest_email || null,
-      earning_type: payload.earning_type || "hosting",
-      gross_earnings: grossEarnings,
-      amount: grossEarnings,
-      commission: hostProfitAmount,
-      net_amount: clientProfitAmount,
-      client_profit_percentage: clientProfitPercentage,
-      host_profit_percentage: hostProfitPercentage,
-      payment_source: payload.payment_source || "Turo",
-      earning_period_start: payload.earning_period_start,
-      earning_period_end: payload.earning_period_end,
-      payment_status: payload.payment_status || "pending",
-      date_paid: payload.date_paid || null,
-    };
 
     if (existingEarning) {
       // Verify ownership
@@ -160,10 +172,12 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Update existing earning
+      const updateData = buildEarningData(false);
+      console.log("Updating earning with fields:", Object.keys(updateData));
+
       const result = await supabase
         .from("host_earnings")
-        .update(earningData)
+        .update(updateData)
         .eq("id", existingEarning.id)
         .select()
         .single();
@@ -173,10 +187,12 @@ Deno.serve(async (req) => {
       action = "updated";
       console.log("Updated earning:", existingEarning.id);
     } else {
-      // Insert new earning
+      const insertData = buildEarningData(true);
+      console.log("Creating earning with fields:", Object.keys(insertData));
+
       const result = await supabase
         .from("host_earnings")
-        .insert(earningData)
+        .insert(insertData)
         .select()
         .single();
       
