@@ -73,15 +73,34 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Parse and calculate costs
-    const evChargeCost = parseFloat(String(payload.ev_charge_cost)) || 0;
-    const carwashCost = parseFloat(String(payload.carwash_cost)) || 0;
-    const deliveryCost = parseFloat(String(payload.delivery_cost)) || 0;
-    const tollCost = parseFloat(String(payload.toll_cost)) || 0;
-    const baseAmount = parseFloat(String(payload.amount)) || 0;
-    const totalExpenses = evChargeCost + carwashCost + deliveryCost + tollCost + baseAmount;
+    // Build data object with only provided fields
+    const buildExpenseData = (isInsert: boolean) => {
+      const data: Record<string, unknown> = {
+        host_id: user.id,
+        trip_id: payload.trip_id,
+        expense_date: payload.expense_date,
+      };
 
-    console.log("Calculated costs:", { evChargeCost, carwashCost, deliveryCost, tollCost, baseAmount, totalExpenses });
+      // Only set fields that were explicitly provided in the payload
+      if (payload.car_id !== undefined) data.car_id = payload.car_id || null;
+      if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
+      if (payload.ev_charge_cost !== undefined) data.ev_charge_cost = parseFloat(String(payload.ev_charge_cost)) || 0;
+      if (payload.carwash_cost !== undefined) data.carwash_cost = parseFloat(String(payload.carwash_cost)) || 0;
+      if (payload.delivery_cost !== undefined) data.delivery_cost = parseFloat(String(payload.delivery_cost)) || 0;
+      if (payload.toll_cost !== undefined) data.toll_cost = parseFloat(String(payload.toll_cost)) || 0;
+      if (payload.amount !== undefined) data.amount = parseFloat(String(payload.amount)) || 0;
+      if (payload.description !== undefined) data.description = payload.description || null;
+
+      // Set defaults only on insert
+      if (isInsert) {
+        data.expense_type = "general";
+        if (data.amount === undefined) data.amount = 0;
+      }
+
+      return data;
+    };
+
+    console.log("Payload keys:", Object.keys(payload));
 
     // Check if expense with this trip_id already exists
     const { data: existingExpense } = await supabase
@@ -94,21 +113,6 @@ Deno.serve(async (req) => {
     let error;
     let action: "created" | "updated";
 
-    const expenseData = {
-      host_id: user.id,
-      trip_id: payload.trip_id,
-      car_id: payload.car_id || null,
-      guest_name: payload.guest_name || null,
-      expense_type: "general",
-      amount: baseAmount,
-      ev_charge_cost: evChargeCost,
-      carwash_cost: carwashCost,
-      delivery_cost: deliveryCost,
-      toll_cost: tollCost,
-      description: payload.description || null,
-      expense_date: payload.expense_date,
-    };
-
     if (existingExpense) {
       // Verify ownership
       if (existingExpense.host_id !== user.id) {
@@ -118,10 +122,12 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Update existing expense
+      const updateData = buildExpenseData(false);
+      console.log("Updating expense with fields:", Object.keys(updateData));
+
       const result = await supabase
         .from("host_expenses")
-        .update(expenseData)
+        .update(updateData)
         .eq("id", existingExpense.id)
         .select()
         .single();
@@ -131,10 +137,12 @@ Deno.serve(async (req) => {
       action = "updated";
       console.log("Updated expense:", existingExpense.id);
     } else {
-      // Insert new expense
+      const insertData = buildExpenseData(true);
+      console.log("Creating expense with fields:", Object.keys(insertData));
+
       const result = await supabase
         .from("host_expenses")
-        .insert(expenseData)
+        .insert(insertData)
         .select()
         .single();
       
