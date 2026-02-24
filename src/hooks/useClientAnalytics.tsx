@@ -183,7 +183,16 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
   }, [user, selectedYear]);
 
   const calculateSummary = () => {
-    const totalEarnings = earnings.reduce((sum, earning) => sum + ((earning.amount * (earning.client_profit_percentage || 70) / 100) || 0), 0);
+    const totalEarnings = earnings.reduce((sum, earning) => {
+      // Match expenses by trip_id and subtract before applying profit split
+      const tripExpenses = earning.trip_id
+        ? expenses
+            .filter(exp => exp.trip_id === earning.trip_id)
+            .reduce((s, exp) => s + (exp.amount || 0) + (exp.toll_cost || 0) + (exp.delivery_cost || 0) + (exp.carwash_cost || 0) + (exp.ev_charge_cost || 0), 0)
+        : 0;
+      const net = earning.amount - tripExpenses;
+      return sum + ((net * (earning.client_profit_percentage || 70) / 100) || 0);
+    }, 0);
     // Calculate total expenses from individual cost components
     const totalExpenses = expenses.reduce((sum, expense) => {
       const expenseTotal = (expense.amount || 0) + 

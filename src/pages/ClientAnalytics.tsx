@@ -253,11 +253,11 @@ export default function ClientAnalytics() {
                   <ClaimsSummary claims={claims} loading={loading} />
                 </div>
                 <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
-                  <EarningsChart earnings={earnings} selectedYear={selectedYear} />
+                  <EarningsChart earnings={earnings} expenses={expenses} selectedYear={selectedYear} />
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
                 <div className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
-                  <RecentTrips earnings={earnings} />
+                  <RecentTrips earnings={earnings} expenses={expenses} />
                   <RecentClaims claims={claims} />
                 </div>
               </TabsContent>
@@ -281,6 +281,7 @@ export default function ClientAnalytics() {
                     <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                       <EarningsChart
                         earnings={selectedCarData?.earnings || []}
+                        expenses={selectedCarData?.expenses || []}
                         selectedYear={selectedYear}
                       />
                       <ExpenseBreakdown
@@ -288,7 +289,7 @@ export default function ClientAnalytics() {
                       />
                     </div>
                     <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
-                      <RecentTrips earnings={selectedCarData?.earnings || []} />
+                      <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} />
                       <RecentClaims claims={selectedCarData?.claims || []} />
                     </div>
                   </>

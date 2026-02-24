@@ -1,17 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { ClientEarning } from '@/hooks/useClientAnalytics';
+import { ClientEarning, ClientExpense } from '@/hooks/useClientAnalytics';
 import { format, parseISO } from 'date-fns';
 import { TrendingUp } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getClientShare } from '@/lib/expenseMatching';
 
 interface EarningsChartProps {
   earnings: ClientEarning[];
+  expenses?: ClientExpense[];
   selectedYear?: number | null;
 }
 
-export function EarningsChart({ earnings, selectedYear }: EarningsChartProps) {
+export function EarningsChart({ earnings, expenses = [], selectedYear }: EarningsChartProps) {
   const isMobile = useIsMobile();
   const currentYear = new Date().getFullYear();
   const targetYear = selectedYear ?? currentYear;
@@ -26,7 +28,7 @@ export function EarningsChart({ earnings, selectedYear }: EarningsChartProps) {
       const year = date.getFullYear();
       const entry = acc[year] || { paid: 0, upcoming: 0, trips: 0 };
 
-      const amount = (earning.amount * (earning.client_profit_percentage || 70) / 100) || 0;
+      const amount = getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses);
       const status = (earning.payment_status || '').toLowerCase();
 
       if (status === 'paid') {
@@ -160,7 +162,7 @@ export function EarningsChart({ earnings, selectedYear }: EarningsChartProps) {
     const key = format(date, 'yyyy-MM');
     const entry = acc[key] || { paid: 0, upcoming: 0, trips: 0 };
 
-    const amount = (earning.amount * (earning.client_profit_percentage || 70) / 100) || 0;
+    const amount = getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses);
     const status = (earning.payment_status || '').toLowerCase();
 
     if (status === 'paid') {

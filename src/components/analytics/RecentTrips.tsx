@@ -8,15 +8,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ClientEarning } from "@/hooks/useClientAnalytics";
+import { ClientEarning, ClientExpense } from "@/hooks/useClientAnalytics";
 import { format, parseISO } from "date-fns";
+import { getClientShare, getNetEarningAmount } from "@/lib/expenseMatching";
 
 interface RecentTripsProps {
   earnings: ClientEarning[];
+  expenses?: ClientExpense[];
   limit?: number;
 }
 
-export function RecentTrips({ earnings, limit = 10 }: RecentTripsProps) {
+export function RecentTrips({ earnings, expenses = [], limit = 10 }: RecentTripsProps) {
   const recentEarnings = earnings.slice(0, limit);
 
   const getStatusColor = (status: string) => {
@@ -75,11 +77,11 @@ export function RecentTrips({ earnings, limit = 10 }: RecentTripsProps) {
                         Your Share
                       </p>
                       <p className="text-sm font-semibold text-green-600">
-                        ${((earning.amount * (earning.client_profit_percentage || 70) / 100) || 0).toFixed(2)}
+                        ${getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses).toFixed(2)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {earning.client_profit_percentage?.toFixed(0) || "0"}%
-                        of ${earning.amount?.toFixed(2) || "0.00"}
+                        of ${getNetEarningAmount(earning.amount, earning.trip_id, expenses).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -136,14 +138,14 @@ export function RecentTrips({ earnings, limit = 10 }: RecentTripsProps) {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div className="font-semibold text-green-600">
+                        <div className="font-semibold text-green-600">
                             $
-                            {((earning.amount * (earning.client_profit_percentage || 70) / 100) || 0).toFixed(2)}
+                            {getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses).toFixed(2)}
                           </div>
                           <div className="text-muted-foreground">
                             {earning.client_profit_percentage?.toFixed(0) ||
                               "0"}
-                            % of ${earning.amount?.toFixed(2) || "0.00"}
+                            % of ${getNetEarningAmount(earning.amount, earning.trip_id, expenses).toFixed(2)}
                           </div>
                         </div>
                       </TableCell>
