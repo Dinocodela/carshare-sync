@@ -1,22 +1,19 @@
-// src/pages/TermsOfUse.tsx
 import { SEO } from "@/components/SEO";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { PageContainer } from "@/components/layout/PageContainer";
 
 export default function TermsOfUse() {
   return (
     <>
-      <SEO 
+      <SEO
         title="Terms of Use - Teslys Tesla Car Sharing Platform"
         description="Teslys terms of use and service agreement. Review the terms and conditions for using our Tesla car sharing platform, including subscription details and acceptable use policy."
         keywords="Teslys terms of use, Tesla car sharing agreement, service terms, car rental terms, subscription terms and conditions"
         canonical="https://teslys.app/terms-of-use"
         ogType="article"
       />
-      <DashboardLayout>
-        <ScreenHeader title="Terms of Use" fallbackHref="/settings" />
-        <PageContainer className="py-8">
+      <div className="min-h-screen bg-background">
+        <ScreenHeader title="Terms of Use" fallbackHref="/" />
+        <div className="px-4 sm:px-6 py-8">
           <div className="max-w-4xl mx-auto prose prose-gray dark:prose-invert">
             <h1>Terms of Use</h1>
             <p className="text-muted-foreground">
@@ -24,9 +21,9 @@ export default function TermsOfUse() {
             </p>
 
             <p>
-              These Terms of Use (“Terms”) govern your use of the Teslys mobile
-              application and related services (the “Service”) provided by
-              Teslys (“we”, “our”, “us”). By using the Service, you agree to
+              These Terms of Use ("Terms") govern your use of the Teslys mobile
+              application and related services (the "Service") provided by
+              Teslys ("we", "our", "us"). By using the Service, you agree to
               these Terms and our{" "}
               <a className="underline underline-offset-2" href="/privacy">
                 Privacy Policy
@@ -76,8 +73,8 @@ export default function TermsOfUse() {
               with questions.
             </p>
           </div>
-        </PageContainer>
-      </DashboardLayout>
+        </div>
+      </div>
     </>
   );
 }

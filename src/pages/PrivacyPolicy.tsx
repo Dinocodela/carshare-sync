@@ -1,6 +1,4 @@
 import { SEO } from "@/components/SEO";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { PageContainer } from "@/components/layout/PageContainer";
 import { ScreenHeader } from "@/components/ScreenHeader";
 
 export default function PrivacyPolicy() {
@@ -13,18 +11,18 @@ export default function PrivacyPolicy() {
         canonical="https://teslys.app/privacy-policy"
         ogType="article"
       />
-      <DashboardLayout>
-        <ScreenHeader title="Privacy Policy" fallbackHref="/settings" />
-        <PageContainer className="py-4">
+      <div className="min-h-screen bg-background">
+        <ScreenHeader title="Privacy Policy" fallbackHref="/" />
+        <div className="px-4 sm:px-6 py-4">
           <div className="max-w-4xl mx-auto prose prose-gray dark:prose-invert">
             <p className="text-muted-foreground">
               Last updated: September 25, 2025
             </p>
 
             <p>
-              This Privacy Policy explains how Teslys (“we”, “our”, “us”)
+              This Privacy Policy explains how Teslys ("we", "our", "us")
               collects, uses, and shares information when you use the Teslys app
-              and services (the “Service”). By using the Service, you agree to
+              and services (the "Service"). By using the Service, you agree to
               this policy.
             </p>
 
@@ -110,8 +108,8 @@ export default function PrivacyPolicy() {
               .
             </p>
           </div>
-        </PageContainer>
-      </DashboardLayout>
+        </div>
+      </div>
     </>
   );
 }
