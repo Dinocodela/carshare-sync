@@ -28,9 +28,9 @@ export default function DeleteAccount() {
                   Send an email to{" "}
                   <a
                     className="text-primary underline underline-offset-2"
-                    href="mailto:support@teslys.app?subject=Account%20Deletion%20Request"
+                    href="mailto:support@teslys.com?subject=Account%20Deletion%20Request"
                   >
-                    support@teslys.app
+                    support@teslys.com
                   </a>{" "}
                   with the subject <strong>"Account Deletion Request"</strong>.
                 </li>
@@ -62,7 +62,7 @@ export default function DeleteAccount() {
 
             <div className="pt-4">
               <a
-                href="mailto:support@teslys.app?subject=Account%20Deletion%20Request"
+                href="mailto:support@teslys.com?subject=Account%20Deletion%20Request"
                 className="inline-flex items-center justify-center rounded-md bg-destructive px-6 py-3 text-sm font-medium text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"
               >
                 Request Account Deletion
