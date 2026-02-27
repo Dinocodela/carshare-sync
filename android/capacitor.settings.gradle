@@ -37,3 +37,6 @@ project(':capawesome-capacitor-android-edge-to-edge-support').projectDir = new F
 
 include ':revenuecat-purchases-capacitor'
 project(':revenuecat-purchases-capacitor').projectDir = new File('../node_modules/@revenuecat/purchases-capacitor/android')
+
+include ':appsflyer-capacitor-plugin'
+project(':appsflyer-capacitor-plugin').projectDir = new File('../node_modules/appsflyer-capacitor-plugin/android')
