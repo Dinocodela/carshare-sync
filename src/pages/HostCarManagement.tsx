@@ -335,6 +335,34 @@ export default function HostCarManagement() {
   const [earningsFiltersOpen, setEarningsFiltersOpen] = useState(false);
   const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
 
+  // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
+  useEffect(() => {
+    const anyOpen =
+      expenseDialogOpen ||
+      earningDialogOpen ||
+      claimDialogOpen ||
+      deleteClaimDialogOpen ||
+      expenseFiltersOpen ||
+      earningsFiltersOpen ||
+      claimsFiltersOpen;
+
+    if (!anyOpen) {
+      // Use a short delay to let Radix finish its own cleanup first
+      const id = setTimeout(() => {
+        document.body.style.removeProperty("pointer-events");
+      }, 50);
+      return () => clearTimeout(id);
+    }
+  }, [
+    expenseDialogOpen,
+    earningDialogOpen,
+    claimDialogOpen,
+    deleteClaimDialogOpen,
+    expenseFiltersOpen,
+    earningsFiltersOpen,
+    claimsFiltersOpen,
+  ]);
+
   // Active tab state for conditional mobile UI
   const [tab, setTab] = useState<Tab>(() => tabFromHash(location.hash));
 
