@@ -37,22 +37,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className={`flex w-full ${isNative ? "" : ""}`}>
+      <div className="flex w-full h-full">
         <AppSidebar />
-        <div className="flex-1 w-full">
-          {/* <header className="h-12 bg-background px-4" /> */}
-          {/* ⬇️ added overflow-x-hidden */}
+        <div className="flex-1 flex flex-col min-w-0 h-full">
           <main
             data-scroll-root
-            style={{ WebkitOverflowScrolling: "touch" }}
-            className="flex-1 overflow-y-auto overscroll-contain pt-4 pt-safe-top px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 w-full"
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain pt-4 pt-safe-top px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 w-full"
           >
             <div className="px-4 sm:px-6">
               <BreadcrumbNav />
             </div>
             {children}
           </main>
-          {/* <PaywallGate /> */}
           <BottomNavBar />
         </div>
       </div>
