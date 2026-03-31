@@ -1,17 +1,12 @@
 
 
-## Fix: Replace irrelevant "Hosted Cars Management" link on Client Analytics
+## Update Client Role Description on Landing Page
 
-### Problem
-The Client Analytics banner contains a link to `/host-car-management`, which is a host-only page. Clients clicking it see "No cars currently hosted" -- confusing and unhelpful.
+**File: `src/pages/Index.tsx`**
 
-### What Will Change
+One text change:
 
-**1 file: `src/pages/ClientAnalytics.tsx`**
+- **Client role description** (line ~141): Change `"Track expenses, manage claims, and keep your vehicles organized with powerful analytics"` → `"Create an account, list your car, and select the car hosting professional that meets your expectations to manage your car"`
 
-- Replace the "Hosted Cars Management" link (pointing to `/host-car-management`) with a link to **`/my-cars`** labeled **"My Cars"**
-- Update the surrounding copy to be client-appropriate, e.g.:
-  > "Track your vehicle's performance and earnings. Manage your vehicles in **My Cars**."
-
-This is a single-line text/link change -- no new components, no logic changes.
+No other changes.
 
