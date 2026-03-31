@@ -46,6 +46,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
 import DeleteAccount from "./pages/DeleteAccount";
 import SMSConsent from "./pages/SMSConsent";
+import EmailConfirmed from "./pages/EmailConfirmed";
 import ScrollReset from "./components/router/ScrollReset";
 import { useEffect } from "react";
 
