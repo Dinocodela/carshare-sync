@@ -102,6 +102,7 @@ const App = () => (
               <Route path="/support" element={<Support />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
+              <Route path="/email-confirmed" element={<EmailConfirmed />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
