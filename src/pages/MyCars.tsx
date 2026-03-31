@@ -148,9 +148,29 @@ export default function MyCars() {
             <CardContent className="text-center py-12">
               <CarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">No cars yet</h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-6">
                 Tap the <strong>+</strong> tab to add your first car.
               </p>
+              {/* Pulsating arrow pointing down toward the + button */}
+              <div className="flex justify-center">
+                <div className="animate-bounce">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-primary"
+                  >
+                    <path d="M12 5v14" />
+                    <path d="m19 12-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ) : (
