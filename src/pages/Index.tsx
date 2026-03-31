@@ -149,7 +149,7 @@ const Index = () => {
 
       <div className="text-center text-sm text-muted-foreground mb-4 px-2">
         {role === "client"
-          ? "Track expenses, manage claims, and keep your vehicles organized with powerful analytics"
+          ? "Create an account, list your car, and select the car hosting professional that meets your expectations to manage your car"
           : "Manage car listings, track earnings, and grow your business with comprehensive tools"}
       </div>
     </>
