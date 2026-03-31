@@ -46,6 +46,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
 import DeleteAccount from "./pages/DeleteAccount";
 import SMSConsent from "./pages/SMSConsent";
+import EmailConfirmed from "./pages/EmailConfirmed";
 import ScrollReset from "./components/router/ScrollReset";
 import { useEffect } from "react";
 
@@ -101,6 +102,7 @@ const App = () => (
               <Route path="/support" element={<Support />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
+              <Route path="/email-confirmed" element={<EmailConfirmed />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
