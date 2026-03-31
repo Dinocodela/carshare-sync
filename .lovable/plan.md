@@ -1,12 +1,12 @@
 
 
-## Update Client Role Description on Landing Page
+## Update Host Role Description on Landing Page
 
 **File: `src/pages/Index.tsx`**
 
 One text change:
 
-- **Client role description** (line ~141): Change `"Track expenses, manage claims, and keep your vehicles organized with powerful analytics"` → `"Create an account, list your car, and select the car hosting professional that meets your expectations to manage your car"`
+- **Host role description**: Change `"Manage car listings, track earnings, and grow your business with comprehensive tools"` → `"Sign up to start receiving requests from car owners looking for professionals like you to manage their vehicles using our all-in-one tools"`
 
-No other changes.
+Single-line copy update, no logic changes.
 
