@@ -154,12 +154,12 @@ export default function ClientAnalytics() {
 
               <p className="min-w-0 text-sm leading-relaxed text-muted-foreground">
                 Track your vehicle’s performance and earnings. For expense
-                management, visit{" "}
+                vehicles in{" "}
                 <Link
-                  to="/host-car-management"
+                  to="/my-cars"
                   className="text-primary underline underline-offset-4"
                 >
-                  Hosted Cars Management
+                  My Cars
                 </Link>
                 .
               </p>
