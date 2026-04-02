@@ -1,38 +1,26 @@
 
 
-## Problem
+## Plan: Add Collapsible Recent Trips and Recent Activity Sections
 
-The top section of the onboarding screen appears gray because:
+### What changes
 
-1. **The `--gradient-hero` CSS variable** uses gray-ish colors: `hsl(220 15% 85%)` to `hsl(180 20% 88%)` — these are light grays with barely any blue/teal tint.
-2. **The status bar meta tag** (`apple-mobile-web-app-status-bar-style`) is set to `default`, which renders a white/gray bar on iOS Safari, creating a visible color mismatch at the top.
-3. **The `theme-color` meta tag** is `#000000` (black), which doesn't match the desired teal/blue background.
+1. **Add a "Recent Trips" collapsible section** above "Recent Activity" on the Dashboard. It will fetch the user's recent earnings (trips) directly from Supabase and display them as compact card items (similar to how RecentTrips works on the analytics page, but simplified for the dashboard).
 
-## Plan
+2. **Make both "Recent Trips" and "Recent Activity" collapsible** using the existing `Collapsible` component from `@radix-ui/react-collapsible` (already in `src/components/ui/collapsible.tsx`). Each section gets a chevron toggle button that expands/collapses the content.
 
-### 1. Update `--gradient-hero` to a teal-tinted gradient (src/index.css)
+### Technical details
 
-Change the light-mode hero gradient from gray to a soft teal/mint that matches the brand:
+**File: `src/pages/Dashboard.tsx`**
 
-```
---gradient-hero: linear-gradient(
-  135deg,
-  hsl(175 25% 90%),
-  hsl(180 30% 92%),
-  hsl(185 25% 88%)
-);
-```
+- Import `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` from `@/components/ui/collapsible`
+- Import `ChevronDown` icon (already imported as `ChevronRight`, add `ChevronDown`)
+- Add two state variables: `tripsOpen` (default true) and `activityOpen` (default true)
+- Add a new `useEffect` to fetch recent trips from `host_earnings` table (limited to 5), filtering by the user's car IDs (client) or host ID (host)
+- Render a new "Recent Trips" collapsible section between Quick Actions and Recent Activity, showing trip ID, guest name, amount, status, and period in compact card format
+- Wrap both "Recent Trips" and "Recent Activity" content in `Collapsible` with a clickable header that toggles open/closed with an animated chevron
 
-This gives a consistent light teal wash instead of the current neutral gray.
-
-### 2. Update `theme-color` and status bar style (index.html)
-
-- Change `theme-color` from `#000000` to a teal value like `#d4eeec` (matching the gradient top)
-- Change `apple-mobile-web-app-status-bar-style` from `default` to `black-translucent` so the status bar blends with the page background instead of rendering its own white/gray bar
-
-### 3. Set `--secondary` to match (src/index.css)
-
-Update the `--secondary` color from `220 15% 96%` to a teal-tinted value (e.g., `175 20% 94%`) so any elements using `bg-secondary` also blend seamlessly.
-
-These three changes together will eliminate the gray band at the top and create a unified teal-blue background across the entire viewport on all screens.
+### UI behavior
+- Both sections default to open
+- Tapping the section header toggles visibility with a smooth collapse animation
+- Chevron icon rotates when expanded/collapsed
 
