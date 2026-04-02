@@ -3184,7 +3184,6 @@ export default function HostCarManagement() {
                           </div>
                         </div>
                     </div>
-                    </div>
                   ))}
                 </div>
               )}
