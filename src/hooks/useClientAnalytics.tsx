@@ -20,8 +20,6 @@ export interface ClientEarning {
   payment_status: string;
   trip_id?: string | null;
   guest_name?: string | null;
-  guest_phone?: string | null;
-  guest_email?: string | null;
   earning_type: string;
   payment_source: string;
   created_at: string;
