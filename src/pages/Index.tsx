@@ -83,7 +83,7 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-secondary">
+      <div className="h-full flex items-center justify-center bg-gradient-hero">
         <div className="text-lg text-muted-foreground">Loading...</div>
       </div>
     );
