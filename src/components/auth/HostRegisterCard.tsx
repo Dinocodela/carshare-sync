@@ -1,12 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -16,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validatePassword } from "@/lib/passwordValidation";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 import { Link } from "react-router-dom";
+import { ArrowRight, ChevronLeft, Building2, Mail, Phone, Lock, MapPin, Wrench, User } from "lucide-react";
 
 type Props = { onDone?: () => void; onBackToLogin: () => void };
 
@@ -42,20 +36,15 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
 
   const validateForm = () => {
     const e: Record<string, string> = {};
-    if (!formData.companyName.trim())
-      e.companyName = "Company name is required";
+    if (!formData.companyName.trim()) e.companyName = "Company name is required";
     if (!formData.adminName.trim()) e.adminName = "Admin name is required";
     if (!formData.email.trim()) e.email = "Email is required";
     if (!formData.phone.trim()) e.phone = "Phone number is required";
-    if (!formData.services.trim())
-      e.services = "Services description is required";
-    if (!formData.coverageArea.trim())
-      e.coverageArea = "Coverage area is required";
+    if (!formData.services.trim()) e.services = "Services description is required";
+    if (!formData.coverageArea.trim()) e.coverageArea = "Coverage area is required";
     if (!smsConsent) e.smsConsent = "SMS consent is required";
-    if (!passwordValidation.isValid)
-      e.password = "Password does not meet requirements";
-    if (formData.password !== formData.confirmPassword)
-      e.confirmPassword = "Passwords don't match";
+    if (!passwordValidation.isValid) e.password = "Password does not meet requirements";
+    if (formData.password !== formData.confirmPassword) e.confirmPassword = "Passwords don't match";
     setFieldErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -113,50 +102,78 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
       formData.confirmPassword &&
       formData.password !== formData.confirmPassword
     ) {
-      setFieldErrors((p) => ({
-        ...p,
-        confirmPassword: "Passwords don't match",
-      }));
+      setFieldErrors((p) => ({ ...p, confirmPassword: "Passwords don't match" }));
     } else {
       setFieldErrors((p) => ({ ...p, confirmPassword: "" }));
     }
   }, [formData.password, formData.confirmPassword]);
 
+  const inputClass = "h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg transition-colors";
+
   return (
-    <Card className="bg-white/80 border-primary/10 backdrop-blur p-4">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-primary">
-          Join TESLYS
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name</Label>
+    <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-5 pt-5 pb-3">
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition mb-3"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+          Back to sign in
+        </button>
+        <h2 className="text-lg font-bold text-foreground">
+          Create your{" "}
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Host
+          </span>{" "}
+          account
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Start managing vehicles and earning with Teslys
+        </p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="px-5 pb-5 space-y-3.5">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="companyName" className="text-xs font-medium text-foreground">Company Name</Label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="companyName"
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleChange}
                 required
+                placeholder="Your company"
+                className={`${inputClass} pl-9 ${fieldErrors.companyName ? "border-destructive" : ""}`}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="adminName">Admin Name</Label>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="adminName" className="text-xs font-medium text-foreground">Admin Name</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="adminName"
                 name="adminName"
                 value={formData.adminName}
                 onChange={handleChange}
                 required
+                placeholder="Your name"
+                className={`${inputClass} pl-9 ${fieldErrors.adminName ? "border-destructive" : ""}`}
               />
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-xs font-medium text-foreground">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="email"
                 name="email"
@@ -164,10 +181,15 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                placeholder="you@company.com"
+                className={`${inputClass} pl-9 ${fieldErrors.email ? "border-destructive" : ""}`}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="phone" className="text-xs font-medium text-foreground">Phone</Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="phone"
                 name="phone"
@@ -175,64 +197,79 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
                 value={formData.phone}
                 onChange={handleChange}
                 required
+                placeholder="+1 (555) 000-0000"
+                className={`${inputClass} pl-9 ${fieldErrors.phone ? "border-destructive" : ""}`}
               />
             </div>
           </div>
+        </div>
 
-          {/* SMS Consent Checkbox */}
-          <div className="flex items-start space-x-3">
-            <Checkbox
-              id="smsConsent"
-              checked={smsConsent}
-              onCheckedChange={(checked) => {
-                setSmsConsent(checked === true);
-                if (fieldErrors.smsConsent) setFieldErrors((p) => ({ ...p, smsConsent: "" }));
-              }}
-              className={fieldErrors.smsConsent ? "border-red-500" : ""}
-            />
-            <div className="grid gap-1.5 leading-none">
-              <label
-                htmlFor="smsConsent"
-                className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
-              >
-                I agree to receive SMS messages from Teslys for booking confirmations, reminders, and support.
-                Message frequency varies. Message and data rates may apply. Reply STOP to cancel.{" "}
-                <Link to="/sms-consent" className="text-primary underline underline-offset-2" target="_blank">
-                  View SMS Terms
-                </Link>
-              </label>
-              {fieldErrors.smsConsent && (
-                <p className="text-sm text-red-600">{fieldErrors.smsConsent}</p>
-              )}
-            </div>
+        {/* SMS Consent */}
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+          <Checkbox
+            id="smsConsent"
+            checked={smsConsent}
+            onCheckedChange={(checked) => {
+              setSmsConsent(checked === true);
+              if (fieldErrors.smsConsent) setFieldErrors((p) => ({ ...p, smsConsent: "" }));
+            }}
+            className={`mt-0.5 ${fieldErrors.smsConsent ? "border-destructive" : ""}`}
+          />
+          <div className="grid gap-1 leading-none">
+            <label
+              htmlFor="smsConsent"
+              className="text-[11px] text-muted-foreground leading-relaxed cursor-pointer"
+            >
+              I agree to receive SMS messages from Teslys for booking confirmations, reminders, and support.
+              Message frequency varies. Message and data rates may apply. Reply STOP to cancel.{" "}
+              <Link to="/sms-consent" className="text-primary underline underline-offset-2" target="_blank">
+                View SMS Terms
+              </Link>
+            </label>
+            {fieldErrors.smsConsent && (
+              <p className="text-xs text-destructive">{fieldErrors.smsConsent}</p>
+            )}
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="services">Services Offered</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="services" className="text-xs font-medium text-foreground">Services Offered</Label>
+          <div className="relative">
+            <Wrench className="absolute left-3 top-3 w-3.5 h-3.5 text-muted-foreground" />
             <Textarea
               id="services"
               name="services"
               value={formData.services}
               onChange={handleChange}
               required
-              rows={3}
+              rows={2}
+              placeholder="Maintenance, detailing, fleet management..."
+              className="bg-background/50 border-border/60 focus:border-primary/50 rounded-lg pl-9 transition-colors text-sm"
             />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="coverageArea">Coverage Area</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="coverageArea" className="text-xs font-medium text-foreground">Coverage Area</Label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
               id="coverageArea"
               name="coverageArea"
               value={formData.coverageArea}
               onChange={handleChange}
               required
+              placeholder="Cities or regions you serve"
+              className={`${inputClass} pl-9 ${fieldErrors.coverageArea ? "border-destructive" : ""}`}
             />
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-xs font-medium text-foreground">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="password"
                 name="password"
@@ -242,18 +279,22 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
                 onFocus={() => setShowPasswordHint(true)}
                 onBlur={() => setShowPasswordHint(false)}
                 required
-                className={fieldErrors.password ? "border-red-500" : ""}
-              />
-              {fieldErrors.password && (
-                <p className="text-sm text-red-600">{fieldErrors.password}</p>
-              )}
-              <PasswordStrengthIndicator
-                validation={passwordValidation}
-                show={showPasswordHint || !!formData.password}
+                placeholder="Password"
+                className={`${inputClass} pl-9 ${fieldErrors.password ? "border-destructive" : ""}`}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            {fieldErrors.password && (
+              <p className="text-xs text-destructive">{fieldErrors.password}</p>
+            )}
+            <PasswordStrengthIndicator
+              validation={passwordValidation}
+              show={showPasswordHint || !!formData.password}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmPassword" className="text-xs font-medium text-foreground">Confirm</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -261,32 +302,41 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                className={fieldErrors.confirmPassword ? "border-red-500" : ""}
+                placeholder="Confirm"
+                className={`${inputClass} pl-9 ${fieldErrors.confirmPassword ? "border-destructive" : ""}`}
               />
-              {fieldErrors.confirmPassword && (
-                <p className="text-sm text-red-600">
-                  {fieldErrors.confirmPassword}
-                </p>
-              )}
             </div>
+            {fieldErrors.confirmPassword && (
+              <p className="text-xs text-destructive">{fieldErrors.confirmPassword}</p>
+            )}
           </div>
+        </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creating account..." : "Create Host Account"}
-          </Button>
+        <Button
+          type="submit"
+          className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+          disabled={loading}
+        >
+          {loading ? (
+            "Creating account..."
+          ) : (
+            <span className="inline-flex items-center gap-2">
+              Create Host Account <ArrowRight className="w-4 h-4" />
+            </span>
+          )}
+        </Button>
 
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <button
-              type="button"
-              onClick={onBackToLogin}
-              className="text-primary underline"
-            >
-              Sign in
-            </button>
-          </p>
-        </form>
-      </CardContent>
-    </Card>
+        <p className="text-center text-xs text-muted-foreground pt-1">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={onBackToLogin}
+            className="text-primary font-medium hover:underline"
+          >
+            Sign in
+          </button>
+        </p>
+      </form>
+    </div>
   );
 }
