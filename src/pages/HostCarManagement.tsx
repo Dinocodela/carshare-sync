@@ -3037,51 +3037,36 @@ export default function HostCarManagement() {
               )}
 
               {expensesLoading ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <div className="text-lg text-muted-foreground">
-                      Loading expenses...
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                    <p className="text-sm text-muted-foreground">Loading expenses…</p>
+                  </div>
+                </div>
               ) : expenses.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No expenses recorded
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Start tracking your hosting expenses.
-                    </p>
-                    <Button
-                      onClick={() => fetchExpenses(true)}
-                      className="mt-4"
-                    >
-                      Refresh Expenses
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Expenses Recorded</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting expenses.</p>
+                  <Button onClick={() => fetchExpenses(true)} size="sm" className="mt-4 rounded-xl">
+                    Refresh Expenses
+                  </Button>
+                </div>
               ) : filteredExpenses.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No expenses match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearFilters}>
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Expenses</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearFilters} size="sm" className="rounded-xl">Clear Filters</Button>
+                </div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-3">
                   {filteredExpenses.map((expense) => (
-                    <Card key={expense.id}>
-                      <CardContent className="p-3 sm:p-4">
+                    <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                         <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                           <div>
                             <div className="flex items-center gap-2 mb-2">
