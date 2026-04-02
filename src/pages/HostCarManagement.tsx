@@ -1809,7 +1809,7 @@ export default function HostCarManagement() {
                               {[
                                 { label: "Color", value: car.color || "N/A", icon: Palette },
                                 { label: "Mileage", value: car.mileage ? `${car.mileage.toLocaleString()} mi` : "N/A", icon: Gauge },
-                                { label: "Hosting Since", value: new Date(car.created_at).toLocaleDateString(), icon: Calendar },
+                                { label: "Hosting Since", value: new Date(car.created_at).toLocaleDateString(), icon: CalendarLucide },
                                 { label: "Status", value: "Active", icon: CheckCircle },
                               ].map((item, i) => (
                                 <div key={i} className="rounded-xl border border-border/40 bg-background/50 p-3">
@@ -4941,7 +4941,7 @@ export default function HostCarManagement() {
                       {
                         label: "This Month",
                         value: `$${earnings.filter((e) => new Date(e.earning_period_start).getMonth() === new Date().getMonth()).reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
-                        icon: Calendar,
+                        icon: CalendarLucide,
                       },
                     ].map((item, i) => (
                       <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4">
