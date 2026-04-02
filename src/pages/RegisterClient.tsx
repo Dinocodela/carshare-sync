@@ -1,20 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Logo } from "@/components/ui/logo";
 import { useToast } from "@/hooks/use-toast";
 import { validatePassword } from "@/lib/passwordValidation";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
-import { ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft, User, Mail, Phone, Lock } from "lucide-react";
 
 const RegisterClient = () => {
   const [formData, setFormData] = useState({
@@ -26,9 +20,7 @@ const RegisterClient = () => {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-  const [passwordValidation, setPasswordValidation] = useState(
-    validatePassword("")
-  );
+  const [passwordValidation, setPasswordValidation] = useState(validatePassword(""));
   const [showPasswordHint, setShowPasswordHint] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signUp } = useAuth();
@@ -37,69 +29,37 @@ const RegisterClient = () => {
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-
     if (!formData.firstName.trim()) errors.firstName = "First name is required";
     if (!formData.lastName.trim()) errors.lastName = "Last name is required";
     if (!formData.email.trim()) errors.email = "Email is required";
     if (!formData.phone.trim()) errors.phone = "Phone number is required";
-
-    if (!passwordValidation.isValid) {
-      errors.password = "Password does not meet requirements";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = "Passwords don't match";
-    }
-
+    if (!passwordValidation.isValid) errors.password = "Password does not meet requirements";
+    if (formData.password !== formData.confirmPassword) errors.confirmPassword = "Passwords don't match";
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
-      toast({
-        variant: "destructive",
-        title: "Please fix the errors below",
-        description: "All fields must be completed correctly.",
-      });
+      toast({ variant: "destructive", title: "Please fix the errors below" });
       return;
     }
-
     setLoading(true);
-
     try {
-      const { error } = await signUp(
-        formData.email,
-        formData.password,
-        "client",
-        {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          phone: formData.phone,
-        }
-      );
-
+      const { error } = await signUp(formData.email, formData.password, "client", {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone: formData.phone,
+      });
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Registration failed",
-          description: error.message,
-        });
+        toast({ variant: "destructive", title: "Registration failed", description: error.message });
       } else {
-        toast({
-          title: "Registration successful!",
-          description: "Please check your email to verify your account.",
-        });
+        toast({ title: "Registration successful!", description: "Please check your email to verify your account." });
         navigate("/");
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Registration failed",
-        description: "An unexpected error occurred.",
-      });
+      toast({ variant: "destructive", title: "Registration failed", description: "An unexpected error occurred." });
     } finally {
       setLoading(false);
     }
@@ -107,175 +67,112 @@ const RegisterClient = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear field error when user starts typing
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-
-    // Real-time password validation
-    if (name === "password") {
-      setPasswordValidation(validatePassword(value));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    if (name === "password") setPasswordValidation(validatePassword(value));
   };
 
   useEffect(() => {
-    // Auto-validate confirm password
-    if (
-      formData.confirmPassword &&
-      formData.password !== formData.confirmPassword
-    ) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        confirmPassword: "Passwords don't match",
-      }));
+    if (formData.confirmPassword && formData.password !== formData.confirmPassword) {
+      setFieldErrors((prev) => ({ ...prev, confirmPassword: "Passwords don't match" }));
     } else {
       setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
     }
   }, [formData.password, formData.confirmPassword]);
 
+  const inputClass = "h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg pl-9 transition-colors";
+
   return (
-    <>
-      <header className="pt-safe-top z-10 flex items-center justify-between gap-2 py-2 mb-4">
-        <Button
-          variant="ghost"
-          onClick={() => history.back()}
-          aria-label="Back"
-          className="h-9 w-9"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-      </header>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4">
+      <div className="w-full max-w-sm">
+        <div className="flex justify-center mb-5">
+          <Logo size="lg" linked />
+        </div>
 
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-primary">
-              Join TESLYS
-            </CardTitle>
-            <CardDescription>Create your client account</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    required
-                    placeholder="First name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    required
-                    placeholder="Last name"
-                  />
+        <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm overflow-hidden">
+          <div className="px-5 pt-5 pb-3">
+            <button
+              onClick={() => history.back()}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition mb-3"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              Back
+            </button>
+            <h2 className="text-lg font-bold text-foreground">
+              Create your{" "}
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Client</span>{" "}
+              account
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">Join thousands of Tesla owners earning passive income</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="px-5 pb-5 space-y-3.5">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required placeholder="John" className={inputClass} />
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your email"
-                />
+              <div className="space-y-1.5">
+                <Label htmlFor="lastName" className="text-xs font-medium">Last Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required placeholder="Doe" className={inputClass} />
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter your phone number"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  onFocus={() => setShowPasswordHint(true)}
-                  onBlur={() => setShowPasswordHint(false)}
-                  required
-                  placeholder="Create a password"
-                  className={fieldErrors.password ? "border-red-500" : ""}
-                />
-                {fieldErrors.password && (
-                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
-                )}
-                <PasswordStrengthIndicator
-                  validation={passwordValidation}
-                  show={showPasswordHint || formData.password.length > 0}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  placeholder="Confirm your password"
-                  className={
-                    fieldErrors.confirmPassword ? "border-red-500" : ""
-                  }
-                />
-                {fieldErrors.confirmPassword && (
-                  <p className="text-sm text-red-600">
-                    {fieldErrors.confirmPassword}
-                  </p>
-                )}
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Creating account..." : "Create Client Account"}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link to="/" className="text-primary hover:underline">
-                  Sign in
-                </Link>
-              </p>
             </div>
-          </CardContent>
-        </Card>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-medium">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="you@example.com" className={inputClass} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className="text-xs font-medium">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} required placeholder="+1 (555) 000-0000" className={inputClass} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-medium">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input id="password" name="password" type="password" value={formData.password} onChange={handleChange} onFocus={() => setShowPasswordHint(true)} onBlur={() => setShowPasswordHint(false)} required placeholder="Create a strong password" className={`${inputClass} ${fieldErrors.password ? "border-destructive" : ""}`} />
+              </div>
+              {fieldErrors.password && <p className="text-xs text-destructive">{fieldErrors.password}</p>}
+              <PasswordStrengthIndicator validation={passwordValidation} show={showPasswordHint || formData.password.length > 0} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword" className="text-xs font-medium">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className={`${inputClass} ${fieldErrors.confirmPassword ? "border-destructive" : ""}`} />
+              </div>
+              {fieldErrors.confirmPassword && <p className="text-xs text-destructive">{fieldErrors.confirmPassword}</p>}
+            </div>
+
+            <Button type="submit" className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20" disabled={loading}>
+              {loading ? "Creating account..." : (
+                <span className="inline-flex items-center gap-2">Create Account <ArrowRight className="w-4 h-4" /></span>
+              )}
+            </Button>
+
+            <p className="text-center text-xs text-muted-foreground">
+              Already have an account?{" "}
+              <Link to="/" className="text-primary font-medium hover:underline">Sign in</Link>
+            </p>
+          </form>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

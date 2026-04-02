@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -16,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validatePassword } from "@/lib/passwordValidation";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 import { Link } from "react-router-dom";
+import { ArrowRight, ChevronLeft, User, Mail, Phone, Lock } from "lucide-react";
 
 type Props = { onDone?: () => void; onBackToLogin: () => void };
 
@@ -83,7 +77,6 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
           description: "Please verify your email.",
         });
 
-        // Notify admin about new client registration
         try {
           await supabase.functions.invoke('notify-admin-new-client', {
             body: {
@@ -125,40 +118,71 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
     }
   }, [formData.password, formData.confirmPassword]);
 
+  const inputClass = "h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg transition-colors";
+
   return (
-    <Card className="bg-white/80 border-primary/10 backdrop-blur p-4">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-primary">
-          Join TESLYS
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+    <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-5 pt-5 pb-3">
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition mb-3"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+          Back to sign in
+        </button>
+        <h2 className="text-lg font-bold text-foreground">
+          Create your{" "}
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Client
+          </span>{" "}
+          account
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Join thousands of Tesla owners earning passive income
+        </p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="px-5 pb-5 space-y-3.5">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="firstName" className="text-xs font-medium text-foreground">First Name</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="firstName"
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
                 required
+                placeholder="John"
+                className={`${inputClass} pl-9 ${fieldErrors.firstName ? "border-destructive" : ""}`}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lastName" className="text-xs font-medium text-foreground">Last Name</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
                 id="lastName"
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
                 required
+                placeholder="Doe"
+                className={`${inputClass} pl-9 ${fieldErrors.lastName ? "border-destructive" : ""}`}
               />
             </div>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-medium text-foreground">Email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
               id="email"
               name="email"
@@ -166,11 +190,16 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
               value={formData.email}
               onChange={handleChange}
               required
+              placeholder="you@example.com"
+              className={`${inputClass} pl-9 ${fieldErrors.email ? "border-destructive" : ""}`}
             />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="phone" className="text-xs font-medium text-foreground">Phone Number</Label>
+          <div className="relative">
+            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
               id="phone"
               name="phone"
@@ -178,39 +207,44 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
               value={formData.phone}
               onChange={handleChange}
               required
+              placeholder="+1 (555) 000-0000"
+              className={`${inputClass} pl-9 ${fieldErrors.phone ? "border-destructive" : ""}`}
             />
           </div>
+        </div>
 
-          {/* SMS Consent Checkbox */}
-          <div className="flex items-start space-x-3">
-            <Checkbox
-              id="smsConsent"
-              checked={smsConsent}
-              onCheckedChange={(checked) => {
-                setSmsConsent(checked === true);
-                if (fieldErrors.smsConsent) setFieldErrors((p) => ({ ...p, smsConsent: "" }));
-              }}
-              className={fieldErrors.smsConsent ? "border-red-500" : ""}
-            />
-            <div className="grid gap-1.5 leading-none">
-              <label
-                htmlFor="smsConsent"
-                className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
-              >
-                I agree to receive SMS messages from Teslys for booking confirmations, reminders, and support.
-                Message frequency varies. Message and data rates may apply. Reply STOP to cancel.{" "}
-                <Link to="/sms-consent" className="text-primary underline underline-offset-2" target="_blank">
-                  View SMS Terms
-                </Link>
-              </label>
-              {fieldErrors.smsConsent && (
-                <p className="text-sm text-red-600">{fieldErrors.smsConsent}</p>
-              )}
-            </div>
+        {/* SMS Consent */}
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
+          <Checkbox
+            id="smsConsent"
+            checked={smsConsent}
+            onCheckedChange={(checked) => {
+              setSmsConsent(checked === true);
+              if (fieldErrors.smsConsent) setFieldErrors((p) => ({ ...p, smsConsent: "" }));
+            }}
+            className={`mt-0.5 ${fieldErrors.smsConsent ? "border-destructive" : ""}`}
+          />
+          <div className="grid gap-1 leading-none">
+            <label
+              htmlFor="smsConsent"
+              className="text-[11px] text-muted-foreground leading-relaxed cursor-pointer"
+            >
+              I agree to receive SMS messages from Teslys for booking confirmations, reminders, and support.
+              Message frequency varies. Message and data rates may apply. Reply STOP to cancel.{" "}
+              <Link to="/sms-consent" className="text-primary underline underline-offset-2" target="_blank">
+                View SMS Terms
+              </Link>
+            </label>
+            {fieldErrors.smsConsent && (
+              <p className="text-xs text-destructive">{fieldErrors.smsConsent}</p>
+            )}
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="password" className="text-xs font-medium text-foreground">Password</Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
               id="password"
               name="password"
@@ -220,19 +254,23 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
               onFocus={() => setShowPasswordHint(true)}
               onBlur={() => setShowPasswordHint(false)}
               required
-              className={fieldErrors.password ? "border-red-500" : ""}
-            />
-            {fieldErrors.password && (
-              <p className="text-sm text-red-600">{fieldErrors.password}</p>
-            )}
-            <PasswordStrengthIndicator
-              validation={passwordValidation}
-              show={showPasswordHint || !!formData.password}
+              placeholder="Create a strong password"
+              className={`${inputClass} pl-9 ${fieldErrors.password ? "border-destructive" : ""}`}
             />
           </div>
+          {fieldErrors.password && (
+            <p className="text-xs text-destructive">{fieldErrors.password}</p>
+          )}
+          <PasswordStrengthIndicator
+            validation={passwordValidation}
+            show={showPasswordHint || !!formData.password}
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="confirmPassword" className="text-xs font-medium text-foreground">Confirm Password</Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -240,31 +278,40 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              className={fieldErrors.confirmPassword ? "border-red-500" : ""}
+              placeholder="Confirm your password"
+              className={`${inputClass} pl-9 ${fieldErrors.confirmPassword ? "border-destructive" : ""}`}
             />
-            {fieldErrors.confirmPassword && (
-              <p className="text-sm text-red-600">
-                {fieldErrors.confirmPassword}
-              </p>
-            )}
           </div>
+          {fieldErrors.confirmPassword && (
+            <p className="text-xs text-destructive">{fieldErrors.confirmPassword}</p>
+          )}
+        </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creating account..." : "Create Client Account"}
-          </Button>
+        <Button
+          type="submit"
+          className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+          disabled={loading}
+        >
+          {loading ? (
+            "Creating account..."
+          ) : (
+            <span className="inline-flex items-center gap-2">
+              Create Account <ArrowRight className="w-4 h-4" />
+            </span>
+          )}
+        </Button>
 
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <button
-              type="button"
-              onClick={onBackToLogin}
-              className="text-primary underline"
-            >
-              Sign in
-            </button>
-          </p>
-        </form>
-      </CardContent>
-    </Card>
+        <p className="text-center text-xs text-muted-foreground pt-1">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={onBackToLogin}
+            className="text-primary font-medium hover:underline"
+          >
+            Sign in
+          </button>
+        </p>
+      </form>
+    </div>
   );
 }
