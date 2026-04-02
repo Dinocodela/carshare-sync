@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/ui/logo';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Mail, Lock, Shield, Star, Users } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Shield, Star, Users, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
