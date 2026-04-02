@@ -187,7 +187,8 @@ export default function Dashboard() {
   >([]);
   const [pendingLoading, setPendingLoading] = useState(false);
 
-  const isAdmin = profile?.is_super_admin;
+  // Only host super-admins can see pending accounts
+  const isAdmin = profile?.is_super_admin && profile?.role === "host";
   const [pendingAccounts, setPendingAccounts] = useState<number>(0);
 
   useEffect(() => {
