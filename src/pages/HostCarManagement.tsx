@@ -1726,7 +1726,7 @@ export default function HostCarManagement() {
               </TabsList>
             </div>
 
-            <TabsContent value="active" className="space-y-4  sm:px-0">
+            <TabsContent value="active" className="space-y-4 sm:px-0">
               {activeHostedCars.length === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -1739,87 +1739,51 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <Accordion
-                  /* multiple so desktop can keep several open; mobile starts collapsed */
                   type="multiple"
-                  defaultValue={
-                    !isMobile ? activeHostedCars.map((c) => c.id) : []
-                  }
+                  defaultValue={!isMobile ? activeHostedCars.map((c) => c.id) : []}
                   className="grid gap-3 md:gap-4 md:grid-cols-2"
                 >
                   {activeHostedCars.map((car) => (
-                    <AccordionItem
-                      key={car.id}
-                      value={car.id}
-                      className="border-none group"
-                    >
+                    <AccordionItem key={car.id} value={car.id} className="border-none group">
                       <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                        {/* Header becomes the accordion trigger */}
-                        <CardHeader className="p-3 sm:p-4 md:p-6 items-center">
-                          <AccordionTrigger
-                            className="
-                  group w-full rounded-md px-0
-                  [&[data-state=open]_.chev]:rotate-180
-                  hover:no-underline
-                "
-                          >
+                        <CardHeader className="p-4 sm:p-5 items-center">
+                          <AccordionTrigger className="group w-full rounded-md px-0 [&[data-state=open]_.chev]:rotate-180 hover:no-underline">
                             <div className="flex w-full items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <CardTitle className="text-sm sm:text-lg break-words">
-                                  {formatCarDisplayName(car)}
-                                </CardTitle>
-                                <CardDescription className="break-words">
-                                  Location: {car.location}
-                                </CardDescription>
-                                <Badge className="mt-2" variant="default">
-                                  Hosting
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Car className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <CardTitle className="text-sm sm:text-base font-bold break-words">
+                                    {formatCarDisplayName(car)}
+                                  </CardTitle>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                                  <MapPin className="w-3 h-3" />
+                                  <span>{car.location}</span>
+                                </div>
+                                <Badge className="mt-2 ml-10 rounded-lg text-[10px] uppercase tracking-wider" variant="default">
+                                  Active Host
                                 </Badge>
                               </div>
                             </div>
                           </AccordionTrigger>
-                          {/* Header actions: visible ONLY when collapsed */}
-                          <div className="mt-3 flex flex-col sm:flex-row gap-2 group-data-[state=open]:hidden">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full sm:w-auto"
-                              onClick={() =>
-                                window.open(`tel:${car.client.phone}`)
-                              }
-                            >
-                              <Phone className="h-4 w-4 mr-2" />
-                              Call Client
+                          <div className="mt-3 flex flex-col sm:flex-row gap-2 group-data-[state=open]:hidden ml-10">
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                              <Phone className="h-4 w-4 mr-2" />Call Client
                             </Button>
-
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="w-full sm:w-auto"
-                                >
-                                  <Settings className="h-4 w-4 mr-2" />
-                                  Manage
+                                <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl">
+                                  <Settings className="h-4 w-4 mr-2" />Manage
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleManagementAction("view-details", car)
-                                  }
-                                >
-                                  <FileText className="h-4 w-4 mr-2" />
-                                  View Car Details
+                                <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                  <FileText className="h-4 w-4 mr-2" />View Car Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleManagementAction(
-                                      "schedule-maintenance",
-                                      car
-                                    )
-                                  }
-                                >
-                                  <Calendar className="h-4 w-4 mr-2" />
-                                  Schedule Maintenance
+                                <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                  <Calendar className="h-4 w-4 mr-2" />Schedule Maintenance
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                               </DropdownMenuContent>
@@ -1827,125 +1791,60 @@ export default function HostCarManagement() {
                           </div>
                         </CardHeader>
 
-                        {/* Body */}
                         <AccordionContent>
-                          <CardContent className="p-3 sm:p-4 md:p-6 space-y-4">
-                            {/* Car information */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Color:
-                                </span>
-                                <p className="font-medium">
-                                  {car.color || "N/A"}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Mileage:
-                                </span>
-                                <p className="font-medium">
-                                  {car.mileage
-                                    ? `${car.mileage.toLocaleString()} mi`
-                                    : "N/A"}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Hosting Since:
-                                </span>
-                                <p className="font-medium">
-                                  {new Date(
-                                    car.created_at
-                                  ).toLocaleDateString()}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Status:
-                                </span>
-                                <p className="font-medium text-green-600">
-                                  Active
-                                </p>
-                              </div>
+                          <CardContent className="px-4 sm:px-5 pb-5 space-y-4">
+                            {/* Car Stats Grid */}
+                            <div className="grid grid-cols-2 gap-2.5">
+                              {[
+                                { label: "Color", value: car.color || "N/A", icon: Palette },
+                                { label: "Mileage", value: car.mileage ? `${car.mileage.toLocaleString()} mi` : "N/A", icon: Gauge },
+                                { label: "Hosting Since", value: new Date(car.created_at).toLocaleDateString(), icon: Calendar },
+                                { label: "Status", value: "Active", icon: CheckCircle },
+                              ].map((item, i) => (
+                                <div key={i} className="rounded-xl border border-border/40 bg-background/50 p-3">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <item.icon className="w-3 h-3 text-muted-foreground" />
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
+                                  </div>
+                                  <p className="text-sm font-semibold text-foreground">{item.value}</p>
+                                </div>
+                              ))}
                             </div>
 
-                            {/* Client Contact */}
-                            <div className="border-t pt-4">
-                              <h4 className="font-medium mb-2">
-                                Client Contact
-                              </h4>
-                              <div className="space-y-2">
-                                <p className="text-sm">
-                                  <strong>Name:</strong>{" "}
-                                  {car.client.first_name || car.client.last_name
-                                    ? `${car.client.first_name || ""} ${
-                                        car.client.last_name || ""
-                                      }`.trim()
-                                    : "Name not available"}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                  <Phone className="h-4 w-4 text-muted-foreground" />
-                                  <a
-                                    href={`tel:${car.client.phone}`}
-                                    className="text-sm hover:underline"
-                                  >
-                                    {car.client.phone}
-                                  </a>
-                                </div>
+                            {/* Client Contact Card */}
+                            <div className="rounded-xl border border-border/40 bg-background/50 p-3.5">
+                              <div className="flex items-center gap-2 mb-2.5">
+                                <User className="w-3.5 h-3.5 text-primary" />
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client Contact</span>
+                              </div>
+                              <p className="text-sm font-medium text-foreground mb-1.5">
+                                {car.client.first_name || car.client.last_name
+                                  ? `${car.client.first_name || ""} ${car.client.last_name || ""}`.trim()
+                                  : "Name not available"}
+                              </p>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="h-3.5 w-3.5" />
+                                <a href={`tel:${car.client.phone}`} className="hover:text-foreground transition-colors">{car.client.phone}</a>
                               </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-col gap-2 pt-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full sm:w-auto"
-                                onClick={() =>
-                                  window.open(`tel:${car.client.phone}`)
-                                }
-                              >
-                                <Phone className="h-4 w-4 mr-2" />
-                                Call Client
+                            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                              <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                                <Phone className="h-4 w-4 mr-2" />Call Client
                               </Button>
-
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full sm:w-auto"
-                                  >
-                                    <Settings className="h-4 w-4 mr-2" />
-                                    Manage
+                                  <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl">
+                                    <Settings className="h-4 w-4 mr-2" />Manage
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align="end"
-                                  className="w-48"
-                                >
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleManagementAction(
-                                        "view-details",
-                                        car
-                                      )
-                                    }
-                                  >
-                                    <FileText className="h-4 w-4 mr-2" />
-                                    View Car Details
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                    <FileText className="h-4 w-4 mr-2" />View Car Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleManagementAction(
-                                        "schedule-maintenance",
-                                        car
-                                      )
-                                    }
-                                  >
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    Schedule Maintenance
+                                  <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                    <Calendar className="h-4 w-4 mr-2" />Schedule Maintenance
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                 </DropdownMenuContent>
@@ -3076,123 +2975,114 @@ export default function HostCarManagement() {
               ) : (
                 <div className="grid gap-3">
                   {filteredExpenses.map((expense) => (
-                    <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                        <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-medium capitalize break-words">
-                                {expense.expense_type}
-                              </h4>
+                    <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          {/* Left: Info */}
+                          <div className="min-w-0 flex-1 space-y-2.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <DollarSign className="w-4 h-4 text-primary" />
+                              </div>
+                              <h4 className="font-semibold text-sm capitalize">{expense.expense_type}</h4>
                               {expense.trip_id && (
-                                <Badge variant="outline" className="text-xs">
-                                  Trip# {expense.trip_id}
-                                </Badge>
+                                <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {expense.trip_id}</Badge>
                               )}
                             </div>
+
                             {expense.guest_name && (
-                              <p className="text-sm text-muted-foreground break-words">
-                                Guest: {expense.guest_name}
-                              </p>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                                <User className="w-3 h-3" />
+                                <span>{expense.guest_name}</span>
+                              </div>
                             )}
-                            <p className="text-sm text-muted-foreground break-words">
-                              {expense.description}
-                            </p>
-                            <p className="text-sm text-muted-foreground break-words">
-                              {new Date(
-                                expense.expense_date
-                              ).toLocaleDateString()}
-                            </p>
+
+                            {expense.description && (
+                              <p className="text-xs text-muted-foreground ml-10 line-clamp-2">{expense.description}</p>
+                            )}
+
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                              <Calendar className="w-3 h-3" />
+                              <span>{new Date(expense.expense_date).toLocaleDateString()}</span>
+                            </div>
 
                             {/* Cost Breakdown */}
-                            <div className="mt-2 space-y-1">
+                            <div className="ml-10 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                               {expense.ev_charge_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>EV Charge:</span>
-                                  <span>
-                                    ${expense.ev_charge_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">EV Charge</span>
+                                  <span className="text-xs font-semibold">${expense.ev_charge_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.carwash_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Carwash:</span>
-                                  <span>
-                                    ${expense.carwash_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Carwash</span>
+                                  <span className="text-xs font-semibold">${expense.carwash_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.delivery_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Delivery:</span>
-                                  <span>
-                                    ${expense.delivery_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Delivery</span>
+                                  <span className="text-xs font-semibold">${expense.delivery_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.toll_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Tolls:</span>
-                                  <span>${expense.toll_cost.toFixed(2)}</span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Tolls</span>
+                                  <span className="text-xs font-semibold">${expense.toll_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.amount > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Other:</span>
-                                  <span>${expense.amount.toFixed(2)}</span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Other</span>
+                                  <span className="text-xs font-semibold">${expense.amount.toFixed(2)}</span>
                                 </div>
                               )}
                             </div>
 
                             {/* Car Details */}
                             {(() => {
-                              const expenseCar = cars.find(
-                                (car) => car.id === expense.car_id
-                              );
+                              const expenseCar = cars.find((car) => car.id === expense.car_id);
                               if (!expenseCar) return null;
                               return (
-                                <div className="border-t mt-3 pt-3">
-                                  <p className="text-sm font-medium mb-2">
-                                    Vehicle Details:
-                                  </p>
+                                <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5 mt-2">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <Car className="w-3 h-3 text-muted-foreground" />
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
+                                  </div>
                                   {formatDetailedCarInfo(expenseCar)}
                                 </div>
                               );
                             })()}
                           </div>
-                          <div className="text-right">
-                            <div className="flex items-start gap-2 mb-2">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleEditExpense(expense)}
-                                  >
-                                    <Edit className="h-3 w-3 mr-2" /> Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => onDeleteExpense(expense.id)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash className="h-3 w-3 mr-2" /> Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+
+                          {/* Right: Total + Actions */}
+                          <div className="text-right shrink-0">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditExpense(expense)}>
+                                  <Edit className="h-3 w-3 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => onDeleteExpense(expense.id)} className="text-destructive">
+                                  <Trash className="h-3 w-3 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                            <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                              <p className="text-lg font-bold text-foreground tabular-nums">
+                                ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
                             </div>
-                            <p className="font-bold text-lg">
-                              $
-                              {expense.total_expenses?.toFixed(2) ||
-                                expense.amount.toFixed(2)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Total
-                            </p>
                           </div>
                         </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -4894,299 +4784,166 @@ export default function HostCarManagement() {
               ) : (
                 <div className="space-y-4">
                   {/* Summary Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      {
+                        label: "Total Earnings",
+                        value: `$${earnings.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: TrendingUp,
+                      },
+                      {
+                        label: "Pending Payments",
+                        value: `$${earnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: Clock,
+                      },
+                      {
+                        label: "This Month",
+                        value: `$${earnings.filter((e) => new Date(e.earning_period_start).getMonth() === new Date().getMonth()).reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: Calendar,
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Earnings
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              $
-                              {earnings
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
+                            </div>
+                            <p className="text-xl font-bold text-foreground tabular-nums">{item.value}</p>
                           </div>
-                          <DollarSign className="h-8 w-8 text-green-600" />
                         </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Pending Payments
-                            </p>
-                            <p className="text-2xl font-bold text-yellow-600">
-                              $
-                              {earnings
-                                .filter((e) => e.payment_status === "pending")
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <Clock className="h-8 w-8 text-yellow-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              This Month
-                            </p>
-                            <p className="text-2xl font-bold text-blue-600">
-                              $
-                              {earnings
-                                .filter(
-                                  (e) =>
-                                    new Date(
-                                      e.earning_period_start
-                                    ).getMonth() === new Date().getMonth()
-                                )
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <Calendar className="h-8 w-8 text-blue-600" />
-                        </div>
-                      </CardContent>
-                    </div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Earnings List */}
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {filteredEarnings.map((earning) => {
-                      // Calculate related expenses for this trip
-                      const relatedExpenses = earning.trip_id
-                        ? expenses.filter((e) => e.trip_id === earning.trip_id)
-                        : [];
-                      const totalExpenses = relatedExpenses.reduce(
-                        (sum, e) => sum + (e.total_expenses || e.amount),
-                        0
-                      );
+                      const relatedExpenses = earning.trip_id ? expenses.filter((e) => e.trip_id === earning.trip_id) : [];
+                      const totalExpenses = relatedExpenses.reduce((sum, e) => sum + (e.total_expenses || e.amount), 0);
                       const netProfit = earning.amount - totalExpenses;
+                      const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
+                      const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
 
                       return (
-                        <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                          <CardContent className="p-3 sm:p-4">
-                            {/* Row 1: Title (Hosting) + actions */}
-                            <div className="flex items-start justify-between gap-2">
-                              <h4 className="font-semibold capitalize">
-                                {earning.earning_type}
-                              </h4>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="shrink-0"
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleEditEarning(earning)}
-                                  >
-                                    <Edit className="h-3 w-3 mr-2" /> Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => onDeleteEarning(earning.id)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash className="h-3 w-3 mr-2" /> Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-
-                            {/* Row 2: Amount */}
-                            <div className="mt-1 mb-2">
-                              <p className="font-bold text-2xl text-green-600 leading-none">
-                                ${earning.amount.toFixed(2)}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Amount
-                              </p>
-                              {earning.date_paid && (
-                                <p className="text-xs text-muted-foreground">
-                                  Paid:{" "}
-                                  {new Date(
-                                    earning.date_paid
-                                  ).toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Row 3: Trip + payment status */}
-                            <div className="flex flex-wrap items-center gap-2 mb-3">
-                              {earning.trip_id && (
-                                <Badge variant="outline" className="text-xs">
-                                  Trip# {earning.trip_id}
-                                </Badge>
-                              )}
-                              <Badge
-                                variant={
-                                  earning.payment_status === "paid"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                              >
-                                {earning.payment_status}
-                              </Badge>
-                            </div>
-
-                            {/* Guest info */}
-                            <div className="space-y-2">
-                              {earning.guest_name && (
-                                <p className="text-sm text-muted-foreground break-words">
-                                  Guest: {earning.guest_name}
-                                </p>
-                              )}
-                              {(earning.guest_phone || earning.guest_email) && (
-                                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                                  {earning.guest_phone && (
-                                    <span className="flex items-center gap-1">
-                                      <Phone className="h-3 w-3" />
-                                      {earning.guest_phone}
-                                    </span>
+                        <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              {/* Left info */}
+                              <div className="min-w-0 flex-1 space-y-3">
+                                {/* Title row */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <TrendingUp className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <h4 className="font-semibold text-sm capitalize">{earning.earning_type}</h4>
+                                  {earning.trip_id && (
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {earning.trip_id}</Badge>
                                   )}
-                                  {earning.guest_email && (
-                                    <span className="flex items-center gap-1">
-                                      <Mail className="h-3 w-3" />
-                                      {earning.guest_email}
-                                    </span>
+                                  <Badge variant={earning.payment_status === "paid" ? "default" : "secondary"} className="text-[10px] rounded-lg">
+                                    {earning.payment_status}
+                                  </Badge>
+                                </div>
+
+                                {/* Guest & period info */}
+                                <div className="ml-10 space-y-1.5">
+                                  {earning.guest_name && (
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                      <User className="w-3 h-3" />
+                                      <span>{earning.guest_name}</span>
+                                    </div>
                                   )}
-                                </div>
-                              )}
-                              <p className="text-sm text-muted-foreground break-words">
-                                {new Date(
-                                  earning.earning_period_start
-                                ).toLocaleDateString()}{" "}
-                                –{" "}
-                                {new Date(
-                                  earning.earning_period_end
-                                ).toLocaleDateString()}
-                              </p>
-                              <p className="text-sm text-muted-foreground break-words">
-                                Source: {earning.payment_source}
-                              </p>
-
-                              {/* Profit breakdown */}
-                              <div className="grid grid-cols-2 gap-4 text-sm pt-1">
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Gross Earnings:
-                                  </span>
-                                  <p className="font-medium">
-                                    $
-                                    {earning.gross_earnings?.toFixed(2) ||
-                                      "0.00"}
-                                  </p>
-                                </div>
-                                {/* Calculate profits based on net profit (amount - expenses) */}
-                                {(() => {
-                                  const relatedExpenses = earning.trip_id
-                                    ? expenses.filter(
-                                        (e) => e.trip_id === earning.trip_id
-                                      )
-                                    : [];
-                                  const totalExpenses = relatedExpenses.reduce(
-                                    (sum, e) =>
-                                      sum + (e.total_expenses || e.amount),
-                                    0
-                                  );
-                                  const netProfit = earning.amount - totalExpenses;
-                                  const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
-                                  const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
-
-                                  return (
-                                    <>
-                                      {totalExpenses > 0 && (
-                                        <div>
-                                          <span className="text-muted-foreground">
-                                            Total Expenses:
-                                          </span>
-                                          <p className="font-medium text-red-600">
-                                            -${totalExpenses.toFixed(2)}
-                                          </p>
-                                        </div>
+                                  {(earning.guest_phone || earning.guest_email) && (
+                                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                      {earning.guest_phone && (
+                                        <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{earning.guest_phone}</span>
                                       )}
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Net Profit:
-                                        </span>
-                                        <p
-                                          className={`font-medium ${
-                                            netProfit >= 0
-                                              ? "text-green-600"
-                                              : "text-red-600"
-                                          }`}
-                                        >
-                                          ${netProfit.toFixed(2)}
-                                        </p>
+                                      {earning.guest_email && (
+                                        <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{earning.guest_email}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>{new Date(earning.earning_period_start).toLocaleDateString()} – {new Date(earning.earning_period_end).toLocaleDateString()}</span>
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">Source: {earning.payment_source}</div>
+                                  {earning.date_paid && (
+                                    <div className="text-xs text-muted-foreground">Paid: {new Date(earning.date_paid).toLocaleDateString()}</div>
+                                  )}
+                                </div>
+
+                                {/* Profit Breakdown Grid */}
+                                <div className="ml-10 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Gross</span>
+                                    <span className="text-xs font-semibold tabular-nums">${earning.gross_earnings?.toFixed(2) || "0.00"}</span>
+                                  </div>
+                                  {totalExpenses > 0 && (
+                                    <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Expenses</span>
+                                      <span className="text-xs font-semibold text-destructive tabular-nums">-${totalExpenses.toFixed(2)}</span>
+                                    </div>
+                                  )}
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Net</span>
+                                    <span className={`text-xs font-semibold tabular-nums ${netProfit >= 0 ? "text-foreground" : "text-destructive"}`}>${netProfit.toFixed(2)}</span>
+                                  </div>
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Client ({earning.client_profit_percentage || 70}%)</span>
+                                    <span className="text-xs font-semibold tabular-nums">${clientProfit.toFixed(2)}</span>
+                                  </div>
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Host ({earning.host_profit_percentage || 30}%)</span>
+                                    <span className="text-xs font-semibold tabular-nums">${hostProfit.toFixed(2)}</span>
+                                  </div>
+                                </div>
+
+                                {/* Related expenses count */}
+                                {earning.trip_id && relatedExpenses.length > 0 && (
+                                  <div className="ml-10 text-[10px] text-muted-foreground">{relatedExpenses.length} related expense(s)</div>
+                                )}
+
+                                {/* Vehicle */}
+                                {(() => {
+                                  const earningCar = cars.find((car) => car.id === earning.car_id);
+                                  return earningCar ? (
+                                    <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
+                                      <div className="flex items-center gap-1.5 mb-1">
+                                        <Car className="w-3 h-3 text-muted-foreground" />
+                                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
                                       </div>
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Client Profit (
-                                          {earning.client_profit_percentage || 70}%):
-                                        </span>
-                                        <p className="font-medium">
-                                          ${clientProfit.toFixed(2)}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Host Profit (
-                                          {earning.host_profit_percentage || 30}%):
-                                        </span>
-                                        <p className="font-medium">
-                                          ${hostProfit.toFixed(2)}
-                                        </p>
-                                      </div>
-                                    </>
-                                  );
+                                      {formatDetailedCarInfo(earningCar)}
+                                    </div>
+                                  ) : null;
                                 })()}
                               </div>
 
-                              {/* Related expenses count */}
-                              {earning.trip_id &&
-                                expenses.some(
-                                  (e) => e.trip_id === earning.trip_id
-                                ) && (
-                                  <div className="text-xs text-muted-foreground">
-                                    Related expenses:{" "}
-                                    {
-                                      expenses.filter(
-                                        (e) => e.trip_id === earning.trip_id
-                                      ).length
-                                    }{" "}
-                                    item(s)
-                                  </div>
-                                )}
-
-                              {/* Vehicle details */}
-                              {(() => {
-                                const earningCar = cars.find(
-                                  (car) => car.id === earning.car_id
-                                );
-                                return earningCar ? (
-                                  <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">
-                                      Vehicle Details:
-                                    </p>
-                                    {formatDetailedCarInfo(earningCar)}
-                                  </div>
-                                ) : null;
-                              })()}
+                              {/* Right: Amount + Actions */}
+                              <div className="text-right shrink-0">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditEarning(earning)}>
+                                      <Edit className="h-3 w-3 mr-2" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => onDeleteEarning(earning.id)} className="text-destructive">
+                                      <Trash className="h-3 w-3 mr-2" /> Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                                  <p className="text-lg font-bold text-foreground tabular-nums">${earning.amount.toFixed(2)}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Amount</p>
+                                </div>
+                              </div>
                             </div>
-                          </CardContent>
+                          </div>
                         </div>
                       );
                     })}
@@ -6353,263 +6110,138 @@ export default function HostCarManagement() {
               ) : (
                 <div className="space-y-4">
                   {/* Claims Summary */}
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Claims
-                            </p>
-                            <p className="text-2xl font-bold">
-                              {claims.length}
-                            </p>
-                          </div>
-                          <FileText className="h-8 w-8 text-blue-600" />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                    {[
+                      { label: "Total Claims", value: claims.length.toString(), icon: FileText },
+                      { label: "Pending", value: claims.filter((c) => c.claim_status === "pending").length.toString(), icon: Clock },
+                      { label: "Approved", value: claims.filter((c) => c.claim_status === "approved").length.toString(), icon: CheckCircle },
+                      { label: "Total Amount", value: `$${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: DollarSign },
+                      { label: "Amount Paid", value: `$${claims.filter((c) => c.is_paid).reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: CheckCircle },
+                    ].map((item, i) => (
+                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-3.5">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
                         </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Pending
-                            </p>
-                            <p className="text-2xl font-bold text-yellow-600">
-                              {
-                                claims.filter(
-                                  (c) => c.claim_status === "pending"
-                                ).length
-                              }
-                            </p>
-                          </div>
-                          <AlertTriangle className="h-8 w-8 text-yellow-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Approved
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              {
-                                claims.filter(
-                                  (c) => c.claim_status === "approved"
-                                ).length
-                              }
-                            </p>
-                          </div>
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Amount
-                            </p>
-                            <p className="text-2xl font-bold">
-                              $
-                              {claims
-                                .reduce(
-                                  (sum, c) => sum + (c.claim_amount || 0),
-                                  0
-                                )
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <DollarSign className="h-8 w-8 text-purple-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Amount Paid
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              $
-                              {claims
-                                .filter((c) => c.is_paid)
-                                .reduce(
-                                  (sum, c) => sum + (c.claim_amount || 0),
-                                  0
-                                )
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </div>
+                        <p className="text-lg font-bold text-foreground tabular-nums">{item.value}</p>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Claims List */}
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {filteredClaims.map((claim) => {
-                      // Find the car for this claim
-                      const claimCar = cars.find(
-                        (car) => car.id === claim.car_id
-                      );
-
+                      const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
-                        <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                          <CardContent className="p-3 sm:p-4">
-                            <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-medium capitalize break-words">
-                                    {claim.claim_type} Claim
-                                  </h4>
-                                  <Badge
-                                    variant={
-                                      claim.claim_status === "approved"
-                                        ? "default"
-                                        : claim.claim_status === "denied"
-                                        ? "destructive"
-                                        : "secondary"
-                                    }
-                                  >
+                        <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              {/* Left info */}
+                              <div className="min-w-0 flex-1 space-y-2.5">
+                                {/* Title row */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Shield className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <h4 className="font-semibold text-sm capitalize">{claim.claim_type} Claim</h4>
+                                  <Badge variant={claim.claim_status === "approved" ? "default" : claim.claim_status === "denied" ? "destructive" : "secondary"} className="text-[10px] rounded-lg">
                                     {claim.claim_status}
                                   </Badge>
                                   {claim.is_paid && (
-                                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                                      Paid
-                                    </Badge>
+                                    <Badge variant="default" className="text-[10px] rounded-lg">Paid</Badge>
                                   )}
+                                </div>
+
+                                {/* Badges row */}
+                                <div className="ml-10 flex flex-wrap gap-1.5">
                                   {claim.trip_id && (
-                                    <Badge variant="outline">
-                                      Trip# {claim.trip_id}
-                                    </Badge>
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {claim.trip_id}</Badge>
                                   )}
                                   {claim.incident_id && (
-                                    <Badge variant="outline">
-                                      Incident# {claim.incident_id}
-                                    </Badge>
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Incident# {claim.incident_id}</Badge>
                                   )}
                                 </div>
 
-                                {/* Trip Details */}
-                                <div className="flex flex-wrap items-center gap-2 text-sm">
+                                {/* Details */}
+                                <div className="ml-10 space-y-1.5">
                                   {claim.guest_name && (
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">
-                                        Guest:
-                                      </span>
-                                      <span className="font-medium">
-                                        {claim.guest_name}
-                                      </span>
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                      <User className="w-3 h-3" />
+                                      <span>{claim.guest_name}</span>
+                                      {claim.payment_source && (
+                                        <span className="text-muted-foreground/60">• {claim.payment_source}</span>
+                                      )}
                                     </div>
                                   )}
-                                  {claim.payment_source && (
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">
-                                        •
-                                      </span>
-                                      <span className="text-muted-foreground">
-                                        Source:
-                                      </span>
-                                      <span className="font-medium">
-                                        {claim.payment_source}
-                                      </span>
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>Incident: {new Date(claim.incident_date).toLocaleDateString()}</span>
+                                  </div>
+                                  {claim.description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-2">{claim.description}</p>
+                                  )}
+                                  {claim.accident_description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-2"><span className="font-medium">Details:</span> {claim.accident_description}</p>
+                                  )}
+                                </div>
+
+                                {/* Status indicators */}
+                                <div className="ml-10 flex flex-wrap gap-2">
+                                  {claim.photos_taken && (
+                                    <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-background/50 px-2 py-1 text-[10px]">
+                                      <CheckCircle className="h-3 w-3 text-primary" />
+                                      <span>Photos documented</span>
+                                    </div>
+                                  )}
+                                  {claim.claim_status !== "pending" && (
+                                    <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-background/50 px-2 py-1 text-[10px] text-muted-foreground">
+                                      <Clock className="h-3 w-3" />
+                                      <span>Filed: {new Date(claim.created_at).toLocaleDateString()}</span>
                                     </div>
                                   )}
                                 </div>
 
-                                {/* Car Details */}
+                                {/* Vehicle */}
                                 {claimCar && (
-                                  <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">
-                                      Vehicle Details:
-                                    </p>
+                                  <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                      <Car className="w-3 h-3 text-muted-foreground" />
+                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
+                                    </div>
                                     {formatDetailedCarInfo(claimCar)}
                                   </div>
                                 )}
-                                <p className="text-sm text-muted-foreground">
-                                  {claim.description}
-                                </p>
-                                {claim.accident_description && (
-                                  <p className="text-sm text-muted-foreground">
-                                    <strong>Details:</strong>{" "}
-                                    {claim.accident_description}
-                                  </p>
-                                )}
-                                <p className="text-sm text-muted-foreground">
-                                  <strong>Incident Date:</strong>{" "}
-                                  {new Date(
-                                    claim.incident_date
-                                  ).toLocaleDateString()}
-                                </p>
-
-                                {claim.photos_taken && (
-                                  <div className="flex items-center gap-1 text-sm text-green-600">
-                                    <CheckCircle className="h-4 w-4" />
-                                    <span>Photos documented</span>
-                                  </div>
-                                )}
-
-                                {/* Progress Indicators */}
-                                {claim.claim_status !== "pending" && (
-                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span>
-                                      Filed:{" "}
-                                      {new Date(
-                                        claim.created_at
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                )}
                               </div>
-                              <div className="text-right">
-                                <div className="flex items-start gap-2 mb-2">
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="outline" size="sm">
-                                        <MoreVertical className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        onClick={() => handleEditClaim(claim)}
-                                      >
-                                        <Edit className="h-3 w-3 mr-2" /> Edit
-                                        Claim
-                                      </DropdownMenuItem>
-                                      {claim.claim_status === "pending" && (
-                                        <>
-                                          <DropdownMenuSeparator />
-                                          <DropdownMenuItem
-                                            onClick={() => {
-                                              setDeleteClaimId(claim.id);
-                                              setDeleteClaimDialogOpen(true);
-                                            }}
-                                            className="text-destructive focus:text-destructive"
-                                          >
-                                            <Trash className="h-3 w-3 mr-2" />{" "}
-                                            Delete Claim
-                                          </DropdownMenuItem>
-                                        </>
-                                      )}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+
+                              {/* Right: Amount + Actions */}
+                              <div className="text-right shrink-0">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditClaim(claim)}>
+                                      <Edit className="h-3 w-3 mr-2" /> Edit Claim
+                                    </DropdownMenuItem>
+                                    {claim.claim_status === "pending" && (
+                                      <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => { setDeleteClaimId(claim.id); setDeleteClaimDialogOpen(true); }} className="text-destructive focus:text-destructive">
+                                          <Trash className="h-3 w-3 mr-2" /> Delete Claim
+                                        </DropdownMenuItem>
+                                      </>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                                  <p className="text-lg font-bold text-foreground tabular-nums">${claim.claim_amount?.toFixed(2) || "0.00"}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Amount</p>
                                 </div>
-                                <p className="font-bold text-lg">
-                                  ${claim.claim_amount?.toFixed(2) || "0.00"}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  Claim Amount
-                                </p>
                               </div>
                             </div>
-                          </CardContent>
+                          </div>
                         </div>
                       );
                     })}
