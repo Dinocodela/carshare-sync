@@ -12,7 +12,7 @@ export function OnboardingScreen1() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 text-center relative overflow-hidden bg-secondary">
+    <div className="flex flex-col items-center justify-center h-full px-6 text-center relative overflow-hidden">
       {/* Animated background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div
