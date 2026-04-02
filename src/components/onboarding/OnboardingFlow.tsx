@@ -58,7 +58,7 @@ export function OnboardingFlow() {
   const ScreenComponent = SCREENS[currentScreen];
 
   return (
-    <div className="min-h-screen flex flex-col bg-secondary relative">
+    <div className="min-h-screen flex flex-col bg-gradient-hero relative">
       {/* Top bar: logo + skip */}
       <div className="relative z-10 flex items-center justify-between px-5 pt-4 pb-2">
         <Logo size="sm" linked />
