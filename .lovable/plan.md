@@ -1,26 +1,41 @@
 
 
-## Plan: Add Collapsible Recent Trips and Recent Activity Sections
+## Plan: Modernize the Add Car Screen
 
 ### What changes
 
-1. **Add a "Recent Trips" collapsible section** above "Recent Activity" on the Dashboard. It will fetch the user's recent earnings (trips) directly from Supabase and display them as compact card items (similar to how RecentTrips works on the analytics page, but simplified for the dashboard).
+Redesign `src/pages/AddCar.tsx` to match the trust-focused, glassmorphic UI used across Dashboard, Analytics, and My Cars screens.
 
-2. **Make both "Recent Trips" and "Recent Activity" collapsible** using the existing `Collapsible` component from `@radix-ui/react-collapsible` (already in `src/components/ui/collapsible.tsx`). Each section gets a chevron toggle button that expands/collapses the content.
+### Key design elements
+
+1. **Trust Banner** — Replace the current plain header with a gradient banner (matching other screens) featuring a Shield icon and trust signals like "Secure Upload", "Verified Listing", "Host Protected"
+
+2. **Staggered entrance animations** — Add the same `useMounted` + `fadeIn` pattern used in My Cars and Analytics for all sections
+
+3. **Multi-step visual progress** — Add a subtle step indicator at the top (Vehicle Info → Photos → Review) showing which section the user is filling out, giving a sense of guided safety
+
+4. **Glassmorphic form sections** — Replace the single Card with grouped sections using `bg-card/80 backdrop-blur-sm rounded-2xl` containers:
+   - **Vehicle Details** (make, model, year, mileage) with a Car icon header
+   - **Identification** (color, location, license plate, VIN) with a Shield icon header  
+   - **Photos** section with improved upload area
+   - **Description** as an optional final section
+
+5. **Enhanced image upload area** — Modernize the dashed upload zone with a gradient border effect, larger drop area, and better visual feedback for selected images (rounded-2xl thumbnails with smooth remove animations)
+
+6. **Trust footer above submit** — A small row of trust badges (e.g., lock icon + "Your data is encrypted", shield + "Verified by Teslys") right above the action buttons to reinforce safety at the point of commitment
+
+7. **Polished action buttons** — Full-width stacked on mobile, side-by-side on desktop, with the submit button using a subtle gradient or primary styling with a loading spinner
 
 ### Technical details
 
-**File: `src/pages/Dashboard.tsx`**
+**File: `src/pages/AddCar.tsx`**
+- Add `useState` + `useEffect` for mounted animation state (same `useMounted` pattern)
+- Add `fadeIn` helper function for staggered delays
+- Import `Shield`, `Lock`, `CheckCircle`, `Sparkles` icons
+- Restructure JSX from single Card into multiple glassmorphic sections
+- Keep all existing form logic, validation, image handling, and submission logic unchanged
+- Only the visual presentation layer changes
 
-- Import `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` from `@/components/ui/collapsible`
-- Import `ChevronDown` icon (already imported as `ChevronRight`, add `ChevronDown`)
-- Add two state variables: `tripsOpen` (default true) and `activityOpen` (default true)
-- Add a new `useEffect` to fetch recent trips from `host_earnings` table (limited to 5), filtering by the user's car IDs (client) or host ID (host)
-- Render a new "Recent Trips" collapsible section between Quick Actions and Recent Activity, showing trip ID, guest name, amount, status, and period in compact card format
-- Wrap both "Recent Trips" and "Recent Activity" content in `Collapsible` with a clickable header that toggles open/closed with an animated chevron
-
-### UI behavior
-- Both sections default to open
-- Tapping the section header toggles visibility with a smooth collapse animation
-- Chevron icon rotates when expanded/collapsed
+### No other files affected
+All changes are contained to `src/pages/AddCar.tsx`. The form schema, submit logic, camera capture, and image upload logic remain identical.
 
