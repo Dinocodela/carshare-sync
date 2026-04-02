@@ -373,7 +373,7 @@ export default function Dashboard() {
                 <span className="text-3xl font-extrabold tracking-tight">
                   ${earnings7d.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
-                <span className="text-[10px] opacity-75 font-medium">Last 7 days</span>
+                <span className="text-[10px] opacity-75 font-medium">This month</span>
               </div>
             </div>
           </div>
