@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import teslysLogo from '@/assets/teslys-logo.png';
+import teslysLogo from '@/assets/teslys-logo-transparent.png';
 
 interface LogoProps {
   className?: string;
@@ -9,10 +9,10 @@ interface LogoProps {
 
 export function Logo({ className, size = 'lg', linked = false }: LogoProps) {
   const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-12 h-12',
-    lg: 'w-16 h-16',
-    xl: 'w-24 h-24'
+    sm: 'w-10 h-10',
+    md: 'w-14 h-14',
+    lg: 'w-20 h-20',
+    xl: 'w-28 h-28'
   };
 
   const img = (
