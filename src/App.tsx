@@ -48,6 +48,8 @@ import DeleteAccount from "./pages/DeleteAccount";
 import SMSConsent from "./pages/SMSConsent";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import ScrollReset from "./components/router/ScrollReset";
+import Blog from "./pages/Blog";
+import BlogPostPage from "./pages/BlogPost";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -103,6 +105,8 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/email-confirmed" element={<EmailConfirmed />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>

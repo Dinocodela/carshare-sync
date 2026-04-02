@@ -272,6 +272,10 @@ const Index = () => {
               SMS Consent
             </Link>
             <span>•</span>
+            <Link to="/blog" className="hover:text-foreground transition underline-offset-2 hover:underline">
+              Blog
+            </Link>
+            <span>•</span>
             <button
               onClick={() => {
                 window.location.href = `mailto:${'support'}@${'teslys.com'}?subject=${encodeURIComponent('Teslys Support Request')}`;
