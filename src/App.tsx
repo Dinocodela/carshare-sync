@@ -48,6 +48,8 @@ import DeleteAccount from "./pages/DeleteAccount";
 import SMSConsent from "./pages/SMSConsent";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import ScrollReset from "./components/router/ScrollReset";
+import Blog from "./pages/Blog";
+import BlogPostPage from "./pages/BlogPost";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
