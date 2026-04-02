@@ -105,7 +105,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
       // Get all analytics data with year filtering
       let earningsQuery = supabase
         .from('host_earnings')
-        .select('*')
+        .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, guest_name, earning_type, payment_source, created_at')
         .in('car_id', carIds)
         .order('earning_period_start', { ascending: false });
       

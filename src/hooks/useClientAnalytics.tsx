@@ -20,8 +20,6 @@ export interface ClientEarning {
   payment_status: string;
   trip_id?: string | null;
   guest_name?: string | null;
-  guest_phone?: string | null;
-  guest_email?: string | null;
   earning_type: string;
   payment_source: string;
   created_at: string;
@@ -122,7 +120,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       // Build year filter for earnings (based on earning_period_start)
       let earningsQuery = supabase
         .from('host_earnings')
-        .select('*')
+        .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, guest_name, earning_type, payment_source, created_at')
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
