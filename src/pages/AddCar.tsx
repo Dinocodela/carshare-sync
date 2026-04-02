@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,19 +9,17 @@ import {
   X,
   Camera,
   Image as ImageIcon,
-  Info,
-  RefreshCw,
+  Shield,
+  Lock,
+  CheckCircle,
+  MapPin,
+  FileText,
+  Sparkles,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -67,6 +65,7 @@ export default function AddCar() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [mounted, setMounted] = useState(false);
   const {
     takePhoto,
     selectFromGallery,
@@ -75,6 +74,17 @@ export default function AddCar() {
     isCapturing,
     isNative,
   } = useCameraCapture();
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 50);
+    return () => clearTimeout(t);
+  }, []);
+
+  const fadeIn = (idx: number) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? "translateY(0)" : "translateY(12px)",
+    transition: `all 500ms cubic-bezier(0.23,1,0.32,1) ${idx * 80}ms`,
+  });
 
   const form = useForm<CarFormData>({
     resolver: zodResolver(carSchema),
@@ -113,10 +123,7 @@ export default function AddCar() {
   const handleCameraCapture = async () => {
     const photo = await showActionSheet({ quality: 90, allowEditing: true });
     if (photo) {
-      const file = await convertPhotoToFile(
-        photo,
-        `car-photo-${Date.now()}.jpg`
-      );
+      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
       if (!file) return;
       if (selectedImages.length >= MAX_IMAGES) {
         toast({
@@ -133,10 +140,7 @@ export default function AddCar() {
   const handleGallerySelect = async () => {
     const photo = await selectFromGallery({ quality: 90, allowEditing: true });
     if (photo) {
-      const file = await convertPhotoToFile(
-        photo,
-        `car-photo-${Date.now()}.jpg`
-      );
+      const file = await convertPhotoToFile(photo, `car-photo-${Date.now()}.jpg`);
       if (!file) return;
       if (selectedImages.length >= MAX_IMAGES) {
         toast({
@@ -154,19 +158,13 @@ export default function AddCar() {
     const imageUrls: string[] = [];
     for (let i = 0; i < selectedImages.length; i++) {
       const file = selectedImages[i];
-      const fileName = `${carId}/${Date.now()}-${i}.${file.name
-        .split(".")
-        .pop()}`;
-      const { error } = await supabase.storage
-        .from("car-images")
-        .upload(fileName, file);
+      const fileName = `${carId}/${Date.now()}-${i}.${file.name.split(".").pop()}`;
+      const { error } = await supabase.storage.from("car-images").upload(fileName, file);
       if (error) {
         console.error("Error uploading image:", error);
         continue;
       }
-      const { data } = supabase.storage
-        .from("car-images")
-        .getPublicUrl(fileName);
+      const { data } = supabase.storage.from("car-images").getPublicUrl(fileName);
       imageUrls.push(data.publicUrl);
     }
     return imageUrls;
@@ -214,8 +212,7 @@ export default function AddCar() {
 
       toast({
         title: "Car added successfully!",
-        description:
-          "Your car has been listed. You can now request hosting services from your My Cars page.",
+        description: "Your car has been listed. You can now request hosting services from your My Cars page.",
       });
       navigate("/my-cars");
     } catch (error) {
@@ -230,406 +227,436 @@ export default function AddCar() {
     }
   };
 
+  const steps = [
+    { label: "Vehicle Info", icon: Car },
+    { label: "Identification", icon: Shield },
+    { label: "Photos", icon: ImageIcon },
+    { label: "Details", icon: FileText },
+  ];
+
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto pb-24 px-4">
-        {/* Header */}
-        <section className="mb-6">
-          {/* Desktop / tablet (md+): full header with info + reset */}
-          <div className="hidden md:flex items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <Car className="h-6 w-6 text-primary" />
-                <h1 className="text-3xl font-bold">Add Your Car</h1>
+      <div className="max-w-2xl mx-auto pb-24 px-4 space-y-5">
+        {/* Trust Banner */}
+        <div
+          style={fadeIn(0)}
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-5 text-primary-foreground"
+        >
+          <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-white/5 blur-xl" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="rounded-xl bg-white/15 p-2.5 backdrop-blur-sm">
+                <Car className="h-5 w-5" />
               </div>
-              <p className="text-muted-foreground">
-                Fill out the details below to list your car for hosting
-                services.
-              </p>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                form.reset();
-                setSelectedImages([]);
-              }}
-              className="flex items-center gap-2"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </Button>
-          </div>
-
-          {/* Mobile (sm and below): compact banner */}
-          <div className="md:hidden">
-            <div className="rounded-2xl border bg-muted/40 p-3 flex items-start gap-3">
-              <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-                <Car className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Add your car details to request hosting services.
+              <div>
+                <h1 className="text-xl font-bold tracking-tight">Add Your Car</h1>
+                <p className="text-sm text-primary-foreground/70">
+                  List your vehicle for professional hosting
                 </p>
               </div>
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="icon"
                 onClick={() => {
                   form.reset();
                   setSelectedImages([]);
                 }}
-                className="h-9 w-9 shrink-0"
+                className="ml-auto h-9 w-9 text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10"
                 aria-label="Reset form"
               >
                 <RotateCcw className="h-4 w-4" />
               </Button>
             </div>
-          </div>
-        </section>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-start gap-2 mt-2 text-[12px] text-muted-foreground border-b pb-4">
-              <div className="rounded-md bg-primary/10 p-1">
-                <Info className="h-4 w-4 text-primary" />
-              </div>
-              <span>
-                Provide accurate information about your vehicle to help hosts
-                understand your needs.
-              </span>
+            <div className="flex flex-wrap gap-3 mt-3">
+              {[
+                { icon: Shield, label: "Verified Listing" },
+                { icon: Lock, label: "Secure Upload" },
+                { icon: CheckCircle, label: "Host Protected" },
+              ].map((b) => (
+                <span
+                  key={b.label}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur-sm"
+                >
+                  <b.icon className="h-3 w-3" />
+                  {b.label}
+                </span>
+              ))}
             </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                {/* Rows are responsive now */}
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="make"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Make *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Toyota" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="model"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Model *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Camry" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+          </div>
+        </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="year"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Year *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            inputMode="numeric"
-                            {...field}
-                            value={field.value === 0 ? "" : field.value} // show empty if value is 0
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val === "" || isNaN(Number(val))) {
-                                field.onChange(0); // invalid -> 0
-                              } else {
-                                field.onChange(Number(val));
-                              }
-                            }}
-                            onBlur={(e) => {
-                              // if empty on blur, reset to 0
-                              if (e.target.value === "") {
-                                field.onChange(0);
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="mileage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mileage *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            inputMode="numeric"
-                            placeholder="50000"
-                            {...field}
-                            value={field.value === 0 ? "" : field.value} // show empty if value is 0
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val === "" || isNaN(Number(val))) {
-                                field.onChange(0); // invalid -> 0
-                              } else {
-                                field.onChange(Number(val));
-                              }
-                            }}
-                            onBlur={(e) => {
-                              // if empty on blur, reset to 0
-                              if (e.target.value === "") {
-                                field.onChange(0);
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        {/* Step Indicator */}
+        <div style={fadeIn(1)} className="flex items-center justify-between gap-1 px-1">
+          {steps.map((step, i) => (
+            <div key={step.label} className="flex items-center gap-1.5 flex-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <step.icon className="h-3 w-3" />
                 </div>
+                <span className="hidden sm:inline font-medium">{step.label}</span>
+              </div>
+              {i < steps.length - 1 && (
+                <div className="flex-1 h-px bg-border mx-1" />
+              )}
+            </div>
+          ))}
+        </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="color"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Color *</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select color" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {[
-                              "white",
-                              "black",
-                              "silver",
-                              "gray",
-                              "red",
-                              "blue",
-                              "green",
-                              "yellow",
-                              "other",
-                            ].map((c) => (
-                              <SelectItem key={c} value={c}>
-                                {c[0].toUpperCase() + c.slice(1)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Location *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="City, State" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            {/* Section 1: Vehicle Details */}
+            <div
+              style={fadeIn(2)}
+              className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5 space-y-4"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <div className="rounded-lg bg-primary/10 p-1.5">
+                  <Car className="h-4 w-4 text-primary" />
                 </div>
+                <h2 className="text-sm font-semibold text-foreground">Vehicle Details</h2>
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="license_plate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>License Plate *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="ABC-1234"
-                            autoCapitalize="characters"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="vin_number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>VIN Number *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="1HGBH41JXMN109186" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
+              <div className="grid sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="description"
+                  name="make"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description (Optional)</FormLabel>
+                      <FormLabel>Make *</FormLabel>
                       <FormControl>
-                        <Textarea
-                          placeholder="Any additional details about your car..."
+                        <Input placeholder="Toyota" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="model"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Model *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Camry" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Year *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
                           {...field}
+                          value={field.value === 0 ? "" : field.value}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" || isNaN(Number(val)) ? 0 : Number(val));
+                          }}
+                          onBlur={(e) => {
+                            if (e.target.value === "") field.onChange(0);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                {/* Images */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <label className="text-sm font-medium text-foreground">
-                        Car Images *
-                      </label>
-                      <p className="text-sm text-muted-foreground">
-                        Upload photos of your car (min 1, max {MAX_IMAGES}).
-                      </p>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {selectedImages.length}/{MAX_IMAGES}
-                    </span>
-                  </div>
-
-                  {isNative && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleCameraCapture}
-                        disabled={
-                          isCapturing || selectedImages.length >= MAX_IMAGES
-                        }
-                        className="h-20 flex flex-col gap-2"
-                      >
-                        <Camera className="h-6 w-6" />
-                        <span className="text-sm">Take Photo</span>
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleGallerySelect}
-                        disabled={
-                          isCapturing || selectedImages.length >= MAX_IMAGES
-                        }
-                        className="h-20 flex flex-col gap-2"
-                      >
-                        <ImageIcon className="h-6 w-6" />
-                        <span className="text-sm">From Gallery</span>
-                      </Button>
-                    </div>
+                <FormField
+                  control={form.control}
+                  name="mileage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mileage *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder="50000"
+                          {...field}
+                          value={field.value === 0 ? "" : field.value}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" || isNaN(Number(val)) ? 0 : Number(val));
+                          }}
+                          onBlur={(e) => {
+                            if (e.target.value === "") field.onChange(0);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
+                />
+              </div>
+            </div>
 
-                  <div className="border-2 border-dashed border-border rounded-xl p-6">
-                    <div className="flex flex-col items-center gap-2">
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <div className="text-center">
-                        <label className="cursor-pointer">
-                          <span className="text-sm font-medium text-primary hover:text-primary/80">
-                            Click to upload images
-                          </span>
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            capture="environment"
-                            onChange={handleImageSelect}
-                            className="hidden"
-                          />
-                        </label>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          PNG, JPG, JPEG up to 10MB each
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {selectedImages.length > 0 && (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                        {selectedImages.map((file, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Tesla car photo preview ${index + 1} - Upload preview for vehicle listing`}
-                            className="w-full h-24 object-cover rounded-lg border"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            aria-label={`Remove image ${index + 1}`}
-                            className="
-                              absolute -top-2 -right-2
-                              inline-flex items-center justify-center
-                              h-7 w-7 rounded-full
-                              bg-red-500 text-white shadow-md
-                              ring-2 ring-white
-                              transition hover:scale-105 active:scale-95
-                            "
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+            {/* Section 2: Identification */}
+            <div
+              style={fadeIn(3)}
+              className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5 space-y-4"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <div className="rounded-lg bg-primary/10 p-1.5">
+                  <Shield className="h-4 w-4 text-primary" />
                 </div>
+                <h2 className="text-sm font-semibold text-foreground">Identification</h2>
+              </div>
 
-                <div className="flex gap-4 pt-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="color"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Color *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select color" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {["white", "black", "silver", "gray", "red", "blue", "green", "yellow", "other"].map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {c[0].toUpperCase() + c.slice(1)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="City, State" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="license_plate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>License Plate *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="ABC-1234" autoCapitalize="characters" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="vin_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>VIN Number *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="1HGBH41JXMN109186" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Section 3: Photos */}
+            <div
+              style={fadeIn(4)}
+              className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5 space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-lg bg-primary/10 p-1.5">
+                    <ImageIcon className="h-4 w-4 text-primary" />
+                  </div>
+                  <h2 className="text-sm font-semibold text-foreground">Car Photos</h2>
+                </div>
+                <span className="text-xs font-medium text-muted-foreground rounded-full bg-muted px-2.5 py-0.5">
+                  {selectedImages.length}/{MAX_IMAGES}
+                </span>
+              </div>
+
+              <p className="text-xs text-muted-foreground -mt-2">
+                Upload clear photos of your car (min 1, max {MAX_IMAGES}).
+              </p>
+
+              {isNative && (
+                <div className="grid grid-cols-2 gap-3">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate("/dashboard")}
-                    className="flex-1"
+                    onClick={handleCameraCapture}
+                    disabled={isCapturing || selectedImages.length >= MAX_IMAGES}
+                    className="h-20 flex flex-col gap-2 rounded-xl border-dashed"
                   >
-                    Cancel
+                    <Camera className="h-6 w-6 text-primary" />
+                    <span className="text-sm">Take Photo</span>
                   </Button>
                   <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1"
+                    type="button"
+                    variant="outline"
+                    onClick={handleGallerySelect}
+                    disabled={isCapturing || selectedImages.length >= MAX_IMAGES}
+                    className="h-20 flex flex-col gap-2 rounded-xl border-dashed"
                   >
-                    {isSubmitting ? "Adding Car..." : "Add Car"}
+                    <ImageIcon className="h-6 w-6 text-primary" />
+                    <span className="text-sm">From Gallery</span>
                   </Button>
                 </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+              )}
+
+              <div className="relative rounded-xl border-2 border-dashed border-primary/20 bg-primary/5 p-8 hover:border-primary/40 transition-colors">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="rounded-full bg-primary/10 p-3">
+                    <Upload className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <label className="cursor-pointer">
+                      <span className="text-sm font-medium text-primary hover:text-primary/80">
+                        Click to upload images
+                      </span>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG, JPEG up to 10MB each
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {selectedImages.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  {selectedImages.map((file, index) => (
+                    <div key={index} className="relative group rounded-xl overflow-hidden">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Car photo preview ${index + 1}`}
+                        className="w-full h-24 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        aria-label={`Remove image ${index + 1}`}
+                        className="absolute -top-1 -right-1 inline-flex items-center justify-center h-6 w-6 rounded-full bg-destructive text-destructive-foreground shadow-md ring-2 ring-background transition hover:scale-110 active:scale-95"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Section 4: Description */}
+            <div
+              style={fadeIn(5)}
+              className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5 space-y-4"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <div className="rounded-lg bg-primary/10 p-1.5">
+                  <FileText className="h-4 w-4 text-primary" />
+                </div>
+                <h2 className="text-sm font-semibold text-foreground">Additional Details</h2>
+                <span className="text-xs text-muted-foreground ml-1">(Optional)</span>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Any additional details about your car — modifications, special instructions, etc."
+                        className="min-h-[100px] rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Trust Footer */}
+            <div
+              style={fadeIn(6)}
+              className="flex flex-wrap items-center justify-center gap-4 py-2 text-xs text-muted-foreground"
+            >
+              <span className="inline-flex items-center gap-1.5">
+                <Lock className="h-3 w-3" />
+                Your data is encrypted
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Shield className="h-3 w-3" />
+                Verified by Teslys
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3" />
+                Instant listing
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div style={fadeIn(7)} className="flex flex-col sm:flex-row gap-3 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+                className="flex-1 rounded-xl h-12"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 rounded-xl h-12 font-semibold"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding Car…
+                  </>
+                ) : (
+                  "Add Car"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </DashboardLayout>
   );
