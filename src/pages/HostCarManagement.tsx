@@ -19,6 +19,12 @@ import {
   Filter,
   X,
   MoreVertical,
+  Shield,
+  Lock,
+  TrendingUp,
+  Gauge,
+  Palette,
+  User,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -1655,8 +1661,9 @@ export default function HostCarManagement() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-muted-foreground">
-            Loading hosted cars...
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+            <p className="text-sm text-muted-foreground">Loading hosted cars…</p>
           </div>
         </div>
       </DashboardLayout>
@@ -1665,9 +1672,14 @@ export default function HostCarManagement() {
   return (
     <DashboardLayout>
       <>
-        <header className="z-10 flex items-center justify-center gap-2 py-2 mb-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold">Hosted</h1>
+        {/* Header */}
+        <header className="flex items-center gap-3 py-3 px-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <Car className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Hosted Cars</h1>
+            <p className="text-xs text-muted-foreground">Manage vehicles, expenses & earnings</p>
           </div>
         </header>
 
@@ -1680,70 +1692,25 @@ export default function HostCarManagement() {
             {/* Tabs header */}
             {/* Sticky header */}
             {/* Header that matches the bottom bar */}
-            <div
-              className="
-   z-40 border-b
-  backdrop-blur-md bg-white/70 supports-[backdrop-filter]:bg-white/60
-  shadow-[0_6px_16px_rgba(0,0,0,0.05)]
-"
-            >
-              <TabsList className="grid grid-cols-4 w-full h-11 px-1.5 gap-0 bg-transparent border-0">
+            <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm mb-4 overflow-hidden">
+              <TabsList className="grid grid-cols-4 w-full h-12 px-1 gap-0 bg-transparent border-0">
                 {[
-                  {
-                    key: "active",
-                    label: "Active",
-                    count: activeHostedCars.length,
-                  },
-                  {
-                    key: "expenses",
-                    label: "Expenses",
-                    count: expenses.length,
-                  },
-                  {
-                    key: "earnings",
-                    label: "Earnings",
-                    count: earnings.length,
-                  },
+                  { key: "active", label: "Active", count: activeHostedCars.length },
+                  { key: "expenses", label: "Expenses", count: expenses.length },
+                  { key: "earnings", label: "Earnings", count: earnings.length },
                   { key: "claims", label: "Claims", count: claims.length },
                 ].map(({ key, label, count }) => (
                   <TabsTrigger
                     key={key}
                     value={key as any}
-                    className="
-          group relative inline-flex items-center justify-center
-          h-11 px-3 rounded-none text-[15px] font-medium
-          text-muted-foreground data-[state=active]:text-primary
-          transition-colors
-        "
+                    className="group relative inline-flex items-center justify-center h-10 px-2 rounded-xl text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-primary/10 transition-all duration-200"
                   >
-                    {/* label (kept perfectly centered) */}
                     <span className="leading-none">{label}</span>
-
-                    {/* badge - lowered & tighter, with a subtle ring like iOS badges */}
                     {!!count && (
-                      <span
-                        className="
-              pointer-events-none absolute top-[0px] right-[0px]
-              inline-grid place-items-center tabular-nums
-              h-[18px] min-w-[18px] 
-              rounded-full text-[10px] leading-none
-              bg-muted/90 text-foreground/70 ring-1 ring-black/5
-              group-data-[state=active]:bg-primary/10
-              group-data-[state=active]:text-primary
-            "
-                      >
+                      <span className="ml-1.5 inline-grid place-items-center tabular-nums h-[18px] min-w-[18px] px-1 rounded-full text-[10px] leading-none bg-muted/80 text-muted-foreground group-data-[state=active]:bg-primary/20 group-data-[state=active]:text-primary">
                         {count}
                       </span>
                     )}
-
-                    {/* active underline */}
-                    <span
-                      aria-hidden
-                      className="
-            absolute left-2 right-2 -bottom-[1px] h-[2px] rounded-full
-            bg-primary opacity-0 group-data-[state=active]:opacity-100
-          "
-                    />
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -1751,17 +1718,15 @@ export default function HostCarManagement() {
 
             <TabsContent value="active" className="space-y-4  sm:px-0">
               {activeHostedCars.length === 0 ? (
-                <Card className="w-full mx-0 max-w-none">
-                  <CardContent className="text-center p-4 sm:p-6">
-                    <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No cars currently hosted
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Cars you're hosting will appear here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Car className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Cars Currently Hosted</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Cars you're hosting will appear here once assigned.
+                  </p>
+                </div>
               ) : (
                 <Accordion
                   /* multiple so desktop can keep several open; mobile starts collapsed */
@@ -1777,7 +1742,7 @@ export default function HostCarManagement() {
                       value={car.id}
                       className="border-none group"
                     >
-                      <Card className="w-full mx-0 max-w-none">
+                      <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                         {/* Header becomes the accordion trigger */}
                         <CardHeader className="p-3 sm:p-4 md:p-6 items-center">
                           <AccordionTrigger
@@ -1978,7 +1943,7 @@ export default function HostCarManagement() {
                             </div>
                           </CardContent>
                         </AccordionContent>
-                      </Card>
+                      </div>
                     </AccordionItem>
                   ))}
                 </Accordion>
@@ -1987,17 +1952,15 @@ export default function HostCarManagement() {
 
             <TabsContent value="returns" className="space-y-4  sm:px-0">
               {readyForReturnCars.length === 0 ? (
-                <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
-                  <CardContent className="text-center p-4 sm:p-6">
-                    <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No cars ready for return
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Cars ready to be returned will appear here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Cars Ready for Return</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Cars ready to be returned will appear here.
+                  </p>
+                </div>
               ) : (
                 <Accordion
                   type="single"
@@ -2013,7 +1976,7 @@ export default function HostCarManagement() {
                       value={car.id}
                       className="border-none group" // 👈 enables data-state targeting
                     >
-                      <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none border-orange-200">
+                      <div className="rounded-2xl border border-amber-500/30 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-amber-500/50 hover:shadow-sm">
                         {/* Header (trigger) */}
                         <AccordionTrigger className="w-full p-3 sm:p-4 md:p-6 hover:no-underline">
                           <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap w-full">
@@ -2119,7 +2082,7 @@ export default function HostCarManagement() {
                             </div>
                           </CardContent>
                         </AccordionContent>
-                      </Card>
+                      </div>
                     </AccordionItem>
                   ))}
                 </Accordion>
@@ -2915,7 +2878,7 @@ export default function HostCarManagement() {
 
               {/* Expense Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3070,55 +3033,40 @@ export default function HostCarManagement() {
                       )}
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {expensesLoading ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <div className="text-lg text-muted-foreground">
-                      Loading expenses...
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                    <p className="text-sm text-muted-foreground">Loading expenses…</p>
+                  </div>
+                </div>
               ) : expenses.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No expenses recorded
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Start tracking your hosting expenses.
-                    </p>
-                    <Button
-                      onClick={() => fetchExpenses(true)}
-                      className="mt-4"
-                    >
-                      Refresh Expenses
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Expenses Recorded</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting expenses.</p>
+                  <Button onClick={() => fetchExpenses(true)} size="sm" className="mt-4 rounded-xl">
+                    Refresh Expenses
+                  </Button>
+                </div>
               ) : filteredExpenses.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No expenses match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearFilters}>
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Expenses</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearFilters} size="sm" className="rounded-xl">Clear Filters</Button>
+                </div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-3">
                   {filteredExpenses.map((expense) => (
-                    <Card key={expense.id}>
-                      <CardContent className="p-3 sm:p-4">
+                    <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                         <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                           <div>
                             <div className="flex items-center gap-2 mb-2">
@@ -3235,8 +3183,7 @@ export default function HostCarManagement() {
                             </p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                    </div>
                   ))}
                 </div>
               )}
@@ -4754,7 +4701,7 @@ export default function HostCarManagement() {
 
               {/* Earnings Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
@@ -4914,41 +4861,31 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {earnings.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No earnings recorded
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Start tracking your hosting earnings.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Earnings Recorded</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting earnings.</p>
+                </div>
               ) : filteredEarnings.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No earnings match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearEarningsFilters}>
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Earnings</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearEarningsFilters} size="sm" className="rounded-xl">Clear Filters</Button>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="mx-0 max-w-none">
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -4965,8 +4902,8 @@ export default function HostCarManagement() {
                           <DollarSign className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card className="mx-0 max-w-none">
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -4984,8 +4921,8 @@ export default function HostCarManagement() {
                           <Clock className="h-8 w-8 text-yellow-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card className="mx-0 max-w-none">
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -5008,7 +4945,7 @@ export default function HostCarManagement() {
                           <Calendar className="h-8 w-8 text-blue-600" />
                         </div>
                       </CardContent>
-                    </Card>
+                    </div>
                   </div>
 
                   {/* Earnings List */}
@@ -5025,7 +4962,7 @@ export default function HostCarManagement() {
                       const netProfit = earning.amount - totalExpenses;
 
                       return (
-                        <Card key={earning.id}>
+                        <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                           <CardContent className="p-3 sm:p-4">
                             {/* Row 1: Title (Hosting) + actions */}
                             <div className="flex items-start justify-between gap-2">
@@ -5240,7 +5177,7 @@ export default function HostCarManagement() {
                               })()}
                             </div>
                           </CardContent>
-                        </Card>
+                        </div>
                       );
                     })}
                   </div>
@@ -6485,7 +6422,7 @@ export default function HostCarManagement() {
 
               {/* Claims Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
@@ -6629,41 +6566,31 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {claims.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No claims filed
-                    </h3>
-                    <p className="text-muted-foreground">
-                      File claims for damages or incidents here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Claims Filed</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">File claims for damages or incidents here.</p>
+                </div>
               ) : filteredClaims.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No claims match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearClaimsFilters}>
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Claims</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearClaimsFilters} size="sm" className="rounded-xl">Clear Filters</Button>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {/* Claims Summary */}
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <Card>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6677,8 +6604,8 @@ export default function HostCarManagement() {
                           <FileText className="h-8 w-8 text-blue-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6696,8 +6623,8 @@ export default function HostCarManagement() {
                           <AlertTriangle className="h-8 w-8 text-yellow-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6715,8 +6642,8 @@ export default function HostCarManagement() {
                           <CheckCircle className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6736,8 +6663,8 @@ export default function HostCarManagement() {
                           <DollarSign className="h-8 w-8 text-purple-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6758,7 +6685,7 @@ export default function HostCarManagement() {
                           <CheckCircle className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
-                    </Card>
+                    </div>
                   </div>
 
                   {/* Claims List */}
@@ -6770,7 +6697,7 @@ export default function HostCarManagement() {
                       );
 
                       return (
-                        <Card key={claim.id}>
+                        <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                           <CardContent className="p-3 sm:p-4">
                             <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                               <div className="space-y-2">
@@ -6919,7 +6846,7 @@ export default function HostCarManagement() {
                               </div>
                             </div>
                           </CardContent>
-                        </Card>
+                        </div>
                       );
                     })}
                   </div>
