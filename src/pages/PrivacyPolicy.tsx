@@ -101,9 +101,9 @@ export default function PrivacyPolicy() {
               Questions? Email{" "}
               <a
                 className="underline underline-offset-2"
-                href="mailto:support@teslys.app"
+                href="mailto:support@teslys.com"
               >
-                support@teslys.app
+                support@teslys.com
               </a>
               .
             </p>

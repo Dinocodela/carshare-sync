@@ -66,9 +66,9 @@ export default function TermsOfUse() {
               Contact{" "}
               <a
                 className="underline underline-offset-2"
-                href="mailto:support@teslys.app"
+                href="mailto:support@teslys.com"
               >
-                support@teslys.app
+                support@teslys.com
               </a>{" "}
               with questions.
             </p>

@@ -270,7 +270,7 @@ export default function Settings() {
     } catch (e: any) {
       toast({
         title: "Delete failed",
-        description: e?.message ?? "Please contact support@teslys.app",
+        description: e?.message ?? "Please contact support@teslys.com",
       });
     } finally {
       setDeleting(false);
@@ -772,11 +772,11 @@ export default function Settings() {
                 </button>
                 <button
                   onClick={() =>
-                    (window.location.href = "mailto:support@teslys.app")
+                    (window.location.href = "mailto:support@teslys.com")
                   }
                   className="w-full flex items-center justify-between rounded-xl bg-background/50 border border-border/40 px-4 py-3 text-sm hover:bg-accent/50 transition-colors"
                 >
-                  <span>Email support@teslys.app</span>
+                  <span>Email support@teslys.com</span>
                   <Mail className="h-4 w-4 text-muted-foreground" />
                 </button>
               </Section>

@@ -111,10 +111,10 @@ export default function SMSConsent() {
                 <p className="text-muted-foreground leading-relaxed">
                   Reply <strong className="text-foreground">HELP</strong> for help or contact us at{" "}
                   <a 
-                    href="mailto:support@teslys.app" 
+                    href="mailto:support@teslys.com" 
                     className="text-primary underline underline-offset-2"
                   >
-                    support@teslys.app
+                    support@teslys.com
                   </a>.
                 </p>
               </section>
