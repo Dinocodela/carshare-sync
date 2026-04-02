@@ -25,7 +25,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center bg-gradient-hero min-h-screen">
         <div className="text-lg">Loading...</div>
       </div>
     );
@@ -37,7 +37,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex w-full h-full">
+      <div className="flex w-full h-full bg-gradient-hero">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 h-full">
           <main
