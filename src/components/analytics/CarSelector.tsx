@@ -19,19 +19,18 @@ export function CarSelector({ cars, selectedCarId, onCarSelect, loading }: CarSe
     );
   }
 
+  const displayText = selectedCarId
+    ? (() => {
+        const car = cars.find((c) => c.id === selectedCarId);
+        return car ? `${car.year} ${car.make} ${car.model}` : "Select a car";
+      })()
+    : "All Cars (Portfolio View)";
+
   return (
     <div className="flex items-center space-x-2">
-      <Car className="h-4 w-4 text-muted-foreground" />
       <Select value={selectedCarId || "all"} onValueChange={(value) => onCarSelect(value === "all" ? undefined : value)}>
         <SelectTrigger className="w-full sm:w-64">
-          <SelectValue placeholder="Select a car">
-            {selectedCarId
-              ? (() => {
-                  const car = cars.find((c) => c.id === selectedCarId);
-                  return car ? `${car.year} ${car.make} ${car.model}` : "Select a car";
-                })()
-              : "All Cars"}
-          </SelectValue>
+          <span className="truncate">{displayText}</span>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Cars (Portfolio View)</SelectItem>
