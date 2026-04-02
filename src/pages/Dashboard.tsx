@@ -242,7 +242,7 @@ export default function Dashboard() {
   const isHost = profile?.role === "host";
   const data = isHost ? hostData : clientData;
 
-  // Earnings (7d)
+  // Earnings (30d)
   const [earn7Host, setEarn7Host] = useState(0);
   const [earn7Client, setEarn7Client] = useState(0);
 
@@ -251,7 +251,7 @@ export default function Dashboard() {
     (async () => {
       if (!user?.id) return;
       const from = new Date();
-      from.setDate(from.getDate() - 7);
+      from.setDate(from.getDate() - 30);
 
       if (isHost) {
         const { data: rows } = await supabase
@@ -373,7 +373,7 @@ export default function Dashboard() {
                 <span className="text-3xl font-extrabold tracking-tight">
                   ${earnings7d.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
-                <span className="text-[10px] opacity-75 font-medium">Last 7 days</span>
+                <span className="text-[10px] opacity-75 font-medium">This month</span>
               </div>
             </div>
           </div>
