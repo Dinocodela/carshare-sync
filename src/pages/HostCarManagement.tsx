@@ -3033,7 +3033,7 @@ export default function HostCarManagement() {
                       )}
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {expensesLoading ? (
