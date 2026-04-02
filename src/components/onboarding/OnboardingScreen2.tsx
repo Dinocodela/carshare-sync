@@ -32,8 +32,8 @@ export function OnboardingScreen2() {
           transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.8)",
         }}
       >
-        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-sm flex items-center justify-center border border-primary/30 relative">
-          <Shield className="w-12 h-12 text-primary drop-shadow-lg" strokeWidth={2.5} />
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 backdrop-blur-sm flex items-center justify-center border border-primary/30 relative">
+          <Shield className="w-9 h-9 text-primary drop-shadow-lg" strokeWidth={2.5} />
           {/* Animated checkmark */}
           <div
             className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg transition-all duration-500 delay-700"

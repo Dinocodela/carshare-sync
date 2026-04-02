@@ -33,11 +33,11 @@ export function OnboardingScreen1() {
         }}
       >
         {/* Outer ring pulse */}
-        <div className="absolute inset-0 w-28 h-28 rounded-full border-2 border-primary/20 animate-[ping_3s_ease-out_infinite]" />
-        <div className="absolute inset-0 w-28 h-28 rounded-full border border-primary/10 animate-[ping_3s_ease-out_1s_infinite]" />
+        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-primary/20 animate-[ping_3s_ease-out_infinite]" />
+        <div className="absolute inset-0 w-20 h-20 rounded-full border border-primary/10 animate-[ping_3s_ease-out_1s_infinite]" />
         {/* Icon circle */}
-        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
-          <DollarSign className="w-12 h-12 text-primary drop-shadow-lg" strokeWidth={2.5} />
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
+          <DollarSign className="w-9 h-9 text-primary drop-shadow-lg" strokeWidth={2.5} />
         </div>
       </div>
 
