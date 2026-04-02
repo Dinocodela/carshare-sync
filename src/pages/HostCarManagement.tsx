@@ -4701,7 +4701,7 @@ export default function HostCarManagement() {
 
               {/* Earnings Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
@@ -4861,11 +4861,11 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {earnings.length === 0 ? (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="text-center py-12">
                     <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
@@ -4875,9 +4875,9 @@ export default function HostCarManagement() {
                       Start tracking your hosting earnings.
                     </p>
                   </CardContent>
-                </Card>
+                </div>
               ) : filteredEarnings.length === 0 ? (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="text-center py-12">
                     <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
@@ -4890,12 +4890,12 @@ export default function HostCarManagement() {
                       Clear Filters
                     </Button>
                   </CardContent>
-                </Card>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="mx-0 max-w-none">
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -4912,8 +4912,8 @@ export default function HostCarManagement() {
                           <DollarSign className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card className="mx-0 max-w-none">
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -4931,8 +4931,8 @@ export default function HostCarManagement() {
                           <Clock className="h-8 w-8 text-yellow-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card className="mx-0 max-w-none">
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -4955,7 +4955,7 @@ export default function HostCarManagement() {
                           <Calendar className="h-8 w-8 text-blue-600" />
                         </div>
                       </CardContent>
-                    </Card>
+                    </div>
                   </div>
 
                   {/* Earnings List */}
@@ -4972,7 +4972,7 @@ export default function HostCarManagement() {
                       const netProfit = earning.amount - totalExpenses;
 
                       return (
-                        <Card key={earning.id}>
+                        <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                           <CardContent className="p-3 sm:p-4">
                             {/* Row 1: Title (Hosting) + actions */}
                             <div className="flex items-start justify-between gap-2">
@@ -5187,7 +5187,7 @@ export default function HostCarManagement() {
                               })()}
                             </div>
                           </CardContent>
-                        </Card>
+                        </div>
                       );
                     })}
                   </div>
@@ -6432,7 +6432,7 @@ export default function HostCarManagement() {
 
               {/* Claims Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
@@ -6576,11 +6576,11 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {claims.length === 0 ? (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="text-center py-12">
                     <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
@@ -6590,9 +6590,9 @@ export default function HostCarManagement() {
                       File claims for damages or incidents here.
                     </p>
                   </CardContent>
-                </Card>
+                </div>
               ) : filteredClaims.length === 0 ? (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="text-center py-12">
                     <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
@@ -6605,12 +6605,12 @@ export default function HostCarManagement() {
                       Clear Filters
                     </Button>
                   </CardContent>
-                </Card>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {/* Claims Summary */}
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <Card>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6624,8 +6624,8 @@ export default function HostCarManagement() {
                           <FileText className="h-8 w-8 text-blue-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6643,8 +6643,8 @@ export default function HostCarManagement() {
                           <AlertTriangle className="h-8 w-8 text-yellow-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6662,8 +6662,8 @@ export default function HostCarManagement() {
                           <CheckCircle className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6683,8 +6683,8 @@ export default function HostCarManagement() {
                           <DollarSign className="h-8 w-8 text-purple-600" />
                         </div>
                       </CardContent>
-                    </Card>
-                    <Card>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div>
@@ -6705,7 +6705,7 @@ export default function HostCarManagement() {
                           <CheckCircle className="h-8 w-8 text-green-600" />
                         </div>
                       </CardContent>
-                    </Card>
+                    </div>
                   </div>
 
                   {/* Claims List */}
@@ -6866,7 +6866,7 @@ export default function HostCarManagement() {
                               </div>
                             </div>
                           </CardContent>
-                        </Card>
+                        </div>
                       );
                     })}
                   </div>
