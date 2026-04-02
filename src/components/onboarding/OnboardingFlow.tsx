@@ -52,13 +52,16 @@ export function OnboardingFlow() {
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mb-6">
           {screens.map((_, index) => (
-            <div
+            <button
               key={index}
-              className={`h-2 rounded-full transition-all ${
+              type="button"
+              onClick={() => setCurrentScreen(index)}
+              className={`h-2 rounded-full transition-all cursor-pointer ${
                 index === currentScreen
                   ? "w-8 bg-primary"
                   : "w-2 bg-muted-foreground/30"
               }`}
+              aria-label={`Go to screen ${index + 1}`}
             />
           ))}
         </div>
