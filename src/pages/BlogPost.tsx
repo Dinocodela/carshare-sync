@@ -124,7 +124,16 @@ export default function BlogPost() {
 
           {/* Content */}
           <div
-            className="prose prose-sm md:prose-base max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary prose-img:rounded-lg"
+            className="prose prose-sm md:prose-base lg:prose-lg max-w-none dark:prose-invert
+              prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
+              prose-h2:text-xl prose-h2:md:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-border/50 prose-h2:pb-2
+              prose-h3:text-lg prose-h3:md:text-xl prose-h3:mt-8 prose-h3:mb-3
+              prose-p:text-foreground/85 prose-p:leading-relaxed prose-p:mb-5
+              prose-strong:text-foreground prose-strong:font-semibold
+              prose-a:text-primary prose-a:underline prose-a:underline-offset-4 hover:prose-a:text-primary/80
+              prose-ul:my-5 prose-ul:space-y-2 prose-li:text-foreground/85
+              prose-img:rounded-xl prose-img:shadow-md
+              prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:not-italic"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
