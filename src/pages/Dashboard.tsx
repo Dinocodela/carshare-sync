@@ -15,13 +15,16 @@ import {
   TrendingUp,
   BarChart3,
   ChevronRight,
+  ChevronDown,
   Shield,
   Clock,
   Sparkles,
   ArrowUpRight,
+  MapPin,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 /* ---------- helpers ---------- */
 function useMounted() {
@@ -186,6 +189,10 @@ export default function Dashboard() {
     { user_id: string; email: string | null; requested_at: string }[]
   >([]);
   const [pendingLoading, setPendingLoading] = useState(false);
+  const [tripsOpen, setTripsOpen] = useState(true);
+  const [activityOpen, setActivityOpen] = useState(true);
+  const [recentTrips, setRecentTrips] = useState<any[]>([]);
+  const [tripsLoading, setTripsLoading] = useState(false);
 
   // Only host super-admins can see pending accounts
   const isAdmin = profile?.is_super_admin && profile?.role === "host";
@@ -289,6 +296,41 @@ export default function Dashboard() {
       cancelled = true;
     };
   }, [user?.id, isHost, clientData?.cars]);
+
+  // Recent trips
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!user?.id || !profile) return;
+      setTripsLoading(true);
+      try {
+        if (isHost) {
+          const { data: rows } = await supabase
+            .from("host_earnings")
+            .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+            .order("earning_period_end", { ascending: false })
+            .limit(5);
+          if (!cancelled) setRecentTrips(rows || []);
+        } else {
+          const carIds = (clientData?.cars || []).map((c: any) => c.id);
+          if (carIds.length) {
+            const { data: rows } = await supabase
+              .from("host_earnings")
+              .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+              .in("car_id", carIds)
+              .order("earning_period_end", { ascending: false })
+              .limit(5);
+            if (!cancelled) setRecentTrips(rows || []);
+          } else {
+            if (!cancelled) setRecentTrips([]);
+          }
+        }
+      } finally {
+        if (!cancelled) setTripsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, isHost, clientData?.cars, profile]);
 
   const roleForActivity = (isHost ? "host" : "client") as "client" | "host";
   const { items: activity, loading: actLoading } = useRecentActivity(
@@ -524,50 +566,115 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ─── Recent Activity ─── */}
-          <div style={fadeIn(7)} className="space-y-3">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                Recent Activity
-              </h2>
-            </div>
+          {/* ─── Recent Trips ─── */}
+          <Collapsible open={tripsOpen} onOpenChange={setTripsOpen}>
+            <div style={fadeIn(7)} className="space-y-3">
+              <CollapsibleTrigger asChild>
+                <button className="w-full flex items-center justify-between px-1 group">
+                  <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+                    Recent Trips
+                  </h2>
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${tripsOpen ? "rotate-0" : "-rotate-90"}`} />
+                </button>
+              </CollapsibleTrigger>
 
-            <div className="rounded-2xl bg-card border border-border/60 overflow-hidden">
-              {actLoading ? (
-                <div className="p-5 flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                  <span className="text-sm text-muted-foreground">Loading activity…</span>
+              <CollapsibleContent>
+                <div className="rounded-2xl bg-card border border-border/60 overflow-hidden">
+                  {tripsLoading ? (
+                    <div className="p-5 flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                      <span className="text-sm text-muted-foreground">Loading trips…</span>
+                    </div>
+                  ) : recentTrips.length === 0 ? (
+                    <div className="p-6 text-center">
+                      <Car className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">No trips yet</p>
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-border/50">
+                      {recentTrips.map((t) => {
+                        const pct = isHost ? (t.host_profit_percentage || 30) : (t.client_profit_percentage || 70);
+                        const earned = ((t.amount || 0) * pct) / 100;
+                        const start = t.earning_period_start ? new Date(t.earning_period_start).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
+                        const end = t.earning_period_end ? new Date(t.earning_period_end).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
+                        return (
+                          <li key={t.id} className="flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-muted/20 transition-colors">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {t.guest_name || t.trip_id || "Trip"}
+                              </p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">
+                                {start}{start && end ? " – " : ""}{end}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-sm font-semibold text-foreground">${Number(earned).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                              <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 rounded-full ${t.payment_status === "paid" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
+                                {t.payment_status}
+                              </Badge>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </div>
-              ) : activity.length === 0 ? (
-                <div className="p-6 text-center">
-                  <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    You're all caught up — nothing new!
-                  </p>
-                </div>
-              ) : (
-                <ul className="divide-y divide-border/50">
-                  {activity.map((a) => (
-                    <li
-                      key={a.id}
-                      className="flex items-start gap-3 px-4 py-3.5 hover:bg-muted/20 transition-colors"
-                    >
-                      <span className="text-base shrink-0 mt-0.5">{a.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-foreground leading-snug">
-                          {a.message}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
-                          {timeAgo(a.ts)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              </CollapsibleContent>
             </div>
-          </div>
+          </Collapsible>
+
+          {/* ─── Recent Activity ─── */}
+          <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
+            <div style={fadeIn(8)} className="space-y-3">
+              <CollapsibleTrigger asChild>
+                <button className="w-full flex items-center justify-between px-1 group">
+                  <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                    Recent Activity
+                  </h2>
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${activityOpen ? "rotate-0" : "-rotate-90"}`} />
+                </button>
+              </CollapsibleTrigger>
+
+              <CollapsibleContent>
+                <div className="rounded-2xl bg-card border border-border/60 overflow-hidden">
+                  {actLoading ? (
+                    <div className="p-5 flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                      <span className="text-sm text-muted-foreground">Loading activity…</span>
+                    </div>
+                  ) : activity.length === 0 ? (
+                    <div className="p-6 text-center">
+                      <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        You're all caught up — nothing new!
+                      </p>
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-border/50">
+                      {activity.map((a) => (
+                        <li
+                          key={a.id}
+                          className="flex items-start gap-3 px-4 py-3.5 hover:bg-muted/20 transition-colors"
+                        >
+                          <span className="text-base shrink-0 mt-0.5">{a.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-foreground leading-snug">
+                              {a.message}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {timeAgo(a.ts)}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
         </div>
       </PageContainer>
     </DashboardLayout>
