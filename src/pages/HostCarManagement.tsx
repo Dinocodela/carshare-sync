@@ -8,7 +8,7 @@ import {
   CheckCircle,
   XCircle,
   Settings,
-  Calendar,
+  Calendar as CalendarLucide,
   FileText,
   AlertTriangle,
   AlertCircle,
@@ -112,6 +112,10 @@ import { AvailabilityCalendar } from "@/components/booking/AvailabilityCalendar"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+
+import { Calendar as CalendarWidget } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { format } from "date-fns";
 
 interface CarWithClient {
   id: string;
@@ -2070,17 +2074,16 @@ export default function HostCarManagement() {
                         side="bottom"
                         className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
                       >
-                        <SheetHead>
-                          <SheetTit>
-                            {editingExpense
-                              ? "Edit Expense"
-                              : "Add New Expense"}
-                          </SheetTit>
-                          <SheetDesc>
-                            {editingExpense
-                              ? "Update your expense details."
-                              : "Record a new hosting-related expense."}
-                          </SheetDesc>
+                        <SheetHead className="space-y-0 pb-4">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                              <Shield className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <SheetTit className="text-base">{editingExpense ? "Edit Expense" : "Add New Expense"}</SheetTit>
+                              <SheetDesc className="text-xs">{editingExpense ? "Update your expense details securely." : "Record a new hosting-related expense."}</SheetDesc>
+                            </div>
+                          </div>
                         </SheetHead>
                         <Form {...expenseForm}>
                           <form
@@ -2168,7 +2171,7 @@ export default function HostCarManagement() {
                             />
 
                             <div className="space-y-4">
-                              <h4 className="font-medium">Cost Breakdown</h4>
+                              <h4 className="font-medium text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" />Cost Breakdown</h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={expenseForm.control}
@@ -2183,6 +2186,7 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 0
@@ -2207,6 +2211,7 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 0
@@ -2231,6 +2236,7 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 0
@@ -2255,6 +2261,7 @@ export default function HostCarManagement() {
                                           step="0.01"
                                           placeholder="0.00"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 0
@@ -2281,6 +2288,7 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) =>
                                           field.onChange(
                                             parseFloat(e.target.value) || 0
@@ -2316,29 +2324,37 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel>Date</FormLabel>
                                   <FormControl>
-                                    <Input type="date" {...field} />
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                        >
+                                          <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                          {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                        <CalendarWidget
+                                          mode="single"
+                                          selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                          onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                          initialFocus
+                                          className="p-3 pointer-events-auto"
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                              <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                            </div>
                             <div className="pt-2 flex justify-end gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setExpenseDialogOpen(false);
-                                  setEditingExpense(null);
-                                  expenseForm.reset();
-                                }}
-                              >
-                                Cancel
-                              </Button>
-                              <Button type="submit">
-                                {editingExpense
-                                  ? "Update Expense"
-                                  : "Add Expense"}
-                              </Button>
+                              <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setExpenseDialogOpen(false); setEditingExpense(null); expenseForm.reset(); }}>Cancel</Button>
+                              <Button type="submit" className="rounded-xl">{editingExpense ? "Update Expense" : "Add Expense"}</Button>
                             </div>
                           </form>
                         </Form>
@@ -2524,15 +2540,16 @@ export default function HostCarManagement() {
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>
-                          {editingExpense ? "Edit Expense" : "Add New Expense"}
-                        </DialogTitle>
-                        <DialogDescription>
-                          {editingExpense
-                            ? "Update your expense details."
-                            : "Record a new hosting-related expense."}
-                        </DialogDescription>
+                      <DialogHeader className="space-y-0 pb-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Shield className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <DialogTitle className="text-base">{editingExpense ? "Edit Expense" : "Add New Expense"}</DialogTitle>
+                            <DialogDescription className="text-xs">{editingExpense ? "Update your expense details securely." : "Record a new hosting-related expense."}</DialogDescription>
+                          </div>
+                        </div>
                       </DialogHeader>
                       <Form {...expenseForm}>
                         <form
@@ -2620,7 +2637,7 @@ export default function HostCarManagement() {
                           />
 
                           <div className="space-y-4">
-                            <h4 className="font-medium">Cost Breakdown</h4>
+                            <h4 className="font-medium text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" />Cost Breakdown</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <FormField
                                 control={expenseForm.control}
@@ -2635,6 +2652,7 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) =>
                                           field.onChange(
                                             parseFloat(e.target.value) || 0
@@ -2659,6 +2677,7 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) =>
                                           field.onChange(
                                             parseFloat(e.target.value) || 0
@@ -2683,6 +2702,7 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) =>
                                           field.onChange(
                                             parseFloat(e.target.value) || 0
@@ -2707,6 +2727,7 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) =>
                                           field.onChange(
                                             parseFloat(e.target.value) || 0
@@ -2733,6 +2754,7 @@ export default function HostCarManagement() {
                                       step="0.01"
                                       placeholder="0.00"
                                       {...field}
+                                      onFocus={(e) => e.target.select()}
                                       onChange={(e) =>
                                         field.onChange(
                                           parseFloat(e.target.value) || 0
@@ -2768,29 +2790,37 @@ export default function HostCarManagement() {
                               <FormItem>
                                 <FormLabel>Date</FormLabel>
                                 <FormControl>
-                                  <Input type="date" {...field} />
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                      >
+                                        <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                        {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                      <CalendarWidget
+                                        mode="single"
+                                        selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                        initialFocus
+                                        className="p-3 pointer-events-auto"
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                            <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                          </div>
                           <div className="pt-2 flex justify-end gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setExpenseDialogOpen(false);
-                                setEditingExpense(null);
-                                expenseForm.reset();
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button type="submit">
-                              {editingExpense
-                                ? "Update Expense"
-                                : "Add Expense"}
-                            </Button>
+                            <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setExpenseDialogOpen(false); setEditingExpense(null); expenseForm.reset(); }}>Cancel</Button>
+                            <Button type="submit" className="rounded-xl">{editingExpense ? "Update Expense" : "Add Expense"}</Button>
                           </div>
                         </form>
                       </Form>
@@ -3447,6 +3477,7 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) =>
                                           field.onChange(
                                             parseFloat(e.target.value) || 0
@@ -3460,7 +3491,7 @@ export default function HostCarManagement() {
                               />
 
                               {earningForm.watch("gross_earnings") > 0 && (
-                                <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                                <div className="bg-card/60 backdrop-blur-sm border border-border/50 p-4 rounded-2xl space-y-2">
                                   <h4 className="font-medium text-sm">
                                     Profit Calculation
                                   </h4>
@@ -3565,6 +3596,7 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="30"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 30
@@ -3589,6 +3621,7 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="70"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 70
@@ -3610,7 +3643,26 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Start Date</FormLabel>
                                       <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -3639,7 +3691,26 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>End Date</FormLabel>
                                       <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -3671,7 +3742,7 @@ export default function HostCarManagement() {
                                     }
                                     className="flex items-center gap-2"
                                   >
-                                    <Calendar className="h-4 w-4" />
+                                    <CalendarLucide className="h-4 w-4" />
                                     {showCalendar ? "Hide" : "Show"} Booking
                                     Calendar
                                   </Button>
@@ -3728,7 +3799,26 @@ export default function HostCarManagement() {
                                         Date Paid (Optional)
                                       </FormLabel>
                                       <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -3736,23 +3826,12 @@ export default function HostCarManagement() {
                                 />
                               </div>
 
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                                <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                              </div>
                               <div className="pt-2 flex justify-end gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setEarningDialogOpen(false);
-                                    setEditingEarning(null);
-                                    earningForm.reset();
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button type="submit">
-                                  {editingEarning
-                                    ? "Update Earning"
-                                    : "Record Earning"}
-                                </Button>
+                                <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
+                                <Button type="submit" className="rounded-xl">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
                               </div>
                             </form>
                           </Form>
@@ -4297,6 +4376,7 @@ export default function HostCarManagement() {
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onFocus={(e) => e.target.select()}
                                         onChange={(e) =>
                                           field.onChange(
                                             parseFloat(e.target.value) || 0
@@ -4310,7 +4390,7 @@ export default function HostCarManagement() {
                               />
 
                               {earningForm.watch("gross_earnings") > 0 && (
-                                <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                                <div className="bg-card/60 backdrop-blur-sm border border-border/50 p-4 rounded-2xl space-y-2">
                                   <h4 className="font-medium text-sm">
                                     Profit Calculation
                                   </h4>
@@ -4415,6 +4495,7 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="30"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 30
@@ -4439,6 +4520,7 @@ export default function HostCarManagement() {
                                           step="1"
                                           placeholder="70"
                                           {...field}
+                                          onFocus={(e) => e.target.select()}
                                           onChange={(e) =>
                                             field.onChange(
                                               parseFloat(e.target.value) || 70
@@ -4460,7 +4542,26 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Start Date</FormLabel>
                                       <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -4489,7 +4590,26 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>End Date</FormLabel>
                                       <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -4521,7 +4641,7 @@ export default function HostCarManagement() {
                                     }
                                     className="flex items-center gap-2"
                                   >
-                                    <Calendar className="h-4 w-4" />
+                                    <CalendarLucide className="h-4 w-4" />
                                     {showCalendar ? "Hide" : "Show"} Booking
                                     Calendar
                                   </Button>
@@ -4578,7 +4698,26 @@ export default function HostCarManagement() {
                                         Date Paid (Optional)
                                       </FormLabel>
                                       <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -4586,23 +4725,12 @@ export default function HostCarManagement() {
                                 />
                               </div>
 
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                                <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                              </div>
                               <div className="pt-2 flex justify-end gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setEarningDialogOpen(false);
-                                    setEditingEarning(null);
-                                    earningForm.reset();
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button type="submit">
-                                  {editingEarning
-                                    ? "Update Earning"
-                                    : "Record Earning"}
-                                </Button>
+                                <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
+                                <Button type="submit" className="rounded-xl">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
                               </div>
                             </form>
                           </Form>
@@ -5280,7 +5408,26 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel className="text-xs font-medium">Incident Date</FormLabel>
                                   <FormControl>
-                                    <Input type="date" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                        >
+                                          <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                          {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                        <CalendarWidget
+                                          mode="single"
+                                          selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                          onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                          initialFocus
+                                          className="p-3 pointer-events-auto"
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -5834,7 +5981,26 @@ export default function HostCarManagement() {
                               <FormItem>
                                 <FormLabel className="text-xs font-medium">Incident Date</FormLabel>
                                 <FormControl>
-                                  <Input type="date" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                      >
+                                        <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                        {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                      <CalendarWidget
+                                        mode="single"
+                                        selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                        initialFocus
+                                        className="p-3 pointer-events-auto"
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
