@@ -6110,263 +6110,138 @@ export default function HostCarManagement() {
               ) : (
                 <div className="space-y-4">
                   {/* Claims Summary */}
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Claims
-                            </p>
-                            <p className="text-2xl font-bold">
-                              {claims.length}
-                            </p>
-                          </div>
-                          <FileText className="h-8 w-8 text-blue-600" />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                    {[
+                      { label: "Total Claims", value: claims.length.toString(), icon: FileText },
+                      { label: "Pending", value: claims.filter((c) => c.claim_status === "pending").length.toString(), icon: Clock },
+                      { label: "Approved", value: claims.filter((c) => c.claim_status === "approved").length.toString(), icon: CheckCircle },
+                      { label: "Total Amount", value: `$${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: DollarSign },
+                      { label: "Amount Paid", value: `$${claims.filter((c) => c.is_paid).reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: CheckCircle },
+                    ].map((item, i) => (
+                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-3.5">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
                         </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Pending
-                            </p>
-                            <p className="text-2xl font-bold text-yellow-600">
-                              {
-                                claims.filter(
-                                  (c) => c.claim_status === "pending"
-                                ).length
-                              }
-                            </p>
-                          </div>
-                          <AlertTriangle className="h-8 w-8 text-yellow-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Approved
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              {
-                                claims.filter(
-                                  (c) => c.claim_status === "approved"
-                                ).length
-                              }
-                            </p>
-                          </div>
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Amount
-                            </p>
-                            <p className="text-2xl font-bold">
-                              $
-                              {claims
-                                .reduce(
-                                  (sum, c) => sum + (c.claim_amount || 0),
-                                  0
-                                )
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <DollarSign className="h-8 w-8 text-purple-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Amount Paid
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              $
-                              {claims
-                                .filter((c) => c.is_paid)
-                                .reduce(
-                                  (sum, c) => sum + (c.claim_amount || 0),
-                                  0
-                                )
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </div>
+                        <p className="text-lg font-bold text-foreground tabular-nums">{item.value}</p>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Claims List */}
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {filteredClaims.map((claim) => {
-                      // Find the car for this claim
-                      const claimCar = cars.find(
-                        (car) => car.id === claim.car_id
-                      );
-
+                      const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
-                        <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                          <CardContent className="p-3 sm:p-4">
-                            <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-medium capitalize break-words">
-                                    {claim.claim_type} Claim
-                                  </h4>
-                                  <Badge
-                                    variant={
-                                      claim.claim_status === "approved"
-                                        ? "default"
-                                        : claim.claim_status === "denied"
-                                        ? "destructive"
-                                        : "secondary"
-                                    }
-                                  >
+                        <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              {/* Left info */}
+                              <div className="min-w-0 flex-1 space-y-2.5">
+                                {/* Title row */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Shield className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <h4 className="font-semibold text-sm capitalize">{claim.claim_type} Claim</h4>
+                                  <Badge variant={claim.claim_status === "approved" ? "default" : claim.claim_status === "denied" ? "destructive" : "secondary"} className="text-[10px] rounded-lg">
                                     {claim.claim_status}
                                   </Badge>
                                   {claim.is_paid && (
-                                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                                      Paid
-                                    </Badge>
+                                    <Badge variant="default" className="text-[10px] rounded-lg">Paid</Badge>
                                   )}
+                                </div>
+
+                                {/* Badges row */}
+                                <div className="ml-10 flex flex-wrap gap-1.5">
                                   {claim.trip_id && (
-                                    <Badge variant="outline">
-                                      Trip# {claim.trip_id}
-                                    </Badge>
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {claim.trip_id}</Badge>
                                   )}
                                   {claim.incident_id && (
-                                    <Badge variant="outline">
-                                      Incident# {claim.incident_id}
-                                    </Badge>
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Incident# {claim.incident_id}</Badge>
                                   )}
                                 </div>
 
-                                {/* Trip Details */}
-                                <div className="flex flex-wrap items-center gap-2 text-sm">
+                                {/* Details */}
+                                <div className="ml-10 space-y-1.5">
                                   {claim.guest_name && (
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">
-                                        Guest:
-                                      </span>
-                                      <span className="font-medium">
-                                        {claim.guest_name}
-                                      </span>
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                      <User className="w-3 h-3" />
+                                      <span>{claim.guest_name}</span>
+                                      {claim.payment_source && (
+                                        <span className="text-muted-foreground/60">• {claim.payment_source}</span>
+                                      )}
                                     </div>
                                   )}
-                                  {claim.payment_source && (
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">
-                                        •
-                                      </span>
-                                      <span className="text-muted-foreground">
-                                        Source:
-                                      </span>
-                                      <span className="font-medium">
-                                        {claim.payment_source}
-                                      </span>
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>Incident: {new Date(claim.incident_date).toLocaleDateString()}</span>
+                                  </div>
+                                  {claim.description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-2">{claim.description}</p>
+                                  )}
+                                  {claim.accident_description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-2"><span className="font-medium">Details:</span> {claim.accident_description}</p>
+                                  )}
+                                </div>
+
+                                {/* Status indicators */}
+                                <div className="ml-10 flex flex-wrap gap-2">
+                                  {claim.photos_taken && (
+                                    <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-background/50 px-2 py-1 text-[10px]">
+                                      <CheckCircle className="h-3 w-3 text-primary" />
+                                      <span>Photos documented</span>
+                                    </div>
+                                  )}
+                                  {claim.claim_status !== "pending" && (
+                                    <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-background/50 px-2 py-1 text-[10px] text-muted-foreground">
+                                      <Clock className="h-3 w-3" />
+                                      <span>Filed: {new Date(claim.created_at).toLocaleDateString()}</span>
                                     </div>
                                   )}
                                 </div>
 
-                                {/* Car Details */}
+                                {/* Vehicle */}
                                 {claimCar && (
-                                  <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">
-                                      Vehicle Details:
-                                    </p>
+                                  <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                      <Car className="w-3 h-3 text-muted-foreground" />
+                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
+                                    </div>
                                     {formatDetailedCarInfo(claimCar)}
                                   </div>
                                 )}
-                                <p className="text-sm text-muted-foreground">
-                                  {claim.description}
-                                </p>
-                                {claim.accident_description && (
-                                  <p className="text-sm text-muted-foreground">
-                                    <strong>Details:</strong>{" "}
-                                    {claim.accident_description}
-                                  </p>
-                                )}
-                                <p className="text-sm text-muted-foreground">
-                                  <strong>Incident Date:</strong>{" "}
-                                  {new Date(
-                                    claim.incident_date
-                                  ).toLocaleDateString()}
-                                </p>
-
-                                {claim.photos_taken && (
-                                  <div className="flex items-center gap-1 text-sm text-green-600">
-                                    <CheckCircle className="h-4 w-4" />
-                                    <span>Photos documented</span>
-                                  </div>
-                                )}
-
-                                {/* Progress Indicators */}
-                                {claim.claim_status !== "pending" && (
-                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span>
-                                      Filed:{" "}
-                                      {new Date(
-                                        claim.created_at
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                )}
                               </div>
-                              <div className="text-right">
-                                <div className="flex items-start gap-2 mb-2">
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="outline" size="sm">
-                                        <MoreVertical className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        onClick={() => handleEditClaim(claim)}
-                                      >
-                                        <Edit className="h-3 w-3 mr-2" /> Edit
-                                        Claim
-                                      </DropdownMenuItem>
-                                      {claim.claim_status === "pending" && (
-                                        <>
-                                          <DropdownMenuSeparator />
-                                          <DropdownMenuItem
-                                            onClick={() => {
-                                              setDeleteClaimId(claim.id);
-                                              setDeleteClaimDialogOpen(true);
-                                            }}
-                                            className="text-destructive focus:text-destructive"
-                                          >
-                                            <Trash className="h-3 w-3 mr-2" />{" "}
-                                            Delete Claim
-                                          </DropdownMenuItem>
-                                        </>
-                                      )}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+
+                              {/* Right: Amount + Actions */}
+                              <div className="text-right shrink-0">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditClaim(claim)}>
+                                      <Edit className="h-3 w-3 mr-2" /> Edit Claim
+                                    </DropdownMenuItem>
+                                    {claim.claim_status === "pending" && (
+                                      <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => { setDeleteClaimId(claim.id); setDeleteClaimDialogOpen(true); }} className="text-destructive focus:text-destructive">
+                                          <Trash className="h-3 w-3 mr-2" /> Delete Claim
+                                        </DropdownMenuItem>
+                                      </>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                                  <p className="text-lg font-bold text-foreground tabular-nums">${claim.claim_amount?.toFixed(2) || "0.00"}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Amount</p>
                                 </div>
-                                <p className="font-bold text-lg">
-                                  ${claim.claim_amount?.toFixed(2) || "0.00"}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  Claim Amount
-                                </p>
                               </div>
                             </div>
-                          </CardContent>
+                          </div>
                         </div>
                       );
                     })}
