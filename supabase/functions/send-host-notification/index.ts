@@ -122,27 +122,25 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Host notification email sent successfully:", emailResponse);
 
     // Send push notification for new host request
-      try {
-
-        const pushResponse = await supabaseAdmin.functions.invoke('push-send', {
-          body: {
-            targetUserId: hostId,
-            title: 'New Hosting Request!',
-            body: `${clientName} wants to host their ${carDetails}`,
-            icon: '/favicon.ico',
-            url: '/dashboard'
-          }
-        });
-        
-        if (pushResponse.error) {
-          console.log("Push notification failed:", pushResponse.error);
-        } else {
-          console.log("Push notification sent successfully");
+    try {
+      const pushResponse = await supabaseAdmin.functions.invoke('push-send', {
+        body: {
+          targetUserId: hostId,
+          title: 'New Hosting Request!',
+          body: `${clientName} wants to host their ${carDetails}`,
+          icon: '/favicon.ico',
+          url: '/dashboard'
         }
-      } catch (pushError) {
-        console.error("Push notification error:", pushError);
-        // Don't fail the whole request if push fails
+      });
+      
+      if (pushResponse.error) {
+        console.log("Push notification failed:", pushResponse.error);
+      } else {
+        console.log("Push notification sent successfully");
       }
+    } catch (pushError) {
+      console.error("Push notification error:", pushError);
+      // Don't fail the whole request if push fails
     }
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
