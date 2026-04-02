@@ -2878,7 +2878,7 @@ export default function HostCarManagement() {
 
               {/* Expense Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
