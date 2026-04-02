@@ -17,11 +17,30 @@ Deno.serve(async (req) => {
     );
 
     const body = await req.json();
-    const { data, error } = await supabase.from("blog_posts").insert(body).select();
+    const { _action, ...postData } = body;
 
-    if (error) throw error;
+    let result;
 
-    return new Response(JSON.stringify({ data }), {
+    if (_action === "update" && postData.slug) {
+      const slug = postData.slug;
+      delete postData.slug;
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .update(postData)
+        .eq("slug", slug)
+        .select();
+      if (error) throw error;
+      result = data;
+    } else {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .insert(postData)
+        .select();
+      if (error) throw error;
+      result = data;
+    }
+
+    return new Response(JSON.stringify({ data: result }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
