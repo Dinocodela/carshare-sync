@@ -2975,123 +2975,114 @@ export default function HostCarManagement() {
               ) : (
                 <div className="grid gap-3">
                   {filteredExpenses.map((expense) => (
-                    <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                        <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-medium capitalize break-words">
-                                {expense.expense_type}
-                              </h4>
+                    <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          {/* Left: Info */}
+                          <div className="min-w-0 flex-1 space-y-2.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <DollarSign className="w-4 h-4 text-primary" />
+                              </div>
+                              <h4 className="font-semibold text-sm capitalize">{expense.expense_type}</h4>
                               {expense.trip_id && (
-                                <Badge variant="outline" className="text-xs">
-                                  Trip# {expense.trip_id}
-                                </Badge>
+                                <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {expense.trip_id}</Badge>
                               )}
                             </div>
+
                             {expense.guest_name && (
-                              <p className="text-sm text-muted-foreground break-words">
-                                Guest: {expense.guest_name}
-                              </p>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                                <User className="w-3 h-3" />
+                                <span>{expense.guest_name}</span>
+                              </div>
                             )}
-                            <p className="text-sm text-muted-foreground break-words">
-                              {expense.description}
-                            </p>
-                            <p className="text-sm text-muted-foreground break-words">
-                              {new Date(
-                                expense.expense_date
-                              ).toLocaleDateString()}
-                            </p>
+
+                            {expense.description && (
+                              <p className="text-xs text-muted-foreground ml-10 line-clamp-2">{expense.description}</p>
+                            )}
+
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                              <Calendar className="w-3 h-3" />
+                              <span>{new Date(expense.expense_date).toLocaleDateString()}</span>
+                            </div>
 
                             {/* Cost Breakdown */}
-                            <div className="mt-2 space-y-1">
+                            <div className="ml-10 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                               {expense.ev_charge_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>EV Charge:</span>
-                                  <span>
-                                    ${expense.ev_charge_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">EV Charge</span>
+                                  <span className="text-xs font-semibold">${expense.ev_charge_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.carwash_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Carwash:</span>
-                                  <span>
-                                    ${expense.carwash_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Carwash</span>
+                                  <span className="text-xs font-semibold">${expense.carwash_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.delivery_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Delivery:</span>
-                                  <span>
-                                    ${expense.delivery_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Delivery</span>
+                                  <span className="text-xs font-semibold">${expense.delivery_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.toll_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Tolls:</span>
-                                  <span>${expense.toll_cost.toFixed(2)}</span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Tolls</span>
+                                  <span className="text-xs font-semibold">${expense.toll_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.amount > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Other:</span>
-                                  <span>${expense.amount.toFixed(2)}</span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Other</span>
+                                  <span className="text-xs font-semibold">${expense.amount.toFixed(2)}</span>
                                 </div>
                               )}
                             </div>
 
                             {/* Car Details */}
                             {(() => {
-                              const expenseCar = cars.find(
-                                (car) => car.id === expense.car_id
-                              );
+                              const expenseCar = cars.find((car) => car.id === expense.car_id);
                               if (!expenseCar) return null;
                               return (
-                                <div className="border-t mt-3 pt-3">
-                                  <p className="text-sm font-medium mb-2">
-                                    Vehicle Details:
-                                  </p>
+                                <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5 mt-2">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <Car className="w-3 h-3 text-muted-foreground" />
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
+                                  </div>
                                   {formatDetailedCarInfo(expenseCar)}
                                 </div>
                               );
                             })()}
                           </div>
-                          <div className="text-right">
-                            <div className="flex items-start gap-2 mb-2">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleEditExpense(expense)}
-                                  >
-                                    <Edit className="h-3 w-3 mr-2" /> Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => onDeleteExpense(expense.id)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash className="h-3 w-3 mr-2" /> Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+
+                          {/* Right: Total + Actions */}
+                          <div className="text-right shrink-0">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditExpense(expense)}>
+                                  <Edit className="h-3 w-3 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => onDeleteExpense(expense.id)} className="text-destructive">
+                                  <Trash className="h-3 w-3 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                            <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                              <p className="text-lg font-bold text-foreground tabular-nums">
+                                ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
                             </div>
-                            <p className="font-bold text-lg">
-                              $
-                              {expense.total_expenses?.toFixed(2) ||
-                                expense.amount.toFixed(2)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Total
-                            </p>
                           </div>
                         </div>
+                      </div>
                     </div>
                   ))}
                 </div>
