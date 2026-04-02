@@ -1672,9 +1672,14 @@ export default function HostCarManagement() {
   return (
     <DashboardLayout>
       <>
-        <header className="z-10 flex items-center justify-center gap-2 py-2 mb-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold">Hosted</h1>
+        {/* Header */}
+        <header className="flex items-center gap-3 py-3 px-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <Car className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Hosted Cars</h1>
+            <p className="text-xs text-muted-foreground">Manage vehicles, expenses & earnings</p>
           </div>
         </header>
 
