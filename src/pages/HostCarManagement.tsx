@@ -123,6 +123,7 @@ interface CarWithClient {
   mileage: number;
   color: string;
   description: string;
+  images: string[] | null;
   vin_number: string | null;
   license_plate: string | null;
   created_at: string;
