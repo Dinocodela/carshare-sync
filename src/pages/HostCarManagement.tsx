@@ -19,6 +19,12 @@ import {
   Filter,
   X,
   MoreVertical,
+  Shield,
+  Lock,
+  TrendingUp,
+  Gauge,
+  Palette,
+  User,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
