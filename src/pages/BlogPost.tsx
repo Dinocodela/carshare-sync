@@ -126,14 +126,17 @@ export default function BlogPost() {
           <div
             className="prose prose-sm md:prose-base lg:prose-lg max-w-none dark:prose-invert
               prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-              prose-h2:text-xl prose-h2:md:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-border/50 prose-h2:pb-2
-              prose-h3:text-lg prose-h3:md:text-xl prose-h3:mt-8 prose-h3:mb-3
-              prose-p:text-foreground/85 prose-p:leading-relaxed prose-p:mb-5
+              prose-h2:text-xl prose-h2:md:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:border-b prose-h2:border-border/50 prose-h2:pb-3
+              prose-h3:text-lg prose-h3:md:text-xl prose-h3:mt-10 prose-h3:mb-4
+              prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-6
               prose-strong:text-foreground prose-strong:font-semibold
               prose-a:text-primary prose-a:underline prose-a:underline-offset-4 hover:prose-a:text-primary/80
-              prose-ul:my-5 prose-ul:space-y-2 prose-li:text-foreground/85
+              prose-ul:my-6 prose-ul:space-y-3 prose-ul:list-disc prose-ul:pl-6
+              prose-ol:my-6 prose-ol:space-y-3 prose-ol:list-decimal prose-ol:pl-6
+              prose-li:text-foreground/85 prose-li:leading-relaxed prose-li:pl-1
               prose-img:rounded-xl prose-img:shadow-md
-              prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:not-italic"
+              prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:my-8 prose-blockquote:not-italic
+              [&_p+p]:mt-6 [&_h2+p]:mt-4 [&_ul_li::marker]:text-primary [&_ol_li::marker]:text-primary [&_ol_li::marker]:font-semibold"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
