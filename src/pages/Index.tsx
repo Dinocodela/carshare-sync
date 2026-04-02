@@ -28,6 +28,7 @@ const Index = () => {
 
   const [role, setRole] = useState<Role>("client");
   const [panel, setPanel] = useState<Panel>("login");
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
