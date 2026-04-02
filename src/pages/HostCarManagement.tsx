@@ -123,6 +123,7 @@ interface CarWithClient {
   mileage: number;
   color: string;
   description: string;
+  images: string[] | null;
   vin_number: string | null;
   license_plate: string | null;
   created_at: string;
@@ -1749,22 +1750,28 @@ export default function HostCarManagement() {
                         <CardHeader className="p-4 sm:p-5 items-center">
                           <AccordionTrigger className="group w-full rounded-md px-0 [&[data-state=open]_.chev]:rotate-180 hover:no-underline">
                             <div className="flex w-full items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                                    <Car className="w-4 h-4 text-primary" />
+                              <div className="flex items-start gap-3 min-w-0">
+                                {car.images?.[0] ? (
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-border/50 shrink-0">
+                                    <img src={car.images[0]} alt={formatCarDisplayName(car)} className="w-full h-full object-cover" />
                                   </div>
+                                ) : (
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Car className="w-5 h-5 text-primary" />
+                                  </div>
+                                )}
+                                <div className="min-w-0">
                                   <CardTitle className="text-sm sm:text-base font-bold break-words">
                                     {formatCarDisplayName(car)}
                                   </CardTitle>
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                    <MapPin className="w-3 h-3" />
+                                    <span>{car.location}</span>
+                                  </div>
+                                  <Badge className="mt-1.5 rounded-lg text-[10px] uppercase tracking-wider" variant="default">
+                                    Active Host
+                                  </Badge>
                                 </div>
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
-                                  <MapPin className="w-3 h-3" />
-                                  <span>{car.location}</span>
-                                </div>
-                                <Badge className="mt-2 ml-10 rounded-lg text-[10px] uppercase tracking-wider" variant="default">
-                                  Active Host
-                                </Badge>
                               </div>
                             </div>
                           </AccordionTrigger>
@@ -1888,21 +1895,28 @@ export default function HostCarManagement() {
                       <div className="rounded-2xl border border-amber-500/30 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-amber-500/50 hover:shadow-sm">
                         {/* Header (trigger) */}
                         <AccordionTrigger className="w-full p-3 sm:p-4 md:p-6 hover:no-underline">
-                          <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap w-full">
-                            <div>
-                              <CardTitle className="text-sm sm:text-lg break-words">
+                          <div className="flex items-start gap-3 w-full">
+                            {car.images?.[0] ? (
+                              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-border/50 shrink-0">
+                                <img src={car.images[0]} alt={formatCarDisplayName(car)} className="w-full h-full object-cover" />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                                <Car className="w-5 h-5 text-amber-600" />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <CardTitle className="text-sm sm:text-base font-bold break-words">
                                 {formatCarDisplayName(car)}
                               </CardTitle>
-                              <CardDescription className="break-words">
-                                Location: {car.location}
-                              </CardDescription>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                <MapPin className="w-3 h-3" />
+                                <span>{car.location}</span>
+                              </div>
+                              <Badge className="mt-1.5 rounded-lg text-[10px] uppercase tracking-wider" variant="secondary">
+                                Ready for Return
+                              </Badge>
                             </div>
-                            <Badge
-                              className="w-full sm:w-auto flex items-center justify-center"
-                              variant="secondary"
-                            >
-                              Ready for Return
-                            </Badge>
                           </div>
                         </AccordionTrigger>
 
