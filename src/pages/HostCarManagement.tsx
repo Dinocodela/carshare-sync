@@ -1943,7 +1943,7 @@ export default function HostCarManagement() {
                             </div>
                           </CardContent>
                         </AccordionContent>
-                      </Card>
+                      </div>
                     </AccordionItem>
                   ))}
                 </Accordion>
