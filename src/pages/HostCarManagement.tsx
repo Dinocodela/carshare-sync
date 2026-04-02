@@ -6697,7 +6697,7 @@ export default function HostCarManagement() {
                       );
 
                       return (
-                        <Card key={claim.id}>
+                        <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                           <CardContent className="p-3 sm:p-4">
                             <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
                               <div className="space-y-2">
