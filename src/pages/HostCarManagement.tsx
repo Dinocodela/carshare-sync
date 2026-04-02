@@ -1726,7 +1726,7 @@ export default function HostCarManagement() {
               </TabsList>
             </div>
 
-            <TabsContent value="active" className="space-y-4  sm:px-0">
+            <TabsContent value="active" className="space-y-4 sm:px-0">
               {activeHostedCars.length === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -1739,87 +1739,51 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <Accordion
-                  /* multiple so desktop can keep several open; mobile starts collapsed */
                   type="multiple"
-                  defaultValue={
-                    !isMobile ? activeHostedCars.map((c) => c.id) : []
-                  }
+                  defaultValue={!isMobile ? activeHostedCars.map((c) => c.id) : []}
                   className="grid gap-3 md:gap-4 md:grid-cols-2"
                 >
                   {activeHostedCars.map((car) => (
-                    <AccordionItem
-                      key={car.id}
-                      value={car.id}
-                      className="border-none group"
-                    >
+                    <AccordionItem key={car.id} value={car.id} className="border-none group">
                       <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                        {/* Header becomes the accordion trigger */}
-                        <CardHeader className="p-3 sm:p-4 md:p-6 items-center">
-                          <AccordionTrigger
-                            className="
-                  group w-full rounded-md px-0
-                  [&[data-state=open]_.chev]:rotate-180
-                  hover:no-underline
-                "
-                          >
+                        <CardHeader className="p-4 sm:p-5 items-center">
+                          <AccordionTrigger className="group w-full rounded-md px-0 [&[data-state=open]_.chev]:rotate-180 hover:no-underline">
                             <div className="flex w-full items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <CardTitle className="text-sm sm:text-lg break-words">
-                                  {formatCarDisplayName(car)}
-                                </CardTitle>
-                                <CardDescription className="break-words">
-                                  Location: {car.location}
-                                </CardDescription>
-                                <Badge className="mt-2" variant="default">
-                                  Hosting
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Car className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <CardTitle className="text-sm sm:text-base font-bold break-words">
+                                    {formatCarDisplayName(car)}
+                                  </CardTitle>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                                  <MapPin className="w-3 h-3" />
+                                  <span>{car.location}</span>
+                                </div>
+                                <Badge className="mt-2 ml-10 rounded-lg text-[10px] uppercase tracking-wider" variant="default">
+                                  Active Host
                                 </Badge>
                               </div>
                             </div>
                           </AccordionTrigger>
-                          {/* Header actions: visible ONLY when collapsed */}
-                          <div className="mt-3 flex flex-col sm:flex-row gap-2 group-data-[state=open]:hidden">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full sm:w-auto"
-                              onClick={() =>
-                                window.open(`tel:${car.client.phone}`)
-                              }
-                            >
-                              <Phone className="h-4 w-4 mr-2" />
-                              Call Client
+                          <div className="mt-3 flex flex-col sm:flex-row gap-2 group-data-[state=open]:hidden ml-10">
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                              <Phone className="h-4 w-4 mr-2" />Call Client
                             </Button>
-
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="w-full sm:w-auto"
-                                >
-                                  <Settings className="h-4 w-4 mr-2" />
-                                  Manage
+                                <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl">
+                                  <Settings className="h-4 w-4 mr-2" />Manage
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleManagementAction("view-details", car)
-                                  }
-                                >
-                                  <FileText className="h-4 w-4 mr-2" />
-                                  View Car Details
+                                <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                  <FileText className="h-4 w-4 mr-2" />View Car Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleManagementAction(
-                                      "schedule-maintenance",
-                                      car
-                                    )
-                                  }
-                                >
-                                  <Calendar className="h-4 w-4 mr-2" />
-                                  Schedule Maintenance
+                                <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                  <Calendar className="h-4 w-4 mr-2" />Schedule Maintenance
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                               </DropdownMenuContent>
@@ -1827,125 +1791,60 @@ export default function HostCarManagement() {
                           </div>
                         </CardHeader>
 
-                        {/* Body */}
                         <AccordionContent>
-                          <CardContent className="p-3 sm:p-4 md:p-6 space-y-4">
-                            {/* Car information */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Color:
-                                </span>
-                                <p className="font-medium">
-                                  {car.color || "N/A"}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Mileage:
-                                </span>
-                                <p className="font-medium">
-                                  {car.mileage
-                                    ? `${car.mileage.toLocaleString()} mi`
-                                    : "N/A"}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Hosting Since:
-                                </span>
-                                <p className="font-medium">
-                                  {new Date(
-                                    car.created_at
-                                  ).toLocaleDateString()}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Status:
-                                </span>
-                                <p className="font-medium text-green-600">
-                                  Active
-                                </p>
-                              </div>
+                          <CardContent className="px-4 sm:px-5 pb-5 space-y-4">
+                            {/* Car Stats Grid */}
+                            <div className="grid grid-cols-2 gap-2.5">
+                              {[
+                                { label: "Color", value: car.color || "N/A", icon: Palette },
+                                { label: "Mileage", value: car.mileage ? `${car.mileage.toLocaleString()} mi` : "N/A", icon: Gauge },
+                                { label: "Hosting Since", value: new Date(car.created_at).toLocaleDateString(), icon: Calendar },
+                                { label: "Status", value: "Active", icon: CheckCircle },
+                              ].map((item, i) => (
+                                <div key={i} className="rounded-xl border border-border/40 bg-background/50 p-3">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <item.icon className="w-3 h-3 text-muted-foreground" />
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
+                                  </div>
+                                  <p className="text-sm font-semibold text-foreground">{item.value}</p>
+                                </div>
+                              ))}
                             </div>
 
-                            {/* Client Contact */}
-                            <div className="border-t pt-4">
-                              <h4 className="font-medium mb-2">
-                                Client Contact
-                              </h4>
-                              <div className="space-y-2">
-                                <p className="text-sm">
-                                  <strong>Name:</strong>{" "}
-                                  {car.client.first_name || car.client.last_name
-                                    ? `${car.client.first_name || ""} ${
-                                        car.client.last_name || ""
-                                      }`.trim()
-                                    : "Name not available"}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                  <Phone className="h-4 w-4 text-muted-foreground" />
-                                  <a
-                                    href={`tel:${car.client.phone}`}
-                                    className="text-sm hover:underline"
-                                  >
-                                    {car.client.phone}
-                                  </a>
-                                </div>
+                            {/* Client Contact Card */}
+                            <div className="rounded-xl border border-border/40 bg-background/50 p-3.5">
+                              <div className="flex items-center gap-2 mb-2.5">
+                                <User className="w-3.5 h-3.5 text-primary" />
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client Contact</span>
+                              </div>
+                              <p className="text-sm font-medium text-foreground mb-1.5">
+                                {car.client.first_name || car.client.last_name
+                                  ? `${car.client.first_name || ""} ${car.client.last_name || ""}`.trim()
+                                  : "Name not available"}
+                              </p>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="h-3.5 w-3.5" />
+                                <a href={`tel:${car.client.phone}`} className="hover:text-foreground transition-colors">{car.client.phone}</a>
                               </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-col gap-2 pt-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full sm:w-auto"
-                                onClick={() =>
-                                  window.open(`tel:${car.client.phone}`)
-                                }
-                              >
-                                <Phone className="h-4 w-4 mr-2" />
-                                Call Client
+                            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                              <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                                <Phone className="h-4 w-4 mr-2" />Call Client
                               </Button>
-
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full sm:w-auto"
-                                  >
-                                    <Settings className="h-4 w-4 mr-2" />
-                                    Manage
+                                  <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl">
+                                    <Settings className="h-4 w-4 mr-2" />Manage
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align="end"
-                                  className="w-48"
-                                >
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleManagementAction(
-                                        "view-details",
-                                        car
-                                      )
-                                    }
-                                  >
-                                    <FileText className="h-4 w-4 mr-2" />
-                                    View Car Details
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                    <FileText className="h-4 w-4 mr-2" />View Car Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleManagementAction(
-                                        "schedule-maintenance",
-                                        car
-                                      )
-                                    }
-                                  >
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    Schedule Maintenance
+                                  <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                    <Calendar className="h-4 w-4 mr-2" />Schedule Maintenance
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                 </DropdownMenuContent>
