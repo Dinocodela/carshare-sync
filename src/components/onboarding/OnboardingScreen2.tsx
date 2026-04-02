@@ -12,7 +12,7 @@ export function OnboardingScreen2() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 text-center relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center h-full px-6 text-center relative">
       {/* Background gradient */}
       <div className="absolute inset-0 pointer-events-none">
         <div
