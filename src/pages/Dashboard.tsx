@@ -15,13 +15,16 @@ import {
   TrendingUp,
   BarChart3,
   ChevronRight,
+  ChevronDown,
   Shield,
   Clock,
   Sparkles,
   ArrowUpRight,
+  MapPin,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 /* ---------- helpers ---------- */
 function useMounted() {
