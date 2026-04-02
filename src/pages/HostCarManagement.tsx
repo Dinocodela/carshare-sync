@@ -854,10 +854,19 @@ export default function HostCarManagement() {
     );
   }, [claims, claimsFilters]);
 
-  // Get distinct claim types from claims data
+  // Base claim types + any additional types from existing data
+  const BASE_CLAIM_TYPES = [
+    "Accident body damage",
+    "Interior damage",
+    "Scratched rims",
+    "Parking ticket",
+    "Speeding ticket",
+  ];
+
   const distinctClaimTypes = useMemo(() => {
-    const types = [...new Set(claims.map((c) => c.claim_type).filter(Boolean))];
-    return types.sort();
+    const fromData = claims.map((c) => c.claim_type).filter(Boolean);
+    const merged = [...new Set([...BASE_CLAIM_TYPES, ...fromData])];
+    return merged.sort();
   }, [claims]);
 
   // Count active filters
