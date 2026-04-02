@@ -88,6 +88,20 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
   const [error, setError] = useState<string | null>(null);
   const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()]);
 
+  const fetchAvailableYears = useCallback(async (carIds: string[]) => {
+    if (carIds.length === 0) return;
+    try {
+      const yearsSet = new Set<number>();
+      const { data: e } = await supabase.from('host_earnings').select('earning_period_start').in('car_id', carIds);
+      (e || []).forEach((r: any) => { if (r.earning_period_start) yearsSet.add(new Date(r.earning_period_start).getFullYear()); });
+      const { data: x } = await supabase.from('host_expenses').select('expense_date').in('car_id', carIds);
+      (x || []).forEach((r: any) => { if (r.expense_date) yearsSet.add(new Date(r.expense_date).getFullYear()); });
+      const { data: c } = await supabase.from('host_claims').select('incident_date').in('car_id', carIds);
+      (c || []).forEach((r: any) => { if (r.incident_date) yearsSet.add(new Date(r.incident_date).getFullYear()); });
+      if (yearsSet.size > 0) setAvailableYears(Array.from(yearsSet).sort((a, b) => b - a));
+    } catch (err) { console.error('Error fetching available years:', err); }
+  }, []);
+
   const fetchClientAnalytics = useCallback(async () => {
     if (!user) return;
 
