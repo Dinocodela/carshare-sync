@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-const AVAILABLE_YEARS = [2022, 2023, 2024, 2025];
+
 
 export interface ClientEarning {
   id: string;
