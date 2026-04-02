@@ -1,68 +1,38 @@
 
 
-## Blog Section for Teslys — Teslarati-Inspired Design
+## Problem
 
-### Overview
-Create a public-facing blog at `/blog` with individual post pages at `/blog/:slug`. Posts are stored in a Supabase `blog_posts` table. You can ask me each morning to create a post and I'll insert it directly into the database — no code changes needed.
+The top section of the onboarding screen appears gray because:
 
-### Database
+1. **The `--gradient-hero` CSS variable** uses gray-ish colors: `hsl(220 15% 85%)` to `hsl(180 20% 88%)` — these are light grays with barely any blue/teal tint.
+2. **The status bar meta tag** (`apple-mobile-web-app-status-bar-style`) is set to `default`, which renders a white/gray bar on iOS Safari, creating a visible color mismatch at the top.
+3. **The `theme-color` meta tag** is `#000000` (black), which doesn't match the desired teal/blue background.
 
-**New table: `blog_posts`**
-- `id` (uuid, PK)
-- `title` (text)
-- `slug` (text, unique) — URL-friendly identifier
-- `excerpt` (text) — short summary for cards
-- `content` (text) — full article body (HTML)
-- `cover_image` (text) — URL to hero image
-- `category` (text) — e.g. "Tesla News", "Passive Income", "Car Sharing Tips"
-- `tags` (text[]) — for filtering
-- `author_name` (text, default "Teslys Team")
-- `is_published` (boolean, default false)
-- `published_at` (timestamptz)
-- `created_at`, `updated_at`
-- **RLS**: Public SELECT where `is_published = true`. Super-admin full access for management.
+## Plan
 
-### Pages and Components
+### 1. Update `--gradient-hero` to a teal-tinted gradient (src/index.css)
 
-1. **`/blog` — Blog Index Page** (Teslarati-inspired layout)
-   - Hero section with the latest featured post (large image + overlay text, like Teslarati's center column)
-   - Left sidebar: "Trending" numbered list of recent posts with thumbnails
-   - Right sidebar: "Latest" tab with compact post list (thumbnail + title + date)
-   - Below hero: grid of remaining posts as cards
-   - Category filter chips at the top
-   - Fully responsive — stacks vertically on mobile
+Change the light-mode hero gradient from gray to a soft teal/mint that matches the brand:
 
-2. **`/blog/:slug` — Individual Post Page**
-   - Large cover image
-   - Category badge + published date
-   - Article title (large heading)
-   - HTML content rendered safely
-   - "Related posts" section at the bottom
-   - Social share buttons (copy link, Twitter/X)
+```
+--gradient-hero: linear-gradient(
+  135deg,
+  hsl(175 25% 90%),
+  hsl(180 30% 92%),
+  hsl(185 25% 88%)
+);
+```
 
-3. **Components**
-   - `BlogHeroPost` — large featured card with image overlay
-   - `BlogPostCard` — compact card for grids
-   - `BlogSidebarItem` — small thumbnail + title for sidebar lists
-   - `BlogCategoryFilter` — category chip selector
+This gives a consistent light teal wash instead of the current neutral gray.
 
-### Routing
-- Add `/blog` and `/blog/:slug` as public routes in `App.tsx`
-- Add "Blog" link to the landing page nav/footer
+### 2. Update `theme-color` and status bar style (index.html)
 
-### SEO
-- Each post page gets dynamic `<title>`, meta description, and Open Graph tags via the existing `<SEO>` component
-- Structured data (Article schema) for each post
+- Change `theme-color` from `#000000` to a teal value like `#d4eeec` (matching the gradient top)
+- Change `apple-mobile-web-app-status-bar-style` from `default` to `black-translucent` so the status bar blends with the page background instead of rendering its own white/gray bar
 
-### Daily Workflow
-Each morning you tell me the topic and I'll:
-1. Generate the article content
-2. Insert it into `blog_posts` via the Supabase insert tool
-3. It appears live immediately — no rebuild needed
+### 3. Set `--secondary` to match (src/index.css)
 
-### Technical Details
-- Content stored as HTML in the `content` column — rendered with `dangerouslySetInnerHTML` (safe since only admin inserts content)
-- Images can use the existing `car-images` public bucket or external URLs
-- Uses `@tanstack/react-query` for data fetching with caching
-- Dark/light mode compatible using existing Tailwind theme tokens
+Update the `--secondary` color from `220 15% 96%` to a teal-tinted value (e.g., `175 20% 94%`) so any elements using `bg-secondary` also blend seamlessly.
+
+These three changes together will eliminate the gray band at the top and create a unified teal-blue background across the entire viewport on all screens.
 
