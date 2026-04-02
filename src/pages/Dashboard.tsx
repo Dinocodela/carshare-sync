@@ -189,6 +189,10 @@ export default function Dashboard() {
     { user_id: string; email: string | null; requested_at: string }[]
   >([]);
   const [pendingLoading, setPendingLoading] = useState(false);
+  const [tripsOpen, setTripsOpen] = useState(true);
+  const [activityOpen, setActivityOpen] = useState(true);
+  const [recentTrips, setRecentTrips] = useState<any[]>([]);
+  const [tripsLoading, setTripsLoading] = useState(false);
 
   // Only host super-admins can see pending accounts
   const isAdmin = profile?.is_super_admin && profile?.role === "host";
