@@ -6570,29 +6570,21 @@ export default function HostCarManagement() {
               )}
 
               {claims.length === 0 ? (
-                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                  <CardContent className="text-center py-12">
-                    <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No claims filed
-                    </h3>
-                    <p className="text-muted-foreground">
-                      File claims for damages or incidents here.
-                    </p>
-                  </CardContent>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Claims Filed</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">File claims for damages or incidents here.</p>
                 </div>
               ) : filteredClaims.length === 0 ? (
-                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No claims match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearClaimsFilters}>
-                      Clear Filters
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Claims</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearClaimsFilters} size="sm" className="rounded-xl">Clear Filters</Button>
                     </Button>
                   </CardContent>
                 </div>
