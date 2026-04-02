@@ -12,8 +12,8 @@ const corsHeaders = {
 
 interface HostNotificationRequest {
   requestId: string;
-  hostId?: string;
-  hostEmail: string;
+  hostId: string;
+  hostEmail?: string; // Deprecated: resolved server-side now
   hostName: string;
   clientName: string;
   clientPhone?: string;
@@ -29,7 +29,29 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { requestId, hostId, hostEmail, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
+    const { requestId, hostId, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
+
+    if (!hostId) {
+      throw new Error("hostId is required");
+    }
+
+    // Resolve host email server-side using service role
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: hostProfile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('email')
+      .eq('user_id', hostId)
+      .single();
+
+    if (profileError || !hostProfile?.email) {
+      throw new Error("Could not resolve host email");
+    }
+
+    const hostEmail = hostProfile.email;
 
     console.log("Sending host notification email for request:", requestId);
 
