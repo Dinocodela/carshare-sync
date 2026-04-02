@@ -270,7 +270,7 @@ export default function Settings() {
     } catch (e: any) {
       toast({
         title: "Delete failed",
-        description: e?.message ?? "Please contact support@teslys.app",
+        description: e?.message ?? "Please contact support@teslys.com",
       });
     } finally {
       setDeleting(false);
