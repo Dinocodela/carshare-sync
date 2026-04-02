@@ -25,7 +25,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center bg-gradient-hero min-h-screen">
         <div className="text-lg">Loading...</div>
       </div>
     );
