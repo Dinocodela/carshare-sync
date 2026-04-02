@@ -1692,70 +1692,25 @@ export default function HostCarManagement() {
             {/* Tabs header */}
             {/* Sticky header */}
             {/* Header that matches the bottom bar */}
-            <div
-              className="
-   z-40 border-b
-  backdrop-blur-md bg-white/70 supports-[backdrop-filter]:bg-white/60
-  shadow-[0_6px_16px_rgba(0,0,0,0.05)]
-"
-            >
-              <TabsList className="grid grid-cols-4 w-full h-11 px-1.5 gap-0 bg-transparent border-0">
+            <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm mb-4 overflow-hidden">
+              <TabsList className="grid grid-cols-4 w-full h-12 px-1 gap-0 bg-transparent border-0">
                 {[
-                  {
-                    key: "active",
-                    label: "Active",
-                    count: activeHostedCars.length,
-                  },
-                  {
-                    key: "expenses",
-                    label: "Expenses",
-                    count: expenses.length,
-                  },
-                  {
-                    key: "earnings",
-                    label: "Earnings",
-                    count: earnings.length,
-                  },
+                  { key: "active", label: "Active", count: activeHostedCars.length },
+                  { key: "expenses", label: "Expenses", count: expenses.length },
+                  { key: "earnings", label: "Earnings", count: earnings.length },
                   { key: "claims", label: "Claims", count: claims.length },
                 ].map(({ key, label, count }) => (
                   <TabsTrigger
                     key={key}
                     value={key as any}
-                    className="
-          group relative inline-flex items-center justify-center
-          h-11 px-3 rounded-none text-[15px] font-medium
-          text-muted-foreground data-[state=active]:text-primary
-          transition-colors
-        "
+                    className="group relative inline-flex items-center justify-center h-10 px-2 rounded-xl text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-primary/10 transition-all duration-200"
                   >
-                    {/* label (kept perfectly centered) */}
                     <span className="leading-none">{label}</span>
-
-                    {/* badge - lowered & tighter, with a subtle ring like iOS badges */}
                     {!!count && (
-                      <span
-                        className="
-              pointer-events-none absolute top-[0px] right-[0px]
-              inline-grid place-items-center tabular-nums
-              h-[18px] min-w-[18px] 
-              rounded-full text-[10px] leading-none
-              bg-muted/90 text-foreground/70 ring-1 ring-black/5
-              group-data-[state=active]:bg-primary/10
-              group-data-[state=active]:text-primary
-            "
-                      >
+                      <span className="ml-1.5 inline-grid place-items-center tabular-nums h-[18px] min-w-[18px] px-1 rounded-full text-[10px] leading-none bg-muted/80 text-muted-foreground group-data-[state=active]:bg-primary/20 group-data-[state=active]:text-primary">
                         {count}
                       </span>
                     )}
-
-                    {/* active underline */}
-                    <span
-                      aria-hidden
-                      className="
-            absolute left-2 right-2 -bottom-[1px] h-[2px] rounded-full
-            bg-primary opacity-0 group-data-[state=active]:opacity-100
-          "
-                    />
                   </TabsTrigger>
                 ))}
               </TabsList>
