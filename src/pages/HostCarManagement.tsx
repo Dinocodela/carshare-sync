@@ -1952,17 +1952,15 @@ export default function HostCarManagement() {
 
             <TabsContent value="returns" className="space-y-4  sm:px-0">
               {readyForReturnCars.length === 0 ? (
-                <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
-                  <CardContent className="text-center p-4 sm:p-6">
-                    <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No cars ready for return
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Cars ready to be returned will appear here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Cars Ready for Return</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Cars ready to be returned will appear here.
+                  </p>
+                </div>
               ) : (
                 <Accordion
                   type="single"
