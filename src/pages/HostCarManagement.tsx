@@ -1976,7 +1976,7 @@ export default function HostCarManagement() {
                       value={car.id}
                       className="border-none group" // 👈 enables data-state targeting
                     >
-                      <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none border-orange-200">
+                      <div className="rounded-2xl border border-amber-500/30 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-amber-500/50 hover:shadow-sm">
                         {/* Header (trigger) */}
                         <AccordionTrigger className="w-full p-3 sm:p-4 md:p-6 hover:no-underline">
                           <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap w-full">
