@@ -261,6 +261,6 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     refetch,
     selectedYear,
     setSelectedYear,
-    availableYears: AVAILABLE_YEARS,
+    availableYears,
   };
 }
