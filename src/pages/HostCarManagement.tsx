@@ -5256,306 +5256,259 @@ export default function HostCarManagement() {
                   >
                     <SheetContent
                       side="bottom"
-                      className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
+                      className="rounded-t-3xl p-0 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto bg-background"
                     >
-                      <SheetHead>
-                        <SheetTit>
-                          {editingClaim ? "Edit Claim" : "File New Claim"}
-                        </SheetTit>
-                        <SheetDesc>
-                          {editingClaim
-                            ? "Update your claim details."
-                            : "Submit a claim for damages or incidents."}
-                        </SheetDesc>
-                      </SheetHead>
+                      {/* Trust header */}
+                      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
+                        <div className="px-5 pt-5 pb-4">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                              <Shield className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <SheetHead className="p-0">
+                                <SheetTit className="text-lg font-bold text-foreground">
+                                  {editingClaim ? "Edit Claim" : "File New Claim"}
+                                </SheetTit>
+                                <SheetDesc className="text-sm text-muted-foreground mt-0.5">
+                                  {editingClaim
+                                    ? "Update your claim details below."
+                                    : "Submit a claim for damages or incidents. All data is encrypted and secure."}
+                                </SheetDesc>
+                              </SheetHead>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       <Form {...claimForm}>
                         <form
                           onSubmit={claimForm.handleSubmit(onClaimSubmit)}
-                          className="space-y-4"
+                          className="px-5 py-4 space-y-5"
                         >
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <FormField
-                              control={claimForm.control}
-                              name="car_id"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Car *</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select a car" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                      onPointerDownOutside={(e) =>
-                                        e.stopPropagation()
-                                      }
-                                    >
-                                      {cars.map((car) => (
-                                        <SelectItem key={car.id} value={car.id}>
-                                          {formatCarDisplayName(car)}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={claimForm.control}
-                              name="claim_type"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Claim Type *</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select claim type" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                      onPointerDownOutside={(e) =>
-                                        e.stopPropagation()
-                                      }
-                                    >
-                                      {distinctClaimTypes.map((type) => (
-                                        <SelectItem key={type} value={type}>
-                                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={claimForm.control}
-                              name="claim_status"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Claim Status *</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select status" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                      onPointerDownOutside={(e) =>
-                                        e.stopPropagation()
-                                      }
-                                    >
-                                      <SelectItem value="pending">
-                                        Pending
-                                      </SelectItem>
-                                      <SelectItem value="approved">
-                                        Approved
-                                      </SelectItem>
-                                      <SelectItem value="rejected">
-                                        Rejected
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                          {/* Section: Vehicle & Type */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Car className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vehicle & Claim Info</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={claimForm.control}
+                                name="car_id"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs font-medium">Car *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select a car" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        {cars.map((car) => (
+                                          <SelectItem key={car.id} value={car.id}>{formatCarDisplayName(car)}</SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="claim_type"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs font-medium">Claim Type *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select claim type" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        {distinctClaimTypes.map((type) => (
+                                          <SelectItem key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="claim_status"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs font-medium">Status *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="approved">Approved</SelectItem>
+                                        <SelectItem value="rejected">Rejected</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
                           </div>
 
-                          <FormField
-                            control={claimForm.control}
-                            name="incident_id"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Incident ID</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Enter incident ID (optional)"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="trip_id"
-                            render={({ field }) => {
-                              const selectedCarId = claimForm.watch("car_id");
-                              const allTripIds = [
-                                ...new Set(
-                                  expenses
-                                    .filter(
-                                      (e) =>
-                                        e.trip_id && e.trip_id.trim() !== ""
-                                    )
-                                    .map((e) => e.trip_id)
-                                    .filter(Boolean)
-                                ),
-                              ] as string[];
-                              const availableTripIds = selectedCarId
-                                ? ([
-                                    ...new Set(
-                                      expenses
-                                        .filter(
-                                          (e) =>
-                                            e.car_id === selectedCarId &&
-                                            e.trip_id &&
-                                            e.trip_id.trim() !== ""
-                                        )
-                                        .map((e) => e.trip_id)
-                                        .filter(Boolean)
-                                    ),
-                                  ] as string[])
-                                : allTripIds;
-                              return (
+                          {/* Section: IDs & Trip */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <FileText className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reference Details</span>
+                            </div>
+                            <FormField
+                              control={claimForm.control}
+                              name="incident_id"
+                              render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="flex items-center gap-2">
-                                    Trip ID
-                                    {field.value && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs bg-green-50 text-green-700 border-green-200"
-                                      >
-                                        Auto-filled
-                                      </Badge>
-                                    )}
-                                  </FormLabel>
+                                  <FormLabel className="text-xs font-medium">Incident ID</FormLabel>
                                   <FormControl>
-                                    <div className="space-y-2">
-                                      {loading ? (
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                          <span className="text-sm text-muted-foreground">
-                                            Loading trip IDs...
-                                          </span>
-                                        </div>
-                                      ) : availableTripIds.length > 0 ? (
-                                        <Select
-                                          value={field.value}
-                                          onValueChange={(value) => {
-                                            field.onChange(value);
-                                            // Auto-populate car field based on trip ID
-                                            const expenseWithTripId =
-                                              expenses.find(
-                                                (e) =>
-                                                  e.trip_id === value &&
-                                                  e.car_id
-                                              );
-                                            if (
-                                              expenseWithTripId &&
-                                              expenseWithTripId.car_id
-                                            ) {
-                                              claimForm.setValue(
-                                                "car_id",
-                                                expenseWithTripId.car_id
-                                              );
-                                            }
-                                          }}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue
-                                              placeholder={
-                                                selectedCarId
-                                                  ? `Select trip ID (${availableTripIds.length} for this car)`
-                                                  : `Select trip ID (${availableTripIds.length} total)`
-                                              }
-                                            />
-                                          </SelectTrigger>
-                                          <SelectContent
-                                            className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                            position="popper"
-                                            side="bottom"
-                                            avoidCollisions={false}
-                                            onPointerDownOutside={(e) =>
-                                              e.stopPropagation()
-                                            }
-                                          >
-                                            {availableTripIds.map((tripId) => (
-                                              <SelectItem
-                                                key={tripId}
-                                                value={tripId}
-                                              >
-                                                {tripId}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      ) : selectedCarId ? (
-                                        <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                          No existing trip IDs found for this
-                                          car. You can enter a new one below.
-                                        </div>
-                                      ) : (
-                                        <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                          No trip IDs found in expenses. You can
-                                          enter a new one below.
-                                        </div>
+                                    <Input placeholder="Enter incident ID (optional)" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="trip_id"
+                              render={({ field }) => {
+                                const selectedCarId = claimForm.watch("car_id");
+                                const allTripIds = [...new Set(expenses.filter((e) => e.trip_id && e.trip_id.trim() !== "").map((e) => e.trip_id).filter(Boolean))] as string[];
+                                const availableTripIds = selectedCarId
+                                  ? ([...new Set(expenses.filter((e) => e.car_id === selectedCarId && e.trip_id && e.trip_id.trim() !== "").map((e) => e.trip_id).filter(Boolean))] as string[])
+                                  : allTripIds;
+                                return (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                      Trip ID
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
                                       )}
-                                      <Input
-                                        placeholder={
-                                          availableTripIds.length > 0
-                                            ? "Or enter new trip ID"
-                                            : "Enter trip ID"
-                                        }
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                      />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              );
-                            }}
-                          />
+                                    </FormLabel>
+                                    <FormControl>
+                                      <div className="space-y-2">
+                                        {loading ? (
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                            <span className="text-sm text-muted-foreground">Loading trip IDs...</span>
+                                          </div>
+                                        ) : availableTripIds.length > 0 ? (
+                                          <Select value={field.value} onValueChange={(value) => {
+                                            field.onChange(value);
+                                            const expenseWithTripId = expenses.find((e) => e.trip_id === value && e.car_id);
+                                            if (expenseWithTripId && expenseWithTripId.car_id) {
+                                              claimForm.setValue("car_id", expenseWithTripId.car_id);
+                                            }
+                                          }}>
+                                            <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                              <SelectValue placeholder={selectedCarId ? `Select trip ID (${availableTripIds.length} for this car)` : `Select trip ID (${availableTripIds.length} total)`} />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                              {availableTripIds.map((tripId) => (
+                                                <SelectItem key={tripId} value={tripId}>{tripId}</SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        ) : selectedCarId ? (
+                                          <div className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-xl border border-border/40">No existing trip IDs found for this car. Enter a new one below.</div>
+                                        ) : (
+                                          <div className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-xl border border-border/40">No trip IDs found. Enter one below.</div>
+                                        )}
+                                        <Input placeholder={availableTripIds.length > 0 ? "Or enter new trip ID" : "Enter trip ID"} value={field.value} onChange={field.onChange} className="rounded-xl border-border/60 bg-background/80" />
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Section: Guest & Payment */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <User className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Guest & Payment</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={claimForm.control}
+                                name="guest_name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                      Guest Name
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
+                                      )}
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Guest name" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="payment_source"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                      Payment Source
+                                      {field.value && field.value !== "Turo" && (
+                                        <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
+                                      )}
+                                    </FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select payment source" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        <SelectItem value="Turo">Turo</SelectItem>
+                                        <SelectItem value="Eon">Eon</SelectItem>
+                                        <SelectItem value="GetAround">GetAround</SelectItem>
+                                        <SelectItem value="Private">Private</SelectItem>
+                                        <SelectItem value="Insurance">Insurance</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Section: Incident Details */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <AlertCircle className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Incident Details</span>
+                            </div>
                             <FormField
                               control={claimForm.control}
-                              name="guest_name"
+                              name="incident_date"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="flex items-center gap-2">
-                                    Guest Name
-                                    {field.value && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs bg-green-50 text-green-700 border-green-200"
-                                      >
-                                        Auto-filled
-                                      </Badge>
-                                    )}
-                                  </FormLabel>
+                                  <FormLabel className="text-xs font-medium">Incident Date</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      placeholder="Guest name"
-                                      {...field}
-                                    />
+                                    <Input type="date" className="rounded-xl border-border/60 bg-background/80" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -5563,186 +5516,108 @@ export default function HostCarManagement() {
                             />
                             <FormField
                               control={claimForm.control}
-                              name="payment_source"
+                              name="description"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="flex items-center gap-2">
-                                    Payment Source
-                                    {field.value && field.value !== "Turo" && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs bg-green-50 text-green-700 border-green-200"
-                                      >
-                                        Auto-filled
-                                      </Badge>
-                                    )}
-                                  </FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select payment source" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="Turo">Turo</SelectItem>
-                                      <SelectItem value="Eon">Eon</SelectItem>
-                                      <SelectItem value="GetAround">
-                                        GetAround
-                                      </SelectItem>
-                                      <SelectItem value="Private">
-                                        Private
-                                      </SelectItem>
-                                      <SelectItem value="Insurance">
-                                        Insurance
-                                      </SelectItem>
-                                      <SelectItem value="Other">
-                                        Other
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                  <FormLabel className="text-xs font-medium">Incident Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea placeholder="Describe what happened..." className="rounded-xl border-border/60 bg-background/80 min-h-[80px]" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="accident_description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Detailed Accident Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea placeholder="Provide additional details about the accident..." className="rounded-xl border-border/60 bg-background/80 min-h-[80px]" {...field} />
+                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
                           </div>
 
-                          <FormField
-                            control={claimForm.control}
-                            name="incident_date"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Incident Date</FormLabel>
-                                <FormControl>
-                                  <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="description"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Incident Description</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Describe what happened..."
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="accident_description"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>
-                                  Detailed Accident Description
-                                </FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Provide additional details about the accident..."
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="claim_amount"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Estimated Claim Amount</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    inputMode="decimal"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        parseFloat(e.target.value) || 0
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
+                          {/* Section: Financial & Status */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <DollarSign className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Financial</span>
+                            </div>
+                            <FormField
                               control={claimForm.control}
-                              name="photos_taken"
+                              name="claim_amount"
                               render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Estimated Claim Amount</FormLabel>
                                   <FormControl>
-                                    <input
-                                      type="checkbox"
-                                      checked={field.value}
-                                      onChange={field.onChange}
-                                      className="h-4 w-4"
-                                    />
+                                    <Input type="number" inputMode="decimal" step="0.01" placeholder="0.00" className="rounded-xl border-border/60 bg-background/80" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
                                   </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel>
-                                      Photos taken of damage/incident
-                                    </FormLabel>
-                                  </div>
+                                  <FormMessage />
                                 </FormItem>
                               )}
                             />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <FormField
+                                control={claimForm.control}
+                                name="photos_taken"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center gap-3 rounded-xl border border-border/40 bg-background/50 p-3 space-y-0">
+                                    <FormControl>
+                                      <input type="checkbox" checked={field.value} onChange={field.onChange} className="h-4 w-4 rounded border-border accent-primary" />
+                                    </FormControl>
+                                    <div className="space-y-0.5 leading-none">
+                                      <FormLabel className="text-xs font-medium cursor-pointer">Photos taken of damage</FormLabel>
+                                      <p className="text-[10px] text-muted-foreground">Helps accelerate claim processing</p>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="is_paid"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center gap-3 rounded-xl border border-border/40 bg-background/50 p-3 space-y-0">
+                                    <FormControl>
+                                      <input type="checkbox" checked={field.value} onChange={field.onChange} className="h-4 w-4 rounded border-border accent-primary" />
+                                    </FormControl>
+                                    <div className="space-y-0.5 leading-none">
+                                      <FormLabel className="text-xs font-medium cursor-pointer">Claim has been paid</FormLabel>
+                                      <p className="text-[10px] text-muted-foreground">Mark if payment was received</p>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
 
-                          <FormField
-                              control={claimForm.control}
-                              name="is_paid"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <input
-                                      type="checkbox"
-                                      checked={field.value}
-                                      onChange={field.onChange}
-                                      className="h-4 w-4"
-                                    />
-                                  </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel>
-                                      Claim has been paid
-                                    </FormLabel>
-                                  </div>
-                                </FormItem>
-                              )}
-                            />
-
-                          <div className="pt-2 flex justify-end gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setClaimDialogOpen(false);
-                                setEditingClaim(null);
-                                claimForm.reset();
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button type="submit">
-                              {editingClaim ? "Update Claim" : "Submit Claim"}
-                            </Button>
+                          {/* Trust footer + Actions */}
+                          <div className="space-y-3 pb-2">
+                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground justify-center">
+                              <Lock className="w-3 h-3" />
+                              <span>Your claim data is securely stored and encrypted</span>
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="rounded-xl"
+                                onClick={() => {
+                                  setClaimDialogOpen(false);
+                                  setEditingClaim(null);
+                                  claimForm.reset();
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                              <Button type="submit" className="rounded-xl px-6">
+                                {editingClaim ? "Update Claim" : "Submit Claim"}
+                              </Button>
+                            </div>
                           </div>
                         </form>
                       </Form>
