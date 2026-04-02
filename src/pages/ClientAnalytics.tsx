@@ -21,319 +21,245 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw, BarChart3, Car, Info, Calendar } from "lucide-react";
+import { RefreshCw, BarChart3, Car, Calendar, Shield, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ClientAnalytics() {
   const {
-    earnings,
-    expenses,
-    claims,
-    summary,
-    loading,
-    error,
-    refetch,
-    selectedYear,
-    setSelectedYear,
-    availableYears,
+    earnings, expenses, claims, summary,
+    loading, error, refetch,
+    selectedYear, setSelectedYear, availableYears,
   } = useClientAnalytics();
-  const [selectedCarId, setSelectedCarId] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedCarId, setSelectedCarId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState("portfolio");
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
   const [selectedCarForManagement, setSelectedCarForManagement] = useState<{
-    id: string;
-    year: number;
-    make: string;
-    model: string;
-    status: string;
+    id: string; year: number; make: string; model: string; status: string;
   } | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const { toast } = useToast();
 
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
+
   const {
-    cars,
-    carPerformanceData,
-    selectedCarData,
-    selectedCarPerformance,
-    loading: perCarLoading,
-    error: perCarError,
-    refetch: refetchPerCar,
+    cars, carPerformanceData, selectedCarData, selectedCarPerformance,
+    loading: perCarLoading, error: perCarError, refetch: refetchPerCar,
     setSelectedYear: setPerCarSelectedYear,
   } = usePerCarAnalytics(selectedCarId, selectedYear);
 
-  // Auto-refresh every 30s (avoid spinning while already loading)
   useEffect(() => {
     const t = setInterval(() => {
-      if (!loading && !perCarLoading) {
-        refetch();
-        refetchPerCar();
-      }
+      if (!loading && !perCarLoading) { refetch(); refetchPerCar(); }
     }, 30_000);
     return () => clearInterval(t);
   }, [loading, perCarLoading, refetch, refetchPerCar]);
 
-  const handleRefresh = () => {
-    refetch();
-    refetchPerCar();
-  };
+  const handleRefresh = () => { refetch(); refetchPerCar(); };
 
   const handleViewDetails = (carId: string) => {
     setSelectedCarId(carId);
     setActiveTab("per-car");
-
-    // Find car details for toast
     const carData = carPerformanceData.find((car) => car.car_id === carId);
     if (carData) {
-      toast({
-        title: "Car Selected",
-        description: `Viewing details for ${carData.car_year} ${carData.car_make} ${carData.car_model}`,
-      });
+      toast({ title: "Car Selected", description: `Viewing details for ${carData.car_year} ${carData.car_make} ${carData.car_model}` });
     }
   };
 
   const handleManageStatus = (carId: string) => {
     const carData = carPerformanceData.find((car) => car.car_id === carId);
     if (carData) {
-      setSelectedCarForManagement({
-        id: carId,
-        year: carData.car_year,
-        make: carData.car_make,
-        model: carData.car_model,
-        status: carData.car_status,
-      });
+      setSelectedCarForManagement({ id: carId, year: carData.car_year, make: carData.car_make, model: carData.car_model, status: carData.car_status });
       setManageDialogOpen(true);
     }
   };
 
-  const handleCarUpdated = () => {
-    refetch();
-    refetchPerCar();
-  };
+  const handleCarUpdated = () => { refetch(); refetchPerCar(); };
+
+  const fadeIn = (idx: number) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? "translateY(0)" : "translateY(12px)",
+    transition: `all 500ms cubic-bezier(0.23,1,0.32,1) ${idx * 80}ms`,
+  } as React.CSSProperties);
 
   if (error || perCarError) {
     return (
       <DashboardLayout>
         <PageContainer>
           <div className="space-y-4">
-            <div className="rounded-xl border bg-destructive/10 p-4 text-destructive">
-              {error || perCarError}
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 backdrop-blur-sm p-5">
+              <p className="text-sm text-destructive">{error || perCarError}</p>
             </div>
-            <Button onClick={handleRefresh}>Try Again</Button>
+            <Button onClick={handleRefresh} className="rounded-xl">Try Again</Button>
           </div>
         </PageContainer>
       </DashboardLayout>
     );
   }
 
-  // Helper for blocks that must never cause horizontal scroll
   const EDGE = "w-full max-w-full overflow-hidden";
 
   return (
     <DashboardLayout>
       <PageContainer>
-        <SEO
-          title="Client Analytics | TESLYS"
-          description="Track vehicle performance, earnings, expenses, and claims."
-        />
+        <SEO title="Analytics | TESLYS" description="Track vehicle performance, earnings, expenses, and claims." />
 
-        {/* Add bottom padding so content never hides behind bottom nav */}
         <div className="space-y-5 pb-24">
-          {/* --- Compact banner (no huge H1 needed on mobile) --- */}
-          <section className="rounded-2xl border bg-muted/40 p-4 sm:p-5">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-                <Info className="h-5 w-5 text-primary" />
-              </div>
-              {/* <h1 className="text-3xl font-bold">Analytics Dashboard</h1> */}
+          {/* ─── Trust Banner ─── */}
+          <div
+            style={fadeIn(0)}
+            className="relative overflow-hidden rounded-2xl bg-gradient-primary p-5 text-primary-foreground"
+          >
+            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10" />
+            <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5" />
 
-              <p className="min-w-0 text-sm leading-relaxed text-muted-foreground">
-                Track your vehicle’s performance and earnings. For expense
-                vehicles in{" "}
-                <Link
-                  to="/my-cars"
-                  className="text-primary underline underline-offset-4"
-                >
-                  My Cars
-                </Link>
-                .
+            <div className="relative z-10 space-y-3">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 shrink-0" />
+                <span className="text-xs font-medium opacity-90 uppercase tracking-wider">
+                  Analytics Dashboard
+                </span>
+              </div>
+              <p className="text-lg font-bold leading-snug">
+                Your fleet's performance at a glance
               </p>
-            </div>
+              <p className="text-xs opacity-80">
+                Real-time tracking · Verified data · Insured vehicles
+              </p>
 
-            {/* Controls row: selector + year filter + refresh */}
-            <div className="mt-3 flex items-center gap-2 sm:mt-4">
-              <div className="flex-1 min-w-0">
-                <CarSelector
-                  cars={cars}
-                  selectedCarId={selectedCarId}
-                  onCarSelect={setSelectedCarId}
-                  loading={perCarLoading}
-                />
+              {/* Controls */}
+              <div className="flex items-center gap-2 pt-1">
+                <div className="flex-1 min-w-0">
+                  <CarSelector
+                    cars={cars}
+                    selectedCarId={selectedCarId}
+                    onCarSelect={setSelectedCarId}
+                    loading={perCarLoading}
+                  />
+                </div>
+                <Select
+                  value={selectedYear?.toString() ?? "all"}
+                  onValueChange={(value) => {
+                    const year = value === "all" ? null : parseInt(value);
+                    setSelectedYear(year);
+                    setPerCarSelectedYear(year);
+                  }}
+                >
+                  <SelectTrigger className="w-[100px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9">
+                    <Calendar className="mr-1.5 h-3.5 w-3.5" />
+                    <SelectValue placeholder="Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    {availableYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={handleRefresh}
+                  variant="ghost"
+                  size="icon"
+                  disabled={loading || perCarLoading}
+                  className="h-9 w-9 shrink-0 bg-white/10 hover:bg-white/20 text-primary-foreground"
+                >
+                  <RefreshCw className={`h-4 w-4 ${loading || perCarLoading ? "animate-spin" : ""}`} />
+                </Button>
               </div>
-              <Select
-                value={selectedYear?.toString() ?? "all"}
-                onValueChange={(value) => {
-                  const year = value === "all" ? null : parseInt(value);
-                  setSelectedYear(year);
-                  setPerCarSelectedYear(year);
-                }}
-              >
-                <SelectTrigger className="w-[110px] shrink-0">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Time</SelectItem>
-                  {availableYears.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                onClick={handleRefresh}
-                variant="outline"
-                size="icon"
-                aria-label="Refresh analytics"
-                disabled={loading || perCarLoading}
-                className="h-9 w-9 shrink-0"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${
-                    loading || perCarLoading ? "animate-spin" : ""
-                  }`}
-                />
-              </Button>
             </div>
-          </section>
+          </div>
 
-          {/* --- Tabs: sticky & horizontally scrollable on mobile --- */}
-          <section className="sticky top-[env(safe-area-inset-top,0)] z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70 -mx-4 px-4 sm:mx-0 sm:px-0 py-2">
+          {/* ─── Tabs ─── */}
+          <div style={fadeIn(1)}>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-2">
-                <TabsTrigger
-                  value="portfolio"
-                  className="min-w-max whitespace-nowrap px-3 py-2"
-                >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Portfolio Overview
+              <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-1 bg-muted/50 backdrop-blur-sm rounded-xl p-1">
+                <TabsTrigger value="portfolio" className="min-w-max whitespace-nowrap px-3 py-2 rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                  <BarChart3 className="mr-1.5 h-3.5 w-3.5" />
+                  Overview
                 </TabsTrigger>
-                <TabsTrigger
-                  value="per-car"
-                  className="min-w-max whitespace-nowrap px-3 py-2"
-                >
-                  <Car className="mr-2 h-4 w-4" />
-                  Per-Car Analysis
+                <TabsTrigger value="per-car" className="min-w-max whitespace-nowrap px-3 py-2 rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                  <Car className="mr-1.5 h-3.5 w-3.5" />
+                  Per-Car
                 </TabsTrigger>
-                <TabsTrigger
-                  value="comparison"
-                  className="min-w-max whitespace-nowrap px-3 py-2"
-                >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Car Comparison
+                <TabsTrigger value="comparison" className="min-w-max whitespace-nowrap px-3 py-2 rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                  <TrendingUp className="mr-1.5 h-3.5 w-3.5" />
+                  Compare
                 </TabsTrigger>
               </TabsList>
 
-              {/* --- Portfolio content --- */}
-              <TabsContent value="portfolio" className="space-y-5 pt-3">
-                <div className={EDGE}>
-                  <SummaryCards
-                    summary={summary}
-                    loading={loading}
-                    hideNetProfit
-                  />
+              {/* Portfolio */}
+              <TabsContent value="portfolio" className="space-y-5 pt-4">
+                <div style={fadeIn(2)} className={EDGE}>
+                  <SummaryCards summary={summary} loading={loading} hideNetProfit />
                 </div>
-                <div className={EDGE}>
+                <div style={fadeIn(3)} className={EDGE}>
                   <ClaimsSummary claims={claims} loading={loading} />
                 </div>
-                <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                <div style={fadeIn(4)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                   <EarningsChart earnings={earnings} expenses={expenses} selectedYear={selectedYear} />
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
-                <div className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
+                <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
                   <RecentTrips earnings={earnings} expenses={expenses} />
                   <RecentClaims claims={claims} />
                 </div>
               </TabsContent>
 
-              {/* --- Per-Car content --- */}
-              <TabsContent value="per-car" className="space-y-5 pt-3">
+              {/* Per-Car */}
+              <TabsContent value="per-car" className="space-y-5 pt-4">
                 {selectedCarId && selectedCarPerformance ? (
                   <>
-                    <div className={EDGE}>
-                      <PerCarSummaryCards
-                        performance={selectedCarPerformance}
-                        loading={perCarLoading}
-                      />
+                    <div style={fadeIn(2)} className={EDGE}>
+                      <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
                     </div>
-                    <div className={EDGE}>
-                      <ClaimsSummary
-                        claims={selectedCarData?.claims || []}
-                        loading={perCarLoading}
-                      />
+                    <div style={fadeIn(3)} className={EDGE}>
+                      <ClaimsSummary claims={selectedCarData?.claims || []} loading={perCarLoading} />
                     </div>
-                    <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
-                      <EarningsChart
-                        earnings={selectedCarData?.earnings || []}
-                        expenses={selectedCarData?.expenses || []}
-                        selectedYear={selectedYear}
-                      />
-                      <ExpenseBreakdown
-                        expenses={selectedCarData?.expenses || []}
-                      />
+                    <div style={fadeIn(4)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                      <EarningsChart earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} selectedYear={selectedYear} />
+                      <ExpenseBreakdown expenses={selectedCarData?.expenses || []} />
                     </div>
-                    <div className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                    <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                       <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} />
                       <RecentClaims claims={selectedCarData?.claims || []} />
                     </div>
                   </>
                 ) : (
-                  <div className="py-12 text-center">
-                    <Car className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                    <h3 className="mb-2 text-lg font-semibold">Select a Car</h3>
-                    <p className="text-muted-foreground">
-                      Choose a vehicle from the dropdown above to view details.
-                    </p>
+                  <div className="py-16 text-center">
+                    <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                      <Car className="w-7 h-7 text-muted-foreground/40" />
+                    </div>
+                    <h3 className="text-base font-semibold text-foreground mb-1">Select a Car</h3>
+                    <p className="text-sm text-muted-foreground">Choose a vehicle from the dropdown above</p>
                   </div>
                 )}
               </TabsContent>
 
-              {/* --- Comparison content --- */}
-              <TabsContent value="comparison" className="space-y-5 pt-3">
-                <div
-                  className={`grid gap-5 md:grid-cols-2 lg:grid-cols-3 ${EDGE}`}
-                >
+              {/* Comparison */}
+              <TabsContent value="comparison" className="space-y-5 pt-4">
+                <div className={`grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${EDGE}`}>
                   {carPerformanceData.map((p) => (
-                    <CarPerformanceCard
-                      key={p.car_id}
-                      performance={p}
-                      onViewDetails={handleViewDetails}
-                      onManageStatus={handleManageStatus}
-                    />
+                    <CarPerformanceCard key={p.car_id} performance={p} onViewDetails={handleViewDetails} onManageStatus={handleManageStatus} />
                   ))}
                 </div>
                 <div className={EDGE}>
-                  <h3 className="mb-2 text-lg font-semibold">
-                    Detailed Comparison
-                  </h3>
-                  <CarComparisonTable
-                    carPerformanceData={carPerformanceData}
-                    onViewDetails={handleViewDetails}
-                    onManageStatus={handleManageStatus}
-                  />
+                  <div className="flex items-center gap-2 px-1 mb-3">
+                    <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                    <h3 className="text-sm font-semibold text-foreground">Detailed Comparison</h3>
+                  </div>
+                  <CarComparisonTable carPerformanceData={carPerformanceData} onViewDetails={handleViewDetails} onManageStatus={handleManageStatus} />
                 </div>
               </TabsContent>
             </Tabs>
-          </section>
+          </div>
         </div>
 
-        {/* Car Management Dialog */}
         {selectedCarForManagement && (
           <CarManagementDialog
             open={manageDialogOpen}

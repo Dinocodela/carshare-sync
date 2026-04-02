@@ -14,8 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Info, RefreshCw, Calendar } from "lucide-react";
-import { useEffect } from "react";
+import { RefreshCw, Calendar, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 
 // Transform host data to match component interfaces
@@ -34,12 +34,11 @@ const transformSummaryForDisplay = (hostSummary: any) => ({
 
 const transformEarningsForDisplay = (hostEarnings: any[], hostExpenses: any[] = []) =>
   hostEarnings.map((earning) => {
-    // Calculate net profit: amount - related expenses
-    const relatedExpenses = earning.trip_id 
+    const relatedExpenses = earning.trip_id
       ? hostExpenses.filter((exp: any) => exp.trip_id === earning.trip_id)
       : [];
-    const totalExpenses = relatedExpenses.reduce((sum: number, exp: any) => 
-      sum + (exp.amount || 0) + (exp.delivery_cost || 0) + (exp.toll_cost || 0) + 
+    const totalExpenses = relatedExpenses.reduce((sum: number, exp: any) =>
+      sum + (exp.amount || 0) + (exp.delivery_cost || 0) + (exp.toll_cost || 0) +
       (exp.ev_charge_cost || 0) + (exp.carwash_cost || 0), 0);
     const netProfit = (earning.amount || 0) - totalExpenses;
     const hostPct = earning.host_profit_percentage || 30;
@@ -57,236 +56,139 @@ const transformEarningsForDisplay = (hostEarnings: any[], hostExpenses: any[] = 
   });
 
 const transformExpensesForDisplay = (hostExpenses: any[]) =>
-  hostExpenses.map((expense) => ({
-    ...expense,
-    host_id: expense.host_id || "",
-  }));
+  hostExpenses.map((expense) => ({ ...expense, host_id: expense.host_id || "" }));
 
 const transformClaimsForDisplay = (hostClaims: any[]) =>
-  hostClaims.map((claim) => ({
-    ...claim,
-    host_id: claim.host_id || "",
-  }));
+  hostClaims.map((claim) => ({ ...claim, host_id: claim.host_id || "" }));
 
 export default function HostAnalytics() {
   const {
-    earnings,
-    expenses,
-    claims,
-    summary,
-    loading,
-    error,
-    refetch,
-    selectedYear,
-    setSelectedYear,
-    availableYears,
+    earnings, expenses, claims, summary,
+    loading, error, refetch,
+    selectedYear, setSelectedYear, availableYears,
   } = useHostAnalytics();
 
-  // Auto-refresh data every 30 seconds for real-time updates
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!loading) {
-        refetch();
-      }
-    }, 30000);
+    const t = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => { if (!loading) refetch(); }, 30000);
     return () => clearInterval(interval);
   }, [loading, refetch]);
 
   const handleYearChange = (value: string) => {
-    if (value === "all") {
-      setSelectedYear(null);
-    } else {
-      setSelectedYear(parseInt(value, 10));
-    }
+    setSelectedYear(value === "all" ? null : parseInt(value, 10));
   };
 
-  const YearSelector = () => (
-    <Select
-      value={selectedYear?.toString() ?? "all"}
-      onValueChange={handleYearChange}
-    >
-      <SelectTrigger className="w-[130px]">
-        <Calendar className="h-4 w-4 mr-2" />
-        <SelectValue placeholder="Select year" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All Time</SelectItem>
-        {availableYears.map((year) => (
-          <SelectItem key={year} value={year.toString()}>
-            {year}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
+  const fadeIn = (idx: number) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? "translateY(0)" : "translateY(12px)",
+    transition: `all 500ms cubic-bezier(0.23,1,0.32,1) ${idx * 80}ms`,
+  } as React.CSSProperties);
 
   if (error) {
     return (
       <DashboardLayout>
         <PageContainer>
-          {/* Header (matches the new style) */}
-          <section className="mb-4">
-            {/* md+ : title + subtitle + refresh on one row */}
-            <div className="hidden md:flex items-center justify-between gap-3">
-              <div>
-                <h1 className="text-3xl font-bold">Host Analytics Dashboard</h1>
-                <p className="text-muted-foreground">
-                  Track your hosting performance and profitability
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <YearSelector />
-                <Button
-                  onClick={refetch}
-                  variant="outline"
-                  size="sm"
-                  aria-label="Refresh analytics"
-                  className="flex items-center"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  <span className="ml-2">Refresh</span>
-                </Button>
-              </div>
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 backdrop-blur-sm p-5">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
-
-            {/* sm and below : compact banner + refresh inline */}
-            <div className="md:hidden">
-              <div className="rounded-2xl border bg-muted/40 p-3 flex items-start gap-3">
-                <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-                  <Info className="h-5 w-5 text-primary" />
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed grow">
-                  Track your hosting performance and profitability.
-                </p>
-                <div className="flex items-center gap-2 shrink-0">
-                  <YearSelector />
-                  <Button
-                    onClick={refetch}
-                    variant="outline"
-                    size="icon"
-                    aria-label="Refresh analytics"
-                    className="h-9 w-9"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Error card */}
-          <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4">
-            <p className="text-sm text-destructive">{error}</p>
-          </div>
-
-          {/* Primary action */}
-          <div className="mt-4">
-            <Button onClick={refetch}>Try Again</Button>
+            <Button onClick={refetch} className="rounded-xl">Try Again</Button>
           </div>
         </PageContainer>
       </DashboardLayout>
     );
   }
+
   const uiSummary = transformSummaryForDisplay(summary);
   const grossTotal = (earnings || []).reduce(
-    (acc: number, e: any) => acc + (e?.amount ?? e?.gross_earnings ?? 0),
-    0
+    (acc: number, e: any) => acc + (e?.amount ?? e?.gross_earnings ?? 0), 0
   );
-  const hostPct =
-    grossTotal > 0
-      ? Math.round((uiSummary.totalEarnings / grossTotal) * 100)
-      : 0;
+  const hostPct = grossTotal > 0 ? Math.round((uiSummary.totalEarnings / grossTotal) * 100) : 0;
   const tooltips = {
-    totalEarnings: `Sum of your host share (~${hostPct}% of gross) across all trips. Gross: $${grossTotal.toFixed(
-      2
-    )} • Your share: $${uiSummary.totalEarnings.toFixed(2)}`,
-    totalExpenses: `Sum of all expenses you've recorded across your vehicles. Total: $${(
-      uiSummary.totalExpenses ?? 0
-    ).toFixed(2)}`,
+    totalEarnings: `Sum of your host share (~${hostPct}% of gross) across all trips. Gross: $${grossTotal.toFixed(2)} • Your share: $${uiSummary.totalEarnings.toFixed(2)}`,
+    totalExpenses: `Sum of all expenses you've recorded. Total: $${(uiSummary.totalExpenses ?? 0).toFixed(2)}`,
   };
+
   return (
     <DashboardLayout>
       <PageContainer>
-        <div className="space-y-6">
-          <section className="mb-4">
-            {/* Desktop / tablet (md+): title + subtitle + refresh */}
-            <div className="hidden md:flex items-center justify-between gap-3">
-              <div>
-                {/* <h1 className="text-3xl font-bold">Host Analytics Dashboard</h1> */}
-                <p className="text-muted-foreground">
-                  Track your hosting performance and profitability
-                </p>
-              </div>
+        <div className="space-y-5 pb-24">
+          {/* ─── Trust Banner ─── */}
+          <div
+            style={fadeIn(0)}
+            className="relative overflow-hidden rounded-2xl bg-gradient-primary p-5 text-primary-foreground"
+          >
+            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10" />
+            <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5" />
 
+            <div className="relative z-10 space-y-3">
               <div className="flex items-center gap-2">
-                <YearSelector />
+                <Shield className="w-4 h-4 shrink-0" />
+                <span className="text-xs font-medium opacity-90 uppercase tracking-wider">
+                  Host Analytics
+                </span>
+              </div>
+              <p className="text-lg font-bold leading-snug">
+                Track your hosting performance
+              </p>
+              <p className="text-xs opacity-80">
+                Real-time data · Verified earnings · Full transparency
+              </p>
+
+              <div className="flex items-center gap-2 pt-1">
+                <Select value={selectedYear?.toString() ?? "all"} onValueChange={handleYearChange}>
+                  <SelectTrigger className="w-[100px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9">
+                    <Calendar className="mr-1.5 h-3.5 w-3.5" />
+                    <SelectValue placeholder="Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    {availableYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   onClick={refetch}
-                  variant="outline"
-                  size="sm"
-                  aria-label="Refresh analytics"
+                  variant="ghost"
+                  size="icon"
                   disabled={loading}
-                  className="flex items-center"
+                  className="h-9 w-9 shrink-0 bg-white/10 hover:bg-white/20 text-primary-foreground"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                  />
-                  <span className="ml-2">Refresh</span>
+                  <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                 </Button>
               </div>
             </div>
+          </div>
 
-            {/* Mobile (sm and below): compact banner + refresh in one row */}
-            <div className="md:hidden">
-              <div className="rounded-2xl border bg-muted/40 p-3 flex items-start gap-3">
-                <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-                  <Info className="h-5 w-5 text-primary" />
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed grow">
-                  Track your hosting performance and profitability.
-                </p>
-                <div className="flex items-center gap-2 shrink-0">
-                  <YearSelector />
-                  <Button
-                    onClick={refetch}
-                    variant="outline"
-                    size="icon"
-                    aria-label="Refresh analytics"
-                    disabled={loading}
-                    className="h-9 w-9"
-                  >
-                    <RefreshCw
-                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                    />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-          <SummaryCards
-            summary={uiSummary}
-            loading={loading}
-            replaceNetProfitWithTotalExpenses
-            tooltips={tooltips}
-          />
-
-          <ClaimsSummary
-            claims={transformClaimsForDisplay(claims)}
-            loading={loading}
-          />
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <EarningsChart
-              earnings={transformEarningsForDisplay(earnings, expenses)}
-              selectedYear={selectedYear}
-            />
-            <ExpenseBreakdown
-              expenses={transformExpensesForDisplay(expenses)}
+          {/* ─── Summary Cards ─── */}
+          <div style={fadeIn(1)}>
+            <SummaryCards
+              summary={uiSummary}
+              loading={loading}
+              replaceNetProfitWithTotalExpenses
+              tooltips={tooltips}
             />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-1">
+          {/* ─── Claims Summary ─── */}
+          <div style={fadeIn(2)}>
+            <ClaimsSummary claims={transformClaimsForDisplay(claims)} loading={loading} />
+          </div>
+
+          {/* ─── Charts ─── */}
+          <div style={fadeIn(3)} className="grid gap-5 lg:grid-cols-2">
+            <EarningsChart earnings={transformEarningsForDisplay(earnings, expenses)} selectedYear={selectedYear} />
+            <ExpenseBreakdown expenses={transformExpensesForDisplay(expenses)} />
+          </div>
+
+          {/* ─── Recent Data ─── */}
+          <div style={fadeIn(4)} className="grid gap-5 lg:grid-cols-1">
             <RecentTrips earnings={transformEarningsForDisplay(earnings, expenses)} />
             <RecentClaims claims={transformClaimsForDisplay(claims)} />
           </div>

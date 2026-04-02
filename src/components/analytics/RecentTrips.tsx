@@ -1,16 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ClientEarning, ClientExpense } from "@/hooks/useClientAnalytics";
 import { format, parseISO } from "date-fns";
 import { getClientShare, getNetEarningAmount } from "@/lib/expenseMatching";
+import { MapPin, ChevronRight } from "lucide-react";
 
 interface RecentTripsProps {
   earnings: ClientEarning[];
@@ -21,149 +13,73 @@ interface RecentTripsProps {
 export function RecentTrips({ earnings, expenses = [], limit = 10 }: RecentTripsProps) {
   const recentEarnings = earnings.slice(0, limit);
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case "paid":
-        return "bg-green-500";
+        return "bg-emerald-50 text-emerald-600 border-emerald-200";
       case "pending":
-        return "bg-yellow-500";
+        return "bg-amber-50 text-amber-600 border-amber-200";
       case "processing":
-        return "bg-blue-500";
+        return "bg-blue-50 text-blue-600 border-blue-200";
       default:
-        return "bg-gray-500";
+        return "bg-muted text-muted-foreground";
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="p-2">Recent Trips</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 px-1">
+        <MapPin className="w-4 h-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold text-foreground">Recent Trips</h3>
+      </div>
+
+      <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
         {recentEarnings.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No trips found. Your vehicles haven't been hosted yet.
+          <div className="p-8 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
+              <MapPin className="w-6 h-6 text-muted-foreground/40" />
+            </div>
+            <p className="text-sm text-muted-foreground">No trips found yet</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">Trips will appear here once your vehicles are hosted</p>
           </div>
         ) : (
-          <>
-            {/* Mobile: Stacked cards */}
-            <div className="space-y-3 md:hidden">
-              {recentEarnings.map((earning) => (
-                <div
+          <ul className="divide-y divide-border/50">
+            {recentEarnings.map((earning, i) => {
+              const share = getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses);
+              const net = getNetEarningAmount(earning.amount, earning.trip_id, expenses);
+              return (
+                <li
                   key={earning.id}
-                  className="rounded-md border p-4 space-y-3"
+                  className="flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-muted/20 transition-colors"
+                  style={{ animation: `fade-in 0.3s ease-out ${i * 40}ms both` }}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">Trip ID</p>
-                      <p className="font-mono text-sm truncate">
-                        {earning.trip_id || "N/A"}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {earning.guest_name || earning.trip_id || "Trip"}
                       </p>
+                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 rounded-full border ${getStatusBadge(earning.payment_status)}`}>
+                        {earning.payment_status}
+                      </Badge>
                     </div>
-                    <Badge className={getStatusColor(earning.payment_status)}>
-                      {earning.payment_status}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">Guest</p>
-                      <p className="text-sm truncate">
-                        {earning.guest_name || "Unknown"}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">
-                        Your Share
-                      </p>
-                      <p className="text-sm font-semibold text-green-600">
-                        ${getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {earning.client_profit_percentage?.toFixed(0) || "0"}%
-                        of ${getNetEarningAmount(earning.amount, earning.trip_id, expenses).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-muted-foreground">Period</p>
-                    <p className="text-sm">
-                      {format(parseISO(earning.earning_period_start), "MMM dd")}{" "}
-                      –{" "}
-                      {format(
-                        parseISO(earning.earning_period_end),
-                        "MMM dd, yyyy"
-                      )}
+                    <p className="text-[11px] text-muted-foreground">
+                      {format(parseISO(earning.earning_period_start), "MMM d")} – {format(parseISO(earning.earning_period_end), "MMM d, yyyy")}
                     </p>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop: Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Trip ID</TableHead>
-                    <TableHead>Guest</TableHead>
-                    <TableHead>Period</TableHead>
-                    <TableHead>Your Share</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentEarnings.map((earning) => (
-                    <TableRow key={earning.id}>
-                      <TableCell className="font-mono text-sm">
-                        {earning.trip_id || "N/A"}
-                      </TableCell>
-                      <TableCell>{earning.guest_name || "Unknown"}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>
-                            {format(
-                              parseISO(earning.earning_period_start),
-                              "MMM dd"
-                            )}
-                          </div>
-                          <div className="text-muted-foreground">
-                            {format(
-                              parseISO(earning.earning_period_end),
-                              "MMM dd, yyyy"
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                        <div className="font-semibold text-green-600">
-                            $
-                            {getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses).toFixed(2)}
-                          </div>
-                          <div className="text-muted-foreground">
-                            {earning.client_profit_percentage?.toFixed(0) ||
-                              "0"}
-                            % of ${getNetEarningAmount(earning.amount, earning.trip_id, expenses).toFixed(2)}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={getStatusColor(earning.payment_status)}
-                        >
-                          {earning.payment_status}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-semibold text-emerald-600">
+                      ${share.toFixed(2)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {earning.client_profit_percentage?.toFixed(0) || "0"}% of ${net.toFixed(0)}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
