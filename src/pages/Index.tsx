@@ -3,17 +3,10 @@ import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/logo";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Shield, Star, Users } from "lucide-react";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
@@ -38,15 +31,19 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [visible, setVisible] = useState(false);
   const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
 
-  // Check if user has seen onboarding
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
     if (!hasSeenOnboarding && !user && !loading) {
       navigate("/onboarding");
     }
   }, [navigate, user, loading]);
+
+  useEffect(() => {
+    setVisible(true);
+  }, []);
 
   useEffect(() => {
     if (isNative) {
@@ -60,10 +57,6 @@ const Index = () => {
       }
     };
   }, [isNative]);
-
-  //   useEffect(() => {
-  //     if (user) navigate("/dashboard");
-  //   }, [user, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,70 +83,13 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-gradient-hero">
+      <div className="h-full flex items-center justify-center bg-secondary">
         <div className="text-lg text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
   if (user) return <Navigate to="/dashboard" replace />;
-
-  const Hero = (
-    <>
-      <div className="text-center mb-8">
-        <div className="flex justify-center mb-6">
-          <Logo size="xl" />
-        </div>
-        <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed px-2">
-          Streamline your car management and hosting services
-          <br className="hidden sm:block" />
-          <span className="block sm:inline">
-            {" "}
-            with our comprehensive platform{" "}
-          </span>
-        </p>
-      </div>
-
-      <div className="mx-auto mb-4 w-full max-w-sm">
-        <div className="grid grid-cols-2 rounded-xl bg-white/60 backdrop-blur border border-primary/10 overflow-hidden">
-          <button
-            type="button"
-            onClick={() => {
-              setRole("client");
-              setPanel("login");
-            }}
-            className={`py-2.5 text-sm font-medium transition ${
-              role === "client"
-                ? "bg-primary text-white"
-                : "text-foreground hover:bg-white"
-            }`}
-          >
-            Client
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setRole("host");
-              setPanel("login");
-            }}
-            className={`py-2.5 text-sm font-medium transition ${
-              role === "host"
-                ? "bg-primary text-white"
-                : "text-foreground hover:bg-white"
-            }`}
-          >
-            Host
-          </button>
-        </div>
-      </div>
-
-      <div className="text-center text-sm text-muted-foreground mb-4 px-2">
-        {role === "client"
-          ? "Create an account, list your car, and select the car hosting professional that meets your expectations to manage your car"
-          : "Sign up to start receiving requests from car owners looking for professionals like you to manage their vehicles using our all-in-one tools"}
-      </div>
-    </>
-  );
 
   return (
     <>
@@ -169,92 +105,198 @@ const Index = () => {
       <StructuredData type="service" />
       <StructuredData type="software" />
       <StructuredData type="localbusiness" />
-      
-      <div className="h-full pt-safe-top bg-gradient-hero overflow-y-scroll">
-        <div className="flex flex-col items-center justify-center p-4">
+
+      <div className="min-h-screen pt-safe-top bg-secondary overflow-y-auto">
+        <div className="flex flex-col items-center p-4 pb-0">
           <div className="w-full max-w-xl">
-            {Hero}
 
-        {/* ✅ Switch the content panel inline */}
-        {panel === "login" && (
-          <Card className="bg-white/80 border-primary/10 backdrop-blur">
-            <CardHeader className="pb-2" />
-            <CardContent className="px-4">
-              <form onSubmit={onSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
+            {/* Hero Section */}
+            <div className="text-center pt-6 pb-4">
+              <div
+                className="flex justify-center mb-5 transition-all duration-700 ease-out"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateY(0) scale(1)" : "translateY(20px) scale(0.8)",
+                }}
+              >
+                <Logo size="xl" linked />
+              </div>
 
-                <Button
-                  type="submit"
-                  className="w-full flex items-center justify-center"
-                  disabled={submitting}
+              <h1
+                className="text-xl font-bold text-foreground mb-2 transition-all duration-700 delay-150 ease-out"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateY(0)" : "translateY(15px)",
+                }}
+              >
+                Welcome to{" "}
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Teslys
+                </span>
+              </h1>
+
+              <p
+                className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto transition-all duration-700 delay-300 ease-out"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateY(0)" : "translateY(15px)",
+                }}
+              >
+                Streamline your car management and hosting services with our comprehensive platform
+              </p>
+            </div>
+
+            {/* Role Switcher */}
+            <div
+              className="mx-auto mb-3 w-full max-w-sm transition-all duration-500 delay-[400ms] ease-out"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(10px)",
+              }}
+            >
+              <div className="grid grid-cols-2 rounded-xl bg-card/60 backdrop-blur border border-border/50 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => { setRole("client"); setPanel("login"); }}
+                  className={`py-2.5 text-sm font-semibold transition-all duration-300 ${
+                    role === "client"
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card"
+                  }`}
                 >
-                  {submitting ? (
-                    "Signing in…"
-                  ) : (
-                    <span className="inline-flex items-center gap-2">
-                      Continue <ArrowRight className="w-4 h-4" />
-                    </span>
-                  )}
-                </Button>
+                  Client
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setRole("host"); setPanel("login"); }}
+                  className={`py-2.5 text-sm font-semibold transition-all duration-300 ${
+                    role === "host"
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card"
+                  }`}
+                >
+                  Host
+                </button>
+              </div>
+            </div>
 
-                <div className="text-center text-sm text-muted-foreground">
-                  New here?{" "}
-                  <button
-                    type="button"
-                    className="text-primary underline"
-                    onClick={() =>
-                      setPanel(
-                        role === "client" ? "register-client" : "register-host"
-                      )
-                    }
-                  >
-                    Register as {role === "client" ? "Client" : "Host"}
-                  </button>
+            {/* Role description */}
+            <p
+              className="text-center text-xs text-muted-foreground mb-5 px-4 leading-relaxed transition-all duration-300"
+            >
+              {role === "client"
+                ? "Create an account, list your car, and select the car hosting professional that meets your expectations to manage your car"
+                : "Sign up to start receiving requests from car owners looking for professionals like you to manage their vehicles"}
+            </p>
+
+            {/* Login / Register Panel */}
+            <div
+              className="transition-all duration-500 delay-500 ease-out"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(15px)",
+              }}
+            >
+              {panel === "login" && (
+                <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-5">
+                  <form onSubmit={onSubmit} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-11 bg-background/50 border-border/60 focus:border-primary/50"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        autoComplete="current-password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-11 bg-background/50 border-border/60 focus:border-primary/50"
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+                      disabled={submitting}
+                    >
+                      {submitting ? (
+                        "Signing in…"
+                      ) : (
+                        <span className="inline-flex items-center gap-2">
+                          Continue <ArrowRight className="w-4 h-4" />
+                        </span>
+                      )}
+                    </Button>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                      New here?{" "}
+                      <button
+                        type="button"
+                        className="text-primary font-medium hover:underline"
+                        onClick={() =>
+                          setPanel(role === "client" ? "register-client" : "register-host")
+                        }
+                      >
+                        Register as {role === "client" ? "Client" : "Host"}
+                      </button>
+                    </div>
+                  </form>
                 </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
+              )}
 
-        {panel === "register-client" && (
-          <ClientRegisterCard onBackToLogin={() => setPanel("login")} />
-        )}
+              {panel === "register-client" && (
+                <ClientRegisterCard onBackToLogin={() => setPanel("login")} />
+              )}
 
-        {panel === "register-host" && (
-          <HostRegisterCard onBackToLogin={() => setPanel("login")} />
-        )}
+              {panel === "register-host" && (
+                <HostRegisterCard onBackToLogin={() => setPanel("login")} />
+              )}
+            </div>
 
-        <div className="mt-8 mb-4">
-          <AppStoreBadges heading="Available on mobile" size="small" />
-        </div>
+            {/* Trust Indicators */}
+            <div
+              className="flex justify-center gap-6 mt-6 mb-2 transition-all duration-700 delay-700 ease-out"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(10px)",
+              }}
+            >
+              {[
+                { icon: Shield, label: "Fully Insured" },
+                { icon: Star, label: "Top Rated" },
+                { icon: Users, label: "Trusted Hosts" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex flex-col items-center gap-1">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* App Store */}
+            <div className="mt-4 mb-4">
+              <AppStoreBadges heading="Available on mobile" size="small" />
+            </div>
           </div>
 
-          {/* Testimonials Section */}
-          <div className="w-full bg-background/50 backdrop-blur-sm py-8 mt-12">
+          {/* Testimonials */}
+          <div className="w-full py-8 mt-4">
             <Testimonials />
           </div>
 
