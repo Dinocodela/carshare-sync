@@ -122,12 +122,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Host notification email sent successfully:", emailResponse);
 
     // Send push notification for new host request
-    if (hostId) {
       try {
-        const supabaseAdmin = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        );
 
         const pushResponse = await supabaseAdmin.functions.invoke('push-send', {
           body: {

@@ -195,7 +195,7 @@ export default function SelectHost() {
       if (requestError) throw requestError;
 
       // Send notification email to host
-      const hostEmail = undefined; // Email resolved server-side for security
+      // Host email is resolved server-side in the edge function
       const clientName = clientProfile
         ? `${clientProfile.first_name} ${clientProfile.last_name}`
         : user.email || "Client";
