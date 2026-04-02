@@ -199,38 +199,54 @@ const Index = () => {
             >
               {panel === "login" && (
                 <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-5">
+                  <h2 className="text-lg font-bold text-foreground mb-1">
+                    Sign in to{" "}
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      Teslys
+                    </span>
+                  </h2>
+                  <p className="text-xs text-muted-foreground mb-5">
+                    Access your dashboard and manage your fleet
+                  </p>
+
                   <form onSubmit={onSubmit} className="space-y-4">
                     <div className="space-y-1.5">
-                      <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        inputMode="email"
-                        autoComplete="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="h-11 bg-background/50 border-border/60 focus:border-primary/50"
-                      />
+                      <Label htmlFor="email" className="text-xs font-medium text-foreground">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg pl-9"
+                        />
+                      </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        autoComplete="current-password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="h-11 bg-background/50 border-border/60 focus:border-primary/50"
-                      />
+                      <Label htmlFor="password" className="text-xs font-medium text-foreground">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                        <Input
+                          id="password"
+                          type="password"
+                          autoComplete="current-password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          className="h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg pl-9"
+                        />
+                      </div>
                     </div>
 
                     <Button
                       type="submit"
-                      className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+                      className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
                       disabled={submitting}
                     >
                       {submitting ? (
@@ -242,7 +258,7 @@ const Index = () => {
                       )}
                     </Button>
 
-                    <div className="text-center text-sm text-muted-foreground">
+                    <div className="text-center text-xs text-muted-foreground">
                       New here?{" "}
                       <button
                         type="button"
