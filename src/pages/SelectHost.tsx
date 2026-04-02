@@ -106,7 +106,7 @@ export default function SelectHost() {
       // Fetch all approved host profiles, ordered by rating
       const { data: hostData, error: hostError } = await supabase
         .from("profiles")
-        .select("*, turo_reviews_count, turo_profile_url")
+        .select("id, user_id, first_name, last_name, company_name, location, bio, services, rating, turo_reviews_count, turo_profile_url")
         .eq("role", "host")
         .eq("account_status", "approved")
         .order("rating", { ascending: false, nullsFirst: false });
