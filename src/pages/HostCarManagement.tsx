@@ -6585,8 +6585,6 @@ export default function HostCarManagement() {
                   <h3 className="text-base font-semibold text-foreground mb-1">No Matching Claims</h3>
                   <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
                   <Button variant="outline" onClick={clearClaimsFilters} size="sm" className="rounded-xl">Clear Filters</Button>
-                    </Button>
-                  </CardContent>
                 </div>
               ) : (
                 <div className="space-y-4">
