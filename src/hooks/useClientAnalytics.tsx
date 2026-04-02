@@ -86,6 +86,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()]);
 
   const fetchClientAnalytics = useCallback(async () => {
     if (!user) return;
