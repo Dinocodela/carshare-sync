@@ -37,7 +37,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex w-full h-full">
+      <div className="flex w-full h-full bg-gradient-hero">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 h-full">
           <main
