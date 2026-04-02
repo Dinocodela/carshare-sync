@@ -1794,7 +1794,7 @@ export default function HostCarManagement() {
                                   <FileText className="h-4 w-4 mr-2" />View Car Details
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
-                                  <Calendar className="h-4 w-4 mr-2" />Schedule Maintenance
+                                  <CalendarLucide className="h-4 w-4 mr-2" />Schedule Maintenance
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                               </DropdownMenuContent>
@@ -1855,7 +1855,7 @@ export default function HostCarManagement() {
                                     <FileText className="h-4 w-4 mr-2" />View Car Details
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
-                                    <Calendar className="h-4 w-4 mr-2" />Schedule Maintenance
+                                    <CalendarLucide className="h-4 w-4 mr-2" />Schedule Maintenance
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                 </DropdownMenuContent>
@@ -3046,7 +3046,7 @@ export default function HostCarManagement() {
                             )}
 
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
-                              <Calendar className="w-3 h-3" />
+                              <CalendarLucide className="w-3 h-3" />
                               <span>{new Date(expense.expense_date).toLocaleDateString()}</span>
                             </div>
 
@@ -5006,7 +5006,7 @@ export default function HostCarManagement() {
                                     </div>
                                   )}
                                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                    <Calendar className="w-3 h-3" />
+                                    <CalendarLucide className="w-3 h-3" />
                                     <span>{new Date(earning.earning_period_start).toLocaleDateString()} – {new Date(earning.earning_period_end).toLocaleDateString()}</span>
                                   </div>
                                   <div className="text-xs text-muted-foreground">Source: {earning.payment_source}</div>
@@ -6354,7 +6354,7 @@ export default function HostCarManagement() {
                                     </div>
                                   )}
                                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                    <Calendar className="w-3 h-3" />
+                                    <CalendarLucide className="w-3 h-3" />
                                     <span>Incident: {new Date(claim.incident_date).toLocaleDateString()}</span>
                                   </div>
                                   {claim.description && (
