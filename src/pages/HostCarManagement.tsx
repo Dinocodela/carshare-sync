@@ -1742,7 +1742,7 @@ export default function HostCarManagement() {
                       value={car.id}
                       className="border-none group"
                     >
-                      <Card className="w-full mx-0 max-w-none">
+                      <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                         {/* Header becomes the accordion trigger */}
                         <CardHeader className="p-3 sm:p-4 md:p-6 items-center">
                           <AccordionTrigger
