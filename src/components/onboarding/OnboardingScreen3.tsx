@@ -38,8 +38,8 @@ export function OnboardingScreen3() {
           transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.8)",
         }}
       >
-        <div className="w-28 h-28 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
-          <Calendar className="w-12 h-12 text-primary drop-shadow-lg" strokeWidth={2.5} />
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
+          <Calendar className="w-9 h-9 text-primary drop-shadow-lg" strokeWidth={2.5} />
         </div>
       </div>
 
