@@ -3183,8 +3183,8 @@ export default function HostCarManagement() {
                             </p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                    </div>
+                    </div>
                   ))}
                 </div>
               )}
