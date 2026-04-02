@@ -11,6 +11,7 @@ import {
   Calendar,
   FileText,
   AlertTriangle,
+  AlertCircle,
   DollarSign,
   Plus,
   Edit,
