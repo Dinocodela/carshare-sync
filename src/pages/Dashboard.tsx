@@ -1,14 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-// src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useCars, useHostCars } from "@/hooks/useCars";
@@ -16,7 +8,18 @@ import { useProfile } from "@/hooks/useProfile";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Car, FileText, TrendingUp, BarChart3 } from "lucide-react";
+import {
+  Plus,
+  Car,
+  FileText,
+  TrendingUp,
+  BarChart3,
+  ChevronRight,
+  Shield,
+  Clock,
+  Sparkles,
+  ArrowUpRight,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
@@ -28,6 +31,13 @@ function useMounted() {
     return () => cancelAnimationFrame(t);
   }, []);
   return mounted;
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
 }
 
 function timeAgo(iso?: string) {
@@ -57,14 +67,14 @@ function timeAgo(iso?: string) {
   return rtf.format(-Math.max(1, Math.floor(val)), unit);
 }
 
-/* ---------- recent activity (client + host) ---------- */
+/* ---------- recent activity ---------- */
 function useRecentActivity(
   userId?: string,
   role?: "client" | "host",
   limit = 8
 ) {
   const [items, setItems] = useState<
-    { id: string; ts: string; message: string }[]
+    { id: string; ts: string; message: string; icon: string }[]
   >([]);
   const [loading, setLoading] = useState(false);
 
@@ -98,13 +108,14 @@ function useRecentActivity(
                 .limit(limit)
             : { data: [] as any[] };
 
-        const mapped: { id: string; ts: string; message: string }[] = [];
+        const mapped: { id: string; ts: string; message: string; icon: string }[] = [];
 
         (cars || []).forEach((c) =>
           mapped.push({
             id: `car_${c.id}`,
             ts: c.created_at,
-            message: `🚗 ${c.make} ${c.model} was added to your cars`,
+            message: `${c.make} ${c.model} added to your fleet`,
+            icon: "🚗",
           })
         );
 
@@ -114,8 +125,9 @@ function useRecentActivity(
             ts: r.created_at,
             message:
               role === "host"
-                ? "📩 New hosting request received"
-                : "📩 You sent a hosting request",
+                ? "New hosting request received"
+                : "Hosting request sent",
+            icon: "📩",
           });
           if (r.updated_at && r.updated_at !== r.created_at) {
             const status =
@@ -129,20 +141,21 @@ function useRecentActivity(
               ts: r.updated_at,
               message:
                 role === "host"
-                  ? `✅ You ${status} a hosting request`
-                  : `✅ Your request was ${status}`,
+                  ? `You ${status} a hosting request`
+                  : `Your request was ${status}`,
+              icon: "✅",
             });
           }
         });
 
         (earns || []).forEach((e) => {
           if (!e.payment_date) return;
-          // Note: For dashboard activity, we show gross amount * percentage (simplified, no expense deduction)
           const hostProfit = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
           mapped.push({
             id: `earn_${e.id}`,
             ts: e.payment_date,
-            message: `💵 You received $${Number(hostProfit).toLocaleString()} payout`,
+            message: `Received $${Number(hostProfit).toLocaleString()} payout`,
+            icon: "💵",
           });
         });
 
@@ -162,14 +175,12 @@ function useRecentActivity(
 
 /* ---------- component ---------- */
 export default function Dashboard() {
-  console.log("dashboard");
-
   const mounted = useMounted();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
-
   const { toast } = useToast();
+
   const [pendingCount, setPendingCount] = useState(0);
   const [recentPending, setRecentPending] = useState<
     { user_id: string; email: string | null; requested_at: string }[]
@@ -179,12 +190,10 @@ export default function Dashboard() {
   const isAdmin = profile?.is_super_admin;
   const [pendingAccounts, setPendingAccounts] = useState<number>(0);
 
-  // fetch (only for super admins)
   useEffect(() => {
     let cancel = false;
     (async () => {
       if (!isAdmin) return;
-      // verify super admin
       const { data: me } = await supabase
         .from("profiles")
         .select("is_super_admin")
@@ -194,7 +203,6 @@ export default function Dashboard() {
 
       setPendingLoading(true);
       try {
-        // 1) latest 11 so we can decide to show "View more"
         const { data: latest } = await supabase
           .from("profiles")
           .select("user_id,email,requested_at")
@@ -204,7 +212,6 @@ export default function Dashboard() {
 
         if (!cancel) setRecentPending(latest ?? []);
 
-        // 2) total count using head:true to avoid payload
         const { count, error: countErr } = await supabase
           .from("profiles")
           .select("user_id", { count: "exact", head: true })
@@ -234,7 +241,7 @@ export default function Dashboard() {
   const isHost = profile?.role === "host";
   const data = isHost ? hostData : clientData;
 
-  // Earnings (7d) for host and client
+  // Earnings (7d)
   const [earn7Host, setEarn7Host] = useState(0);
   const [earn7Client, setEarn7Client] = useState(0);
 
@@ -251,14 +258,12 @@ export default function Dashboard() {
           .select("amount, host_profit_percentage, payment_status, payment_date")
           .eq("payment_status", "paid")
           .gte("payment_date", from.toISOString());
-        // Note: Dashboard summary uses simplified calculation (no expense deduction for quick stats)
         const total = (rows || []).reduce(
           (s, r) => s + ((r.amount || 0) * (r.host_profit_percentage || 30)) / 100,
           0
         );
         if (!cancelled) setEarn7Host(total);
       } else {
-        // client: calculate client profit (simplified for dashboard, no expense deduction)
         const carIds = (clientData?.cars || []).map((c: any) => c.id);
         if (carIds.length) {
           const { data: rows } = await supabase
@@ -295,7 +300,10 @@ export default function Dashboard() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-muted-foreground">Loading...</div>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            <span className="text-muted-foreground">Loading your dashboard…</span>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -306,284 +314,258 @@ export default function Dashboard() {
       ? profile.company_name || profile.first_name || "Host"
       : profile.first_name || "Client";
 
-  // Stats
   const myVehicles = data.cars.length;
-  const pendingReqs = data.requests.filter(
-    (r) => r.status === "pending"
-  ).length;
+  const pendingReqs = data.requests.filter((r) => r.status === "pending").length;
   const activeCars = data.cars.filter((c) => c.status === "hosted").length;
 
-  // Base + animation (stagger)
-  const cardBase = `rounded-2xl border border-primary/10 bg-white/80 backdrop-blur shadow-sm 
-     hover:shadow-lg hover:-translate-y-[1px] transition-all duration-300 cursor-pointer`;
+  const earnings7d = isHost ? earn7Host : earn7Client;
 
-  const AnimatedCard: React.FC<{
-    delayIdx?: number;
-    className?: string;
-    children: React.ReactNode;
-    onClick?: () => void;
-  }> = ({ delayIdx = 0, className = "", children, onClick }) => (
-    <div
-      onClick={onClick}
-      className={`${
-        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-      } transition-all`}
-      style={{
-        transitionDuration: "450ms",
-        transitionDelay: `${delayIdx * 60}ms`,
-      }}
-    >
-      <Card className={`${cardBase} ${className}`}>{children}</Card>
-    </div>
-  );
+  // Fade-in helper
+  const fadeIn = (idx: number) =>
+    ({
+      opacity: mounted ? 1 : 0,
+      transform: mounted ? "translateY(0)" : "translateY(12px)",
+      transition: `all 500ms cubic-bezier(0.23,1,0.32,1) ${idx * 80}ms`,
+    } as React.CSSProperties);
 
-  const StatHeader: React.FC<{
-    title: string;
-    icon: React.ReactNode;
-    iconBg: string;
-    iconColor: string;
-  }> = ({ title, icon, iconBg, iconColor }) => (
-    <CardHeader className="pb-1 flex items-center justify-center">
-      <div className="flex items-center gap-2 min-w-0">
-        <div
-          className={`rounded-lg ${iconBg} p-2 flex items-center justify-center`}
-        >
-          <div className={`${iconColor}`}>{icon}</div>
-        </div>
-        <CardTitle className="text-sm">{title}</CardTitle>
-      </div>
-    </CardHeader>
-  );
-
-  /* ------------- render ------------- */
   return (
     <DashboardLayout>
       <PageContainer>
-        <div className="space-y-6">
-          {/* Header */}
-          <div>
-            <h1 className="text-xl font-bold text-foreground mb-1 text-center sm:text-left break-words">
-              Welcome back,{" "}
-              <span className="whitespace-nowrap">{displayName}!</span>
-            </h1>
-            <p className="text-sm text-muted-foreground text-center sm:text-left">
-              {isHost
-                ? "Manage your hosted vehicles and client relationships from your dashboard."
-                : "Track your vehicles and manage your hosting requests from your dashboard."}
+        <div className="space-y-6 pb-4">
+          {/* ─── Greeting ─── */}
+          <div style={fadeIn(0)} className="space-y-1">
+            <p className="text-sm text-muted-foreground font-medium">
+              {getGreeting()} 👋
             </p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">
+              {displayName}
+            </h1>
           </div>
 
-          {/* Stat Grid — 2 cols on all, 3 on lg */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-            {/* Card 1 */}
-            <AnimatedCard 
-              delayIdx={0}
-              onClick={() => navigate(isHost ? "/host-car-management" : "/my-cars")}
-            >
-              <StatHeader
-                title={isHost ? "Active Vehicles" : "My Vehicles"}
-                icon={<Car className="h-5 w-5" />}
-                iconBg="bg-primary/10"
-                iconColor="text-primary"
-              />
-              <CardContent>
-                <div className="text-3xl p-2 font-extrabold tracking-tight text-center">
-                  {isHost ? activeCars : myVehicles}
-                </div>
-                <p className="text-xs mt-2 text-center text-muted-foreground">
-                  {isHost ? "Currently under your care" : "Registered vehicles"}
-                </p>
-              </CardContent>
-            </AnimatedCard>
+          {/* ─── Trust Banner ─── */}
+          <div
+            style={fadeIn(1)}
+            className="relative overflow-hidden rounded-2xl bg-gradient-primary p-5 text-primary-foreground"
+          >
+            {/* Decorative circles */}
+            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10" />
+            <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5" />
 
-            {/* Card 2 (Requests) */}
-            <AnimatedCard
-              onClick={() => navigate(isHost ? "/host-requests" : "/select-host")}
-              delayIdx={1}
-            >
-              <StatHeader
-                title="Requests"
-                icon={<FileText className="h-5 w-5" />}
-                iconBg="bg-amber-100"
-                iconColor="text-amber-600"
-              />
-              <CardContent>
-                <div className="text-3xl p-2 font-extrabold tracking-tight text-center">
-                  {pendingReqs}
+            <div className="relative z-10 flex items-center justify-between gap-4">
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-medium opacity-90 uppercase tracking-wider">
+                    {isHost ? "Host Dashboard" : "Owner Dashboard"}
+                  </span>
                 </div>
-                <p className="text-xs mt-2 text-center text-muted-foreground">
-                  {isHost ? "Awaiting your response" : "Pending host approval"}
+                <p className="text-lg font-bold leading-snug">
+                  {isHost
+                    ? "Your vehicles are in good hands"
+                    : "Your fleet is protected & earning"}
                 </p>
-              </CardContent>
-            </AnimatedCard>
-
-            {/* Card 3 (Active Cars for client; Active Cars again for host keeps 4-up grid symmetry) */}
-            <AnimatedCard 
-              delayIdx={2}
-              onClick={() => navigate(isHost ? "/host-analytics" : "/client-analytics")}
-            >
-              <StatHeader
-                title="Active Cars"
-                icon={<TrendingUp className="h-5 w-5" />}
-                iconBg="bg-emerald-100"
-                iconColor="text-emerald-600"
-              />
-              <CardContent>
-                <div className="text-3xl p-2 font-extrabold tracking-tight text-center">
-                  {activeCars}
-                </div>
-                <p className="text-xs mt-2 text-center text-muted-foreground">
-                  Currently hosted
+                <p className="text-xs opacity-80">
+                  Fully insured · 24/7 support · Verified guests
                 </p>
-              </CardContent>
-            </AnimatedCard>
-
-            {/* Card 4 (Earnings 7d) – both roles */}
-            <AnimatedCard 
-              delayIdx={3}
-              onClick={() => navigate(isHost ? "/host-analytics" : "/client-analytics")}
-            >
-              <StatHeader
-                title="Earnings"
-                icon={<BarChart3 className="h-5 w-5" />}
-                iconBg="bg-sky-100"
-                iconColor="text-sky-700"
-              />
-              <CardContent>
-                <div className="text-3xl p-2 font-extrabold tracking-tight text-center">
-                  ${(isHost ? earn7Host : earn7Client).toLocaleString()}
-                </div>
-                <p className="text-xs mt-2 text-center text-muted-foreground">
-                  Last 7 days
-                </p>
-              </CardContent>
-            </AnimatedCard>
+              </div>
+              <div className="shrink-0 flex flex-col items-center">
+                <span className="text-3xl font-extrabold tracking-tight">
+                  ${earnings7d.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </span>
+                <span className="text-[10px] opacity-75 font-medium">Last 7 days</span>
+              </div>
+            </div>
           </div>
 
-          {isAdmin && (
-            <AnimatedCard delayIdx={5}>
-              <Card className="overflow-hidden">
-                <CardHeader
-                  onClick={() =>
-                    !pendingLoading ? navigate("/admin/manage-accounts") : null
-                  }
-                  className="p-4 border-b"
+          {/* ─── Stat Cards ─── */}
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              {
+                label: isHost ? "Active" : "Vehicles",
+                value: isHost ? activeCars : myVehicles,
+                icon: Car,
+                onClick: () => navigate(isHost ? "/host-car-management" : "/my-cars"),
+                accent: "bg-primary/10 text-primary",
+              },
+              {
+                label: "Requests",
+                value: pendingReqs,
+                icon: FileText,
+                onClick: () => navigate(isHost ? "/host-requests" : "/select-host"),
+                accent: "bg-amber-50 text-amber-600",
+              },
+              {
+                label: "Hosted",
+                value: activeCars,
+                icon: TrendingUp,
+                onClick: () => navigate(isHost ? "/host-analytics" : "/client-analytics"),
+                accent: "bg-emerald-50 text-emerald-600",
+              },
+            ].map((stat, i) => (
+              <button
+                key={stat.label}
+                onClick={stat.onClick}
+                style={fadeIn(i + 2)}
+                className="group relative rounded-2xl bg-card border border-border/60 p-4 text-left transition-all duration-200 hover:shadow-md hover:border-primary/20 active:scale-[0.97]"
+              >
+                <div className={`w-9 h-9 rounded-xl ${stat.accent} flex items-center justify-center mb-3`}>
+                  <stat.icon className="w-[18px] h-[18px]" />
+                </div>
+                <p className="text-2xl font-bold text-foreground tracking-tight">
+                  {stat.value}
+                </p>
+                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
+                  {stat.label}
+                </p>
+                <ArrowUpRight className="absolute top-3 right-3 w-3.5 h-3.5 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            ))}
+          </div>
+
+          {/* ─── Quick Actions ─── */}
+          <div style={fadeIn(5)} className="space-y-2">
+            <h2 className="text-sm font-semibold text-foreground px-1">Quick Actions</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => navigate(isHost ? "/host-analytics" : "/client-analytics")}
+                className="flex items-center gap-3 rounded-xl bg-card border border-border/60 p-3.5 text-left transition-all hover:shadow-sm hover:border-primary/20 active:scale-[0.98]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">Analytics</p>
+                  <p className="text-[11px] text-muted-foreground">View insights</p>
+                </div>
+              </button>
+
+              {!isHost ? (
+                <button
+                  onClick={() => navigate("/add-car")}
+                  className="flex items-center gap-3 rounded-xl bg-card border border-border/60 p-3.5 text-left transition-all hover:shadow-sm hover:border-primary/20 active:scale-[0.98]"
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <CardTitle className="text-lg">Pending Accounts</CardTitle>
-                    <Badge variant="secondary" className="text-xs px-2 py-1">
-                      {pendingLoading ? "…" : pendingCount}
-                    </Badge>
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Plus className="w-5 h-5 text-primary" />
                   </div>
-                </CardHeader>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">Add Vehicle</p>
+                    <p className="text-[11px] text-muted-foreground">List a new car</p>
+                  </div>
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate("/registered-clients")}
+                  className="flex items-center gap-3 rounded-xl bg-card border border-border/60 p-3.5 text-left transition-all hover:shadow-sm hover:border-primary/20 active:scale-[0.98]"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">Clients</p>
+                    <p className="text-[11px] text-muted-foreground">Manage owners</p>
+                  </div>
+                </button>
+              )}
+            </div>
+          </div>
 
-                <CardContent className="p-0">
-                  {pendingLoading ? (
-                    <div className="p-4 text-sm text-muted-foreground">
-                      Loading…
-                    </div>
-                  ) : pendingCount === 0 ? (
-                    <div className="p-6 text-sm text-muted-foreground">
-                      No pending accounts 🎉
-                    </div>
-                  ) : (
-                    <>
-                      <ul className="divide-y">
-                        {recentPending.slice(0, 10).map((u) => (
-                          <li key={u.user_id}>
-                            <button
-                              onClick={() => navigate("/admin/manage-accounts")}
-                              className="w-full text-left px-4 py-3 hover:bg-muted/60 transition"
-                              title="Review account request"
-                            >
-                              <div className="flex items-center justify-between gap-3">
-                                <div className="text-sm font-medium truncate">
-                                  {u.email || "(no email)"}
-                                </div>
-                                <div className="text-xs text-muted-foreground whitespace-nowrap">
-                                  {timeAgo(u.requested_at)}
-                                </div>
-                              </div>
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
+          {/* ─── Admin: Pending Accounts ─── */}
+          {isAdmin && (
+            <div style={fadeIn(6)} className="rounded-2xl bg-card border border-border/60 overflow-hidden">
+              <button
+                onClick={() => !pendingLoading && navigate("/admin/manage-accounts")}
+                className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-destructive/10 flex items-center justify-center">
+                    <Shield className="w-[18px] h-[18px] text-destructive" />
+                  </div>
+                  <span className="font-semibold text-sm">Pending Accounts</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="text-xs px-2.5 py-0.5 rounded-full bg-destructive/10 text-destructive">
+                    {pendingLoading ? "…" : pendingCount}
+                  </Badge>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </button>
 
-                      {Math.max(pendingCount, recentPending.length) > 10 && (
-                        <div className="p-3">
-                          <Button
-                            className="w-full"
-                            onClick={() => navigate("/admin/manage-accounts")}
-                          >
-                            View more
-                          </Button>
-                        </div>
-                      )}
-                    </>
+              {!pendingLoading && pendingCount > 0 && (
+                <div className="border-t divide-y">
+                  {recentPending.slice(0, 5).map((u) => (
+                    <button
+                      key={u.user_id}
+                      onClick={() => navigate("/admin/manage-accounts")}
+                      className="w-full text-left px-4 py-3 hover:bg-muted/30 transition-colors flex items-center justify-between gap-3"
+                    >
+                      <span className="text-sm font-medium truncate">
+                        {u.email || "(no email)"}
+                      </span>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {timeAgo(u.requested_at)}
+                      </span>
+                    </button>
+                  ))}
+                  {pendingCount > 5 && (
+                    <div className="p-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full rounded-xl"
+                        onClick={() => navigate("/admin/manage-accounts")}
+                      >
+                        View all {pendingCount} accounts
+                      </Button>
+                    </div>
                   )}
-                </CardContent>
-              </Card>
-            </AnimatedCard>
+                </div>
+              )}
+            </div>
           )}
 
-          {/* Recent Activity */}
-          <div className="grid grid-cols-1 gap-4">
-            <AnimatedCard delayIdx={4}>
-              <CardHeader className="p-4 border-b">
-                <CardTitle className="text-lg">Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                {actLoading ? (
-                  <div className="text-sm text-muted-foreground">
-                    Loading activity…
-                  </div>
-                ) : activity.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">
-                    🎉 You’re all caught up — nothing new right now!
-                  </div>
-                ) : (
-                  <ul className="space-y-3">
-                    {activity.map((a) => (
-                      <li
-                        key={a.id}
-                        className="text-sm flex items-start justify-between gap-3 border-b last:border-b-0 pb-3"
-                      >
-                        <span className="leading-snug">{a.message}</span>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {timeAgo(a.ts)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-            </AnimatedCard>
+          {/* ─── Recent Activity ─── */}
+          <div style={fadeIn(7)} className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                Recent Activity
+              </h2>
+            </div>
 
-            {/* Optional CTA for clients */}
-            {!isHost && (
-              <AnimatedCard delayIdx={5}>
-                <CardHeader className="p-4 border-b">
-                  <CardTitle className="text-lg">Do this next</CardTitle>
-                  <CardDescription>Keep your garage up to date</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 p-2">
-                  <Button
-                    onClick={() => navigate("/add-car")}
-                    className="w-full justify-start"
-                  >
-                    <Plus className="h-4 w-4 mr-2" /> Add Your Vehicle
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => navigate("/my-cars")}
-                  >
-                    <Car className="h-4 w-4 mr-2" /> View My Cars
-                  </Button>
-                </CardContent>
-              </AnimatedCard>
-            )}
+            <div className="rounded-2xl bg-card border border-border/60 overflow-hidden">
+              {actLoading ? (
+                <div className="p-5 flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                  <span className="text-sm text-muted-foreground">Loading activity…</span>
+                </div>
+              ) : activity.length === 0 ? (
+                <div className="p-6 text-center">
+                  <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    You're all caught up — nothing new!
+                  </p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-border/50">
+                  {activity.map((a) => (
+                    <li
+                      key={a.id}
+                      className="flex items-start gap-3 px-4 py-3.5 hover:bg-muted/20 transition-colors"
+                    >
+                      <span className="text-base shrink-0 mt-0.5">{a.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground leading-snug">
+                          {a.message}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {timeAgo(a.ts)}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       </PageContainer>
