@@ -208,7 +208,7 @@ function getStructuredData(type: string, customData?: Record<string, any>) {
           "@type": "ContactPoint",
           telephone: "+1-555-TESLYS1",
           contactType: "customer service",
-          email: "support@teslys.app",
+          email: "support@teslys.com",
           areaServed: "US",
           availableLanguage: ["English"],
         },
