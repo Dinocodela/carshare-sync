@@ -202,11 +202,13 @@ const Index = () => {
                   <h2 className="text-lg font-bold text-foreground mb-1">
                     Sign in to{" "}
                     <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      Teslys
+                      {role === "client" ? "Client Dashboard" : "Host Dashboard"}
                     </span>
                   </h2>
                   <p className="text-xs text-muted-foreground mb-5">
-                    Access your dashboard and manage your fleet
+                    {role === "client"
+                      ? "Track your vehicles, earnings, and manage your fleet"
+                      : "View requests, manage listings, and grow your hosting business"}
                   </p>
 
                   <form onSubmit={onSubmit} className="space-y-4">
