@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { X } from "lucide-react";
+import { Shield, Lock, CheckCircle, Users, UserX, Calendar } from "lucide-react";
 
 interface ManageCarAccessDialogProps {
   carId: string | null;
@@ -42,14 +38,9 @@ type Profile = {
   company_name: string | null;
 };
 
-export function ManageCarAccessDialog({
-  carId,
-  open,
-  onOpenChange,
-}: ManageCarAccessDialogProps) {
+export function ManageCarAccessDialog({ carId, open, onOpenChange }: ManageCarAccessDialogProps) {
   const { toast } = useToast();
   const isMobile = useIsMobile();
-
   const [loading, setLoading] = useState(false);
   const [access, setAccess] = useState<AccessRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
@@ -63,13 +54,9 @@ export function ManageCarAccessDialog({
         .select("id,user_id,permission,created_at")
         .eq("car_id", carId)
         .order("created_at", { ascending: true });
-
       if (error) throw error;
-
       const rows = (accessRows || []) as AccessRow[];
       setAccess(rows);
-
-      // fetch display names
       const userIds = Array.from(new Set(rows.map((r) => r.user_id)));
       if (userIds.length) {
         const { data: profs, error: profErr } = await supabase
@@ -80,21 +67,14 @@ export function ManageCarAccessDialog({
         const map: Record<string, Profile> = {};
         (profs || []).forEach((p) => (map[p.user_id] = p as Profile));
         setProfiles(map);
-      } else {
-        setProfiles({});
-      }
+      } else { setProfiles({}); }
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to load access";
       toast({ title: "Error", description: message, variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    if (open) loadAccess();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, carId]);
+  useEffect(() => { if (open) loadAccess(); }, [open, carId]);
 
   const displayName = (userId: string) => {
     const p = profiles[userId];
@@ -106,193 +86,127 @@ export function ManageCarAccessDialog({
 
   const handlePermissionChange = async (row: AccessRow, value: string) => {
     try {
-      const { error } = await supabase
-        .from("car_access")
-        .update({ permission: value })
-        .eq("id", row.id);
+      const { error } = await supabase.from("car_access").update({ permission: value }).eq("id", row.id);
       if (error) throw error;
-      setAccess((prev) =>
-        prev.map((r) => (r.id === row.id ? { ...r, permission: value } : r))
-      );
+      setAccess((prev) => prev.map((r) => (r.id === row.id ? { ...r, permission: value } : r)));
       toast({ title: "Updated", description: "Permission updated." });
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Failed to update permission";
+      const message = e instanceof Error ? e.message : "Failed to update permission";
       toast({ title: "Error", description: message, variant: "destructive" });
     }
   };
 
   const handleRevoke = async (row: AccessRow) => {
     try {
-      const { error } = await supabase
-        .from("car_access")
-        .delete()
-        .eq("id", row.id);
+      const { error } = await supabase.from("car_access").delete().eq("id", row.id);
       if (error) throw error;
       setAccess((prev) => prev.filter((r) => r.id !== row.id));
-      toast({
-        title: "Access revoked",
-        description: "The user no longer has access.",
-      });
+      toast({ title: "Access revoked", description: "The user no longer has access." });
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Failed to revoke access";
+      const message = e instanceof Error ? e.message : "Failed to revoke access";
       toast({ title: "Error", description: message, variant: "destructive" });
     }
   };
 
-  // --- Mobile Sheet version ---
-  if (isMobile) {
-    return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent
-          side="bottom"
-          className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
-        >
-          {/* custom header to avoid duplicate close button */}
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold leading-tight">
-                Manage Access
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                View and manage who can access this car. You can change
-                permissions or revoke access.
-              </p>
-            </div>
+  const content = (
+    <div className="space-y-5">
+      {/* Trust banner */}
+      <div className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-4">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className="rounded-lg bg-primary/15 p-2">
+            <Shield className="h-5 w-5 text-primary" />
           </div>
+          <div>
+            <h3 className="text-sm font-bold tracking-tight">Manage Access</h3>
+            <p className="text-xs text-muted-foreground">Control who can view or edit this vehicle</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 text-[10px]">
+          {[
+            { icon: Lock, label: "Secure Permissions" },
+            { icon: CheckCircle, label: "Instant Updates" },
+          ].map(({ icon: I, label }) => (
+            <span key={label} className="flex items-center gap-1 text-muted-foreground">
+              <I className="h-3 w-3 text-primary/70" />{label}
+            </span>
+          ))}
+        </div>
+      </div>
 
-          <Card>
-            <CardContent className="p-0">
-              {loading ? (
-                <div className="p-6 text-sm text-muted-foreground">
-                  Loading access…
-                </div>
-              ) : access.length === 0 ? (
-                <div className="p-6 text-sm text-muted-foreground">
-                  No shared users yet.
-                </div>
-              ) : (
-                <ul className="divide-y">
-                  {access.map((row) => (
-                    <li key={row.id} className="p-4 flex flex-col gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium truncate">
-                            {displayName(row.user_id)}
-                          </span>
-                          <Badge variant="outline">
-                            {row.user_id.slice(0, 6)}…
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Added {new Date(row.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Select
-                          value={row.permission}
-                          onValueChange={(v) => handlePermissionChange(row, v)}
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="viewer">Viewer</SelectItem>
-                            <SelectItem value="editor">Editor</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleRevoke(row)}
-                          className="shrink-0"
-                        >
-                          Revoke
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  // --- Desktop Dialog version (unchanged header layout) ---
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Manage Access</DialogTitle>
-          <DialogDescription>
-            View and manage who can access this car. You can change permissions
-            or revoke access.
-          </DialogDescription>
-        </DialogHeader>
-
-        <Card>
-          <CardContent className="p-0">
-            {loading ? (
-              <div className="p-6 text-sm text-muted-foreground">
-                Loading access…
-              </div>
-            ) : access.length === 0 ? (
-              <div className="p-6 text-sm text-muted-foreground">
-                No shared users yet.
-              </div>
-            ) : (
-              <ul className="divide-y">
-                {access.map((row) => (
-                  <li
-                    key={row.id}
-                    className="p-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium truncate max-w-[220px]">
-                          {displayName(row.user_id)}
-                        </span>
-                        <Badge variant="outline">
-                          {row.user_id.slice(0, 6)}…
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Added {new Date(row.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-
+      {/* Access list */}
+      <div className="rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+        {loading ? (
+          <div className="p-6 text-sm text-muted-foreground text-center">Loading access…</div>
+        ) : access.length === 0 ? (
+          <div className="p-8 text-center space-y-2">
+            <div className="rounded-xl bg-muted/30 p-3 w-fit mx-auto">
+              <Users className="h-6 w-6 text-muted-foreground/50" />
+            </div>
+            <p className="text-sm text-muted-foreground">No shared users yet</p>
+            <p className="text-xs text-muted-foreground/70">Share access to invite collaborators</p>
+          </div>
+        ) : (
+          <ul className="divide-y divide-border/30">
+            {access.map((row) => (
+              <li key={row.id} className="p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <Select
-                        value={row.permission}
-                        onValueChange={(v) => handlePermissionChange(row, v)}
-                      >
-                        <SelectTrigger className="w-28">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="viewer">Viewer</SelectItem>
-                          <SelectItem value="editor">Editor</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleRevoke(row)}
-                      >
-                        Revoke
-                      </Button>
+                      <div className="rounded-lg bg-primary/10 p-1.5">
+                        <Users className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <span className="font-medium text-sm truncate">{displayName(row.user_id)}</span>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+                    <div className="flex items-center gap-1.5 mt-1 ml-8">
+                      <Calendar className="h-3 w-3 text-muted-foreground/50" />
+                      <span className="text-[10px] text-muted-foreground">
+                        Added {new Date(row.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] shrink-0">
+                    {row.user_id.slice(0, 6)}…
+                  </Badge>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Select value={row.permission} onValueChange={(v) => handlePermissionChange(row, v)}>
+                    <SelectTrigger className="flex-1 rounded-xl bg-background/50 text-xs h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="viewer">Viewer</SelectItem>
+                      <SelectItem value="editor">Editor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRevoke(row)}
+                    className="shrink-0 rounded-xl text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <UserX className="h-4 w-4 mr-1" />
+                    Revoke
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+
+  return isMobile ? (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="rounded-t-2xl p-5 pb-[calc(env(safe-area-inset-bottom)+20px)] max-h-[85vh] overflow-y-auto">
+        {content}
+      </SheetContent>
+    </Sheet>
+  ) : (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg rounded-2xl p-6">
+        {content}
       </DialogContent>
     </Dialog>
   );
