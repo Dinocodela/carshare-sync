@@ -1749,22 +1749,28 @@ export default function HostCarManagement() {
                         <CardHeader className="p-4 sm:p-5 items-center">
                           <AccordionTrigger className="group w-full rounded-md px-0 [&[data-state=open]_.chev]:rotate-180 hover:no-underline">
                             <div className="flex w-full items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                                    <Car className="w-4 h-4 text-primary" />
+                              <div className="flex items-start gap-3 min-w-0">
+                                {car.images?.[0] ? (
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-border/50 shrink-0">
+                                    <img src={car.images[0]} alt={formatCarDisplayName(car)} className="w-full h-full object-cover" />
                                   </div>
+                                ) : (
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Car className="w-5 h-5 text-primary" />
+                                  </div>
+                                )}
+                                <div className="min-w-0">
                                   <CardTitle className="text-sm sm:text-base font-bold break-words">
                                     {formatCarDisplayName(car)}
                                   </CardTitle>
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                    <MapPin className="w-3 h-3" />
+                                    <span>{car.location}</span>
+                                  </div>
+                                  <Badge className="mt-1.5 rounded-lg text-[10px] uppercase tracking-wider" variant="default">
+                                    Active Host
+                                  </Badge>
                                 </div>
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
-                                  <MapPin className="w-3 h-3" />
-                                  <span>{car.location}</span>
-                                </div>
-                                <Badge className="mt-2 ml-10 rounded-lg text-[10px] uppercase tracking-wider" variant="default">
-                                  Active Host
-                                </Badge>
                               </div>
                             </div>
                           </AccordionTrigger>
