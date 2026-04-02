@@ -132,7 +132,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         return;
       }
 
-      // Build year filter for earnings (based on earning_period_start)
+      fetchAvailableYears(carIds);
       let earningsQuery = supabase
         .from('host_earnings')
         .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, guest_name, earning_type, payment_source, created_at')
