@@ -297,6 +297,41 @@ export default function Dashboard() {
     };
   }, [user?.id, isHost, clientData?.cars]);
 
+  // Recent trips
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!user?.id || !profile) return;
+      setTripsLoading(true);
+      try {
+        if (isHost) {
+          const { data: rows } = await supabase
+            .from("host_earnings")
+            .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+            .order("earning_period_end", { ascending: false })
+            .limit(5);
+          if (!cancelled) setRecentTrips(rows || []);
+        } else {
+          const carIds = (clientData?.cars || []).map((c: any) => c.id);
+          if (carIds.length) {
+            const { data: rows } = await supabase
+              .from("host_earnings")
+              .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+              .in("car_id", carIds)
+              .order("earning_period_end", { ascending: false })
+              .limit(5);
+            if (!cancelled) setRecentTrips(rows || []);
+          } else {
+            if (!cancelled) setRecentTrips([]);
+          }
+        }
+      } finally {
+        if (!cancelled) setTripsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, isHost, clientData?.cars, profile]);
+
   const roleForActivity = (isHost ? "host" : "client") as "client" | "host";
   const { items: activity, loading: actLoading } = useRecentActivity(
     user?.id,
