@@ -4784,299 +4784,166 @@ export default function HostCarManagement() {
               ) : (
                 <div className="space-y-4">
                   {/* Summary Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      {
+                        label: "Total Earnings",
+                        value: `$${earnings.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: TrendingUp,
+                      },
+                      {
+                        label: "Pending Payments",
+                        value: `$${earnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: Clock,
+                      },
+                      {
+                        label: "This Month",
+                        value: `$${earnings.filter((e) => new Date(e.earning_period_start).getMonth() === new Date().getMonth()).reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: Calendar,
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Earnings
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              $
-                              {earnings
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
+                            </div>
+                            <p className="text-xl font-bold text-foreground tabular-nums">{item.value}</p>
                           </div>
-                          <DollarSign className="h-8 w-8 text-green-600" />
                         </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Pending Payments
-                            </p>
-                            <p className="text-2xl font-bold text-yellow-600">
-                              $
-                              {earnings
-                                .filter((e) => e.payment_status === "pending")
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <Clock className="h-8 w-8 text-yellow-600" />
-                        </div>
-                      </CardContent>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              This Month
-                            </p>
-                            <p className="text-2xl font-bold text-blue-600">
-                              $
-                              {earnings
-                                .filter(
-                                  (e) =>
-                                    new Date(
-                                      e.earning_period_start
-                                    ).getMonth() === new Date().getMonth()
-                                )
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <Calendar className="h-8 w-8 text-blue-600" />
-                        </div>
-                      </CardContent>
-                    </div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Earnings List */}
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {filteredEarnings.map((earning) => {
-                      // Calculate related expenses for this trip
-                      const relatedExpenses = earning.trip_id
-                        ? expenses.filter((e) => e.trip_id === earning.trip_id)
-                        : [];
-                      const totalExpenses = relatedExpenses.reduce(
-                        (sum, e) => sum + (e.total_expenses || e.amount),
-                        0
-                      );
+                      const relatedExpenses = earning.trip_id ? expenses.filter((e) => e.trip_id === earning.trip_id) : [];
+                      const totalExpenses = relatedExpenses.reduce((sum, e) => sum + (e.total_expenses || e.amount), 0);
                       const netProfit = earning.amount - totalExpenses;
+                      const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
+                      const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
 
                       return (
-                        <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
-                          <CardContent className="p-3 sm:p-4">
-                            {/* Row 1: Title (Hosting) + actions */}
-                            <div className="flex items-start justify-between gap-2">
-                              <h4 className="font-semibold capitalize">
-                                {earning.earning_type}
-                              </h4>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="shrink-0"
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleEditEarning(earning)}
-                                  >
-                                    <Edit className="h-3 w-3 mr-2" /> Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => onDeleteEarning(earning.id)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash className="h-3 w-3 mr-2" /> Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-
-                            {/* Row 2: Amount */}
-                            <div className="mt-1 mb-2">
-                              <p className="font-bold text-2xl text-green-600 leading-none">
-                                ${earning.amount.toFixed(2)}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Amount
-                              </p>
-                              {earning.date_paid && (
-                                <p className="text-xs text-muted-foreground">
-                                  Paid:{" "}
-                                  {new Date(
-                                    earning.date_paid
-                                  ).toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Row 3: Trip + payment status */}
-                            <div className="flex flex-wrap items-center gap-2 mb-3">
-                              {earning.trip_id && (
-                                <Badge variant="outline" className="text-xs">
-                                  Trip# {earning.trip_id}
-                                </Badge>
-                              )}
-                              <Badge
-                                variant={
-                                  earning.payment_status === "paid"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                              >
-                                {earning.payment_status}
-                              </Badge>
-                            </div>
-
-                            {/* Guest info */}
-                            <div className="space-y-2">
-                              {earning.guest_name && (
-                                <p className="text-sm text-muted-foreground break-words">
-                                  Guest: {earning.guest_name}
-                                </p>
-                              )}
-                              {(earning.guest_phone || earning.guest_email) && (
-                                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                                  {earning.guest_phone && (
-                                    <span className="flex items-center gap-1">
-                                      <Phone className="h-3 w-3" />
-                                      {earning.guest_phone}
-                                    </span>
+                        <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              {/* Left info */}
+                              <div className="min-w-0 flex-1 space-y-3">
+                                {/* Title row */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <TrendingUp className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <h4 className="font-semibold text-sm capitalize">{earning.earning_type}</h4>
+                                  {earning.trip_id && (
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {earning.trip_id}</Badge>
                                   )}
-                                  {earning.guest_email && (
-                                    <span className="flex items-center gap-1">
-                                      <Mail className="h-3 w-3" />
-                                      {earning.guest_email}
-                                    </span>
+                                  <Badge variant={earning.payment_status === "paid" ? "default" : "secondary"} className="text-[10px] rounded-lg">
+                                    {earning.payment_status}
+                                  </Badge>
+                                </div>
+
+                                {/* Guest & period info */}
+                                <div className="ml-10 space-y-1.5">
+                                  {earning.guest_name && (
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                      <User className="w-3 h-3" />
+                                      <span>{earning.guest_name}</span>
+                                    </div>
                                   )}
-                                </div>
-                              )}
-                              <p className="text-sm text-muted-foreground break-words">
-                                {new Date(
-                                  earning.earning_period_start
-                                ).toLocaleDateString()}{" "}
-                                –{" "}
-                                {new Date(
-                                  earning.earning_period_end
-                                ).toLocaleDateString()}
-                              </p>
-                              <p className="text-sm text-muted-foreground break-words">
-                                Source: {earning.payment_source}
-                              </p>
-
-                              {/* Profit breakdown */}
-                              <div className="grid grid-cols-2 gap-4 text-sm pt-1">
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Gross Earnings:
-                                  </span>
-                                  <p className="font-medium">
-                                    $
-                                    {earning.gross_earnings?.toFixed(2) ||
-                                      "0.00"}
-                                  </p>
-                                </div>
-                                {/* Calculate profits based on net profit (amount - expenses) */}
-                                {(() => {
-                                  const relatedExpenses = earning.trip_id
-                                    ? expenses.filter(
-                                        (e) => e.trip_id === earning.trip_id
-                                      )
-                                    : [];
-                                  const totalExpenses = relatedExpenses.reduce(
-                                    (sum, e) =>
-                                      sum + (e.total_expenses || e.amount),
-                                    0
-                                  );
-                                  const netProfit = earning.amount - totalExpenses;
-                                  const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
-                                  const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
-
-                                  return (
-                                    <>
-                                      {totalExpenses > 0 && (
-                                        <div>
-                                          <span className="text-muted-foreground">
-                                            Total Expenses:
-                                          </span>
-                                          <p className="font-medium text-red-600">
-                                            -${totalExpenses.toFixed(2)}
-                                          </p>
-                                        </div>
+                                  {(earning.guest_phone || earning.guest_email) && (
+                                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                      {earning.guest_phone && (
+                                        <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{earning.guest_phone}</span>
                                       )}
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Net Profit:
-                                        </span>
-                                        <p
-                                          className={`font-medium ${
-                                            netProfit >= 0
-                                              ? "text-green-600"
-                                              : "text-red-600"
-                                          }`}
-                                        >
-                                          ${netProfit.toFixed(2)}
-                                        </p>
+                                      {earning.guest_email && (
+                                        <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{earning.guest_email}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>{new Date(earning.earning_period_start).toLocaleDateString()} – {new Date(earning.earning_period_end).toLocaleDateString()}</span>
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">Source: {earning.payment_source}</div>
+                                  {earning.date_paid && (
+                                    <div className="text-xs text-muted-foreground">Paid: {new Date(earning.date_paid).toLocaleDateString()}</div>
+                                  )}
+                                </div>
+
+                                {/* Profit Breakdown Grid */}
+                                <div className="ml-10 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Gross</span>
+                                    <span className="text-xs font-semibold tabular-nums">${earning.gross_earnings?.toFixed(2) || "0.00"}</span>
+                                  </div>
+                                  {totalExpenses > 0 && (
+                                    <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Expenses</span>
+                                      <span className="text-xs font-semibold text-destructive tabular-nums">-${totalExpenses.toFixed(2)}</span>
+                                    </div>
+                                  )}
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Net</span>
+                                    <span className={`text-xs font-semibold tabular-nums ${netProfit >= 0 ? "text-foreground" : "text-destructive"}`}>${netProfit.toFixed(2)}</span>
+                                  </div>
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Client ({earning.client_profit_percentage || 70}%)</span>
+                                    <span className="text-xs font-semibold tabular-nums">${clientProfit.toFixed(2)}</span>
+                                  </div>
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Host ({earning.host_profit_percentage || 30}%)</span>
+                                    <span className="text-xs font-semibold tabular-nums">${hostProfit.toFixed(2)}</span>
+                                  </div>
+                                </div>
+
+                                {/* Related expenses count */}
+                                {earning.trip_id && relatedExpenses.length > 0 && (
+                                  <div className="ml-10 text-[10px] text-muted-foreground">{relatedExpenses.length} related expense(s)</div>
+                                )}
+
+                                {/* Vehicle */}
+                                {(() => {
+                                  const earningCar = cars.find((car) => car.id === earning.car_id);
+                                  return earningCar ? (
+                                    <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
+                                      <div className="flex items-center gap-1.5 mb-1">
+                                        <Car className="w-3 h-3 text-muted-foreground" />
+                                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
                                       </div>
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Client Profit (
-                                          {earning.client_profit_percentage || 70}%):
-                                        </span>
-                                        <p className="font-medium">
-                                          ${clientProfit.toFixed(2)}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Host Profit (
-                                          {earning.host_profit_percentage || 30}%):
-                                        </span>
-                                        <p className="font-medium">
-                                          ${hostProfit.toFixed(2)}
-                                        </p>
-                                      </div>
-                                    </>
-                                  );
+                                      {formatDetailedCarInfo(earningCar)}
+                                    </div>
+                                  ) : null;
                                 })()}
                               </div>
 
-                              {/* Related expenses count */}
-                              {earning.trip_id &&
-                                expenses.some(
-                                  (e) => e.trip_id === earning.trip_id
-                                ) && (
-                                  <div className="text-xs text-muted-foreground">
-                                    Related expenses:{" "}
-                                    {
-                                      expenses.filter(
-                                        (e) => e.trip_id === earning.trip_id
-                                      ).length
-                                    }{" "}
-                                    item(s)
-                                  </div>
-                                )}
-
-                              {/* Vehicle details */}
-                              {(() => {
-                                const earningCar = cars.find(
-                                  (car) => car.id === earning.car_id
-                                );
-                                return earningCar ? (
-                                  <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">
-                                      Vehicle Details:
-                                    </p>
-                                    {formatDetailedCarInfo(earningCar)}
-                                  </div>
-                                ) : null;
-                              })()}
+                              {/* Right: Amount + Actions */}
+                              <div className="text-right shrink-0">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditEarning(earning)}>
+                                      <Edit className="h-3 w-3 mr-2" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => onDeleteEarning(earning.id)} className="text-destructive">
+                                      <Trash className="h-3 w-3 mr-2" /> Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                                  <p className="text-lg font-bold text-foreground tabular-nums">${earning.amount.toFixed(2)}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Amount</p>
+                                </div>
+                              </div>
                             </div>
-                          </CardContent>
+                          </div>
                         </div>
                       );
                     })}
