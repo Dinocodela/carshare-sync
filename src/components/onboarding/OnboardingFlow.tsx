@@ -58,11 +58,11 @@ export function OnboardingFlow() {
   const ScreenComponent = SCREENS[currentScreen];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-hero relative">
+    <div className="min-h-screen flex flex-col bg-gradient-hero relative overflow-hidden">
 
       {/* Screen content with transitions */}
       <div
-        className="flex-1 flex items-center justify-center overflow-hidden"
+        className="flex-1 flex items-center justify-center"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
