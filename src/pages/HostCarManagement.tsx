@@ -3192,16 +3192,16 @@ export default function HostCarManagement() {
                           side="bottom"
                           className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
                         >
-                          <SheetHead>
-                            <SheetTit>
-                              {editingEarning
-                                ? "Edit Earning"
-                                : "Record New Earning"}
-                            </SheetTit>
-                            <SheetDesc>
-                              Add a new earning record from your hosting
-                              activities.
-                            </SheetDesc>
+                          <SheetHead className="space-y-0 pb-4">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <Shield className="w-5 h-5 text-primary" />
+                              </div>
+                              <div>
+                                <SheetTit className="text-base">{editingEarning ? "Edit Earning" : "Record New Earning"}</SheetTit>
+                                <SheetDesc className="text-xs">Add a new earning record securely.</SheetDesc>
+                              </div>
+                            </div>
                           </SheetHead>
                           <Form {...earningForm}>
                             <form
