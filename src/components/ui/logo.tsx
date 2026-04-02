@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import teslysLogo from '@/assets/teslys-logo-transparent.png';
+import teslysLogo from '@/assets/teslys-logo-clean.png';
 
 interface LogoProps {
   className?: string;
