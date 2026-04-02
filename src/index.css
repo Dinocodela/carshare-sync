@@ -109,8 +109,9 @@ body,
     );
     --gradient-hero: linear-gradient(
       135deg,
-      hsl(220 15% 85%),
-      hsl(180 20% 88%)
+      hsl(175 25% 90%),
+      hsl(180 30% 92%),
+      hsl(185 25% 88%)
     );
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(180 10% 98%));
     --gradient-logo: linear-gradient(
