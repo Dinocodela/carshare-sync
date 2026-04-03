@@ -57,6 +57,7 @@ import About from "./pages/About";
 import EarningsCalculator from "./pages/EarningsCalculator";
 import TuroComparison from "./pages/TuroComparison";
 import EarningsGuide from "./pages/EarningsGuide";
+import GetStarted from "./pages/GetStarted";
 import LosAngeles from "./pages/cities/LosAngeles";
 import Miami from "./pages/cities/Miami";
 import SanFrancisco from "./pages/cities/SanFrancisco";
