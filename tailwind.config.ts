@@ -69,9 +69,29 @@ export default {
 						DEFAULT: 'hsl(var(--success))',
 						foreground: 'hsl(var(--success-foreground))'
 					},
-					warning: {
+				warning: {
 						DEFAULT: 'hsl(var(--warning))',
 						foreground: 'hsl(var(--warning-foreground))'
+					},
+					navy: {
+						DEFAULT: 'hsl(var(--navy))',
+						foreground: 'hsl(var(--navy-foreground))'
+					},
+					charcoal: {
+						DEFAULT: 'hsl(var(--charcoal))',
+						foreground: 'hsl(var(--charcoal-foreground))'
+					},
+					'bright-blue': {
+						DEFAULT: 'hsl(var(--bright-blue))',
+						foreground: 'hsl(var(--bright-blue-foreground))'
+					},
+					'teal-light': {
+						DEFAULT: 'hsl(var(--teal-light))',
+						foreground: 'hsl(var(--teal-light-foreground))'
+					},
+					'teal-dark': {
+						DEFAULT: 'hsl(var(--teal-dark))',
+						foreground: 'hsl(var(--teal-dark-foreground, 0 0% 100%))'
 					}
 				},
 				spacing: {
