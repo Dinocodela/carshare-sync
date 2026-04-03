@@ -167,20 +167,20 @@ function getStructuredData(type: string, customData?: Record<string, any>) {
         image: `${baseUrl}/icons/icon-512.webp`,
         "@id": baseUrl,
         url: baseUrl,
-        telephone: "+1-555-TESLYS1",
+        telephone: "+1-310-699-0473",
         priceRange: "$$",
         address: {
           "@type": "PostalAddress",
-          streetAddress: "123 Electric Avenue",
-          addressLocality: "San Francisco",
+          streetAddress: "475 Washington Blvd",
+          addressLocality: "Marina Del Rey",
           addressRegion: "CA",
-          postalCode: "94102",
+          postalCode: "90292",
           addressCountry: "US",
         },
         geo: {
           "@type": "GeoCoordinates",
-          latitude: 37.7749,
-          longitude: -122.4194,
+          latitude: 33.9802,
+          longitude: -118.4517,
         },
         openingHoursSpecification: [
           {

@@ -362,6 +362,24 @@ const Index = () => {
                     Support
                   </button>
                 </nav>
+                <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=475+Washington+Blvd+Marina+Del+Rey+CA+90292"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    475 Washington Blvd, Marina Del Rey, CA 90292
+                  </a>
+                  <a
+                    href="tel:+13106990473"
+                    className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    (310) 699-0473
+                  </a>
+                </div>
                 <p className="text-xs text-muted-foreground/60">
                   © {new Date().getFullYear()} Teslys. All rights reserved.
                 </p>
