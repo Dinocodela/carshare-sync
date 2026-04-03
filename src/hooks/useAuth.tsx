@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     role: "client" | "host",
     metadata?: any
   ) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = "https://teslys.app/";
     const { phone, ...other } = metadata || {};
     const { error } = await supabase.auth.signUp({
       email,
