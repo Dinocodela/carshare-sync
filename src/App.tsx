@@ -131,6 +131,8 @@ const App = () => (
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/about" element={<About />} />
               <Route path="/earnings-calculator" element={<EarningsCalculator />} />
+              <Route path="/turo-management" element={<TuroComparison />} />
+              <Route path="/how-much-can-i-earn" element={<EarningsGuide />} />
               <Route path="/tesla-car-sharing-los-angeles" element={<LosAngeles />} />
               <Route path="/tesla-car-sharing-miami" element={<Miami />} />
               <Route path="/tesla-car-sharing-san-francisco" element={<SanFrancisco />} />
