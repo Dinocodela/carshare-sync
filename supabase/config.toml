@@ -68,6 +68,12 @@ verify_jwt = true
 [functions.notify-admin-new-client]
 verify_jwt = false
 
+[functions.generate-blog-post]
+verify_jwt = false
+
+[functions.insert-blog-post]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324
