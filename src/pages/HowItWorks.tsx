@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { StructuredData } from "@/components/StructuredData";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -97,6 +98,11 @@ export default function HowItWorks() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
       />
+
+      <StructuredData type="breadcrumblist" data={{ itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://teslys.app/" },
+        { "@type": "ListItem", position: 2, name: "How It Works", item: "https://teslys.app/how-it-works" },
+      ] }} />
 
       <div className="min-h-screen bg-background">
         {/* Header */}

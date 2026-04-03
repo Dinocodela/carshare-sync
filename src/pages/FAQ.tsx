@@ -109,6 +109,10 @@ export default function FAQ() {
         ogType="website"
       />
       <StructuredData type="faq" data={{ questions: faqSchema }} />
+      <StructuredData type="breadcrumblist" data={{ itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://teslys.app/" },
+        { "@type": "ListItem", position: 2, name: "FAQ", item: "https://teslys.app/faq" },
+      ] }} />
       
       <DashboardLayout>
         <ScreenHeader title="Frequently Asked Questions" fallbackHref="/" />

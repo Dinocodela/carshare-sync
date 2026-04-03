@@ -1,8 +1,11 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import {
   Select,
@@ -23,6 +26,8 @@ import {
   Shield,
   Clock,
   Sparkles,
+  Mail,
+  Lock,
 } from "lucide-react";
 
 /* ── Static benchmark data from real platform rentals ── */
@@ -65,7 +70,33 @@ export default function EarningsCalculator() {
   const [year, setYear] = useState<string>("2022");
   const [availability, setAvailability] = useState<number[]>([80]);
   const [visible, setVisible] = useState(false);
+  const [emailGated, setEmailGated] = useState(true);
+  const [gateEmail, setGateEmail] = useState("");
+  const [gateLoading, setGateLoading] = useState(false);
 
+  useEffect(() => {
+    const unlocked = localStorage.getItem("calc_unlocked");
+    if (unlocked === "true") setEmailGated(false);
+  }, []);
+
+  const handleUnlockResults = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gateEmail.trim()) return;
+    setGateLoading(true);
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscriptions")
+        .insert({ email: gateEmail.trim().toLowerCase(), source: "earnings-calculator" });
+      if (error && error.code !== "23505") throw error;
+      localStorage.setItem("calc_unlocked", "true");
+      setEmailGated(false);
+      toast.success("Results unlocked!");
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setGateLoading(false);
+    }
+  };
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
   }, []);
@@ -279,6 +310,40 @@ export default function EarningsCalculator() {
                 </div>
 
                 {estimates ? (
+                  emailGated ? (
+                    /* Email gate overlay */
+                    <div className="text-center py-8 space-y-5">
+                      <div className="relative inline-block">
+                        <p className="text-6xl sm:text-7xl font-black text-white/10 tracking-tight tabular-nums select-none blur-md">
+                          ${estimates.avg.toLocaleString()}
+                        </p>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Lock className="w-10 h-10 text-white/30" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-white">Enter your email to unlock results</p>
+                        <p className="text-xs text-white/40">Get your personalized estimate + weekly earning tips</p>
+                      </div>
+                      <form onSubmit={handleUnlockResults} className="flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
+                        <div className="relative flex-1">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                          <Input
+                            type="email"
+                            placeholder="your@email.com"
+                            value={gateEmail}
+                            onChange={(e) => setGateEmail(e.target.value)}
+                            required
+                            className="pl-9 h-10 text-sm rounded-xl bg-white/[0.08] border-white/10 text-white placeholder:text-white/30"
+                          />
+                        </div>
+                        <Button type="submit" disabled={gateLoading} size="sm" className="rounded-xl bg-accent text-navy font-semibold hover:bg-accent/90 px-5">
+                          {gateLoading ? "…" : "Unlock"}
+                        </Button>
+                      </form>
+                      <p className="text-[10px] text-white/20">No spam. Unsubscribe anytime.</p>
+                    </div>
+                  ) : (
                   <>
                     {/* Main number */}
                     <div className="text-center py-6">
@@ -325,6 +390,7 @@ export default function EarningsCalculator() {
                       </p>
                     </div>
                   </>
+                  )
                 ) : (
                   <p className="text-center text-white/40 py-8">
                     Select your vehicle details to see estimates.
