@@ -69,7 +69,7 @@ export function OnboardingScreen3() {
       </p>
 
       {/* Feature cards */}
-      <div className="space-y-3 w-full max-w-sm mb-6">
+      <div className="space-y-3 w-full max-w-sm mb-4">
         {[
           {
             icon: CircleDollarSign,

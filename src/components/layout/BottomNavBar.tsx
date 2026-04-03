@@ -167,7 +167,7 @@ export function BottomNavBar() {
         fixed bottom-0 inset-x-0 z-50 md:hidden
         border-t
 		pb-safe-bottom
-        backdrop-blur-md bg-white/70 supports-[backdrop-filter]:bg-white/60
+        backdrop-blur-md bg-background/70 supports-[backdrop-filter]:bg-background/60
         shadow-[0_-6px_16px_rgba(0,0,0,0.05)]
       "
       aria-label="Bottom navigation"

@@ -62,7 +62,7 @@ export function OnboardingFlow() {
 
       {/* Screen content with transitions */}
       <div
-        className="flex-1 flex items-center justify-center"
+        className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >

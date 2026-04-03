@@ -63,7 +63,7 @@ export function OnboardingScreen2() {
       </h1>
 
       <p
-        className="text-base text-muted-foreground mb-8 max-w-xs transition-all duration-700 delay-300 ease-out"
+        className="text-base text-muted-foreground mb-6 max-w-xs transition-all duration-700 delay-300 ease-out"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0)" : "translateY(20px)",
