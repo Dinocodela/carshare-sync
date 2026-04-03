@@ -105,9 +105,9 @@ function useRecentActivity(
           role === "host"
             ? await supabase
                 .from("host_earnings")
-                .select("id, amount, host_profit_percentage, payment_date, payment_status")
+                .select("id, amount, host_profit_percentage, date_paid, payment_status")
                 .eq("payment_status", "paid")
-                .order("payment_date", { ascending: false })
+                .order("date_paid", { ascending: false })
                 .limit(limit)
             : { data: [] as any[] };
 
@@ -152,11 +152,11 @@ function useRecentActivity(
         });
 
         (earns || []).forEach((e) => {
-          if (!e.payment_date) return;
+          if (!e.date_paid) return;
           const hostProfit = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
           mapped.push({
             id: `earn_${e.id}`,
-            ts: e.payment_date,
+            ts: e.date_paid,
             message: `Received $${Number(hostProfit).toLocaleString()} payout`,
             icon: "💵",
           });
@@ -263,9 +263,9 @@ export default function Dashboard() {
       if (isHost) {
         const { data: rows } = await supabase
           .from("host_earnings")
-          .select("amount, host_profit_percentage, payment_status, payment_date")
+          .select("amount, host_profit_percentage, payment_status, date_paid")
           .eq("payment_status", "paid")
-          .gte("payment_date", from.toISOString());
+          .gte("date_paid", from.toISOString());
         const total = (rows || []).reduce(
           (s, r) => s + ((r.amount || 0) * (r.host_profit_percentage || 30)) / 100,
           0
@@ -277,10 +277,10 @@ export default function Dashboard() {
           const { data: rows } = await supabase
             .from("host_earnings")
             .select(
-              "amount, client_profit_percentage, payment_status, payment_date, car_id"
+              "amount, client_profit_percentage, payment_status, date_paid, car_id"
             )
             .eq("payment_status", "paid")
-            .gte("payment_date", from.toISOString())
+            .gte("date_paid", from.toISOString())
             .in("car_id", carIds);
           const total = (rows || []).reduce(
             (s, r) => s + ((r.amount || 0) * (r.client_profit_percentage || 70)) / 100,
