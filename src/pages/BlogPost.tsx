@@ -122,13 +122,6 @@ export default function BlogPost() {
           {/* Author */}
           <p className="text-sm text-muted-foreground mb-8">By {post.author_name}</p>
 
-          {(() => {
-            // Strip emojis from headings for a professional look
-            const cleanContent = post.content
-              .replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1');
-            return null;
-          })()}
-
           {/* Content */}
           <div
             className="prose prose-sm md:prose-base lg:prose-lg max-w-none dark:prose-invert
@@ -144,7 +137,7 @@ export default function BlogPost() {
               prose-img:rounded-xl prose-img:shadow-md
               prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:my-8 prose-blockquote:not-italic
               [&_p+p]:mt-7 [&_h2+p]:mt-5 [&_h3+p]:mt-5 [&_ul_li::marker]:text-primary [&_ol_li::marker]:text-primary [&_ol_li::marker]:font-semibold"
-            dangerouslySetInnerHTML={{ __html: cleanContent }}
+            dangerouslySetInnerHTML={{ __html: post.content.replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1') }}
           />
 
           {/* Tags */}
