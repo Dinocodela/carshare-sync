@@ -4185,7 +4185,7 @@ export default function HostCarManagement() {
                         open={earningDialogOpen}
                         onOpenChange={setEarningDialogOpen}
                       >
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto"
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border-border/50 bg-card/95 backdrop-blur-md"
                       onInteractOutside={(e) => {
                         const target = e.target as HTMLElement;
                         if (target.closest('[data-radix-popper-content-wrapper]')) {
@@ -4193,16 +4193,22 @@ export default function HostCarManagement() {
                         }
                         }}
                     >
-                          <DialogHeader>
-                            <DialogTitle>
-                              {editingEarning
-                                ? "Edit Earning"
-                                : "Record New Earning"}
-                            </DialogTitle>
-                            <DialogDescription>
-                              Add a new earning record from your hosting
-                              activities.
-                            </DialogDescription>
+                          <DialogHeader className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <DollarSign className="w-5 h-5 text-primary" />
+                              </div>
+                              <div>
+                                <DialogTitle className="text-lg font-semibold">
+                                  {editingEarning
+                                    ? "Edit Earning"
+                                    : "Record New Earning"}
+                                </DialogTitle>
+                                <DialogDescription className="text-xs text-muted-foreground">
+                                  {editingEarning ? "Update your earning record securely." : "Add a new earning record from your hosting activities."}
+                                </DialogDescription>
+                              </div>
+                            </div>
                           </DialogHeader>
                           <Form {...earningForm}>
                             <form
