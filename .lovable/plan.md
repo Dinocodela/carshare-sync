@@ -1,56 +1,48 @@
 
 
-## Plan: Mobile Responsiveness Audit & Fix
+## Plan: Professional Blog Typography & Content Cleanup
 
 ### Problem
-The app has several mobile responsiveness issues, most notably:
-1. **Onboarding Screen 3** — content overflows on small screens (icon clipped at top, app store badges + CTA + trust text cramped at bottom)
-2. **Onboarding Screens 1 & 2** — spacing is generous but not optimized for very small screens (iPhone SE, 320px)
-3. **General pages** — need verification that DashboardLayout pages, forms, and tables don't overflow on mobile
+The blog post body has three issues visible in the screenshot:
+1. **Emojis in subheadings** (📋, 🚀) — looks unprofessional, not befitting a premium brand
+2. **Subheadings too small/not prominent enough** — need larger size and bolder weight
+3. **Insufficient spacing** between paragraphs and subheading titles
+
+### Root Cause
+- The emojis are embedded in the **HTML content stored in the database** (inserted via the `insert-blog-post` edge function). The rendering styles can't remove them — they must be stripped at render time.
+- The current prose styles for `h2` and `h3` are decent but could be more prominent, especially on mobile.
 
 ### Changes
 
-**1. Fix OnboardingFlow container to allow scrolling on short screens**
+**1. Strip emojis from rendered content (BlogPost.tsx)**
 
-File: `src/components/onboarding/OnboardingFlow.tsx`
-- Change the screen content area from `flex-1 flex items-center justify-center` (which centers but clips) to allow vertical scroll on short viewports
-- Use `min-h-0 flex-1 overflow-y-auto` so content scrolls instead of clipping
+Add a sanitization step before rendering that removes emoji characters from `h2` and `h3` tags in the HTML string. This avoids needing to update every post in the database.
 
-**2. Fix OnboardingScreen3 spacing for mobile**
+```tsx
+// Strip emojis from headings before rendering
+const cleanContent = post.content
+  .replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1');
+```
 
-File: `src/components/onboarding/OnboardingScreen3.tsx`
-- Reduce `mb-8` to `mb-5` on the icon container
-- Reduce `mb-6` on feature cards to `mb-4`
-- Ensure the entire screen uses `py-6` padding instead of relying on `justify-center` which causes clipping when content exceeds viewport
+**2. Increase subheading size and weight (BlogPost.tsx)**
 
-**3. Fix all three onboarding screens to use flexible spacing**
+Update the prose classes:
+- `h2`: bump from `text-xl md:text-2xl` → `text-2xl md:text-3xl`, add `font-extrabold`
+- `h3`: bump from `text-lg md:text-xl` → `text-xl md:text-2xl`, add `font-bold`
+- Remove the bottom border on h2 (looks cleaner for a premium feel)
 
-Files: `OnboardingScreen1.tsx`, `OnboardingScreen2.tsx`, `OnboardingScreen3.tsx`
-- Change from `h-full` + `justify-center` to `min-h-full` + `justify-center` with `py-8 sm:py-12` padding
-- Reduce `mb-8` to `mb-5 sm:mb-8` for icon containers (responsive margin)
-- This ensures content doesn't clip on small screens while still centering on larger ones
+**3. Increase spacing between paragraphs and headings**
 
-**4. Audit and fix DashboardLayout for small screens**
+- `h2` margin-top: `mt-12` → `mt-14` (more breathing room above)
+- `h2` margin-bottom: `mb-5` → `mb-6`
+- `h3` margin-top: `mt-10` → `mt-12`
+- Paragraph bottom margin: `mb-6` → `mb-7`
+- Add `[&_h2+p]:mt-5` and `[&_h3+p]:mt-5` for consistent spacing after headings
 
-File: `src/components/layout/DashboardLayout.tsx`
-- Already uses `pb-app-bottom` which accounts for bottom nav — this is correct
-- Verify `pt-safe-top` is applied — already present
+**4. Update future blog content generation workflow**
 
-**5. Fix BottomNavBar dark mode support**
+Add a note/memory that future blog posts should NOT include emojis in headings, to maintain a professional brand image.
 
-File: `src/components/layout/BottomNavBar.tsx`
-- The nav hardcodes `bg-white/70` — should use `bg-background/70` for dark mode compatibility
-
-**6. Ensure tables and wide content scroll horizontally on mobile**
-
-File: `src/pages/HostCarManagement.tsx`
-- Desktop tables already use `hidden md:block` with mobile card views — already handled
-- Verify no horizontal overflow from fixed-width elements
-
-### Summary of file changes
-- `src/components/onboarding/OnboardingFlow.tsx` — scrollable screen container
-- `src/components/onboarding/OnboardingScreen1.tsx` — responsive spacing
-- `src/components/onboarding/OnboardingScreen2.tsx` — responsive spacing  
-- `src/components/onboarding/OnboardingScreen3.tsx` — responsive spacing, fix clipping
-- `src/components/layout/BottomNavBar.tsx` — dark mode bg fix
+### Files Modified
+- `src/pages/BlogPost.tsx` — emoji stripping + updated prose typography classes
 
