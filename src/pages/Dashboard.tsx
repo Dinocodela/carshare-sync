@@ -165,13 +165,17 @@ function useRecentActivity(
           }
         });
 
-        (earns || []).forEach((e) => {
+        (earns).forEach((e) => {
           if (!e.date_paid) return;
-          const hostProfit = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
+          const payout = role === "host"
+            ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
+            : ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
+          const carInfo = (cars || []).find((c) => c.id === e.car_id);
+          const carLabel = carInfo ? ` for ${carInfo.make} ${carInfo.model}` : "";
           mapped.push({
             id: `earn_${e.id}`,
             ts: e.date_paid,
-            message: `Received $${Number(hostProfit).toLocaleString()} payout`,
+            message: `Received $${Number(payout).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} payout${carLabel}`,
             icon: "💵",
           });
         });
