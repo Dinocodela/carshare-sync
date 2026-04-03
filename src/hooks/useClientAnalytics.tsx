@@ -120,7 +120,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       // Get accessible cars: owned + shared
       const { data: ownedCars, error: carsError } = await supabase
         .from('cars')
-        .select('id')
+        .select('id, make, model, year, license_plate')
         .eq('client_id', user.id);
       if (carsError) throw carsError;
 
