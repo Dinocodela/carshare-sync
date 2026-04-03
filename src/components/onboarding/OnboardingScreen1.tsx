@@ -12,7 +12,7 @@ export function OnboardingScreen1() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 text-center relative">
+    <div className="flex flex-col items-center justify-center min-h-full px-6 py-8 sm:py-12 text-center relative">
       {/* Animated background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div
