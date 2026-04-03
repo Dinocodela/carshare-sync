@@ -1,38 +1,39 @@
 
 
-## Plan: Fix Dashboard Earnings and Activity Using Correct Date Column
+## Plan: Rewrite & Restructure the EV Passive Income Blog Article
 
-### Problem
-Two bugs on the Dashboard:
+### What we're doing
+Rewriting the existing blog post (slug: `ev-passive-income-2026`) with improved structure, readability, and formatting per your exact specifications. No code changes needed — this is a content update via the existing `insert-blog-post` edge function.
 
-1. **"$0 This month"** — The earnings query filters on `payment_date`, but the app stores paid dates in `date_paid`. Since `payment_date` is always null, the query returns zero results.
-2. **Activity feed showing $0 payouts** — Same root cause: the activity feed checks `e.payment_date` to determine if a payout exists, which is always null.
+### Current issues with the article
+- Long paragraphs without clear visual breaks
+- Emoji characters in headings (💰, ⚡, 📋, 📊, 🚀) — conflicts with the emoji-free typography standard
+- Missing several required sections (no dedicated "Why Renters Choose Teslas" or "Model Comparison" section headers)
+- Dense text blocks where bullets would be better
+- Inconsistent spacing and flow
 
-Both affect host AND client views.
+### What changes
+The article body will be restructured into these exact sections:
 
-### Root Cause
-The `create-host-earning` edge function and the earning edit form both write to the `date_paid` column. The `payment_date` column is never populated. The Dashboard queries reference the wrong column.
+1. **Introduction** — 2-3 short punchy sentences, problem-to-opportunity framing
+2. **Why EVs Make More Money** — Bullets: lower costs, higher demand, stable energy
+3. **Lower Maintenance Advantage** — Bullet list: no oil, no transmission, less brake wear
+4. **Why Renters Choose Teslas** — Bullet list: tech, acceleration, eco appeal
+5. **Tax Advantages** — Bullet list: depreciation, charging, insurance, fees
+6. **The Teslys Advantage** — Bullet list: hands-off, analytics, payouts, dedicated host
+7. **The Numbers** — Bullet list: daily rate, monthly potential, break-even
+8. **Model Comparison** — Bullet list: Model 3, Y, S/X with positioning
+9. **Conclusion + CTA** — Short powerful close with sign-up link
 
-### Changes
+### Formatting rules applied
+- All headings: clean `<h2>` tags, no emojis, max 5-7 words
+- Max 2-3 lines per paragraph
+- Bullets wherever listing 2+ items
+- Logical flow: problem → solution → proof → CTA
+- No fluff, no repetition, premium tone
 
-**File: `src/pages/Dashboard.tsx`**
-
-1. **Host earnings query (line ~265):** Change `.select(...)` to include `date_paid` instead of `payment_date`, and change `.gte("payment_date", ...)` to `.gte("date_paid", ...)`
-
-2. **Client earnings query (line ~278):** Same fix — select `date_paid` and filter `.gte("date_paid", ...)`
-
-3. **Recent activity hook (line ~108):** Change the select to include `date_paid` instead of `payment_date`, and update the activity mapping (line ~155) to check `e.date_paid` instead of `e.payment_date`
-
-### Technical Details
-```
-// Before (broken)
-.select("amount, host_profit_percentage, payment_status, payment_date")
-.gte("payment_date", from.toISOString())
-
-// After (fixed)
-.select("amount, host_profit_percentage, payment_status, date_paid")
-.gte("date_paid", from.toISOString())
-```
-
-Same pattern applied to client query and activity feed.
+### How it ships
+- Generate the rewritten HTML content using the AI gateway
+- Push the update via `insert-blog-post` edge function with `_action: "update"` and `slug: "ev-passive-income-2026"`
+- No code file changes required
 
