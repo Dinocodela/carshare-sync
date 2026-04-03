@@ -122,6 +122,13 @@ export default function BlogPost() {
           {/* Author */}
           <p className="text-sm text-muted-foreground mb-8">By {post.author_name}</p>
 
+          {(() => {
+            // Strip emojis from headings for a professional look
+            const cleanContent = post.content
+              .replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1');
+            return null;
+          })()}
+
           {/* Content */}
           <div
             className="prose prose-sm md:prose-base lg:prose-lg max-w-none dark:prose-invert
