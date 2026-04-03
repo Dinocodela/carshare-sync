@@ -216,11 +216,17 @@ export default function AddCar() {
         if (updateError) throw updateError;
       }
 
-      toast({
-        title: "Car added successfully!",
-        description: "Your car has been listed. You can now request hosting services from your My Cars page.",
+      setCreatedCarId(carData.id);
+      setCreatedCarInfo({
+        make: data.make,
+        model: data.model,
+        year: data.year,
+        color: data.color,
+        license_plate: data.license_plate,
+        vin_number: data.vin_number,
+        mileage: data.mileage,
       });
-      navigate("/my-cars");
+      setShowAgreement(true);
     } catch (error) {
       console.error("Error adding car:", error);
       toast({
