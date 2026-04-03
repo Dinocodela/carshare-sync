@@ -4827,12 +4827,12 @@ export default function HostCarManagement() {
                                 />
                               </div>
 
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-4 border-t border-border/30">
                                 <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
                               </div>
-                              <div className="pt-2 flex justify-end gap-2">
-                                <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
-                                <Button type="submit" className="rounded-xl">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
+                              <div className="pt-3 flex justify-end gap-3">
+                                <Button type="button" variant="ghost" className="rounded-xl px-6" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
+                                <Button type="submit" className="rounded-xl px-6 shadow-md">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
                               </div>
                             </form>
                           </Form>
