@@ -26,7 +26,7 @@ export function OnboardingScreen2() {
 
       {/* Shield icon with trust ring */}
       <div
-        className="mb-8 relative transition-all duration-700 ease-out"
+        className="mb-5 sm:mb-8 relative transition-all duration-700 ease-out"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.8)",
