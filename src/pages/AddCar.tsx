@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { CoHostAgreementModal } from "@/components/agreements/CoHostAgreementModal";
+import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -66,6 +68,10 @@ export default function AddCar() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [showAgreement, setShowAgreement] = useState(false);
+  const [createdCarId, setCreatedCarId] = useState<string | null>(null);
+  const [createdCarInfo, setCreatedCarInfo] = useState<any>(null);
+  const { profile } = useProfile();
   const {
     takePhoto,
     selectFromGallery,
@@ -210,11 +216,17 @@ export default function AddCar() {
         if (updateError) throw updateError;
       }
 
-      toast({
-        title: "Car added successfully!",
-        description: "Your car has been listed. You can now request hosting services from your My Cars page.",
+      setCreatedCarId(carData.id);
+      setCreatedCarInfo({
+        make: data.make,
+        model: data.model,
+        year: data.year,
+        color: data.color,
+        license_plate: data.license_plate,
+        vin_number: data.vin_number,
+        mileage: data.mileage,
       });
-      navigate("/my-cars");
+      setShowAgreement(true);
     } catch (error) {
       console.error("Error adding car:", error);
       toast({
@@ -658,6 +670,25 @@ export default function AddCar() {
           </form>
         </Form>
       </div>
+
+      {showAgreement && createdCarId && createdCarInfo && (
+        <CoHostAgreementModal
+          open={showAgreement}
+          carId={createdCarId}
+          carInfo={createdCarInfo}
+          ownerName={
+            [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || ""
+          }
+          onComplete={() => {
+            setShowAgreement(false);
+            toast({
+              title: "Car added successfully!",
+              description: "Your car has been listed and agreement signed.",
+            });
+            navigate("/my-cars");
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }

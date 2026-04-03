@@ -1398,6 +1398,44 @@ export type Database = {
           },
         ]
       }
+      signed_agreements: {
+        Row: {
+          agreement_version: string
+          car_id: string
+          id: string
+          ip_address: string | null
+          signed_at: string
+          signer_name: string
+          user_id: string
+        }
+        Insert: {
+          agreement_version?: string
+          car_id: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string
+          signer_name: string
+          user_id: string
+        }
+        Update: {
+          agreement_version?: string
+          car_id?: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string
+          signer_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signed_agreements_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       welcome_email_queue: {
         Row: {
           created_at: string
