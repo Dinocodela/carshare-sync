@@ -61,6 +61,12 @@ import SanFrancisco from "./pages/cities/SanFrancisco";
 import NewYork from "./pages/cities/NewYork";
 import Austin from "./pages/cities/Austin";
 import SanDiego from "./pages/cities/SanDiego";
+import Dallas from "./pages/cities/Dallas";
+import Chicago from "./pages/cities/Chicago";
+import Seattle from "./pages/cities/Seattle";
+import Denver from "./pages/cities/Denver";
+import Phoenix from "./pages/cities/Phoenix";
+import Atlanta from "./pages/cities/Atlanta";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
