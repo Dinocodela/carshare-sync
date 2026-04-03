@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/logo";
-import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, MapPin, Phone, Calculator } from "lucide-react";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
@@ -300,9 +300,19 @@ const Index = () => {
               )}
             </div>
 
+            {/* Earnings Calculator CTA */}
+            <div className="mt-6 mb-2 text-center">
+              <Link to="/earnings-calculator">
+                <Button variant="outline" size="sm" className="rounded-full text-xs border-primary/40 text-primary hover:bg-primary/5">
+                  <Calculator className="w-3.5 h-3.5 mr-1.5" />
+                  Calculate Your Earnings
+                </Button>
+              </Link>
+            </div>
+
             {/* Trust Indicators */}
             <div
-              className="flex justify-center gap-6 mt-6 mb-2 transition-all duration-700 delay-700 ease-out"
+              className="flex justify-center gap-6 mt-4 mb-2 transition-all duration-700 delay-700 ease-out"
               style={{
                 opacity: visible ? 1 : 0,
                 transform: visible ? "translateY(0)" : "translateY(10px)",
@@ -349,6 +359,9 @@ const Index = () => {
                   </Link>
                   <Link to="/blog" className="hover:text-foreground transition-colors">
                     Blog
+                  </Link>
+                  <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">
+                    Earnings Calculator
                   </Link>
                   <Link to="/privacy" className="hover:text-foreground transition-colors">
                     Privacy Policy
