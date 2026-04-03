@@ -94,13 +94,19 @@ function useRecentActivity(
           .order("created_at", { ascending: false })
           .limit(limit);
 
-        // Fetch ALL recent earnings (paid) — primary content for this feed
+        // Fetch earnings paid THIS MONTH only
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
         let earns: any[] = [];
         if (role === "host") {
           const { data } = await supabase
             .from("host_earnings")
             .select("id, amount, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
             .eq("payment_status", "paid")
+            .gte("date_paid", monthStart)
+            .lte("date_paid", monthEnd)
             .order("date_paid", { ascending: false })
             .limit(limit);
           earns = data || [];
@@ -112,6 +118,8 @@ function useRecentActivity(
               .select("id, amount, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
               .eq("payment_status", "paid")
               .in("car_id", carIds)
+              .gte("date_paid", monthStart)
+              .lte("date_paid", monthEnd)
               .order("date_paid", { ascending: false })
               .limit(limit);
             earns = data || [];
