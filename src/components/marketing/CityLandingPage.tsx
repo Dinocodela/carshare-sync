@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { StructuredData } from "@/components/StructuredData";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
@@ -329,8 +330,14 @@ export function CityLandingPage({ city }: { city: CityData }) {
               </div>
             </div>
           </section>
-        </main>
 
+          {/* Newsletter */}
+          <NewsletterSignup
+            source={`city-${city.slug}`}
+            heading={`Get Tesla Earning Tips for ${city.city}`}
+            subheading={`Join Tesla owners in ${city.city} getting weekly insights on maximizing rental income.`}
+          />
+        </main>
         {/* Footer */}
         <footer className="border-t border-border py-8">
           <div className="max-w-4xl mx-auto px-4">
@@ -340,6 +347,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
               </Link>
               <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
                 <Link to="/how-it-works" className="hover:text-foreground transition-colors">How It Works</Link>
+                <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">Earnings Calculator</Link>
                 <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
                 <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
                 <Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link>

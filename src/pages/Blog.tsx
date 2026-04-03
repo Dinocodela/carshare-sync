@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { useBlogPosts, useBlogCategories } from "@/hooks/useBlogPosts";
 import { BlogHeroPost } from "@/components/blog/BlogHeroPost";
 import { BlogPostCard } from "@/components/blog/BlogPostCard";
@@ -117,9 +118,23 @@ export default function Blog() {
           )}
         </main>
 
+        {/* Newsletter Signup */}
+        <NewsletterSignup source="blog" />
+
         {/* Footer */}
-        <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground mt-12">
-          <p>© {new Date().getFullYear()} Teslys. All rights reserved.</p>
+        <footer className="border-t border-border py-6">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground mb-4">
+              <Link to="/how-it-works" className="hover:text-foreground transition-colors">How It Works</Link>
+              <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">Earnings Calculator</Link>
+              <Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
+              <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
+              <Link to="/tesla-car-sharing-los-angeles" className="hover:text-foreground transition-colors">Los Angeles</Link>
+              <Link to="/tesla-car-sharing-miami" className="hover:text-foreground transition-colors">Miami</Link>
+              <Link to="/tesla-car-sharing-san-francisco" className="hover:text-foreground transition-colors">San Francisco</Link>
+            </div>
+            <p className="text-center text-xs text-muted-foreground">© {new Date().getFullYear()} Teslys. All rights reserved.</p>
+          </div>
         </footer>
       </div>
     </>

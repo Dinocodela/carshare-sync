@@ -61,6 +61,12 @@ import SanFrancisco from "./pages/cities/SanFrancisco";
 import NewYork from "./pages/cities/NewYork";
 import Austin from "./pages/cities/Austin";
 import SanDiego from "./pages/cities/SanDiego";
+import Dallas from "./pages/cities/Dallas";
+import Chicago from "./pages/cities/Chicago";
+import Seattle from "./pages/cities/Seattle";
+import Denver from "./pages/cities/Denver";
+import Phoenix from "./pages/cities/Phoenix";
+import Atlanta from "./pages/cities/Atlanta";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -129,6 +135,12 @@ const App = () => (
               <Route path="/tesla-car-sharing-new-york" element={<NewYork />} />
               <Route path="/tesla-car-sharing-austin" element={<Austin />} />
               <Route path="/tesla-car-sharing-san-diego" element={<SanDiego />} />
+              <Route path="/tesla-car-sharing-dallas" element={<Dallas />} />
+              <Route path="/tesla-car-sharing-chicago" element={<Chicago />} />
+              <Route path="/tesla-car-sharing-seattle" element={<Seattle />} />
+              <Route path="/tesla-car-sharing-denver" element={<Denver />} />
+              <Route path="/tesla-car-sharing-phoenix" element={<Phoenix />} />
+              <Route path="/tesla-car-sharing-atlanta" element={<Atlanta />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
