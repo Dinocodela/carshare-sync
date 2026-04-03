@@ -1,52 +1,56 @@
 
 
-## Plan: Fix Calendar Popover + Numeric Zero Display
+## Plan: Mobile Responsiveness Audit & Fix
 
-### Root Causes
-
-**Calendar not working**: The `Popover` renders its content via a Portal (outside the Sheet/Dialog DOM). Radix Dialog (used by Sheet) is modal by default -- it intercepts clicks outside its content area. When the user clicks a calendar day, the Sheet treats it as an "outside click" and closes everything before the selection registers.
-
-**Numeric zeros still showing**: The `NumericPlaceholderInput` component code is correct, but the `SheetContent` and `DialogContent` components don't pass `onInteractOutside` through. The zero issue may also be a stale build artifact -- the code analysis confirms all numeric fields correctly use `NumericPlaceholderInput`. To be safe, we'll add explicit `placeholder` props and verify every instance.
+### Problem
+The app has several mobile responsiveness issues, most notably:
+1. **Onboarding Screen 3** — content overflows on small screens (icon clipped at top, app store badges + CTA + trust text cramped at bottom)
+2. **Onboarding Screens 1 & 2** — spacing is generous but not optimized for very small screens (iPhone SE, 320px)
+3. **General pages** — need verification that DashboardLayout pages, forms, and tables don't overflow on mobile
 
 ### Changes
 
-**1. Fix Calendar inside Sheet/Dialog (root cause fix)**
+**1. Fix OnboardingFlow container to allow scrolling on short screens**
 
-Add `onInteractOutside` to every `SheetContent` and `DialogContent` that contains a Popover datepicker. This prevents the Sheet/Dialog from closing when the user clicks on the calendar popover portal:
+File: `src/components/onboarding/OnboardingFlow.tsx`
+- Change the screen content area from `flex-1 flex items-center justify-center` (which centers but clips) to allow vertical scroll on short viewports
+- Use `min-h-0 flex-1 overflow-y-auto` so content scrolls instead of clipping
 
-```tsx
-<SheetContent
-  side="bottom"
-  onInteractOutside={(e) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('[data-radix-popper-content-wrapper]')) {
-      e.preventDefault();
-    }
-  }}
-  className="..."
->
-```
+**2. Fix OnboardingScreen3 spacing for mobile**
 
-Apply to all 6 Sheet/Dialog instances that contain date pickers:
-- Mobile Expense Sheet
-- Desktop Expense Dialog  
-- Mobile Earning Sheet
-- Desktop Earning Dialog
-- Mobile Claim Sheet
-- Desktop Claim Dialog
+File: `src/components/onboarding/OnboardingScreen3.tsx`
+- Reduce `mb-8` to `mb-5` on the icon container
+- Reduce `mb-6` on feature cards to `mb-4`
+- Ensure the entire screen uses `py-6` padding instead of relying on `justify-center` which causes clipping when content exceeds viewport
 
-**2. Ensure CalendarWidget always has `pointer-events-auto`**
+**3. Fix all three onboarding screens to use flexible spacing**
 
-Verify every `<CalendarWidget>` instance has `className="p-3 pointer-events-auto"` (10 instances total). Some may be missing the class.
+Files: `OnboardingScreen1.tsx`, `OnboardingScreen2.tsx`, `OnboardingScreen3.tsx`
+- Change from `h-full` + `justify-center` to `min-h-full` + `justify-center` with `py-8 sm:py-12` padding
+- Reduce `mb-8` to `mb-5 sm:mb-8` for icon containers (responsive margin)
+- This ensures content doesn't clip on small screens while still centering on larger ones
 
-**3. Verify NumericPlaceholderInput coverage**
+**4. Audit and fix DashboardLayout for small screens**
 
-Double-check all numeric form fields pass `value={field.value}` and `onChange={field.onChange}` correctly. The component already handles zero-hiding; if the issue persists after a clean build, the fix is confirmed as a build cache issue.
+File: `src/components/layout/DashboardLayout.tsx`
+- Already uses `pb-app-bottom` which accounts for bottom nav — this is correct
+- Verify `pt-safe-top` is applied — already present
 
-### Files Modified
-- `src/pages/HostCarManagement.tsx` -- add `onInteractOutside` to 6 Sheet/Dialog containers, verify all CalendarWidget and NumericPlaceholderInput instances
+**5. Fix BottomNavBar dark mode support**
 
-### Technical Notes
-- The `onInteractOutside` handler checks if the click target is inside a `[data-radix-popper-content-wrapper]` (the Popover portal container) and prevents the Sheet/Dialog from closing
-- This is the standard Radix UI pattern for nested portals inside modal dialogs
+File: `src/components/layout/BottomNavBar.tsx`
+- The nav hardcodes `bg-white/70` — should use `bg-background/70` for dark mode compatibility
+
+**6. Ensure tables and wide content scroll horizontally on mobile**
+
+File: `src/pages/HostCarManagement.tsx`
+- Desktop tables already use `hidden md:block` with mobile card views — already handled
+- Verify no horizontal overflow from fixed-width elements
+
+### Summary of file changes
+- `src/components/onboarding/OnboardingFlow.tsx` — scrollable screen container
+- `src/components/onboarding/OnboardingScreen1.tsx` — responsive spacing
+- `src/components/onboarding/OnboardingScreen2.tsx` — responsive spacing  
+- `src/components/onboarding/OnboardingScreen3.tsx` — responsive spacing, fix clipping
+- `src/components/layout/BottomNavBar.tsx` — dark mode bg fix
 
