@@ -125,10 +125,10 @@ export default function BlogPost() {
           {/* Content */}
           <div
             className="prose prose-sm md:prose-base lg:prose-lg max-w-none dark:prose-invert
-              prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-              prose-h2:text-xl prose-h2:md:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:border-b prose-h2:border-border/50 prose-h2:pb-3
-              prose-h3:text-lg prose-h3:md:text-xl prose-h3:mt-10 prose-h3:mb-4
-              prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-6
+              prose-headings:text-foreground prose-headings:tracking-tight
+              prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:font-extrabold prose-h2:mt-14 prose-h2:mb-6
+              prose-h3:text-xl prose-h3:md:text-2xl prose-h3:font-bold prose-h3:mt-12 prose-h3:mb-5
+              prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-7
               prose-strong:text-foreground prose-strong:font-semibold
               prose-a:text-primary prose-a:underline prose-a:underline-offset-4 hover:prose-a:text-primary/80
               prose-ul:my-6 prose-ul:space-y-3 prose-ul:list-disc prose-ul:pl-6
@@ -136,8 +136,8 @@ export default function BlogPost() {
               prose-li:text-foreground/85 prose-li:leading-relaxed prose-li:pl-1
               prose-img:rounded-xl prose-img:shadow-md
               prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:my-8 prose-blockquote:not-italic
-              [&_p+p]:mt-6 [&_h2+p]:mt-4 [&_ul_li::marker]:text-primary [&_ol_li::marker]:text-primary [&_ol_li::marker]:font-semibold"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+              [&_p+p]:mt-7 [&_h2+p]:mt-5 [&_h3+p]:mt-5 [&_ul_li::marker]:text-primary [&_ol_li::marker]:text-primary [&_ol_li::marker]:font-semibold"
+            dangerouslySetInnerHTML={{ __html: cleanContent }}
           />
 
           {/* Tags */}
