@@ -94,29 +94,22 @@ function useRecentActivity(
           .order("created_at", { ascending: false })
           .limit(limit);
 
-        const { data: reqs } = await supabase
-          .from("requests")
-          .select("id, status, created_at, updated_at, client_id, host_id")
-          .or(`client_id.eq.${userId},host_id.eq.${userId}`)
-          .order("created_at", { ascending: false })
-          .limit(limit);
-
+        // Fetch ALL recent earnings (paid) — primary content for this feed
         let earns: any[] = [];
         if (role === "host") {
           const { data } = await supabase
             .from("host_earnings")
-            .select("id, amount, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id")
+            .select("id, amount, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
             .eq("payment_status", "paid")
             .order("date_paid", { ascending: false })
             .limit(limit);
           earns = data || [];
         } else {
-          // For clients, fetch paid earnings for their cars
           const carIds = (cars || []).map((c) => c.id);
           if (carIds.length) {
             const { data } = await supabase
               .from("host_earnings")
-              .select("id, amount, client_profit_percentage, date_paid, payment_status, car_id")
+              .select("id, amount, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
               .eq("payment_status", "paid")
               .in("car_id", carIds)
               .order("date_paid", { ascending: false })
@@ -127,58 +120,70 @@ function useRecentActivity(
 
         const mapped: { id: string; ts: string; message: string; icon: string }[] = [];
 
-        (cars || []).forEach((c) =>
-          mapped.push({
-            id: `car_${c.id}`,
-            ts: c.created_at,
-            message: `${c.make} ${c.model} added to your fleet`,
-            icon: "🚗",
-          })
-        );
-
-        (reqs || []).forEach((r) => {
-          mapped.push({
-            id: `req_new_${r.id}`,
-            ts: r.created_at,
-            message:
-              role === "host"
-                ? "New hosting request received"
-                : "Hosting request sent",
-            icon: "📩",
-          });
-          if (r.updated_at && r.updated_at !== r.created_at) {
-            const status =
-              r.status === "accepted"
-                ? "accepted"
-                : r.status === "rejected"
-                ? "rejected"
-                : r.status;
-            mapped.push({
-              id: `req_status_${r.id}`,
-              ts: r.updated_at,
-              message:
-                role === "host"
-                  ? `You ${status} a hosting request`
-                  : `Your request was ${status}`,
-              icon: "✅",
-            });
-          }
-        });
-
+        // Paid earnings first — these are the most important
         (earns).forEach((e) => {
           if (!e.date_paid) return;
           const payout = role === "host"
             ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
             : ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
-          const carInfo = (cars || []).find((c) => c.id === e.car_id);
-          const carLabel = carInfo ? ` for ${carInfo.make} ${carInfo.model}` : "";
+          const carInfo = (cars || []).find((c: any) => c.id === e.car_id);
+          const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
+          const guest = e.guest_name ? ` from ${e.guest_name}` : "";
           mapped.push({
             id: `earn_${e.id}`,
             ts: e.date_paid,
-            message: `Received $${Number(payout).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} payout${carLabel}`,
+            message: `Received $${Number(payout).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} payout${guest}${carLabel}`,
             icon: "💵",
           });
         });
+
+        // Only backfill with cars/requests if we need more items
+        if (mapped.length < limit) {
+          (cars || []).forEach((c) =>
+            mapped.push({
+              id: `car_${c.id}`,
+              ts: c.created_at,
+              message: `${c.make} ${c.model} added to your fleet`,
+              icon: "🚗",
+            })
+          );
+
+          const { data: reqs } = await supabase
+            .from("requests")
+            .select("id, status, created_at, updated_at, client_id, host_id")
+            .or(`client_id.eq.${userId},host_id.eq.${userId}`)
+            .order("created_at", { ascending: false })
+            .limit(limit);
+
+          (reqs || []).forEach((r) => {
+            mapped.push({
+              id: `req_new_${r.id}`,
+              ts: r.created_at,
+              message:
+                role === "host"
+                  ? "New hosting request received"
+                  : "Hosting request sent",
+              icon: "📩",
+            });
+            if (r.updated_at && r.updated_at !== r.created_at) {
+              const status =
+                r.status === "accepted"
+                  ? "accepted"
+                  : r.status === "rejected"
+                  ? "rejected"
+                  : r.status;
+              mapped.push({
+                id: `req_status_${r.id}`,
+                ts: r.updated_at,
+                message:
+                  role === "host"
+                    ? `You ${status} a hosting request`
+                    : `Your request was ${status}`,
+                icon: "✅",
+              });
+            }
+          });
+        }
 
         mapped.sort((a, b) => (a.ts > b.ts ? -1 : 1));
         if (!cancelled) setItems(mapped.slice(0, limit));
