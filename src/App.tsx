@@ -24,7 +24,7 @@ import HostRequests from "./pages/HostRequests";
 import HostingDetails from "./pages/HostingDetails";
 import HostCarManagement from "./pages/HostCarManagement";
 import BonzahInsurance from "./pages/BonzahInsurance";
-import HostReservations from "./pages/HostReservations";
+
 import RegisteredClients from "./pages/RegisteredClients";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
@@ -189,10 +189,6 @@ const App = () => (
                     <Route
                       path="/host-car-management"
                       element={<HostCarManagement />}
-                    />
-                    <Route
-                      path="/host-reservations"
-                      element={<HostReservations />}
                     />
                     <Route
                       path="/bonzah-insurance"

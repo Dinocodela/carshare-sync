@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, CalendarDays } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -87,11 +87,6 @@ export function AppSidebar() {
           title: "Hosted Cars",
           url: "/host-car-management",
           icon: Car,
-        },
-        {
-          title: "Reservations",
-          url: "/host-reservations",
-          icon: CalendarDays,
         },
         {
           title: "Clients",
