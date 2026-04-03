@@ -68,6 +68,10 @@ export default function AddCar() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [showAgreement, setShowAgreement] = useState(false);
+  const [createdCarId, setCreatedCarId] = useState<string | null>(null);
+  const [createdCarInfo, setCreatedCarInfo] = useState<any>(null);
+  const { profile } = useProfile();
   const {
     takePhoto,
     selectFromGallery,
