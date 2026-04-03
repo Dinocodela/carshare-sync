@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { useBlogPosts, useBlogCategories } from "@/hooks/useBlogPosts";
 import { BlogHeroPost } from "@/components/blog/BlogHeroPost";
 import { BlogPostCard } from "@/components/blog/BlogPostCard";
