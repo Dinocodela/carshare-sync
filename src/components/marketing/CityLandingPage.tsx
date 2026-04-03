@@ -347,6 +347,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
               </Link>
               <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
                 <Link to="/how-it-works" className="hover:text-foreground transition-colors">How It Works</Link>
+                <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">Earnings Calculator</Link>
                 <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
                 <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
                 <Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link>

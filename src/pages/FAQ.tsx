@@ -157,6 +157,16 @@ export default function FAQ() {
                 Contact Support
               </a>
             </div>
+
+            {/* Internal links */}
+            <div className="mt-10 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+              <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">Earnings Calculator</Link>
+              <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
+              <Link to="/how-it-works" className="hover:text-foreground transition-colors">How It Works</Link>
+              <Link to="/tesla-car-sharing-los-angeles" className="hover:text-foreground transition-colors">Los Angeles</Link>
+              <Link to="/tesla-car-sharing-miami" className="hover:text-foreground transition-colors">Miami</Link>
+              <Link to="/tesla-car-sharing-dallas" className="hover:text-foreground transition-colors">Dallas</Link>
+            </div>
           </div>
         </PageContainer>
       </DashboardLayout>
