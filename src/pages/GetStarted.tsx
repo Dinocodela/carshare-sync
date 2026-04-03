@@ -141,6 +141,24 @@ export default function GetStarted() {
           </div>
         </section>
 
+        {/* Promo Banner */}
+        <section className="bg-primary/5 border-y border-primary/20 px-6 py-10">
+          <div className="max-w-2xl mx-auto text-center space-y-4">
+            <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+              🎉 Limited-Time Offer
+            </span>
+            <h2 className="text-2xl font-bold text-foreground">
+              First Month Free — Keep 100% of Your Earnings
+            </h2>
+            <p className="text-muted-foreground">
+              Sign up now and keep every penny you earn for your first 30 days. No host commission deducted.
+            </p>
+            <Button asChild size="lg" className="text-lg px-10 py-6 h-auto rounded-xl shadow-lg">
+              <Link to="/register/client">Claim Your Free Month</Link>
+            </Button>
+          </div>
+        </section>
+
         {/* Footer */}
         <footer className="border-t border-border px-6 py-6 text-center text-sm text-muted-foreground">
           <div className="flex flex-wrap justify-center gap-4">
