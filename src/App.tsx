@@ -119,6 +119,14 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/tesla-car-sharing-los-angeles" element={<LosAngeles />} />
+              <Route path="/tesla-car-sharing-miami" element={<Miami />} />
+              <Route path="/tesla-car-sharing-san-francisco" element={<SanFrancisco />} />
+              <Route path="/tesla-car-sharing-new-york" element={<NewYork />} />
+              <Route path="/tesla-car-sharing-austin" element={<Austin />} />
+              <Route path="/tesla-car-sharing-san-diego" element={<SanDiego />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
