@@ -29,7 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function ClientAnalytics() {
   const {
-    earnings, expenses, claims, summary,
+    earnings, expenses, claims, carsMap, summary,
     loading, error, refetch,
     selectedYear, setSelectedYear, availableYears,
   } = useClientAnalytics();
