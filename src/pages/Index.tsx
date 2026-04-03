@@ -269,6 +269,12 @@ const Index = () => {
                       )}
                     </Button>
 
+                    <div className="text-center">
+                      <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+                        Forgot password?
+                      </Link>
+                    </div>
+
                     <div className="text-center text-xs text-muted-foreground">
                       New here?{" "}
                       <button

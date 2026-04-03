@@ -107,6 +107,8 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/email-confirmed" element={<EmailConfirmed />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
 
