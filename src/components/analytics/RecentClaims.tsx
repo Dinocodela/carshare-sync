@@ -1,13 +1,14 @@
 import { Badge } from "@/components/ui/badge";
-import { ClientClaim } from "@/hooks/useClientAnalytics";
+import { ClientClaim, CarInfo } from "@/hooks/useClientAnalytics";
 import { format, parseISO } from "date-fns";
-import { FileText, Calendar, DollarSign } from "lucide-react";
+import { FileText, Calendar, DollarSign, Car } from "lucide-react";
 
 interface RecentClaimsProps {
   claims: ClientClaim[];
+  carsMap?: Record<string, CarInfo>;
 }
 
-export function RecentClaims({ claims }: RecentClaimsProps) {
+export function RecentClaims({ claims, carsMap = {} }: RecentClaimsProps) {
   const recentClaims = claims.slice(0, 5);
 
   const getStatusBadge = (status: string) => {
@@ -43,41 +44,53 @@ export function RecentClaims({ claims }: RecentClaimsProps) {
           </div>
         ) : (
           <div className="divide-y divide-border/50">
-            {recentClaims.map((claim, i) => (
-              <div
-                key={claim.id}
-                className="px-4 py-3.5 hover:bg-muted/20 transition-colors space-y-2"
-                style={{ animation: `fade-in 0.3s ease-out ${i * 40}ms both` }}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className="text-sm font-medium text-foreground">{claim.claim_type}</p>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 rounded-full border ${getStatusBadge(claim.claim_status)}`}>
-                        {claim.claim_status.charAt(0).toUpperCase() + claim.claim_status.slice(1)}
-                      </Badge>
+            {recentClaims.map((claim, i) => {
+              const car = carsMap[claim.car_id];
+              return (
+                <div
+                  key={claim.id}
+                  className="px-4 py-3.5 hover:bg-muted/20 transition-colors space-y-2"
+                  style={{ animation: `fade-in 0.3s ease-out ${i * 40}ms both` }}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="text-sm font-medium text-foreground">{claim.claim_type}</p>
+                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 rounded-full border ${getStatusBadge(claim.claim_status)}`}>
+                          {claim.claim_status.charAt(0).toUpperCase() + claim.claim_status.slice(1)}
+                        </Badge>
+                      </div>
+                      {car && (
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <Car className="w-3 h-3 text-primary/60 shrink-0" />
+                          <p className="text-[11px] text-muted-foreground truncate">
+                            {car.year} {car.make} {car.model}
+                            {car.license_plate && <span className="ml-1.5 font-mono text-[10px] text-muted-foreground/70">· {car.license_plate}</span>}
+                          </p>
+                        </div>
+                      )}
+                      {claim.trip_id && (
+                        <p className="text-[11px] text-muted-foreground font-mono">Trip: {claim.trip_id}</p>
+                      )}
                     </div>
-                    {claim.trip_id && (
-                      <p className="text-[11px] text-muted-foreground font-mono">Trip: {claim.trip_id}</p>
-                    )}
+                    <div className="flex items-center gap-1 text-sm font-semibold text-foreground shrink-0">
+                      <DollarSign className="h-3.5 w-3.5" />
+                      {(claim.claim_amount || 0).toFixed(2)}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-sm font-semibold text-foreground shrink-0">
-                    <DollarSign className="h-3.5 w-3.5" />
-                    {(claim.claim_amount || 0).toFixed(2)}
+
+                  <p className="text-xs text-muted-foreground line-clamp-2">{claim.description}</p>
+
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {format(parseISO(claim.incident_date), "MMM d, yyyy")}
+                    </div>
+                    <span>Filed {format(parseISO(claim.created_at), "MMM d")}</span>
                   </div>
                 </div>
-
-                <p className="text-xs text-muted-foreground line-clamp-2">{claim.description}</p>
-
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {format(parseISO(claim.incident_date), "MMM d, yyyy")}
-                  </div>
-                  <span>Filed {format(parseISO(claim.created_at), "MMM d")}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             {claims.length > 5 && (
               <div className="px-4 py-3 text-center">

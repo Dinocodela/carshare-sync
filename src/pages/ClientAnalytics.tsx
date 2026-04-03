@@ -29,7 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function ClientAnalytics() {
   const {
-    earnings, expenses, claims, summary,
+    earnings, expenses, claims, carsMap, summary,
     loading, error, refetch,
     selectedYear, setSelectedYear, availableYears,
   } = useClientAnalytics();
@@ -206,8 +206,8 @@ export default function ClientAnalytics() {
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
                 <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
-                  <RecentTrips earnings={earnings} expenses={expenses} />
-                  <RecentClaims claims={claims} />
+                   <RecentTrips earnings={earnings} expenses={expenses} carsMap={carsMap} />
+                   <RecentClaims claims={claims} carsMap={carsMap} />
                 </div>
               </TabsContent>
 
@@ -226,8 +226,8 @@ export default function ClientAnalytics() {
                       <ExpenseBreakdown expenses={selectedCarData?.expenses || []} />
                     </div>
                     <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
-                      <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} />
-                      <RecentClaims claims={selectedCarData?.claims || []} />
+                      <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} carsMap={carsMap} />
+                      <RecentClaims claims={selectedCarData?.claims || []} carsMap={carsMap} />
                     </div>
                   </>
                 ) : (

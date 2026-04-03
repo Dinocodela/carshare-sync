@@ -1,16 +1,17 @@
 import { Badge } from "@/components/ui/badge";
-import { ClientEarning, ClientExpense } from "@/hooks/useClientAnalytics";
+import { ClientEarning, ClientExpense, CarInfo } from "@/hooks/useClientAnalytics";
 import { format, parseISO } from "date-fns";
 import { getClientShare, getNetEarningAmount } from "@/lib/expenseMatching";
-import { MapPin, ChevronRight } from "lucide-react";
+import { MapPin, Car } from "lucide-react";
 
 interface RecentTripsProps {
   earnings: ClientEarning[];
   expenses?: ClientExpense[];
+  carsMap?: Record<string, CarInfo>;
   limit?: number;
 }
 
-export function RecentTrips({ earnings, expenses = [], limit = 10 }: RecentTripsProps) {
+export function RecentTrips({ earnings, expenses = [], carsMap = {}, limit = 10 }: RecentTripsProps) {
   const recentEarnings = earnings.slice(0, limit);
 
   const getStatusBadge = (status: string) => {
@@ -47,6 +48,7 @@ export function RecentTrips({ earnings, expenses = [], limit = 10 }: RecentTrips
             {recentEarnings.map((earning, i) => {
               const share = getClientShare(earning.amount, earning.client_profit_percentage, earning.trip_id, expenses);
               const net = getNetEarningAmount(earning.amount, earning.trip_id, expenses);
+              const car = carsMap[earning.car_id];
               return (
                 <li
                   key={earning.id}
@@ -62,6 +64,15 @@ export function RecentTrips({ earnings, expenses = [], limit = 10 }: RecentTrips
                         {earning.payment_status}
                       </Badge>
                     </div>
+                    {car && (
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <Car className="w-3 h-3 text-primary/60 shrink-0" />
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {car.year} {car.make} {car.model}
+                          {car.license_plate && <span className="ml-1.5 font-mono text-[10px] text-muted-foreground/70">· {car.license_plate}</span>}
+                        </p>
+                      </div>
+                    )}
                     <p className="text-[11px] text-muted-foreground">
                       {format(parseISO(earning.earning_period_start), "MMM d")} – {format(parseISO(earning.earning_period_end), "MMM d, yyyy")}
                     </p>
