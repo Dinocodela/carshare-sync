@@ -37,12 +37,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex w-full h-full bg-gradient-hero">
+      <div className="flex w-full h-full min-h-0 bg-gradient-hero overflow-hidden">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 h-full min-h-0 overflow-hidden">
           <main
             data-scroll-root
-            className="flex-1 min-h-0 overflow-y-auto overscroll-contain pt-4 pt-safe-top px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 w-full"
+            className="relative flex-1 min-h-0 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-4 pt-safe-top px-0 py-4 pb-app-bottom sm:p-6 md:pb-6 w-full"
           >
             <div className="px-4 sm:px-6">
               <BreadcrumbNav />
