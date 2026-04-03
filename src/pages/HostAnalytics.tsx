@@ -14,9 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw, Calendar, Shield } from "lucide-react";
+import { RefreshCw, Calendar, Shield, Car, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
 
 // Transform host data to match component interfaces
 const transformSummaryForDisplay = (hostSummary: any) => ({
@@ -66,6 +71,12 @@ export default function HostAnalytics() {
     earnings, expenses, claims, summary,
     loading, error, refetch,
     selectedYear, setSelectedYear, availableYears,
+    selectedCarId, setSelectedCarId,
+    selectedPaymentSource, setSelectedPaymentSource,
+    selectedPaymentStatus, setSelectedPaymentStatus,
+    selectedMonth, setSelectedMonth,
+    hostCars, availablePaymentSources,
+    clearFilters, hasActiveFilters,
   } = useHostAnalytics();
 
   const [mounted, setMounted] = useState(false);
@@ -81,6 +92,7 @@ export default function HostAnalytics() {
 
   const handleYearChange = (value: string) => {
     setSelectedYear(value === "all" ? null : parseInt(value, 10));
+    if (value === "all") setSelectedMonth(null);
   };
 
   const fadeIn = (idx: number) => ({
@@ -166,8 +178,100 @@ export default function HostAnalytics() {
             </div>
           </div>
 
+          {/* ─── Filter Bar ─── */}
+          <div
+            style={fadeIn(1)}
+            className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 p-4"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Filters
+              </span>
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="ml-auto h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+              {/* Car Filter */}
+              <Select
+                value={selectedCarId ?? "all"}
+                onValueChange={(v) => setSelectedCarId(v === "all" ? null : v)}
+              >
+                <SelectTrigger className="h-9 text-xs bg-background/50 border-border/50">
+                  <Car className="mr-1.5 h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <SelectValue placeholder="All Cars" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Cars</SelectItem>
+                  {hostCars.map((car) => (
+                    <SelectItem key={car.id} value={car.id}>
+                      {car.year} {car.make} {car.model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Payment Source Filter */}
+              <Select
+                value={selectedPaymentSource ?? "all"}
+                onValueChange={(v) => setSelectedPaymentSource(v === "all" ? null : v)}
+              >
+                <SelectTrigger className="h-9 text-xs bg-background/50 border-border/50">
+                  <SelectValue placeholder="All Sources" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  {availablePaymentSources.map((source) => (
+                    <SelectItem key={source} value={source}>{source}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Payment Status Filter */}
+              <Select
+                value={selectedPaymentStatus ?? "all"}
+                onValueChange={(v) => setSelectedPaymentStatus(v === "all" ? null : v)}
+              >
+                <SelectTrigger className="h-9 text-xs bg-background/50 border-border/50">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Month Filter (only when a specific year is selected) */}
+              <Select
+                value={selectedMonth !== null ? selectedMonth.toString() : "all"}
+                onValueChange={(v) => setSelectedMonth(v === "all" ? null : parseInt(v, 10))}
+                disabled={!selectedYear}
+              >
+                <SelectTrigger className="h-9 text-xs bg-background/50 border-border/50">
+                  <SelectValue placeholder={selectedYear ? "All Months" : "Select year first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Months</SelectItem>
+                  {MONTH_NAMES.map((name, idx) => (
+                    <SelectItem key={idx} value={idx.toString()}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {/* ─── Summary Cards ─── */}
-          <div style={fadeIn(1)}>
+          <div style={fadeIn(2)}>
             <SummaryCards
               summary={uiSummary}
               loading={loading}
@@ -177,18 +281,18 @@ export default function HostAnalytics() {
           </div>
 
           {/* ─── Claims Summary ─── */}
-          <div style={fadeIn(2)}>
+          <div style={fadeIn(3)}>
             <ClaimsSummary claims={transformClaimsForDisplay(claims)} loading={loading} />
           </div>
 
           {/* ─── Charts ─── */}
-          <div style={fadeIn(3)} className="grid gap-5 lg:grid-cols-2">
+          <div style={fadeIn(4)} className="grid gap-5 lg:grid-cols-2">
             <EarningsChart earnings={transformEarningsForDisplay(earnings, expenses)} selectedYear={selectedYear} />
             <ExpenseBreakdown expenses={transformExpensesForDisplay(expenses)} />
           </div>
 
           {/* ─── Recent Data ─── */}
-          <div style={fadeIn(4)} className="grid gap-5 lg:grid-cols-1">
+          <div style={fadeIn(5)} className="grid gap-5 lg:grid-cols-1">
             <RecentTrips earnings={transformEarningsForDisplay(earnings, expenses)} />
             <RecentClaims claims={transformClaimsForDisplay(claims)} />
           </div>
