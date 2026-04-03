@@ -60,6 +60,7 @@ export function OnboardingFlow() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-hero relative overflow-hidden">
+      <RentATeslaLink />
 
       {/* Screen content with transitions */}
       <div

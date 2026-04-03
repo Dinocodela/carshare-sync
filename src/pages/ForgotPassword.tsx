@@ -32,7 +32,8 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4 relative">
+      <RentATeslaLink />
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-6">
           <Logo size="xl" linked />
