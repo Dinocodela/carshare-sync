@@ -14,16 +14,36 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [validLink, setValidLink] = useState(true);
+  const [ready, setReady] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have recovery params in hash
-    const hash = window.location.hash;
-    if (!hash.includes('type=recovery') && !hash.includes('access_token')) {
-      setValidLink(false);
-    }
+    // Supabase client auto-processes the hash fragment and establishes a session.
+    // We listen for the PASSWORD_RECOVERY event to know the user is ready to reset.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setReady(true);
+        // Clear the hash so it doesn't re-trigger
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+
+    // Also check if there's already a session (in case the event fired before mount)
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setReady(true);
+      }
+    };
+
+    // Give Supabase client a moment to process the hash
+    const timeout = setTimeout(checkSession, 1500);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,6 +62,8 @@ export default function ResetPassword() {
       if (error) throw error;
       setSuccess(true);
       toast({ title: 'Password updated', description: 'You can now sign in with your new password.' });
+      // Sign out so they log in fresh with new password
+      await supabase.auth.signOut();
       setTimeout(() => navigate('/'), 3000);
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Error', description: err.message || 'Failed to reset password' });
@@ -50,18 +72,14 @@ export default function ResetPassword() {
     }
   };
 
-  if (!validLink) {
+  if (!ready) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4">
         <div className="w-full max-w-sm text-center space-y-4">
-          <Logo size="xl" linked />
-          <h2 className="text-lg font-bold mt-6">Invalid or Expired Link</h2>
-          <p className="text-sm text-muted-foreground">
-            This password reset link is invalid or has expired. Please request a new one.
-          </p>
-          <Button onClick={() => navigate('/forgot-password')} className="rounded-xl">
-            Request New Link
-          </Button>
+          <div className="flex justify-center mb-6">
+            <Logo size="xl" linked />
+          </div>
+          <p className="text-sm text-muted-foreground">Verifying your reset link…</p>
         </div>
       </div>
     );
