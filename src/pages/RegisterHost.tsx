@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validatePassword } from "@/lib/passwordValidation";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 import { ArrowRight, ChevronLeft, Building2, User, Mail, Phone, Lock, MapPin, Wrench } from "lucide-react";
+import { RentATeslaLink } from "@/components/RentATeslaLink";
 
 const RegisterHost = () => {
   const [formData, setFormData] = useState({
