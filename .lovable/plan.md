@@ -1,48 +1,44 @@
 
 
-## Plan: Professional Blog Typography & Content Cleanup
+## Plan: Add Advanced Filters to Host Analytics
 
-### Problem
-The blog post body has three issues visible in the screenshot:
-1. **Emojis in subheadings** (📋, 🚀) — looks unprofessional, not befitting a premium brand
-2. **Subheadings too small/not prominent enough** — need larger size and bolder weight
-3. **Insufficient spacing** between paragraphs and subheading titles
-
-### Root Cause
-- The emojis are embedded in the **HTML content stored in the database** (inserted via the `insert-blog-post` edge function). The rendering styles can't remove them — they must be stripped at render time.
-- The current prose styles for `h2` and `h3` are decent but could be more prominent, especially on mobile.
+### What we're building
+A filter bar below the trust banner with four additional filters that let hosts slice their analytics data by car, payment source, payment status, and month — all working alongside the existing year filter.
 
 ### Changes
 
-**1. Strip emojis from rendered content (BlogPost.tsx)**
+**1. Add filter state and car lookup to `useHostAnalytics.tsx`**
 
-Add a sanitization step before rendering that removes emoji characters from `h2` and `h3` tags in the HTML string. This avoids needing to update every post in the database.
+- Add `payment_source` to the `HostEarning` interface (already fetched via `select("*")` but not typed)
+- Fetch the host's cars from the `cars` table (just `id`, `make`, `model`, `year`) so we can show car names in the filter
+- Expose new filter state: `selectedCarId`, `selectedPaymentSource`, `selectedPaymentStatus`, `selectedMonth`
+- Apply filters to the earnings/expenses/claims queries (car_id filter at DB level, others client-side for simplicity)
+- Recalculate summary when filters change
 
-```tsx
-// Strip emojis from headings before rendering
-const cleanContent = post.content
-  .replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1');
-```
+**2. Add filter bar UI to `HostAnalytics.tsx`**
 
-**2. Increase subheading size and weight (BlogPost.tsx)**
+Below the trust banner, add a responsive filter strip with four `Select` dropdowns:
 
-Update the prose classes:
-- `h2`: bump from `text-xl md:text-2xl` → `text-2xl md:text-3xl`, add `font-extrabold`
-- `h3`: bump from `text-lg md:text-xl` → `text-xl md:text-2xl`, add `font-bold`
-- Remove the bottom border on h2 (looks cleaner for a premium feel)
+| Filter | Options | Source |
+|--------|---------|--------|
+| Car | All Cars / {year make model} per car | `cars` table |
+| Source | All Sources / Turo / GetAround / etc. | Distinct `payment_source` from earnings |
+| Status | All / Paid / Pending | `payment_status` from earnings |
+| Month | All Months / Jan–Dec | Derived from selected year |
 
-**3. Increase spacing between paragraphs and headings**
+- On mobile: 2-column grid of selects
+- On desktop: horizontal flex row
+- Each filter styled with glassmorphic `bg-card/80 backdrop-blur-sm` to match existing design
+- Include a "Clear Filters" button that resets all to "All"
 
-- `h2` margin-top: `mt-12` → `mt-14` (more breathing room above)
-- `h2` margin-bottom: `mb-5` → `mb-6`
-- `h3` margin-top: `mt-10` → `mt-12`
-- Paragraph bottom margin: `mb-6` → `mb-7`
-- Add `[&_h2+p]:mt-5` and `[&_h3+p]:mt-5` for consistent spacing after headings
+**3. Filter logic**
 
-**4. Update future blog content generation workflow**
-
-Add a note/memory that future blog posts should NOT include emojis in headings, to maintain a professional brand image.
+- Car filter: applied at DB query level (`eq("car_id", ...)`) for efficiency
+- Payment source, payment status, month: applied client-side after fetch since data volume is small
+- Summary cards, charts, and tables all recalculate based on filtered data
+- Month filter only appears when a specific year is selected (not "All Time")
 
 ### Files Modified
-- `src/pages/BlogPost.tsx` — emoji stripping + updated prose typography classes
+- `src/hooks/useHostAnalytics.tsx` — add filter state, car fetching, filter application
+- `src/pages/HostAnalytics.tsx` — add filter bar UI, pass filters through
 
