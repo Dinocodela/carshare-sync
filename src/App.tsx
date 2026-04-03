@@ -52,6 +52,14 @@ import ResetPassword from "./pages/ResetPassword";
 import ScrollReset from "./components/router/ScrollReset";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
+import HowItWorks from "./pages/HowItWorks";
+import About from "./pages/About";
+import LosAngeles from "./pages/cities/LosAngeles";
+import Miami from "./pages/cities/Miami";
+import SanFrancisco from "./pages/cities/SanFrancisco";
+import NewYork from "./pages/cities/NewYork";
+import Austin from "./pages/cities/Austin";
+import SanDiego from "./pages/cities/SanDiego";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
