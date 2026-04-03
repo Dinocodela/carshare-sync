@@ -89,11 +89,6 @@ export function AppSidebar() {
           icon: Car,
         },
         {
-          title: "Reservations",
-          url: "/host-reservations",
-          icon: CalendarDays,
-        },
-        {
           title: "Clients",
           url: "/registered-clients",
           icon: Users,
