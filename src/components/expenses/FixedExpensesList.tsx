@@ -122,8 +122,8 @@ export function FixedExpensesList({ carId, carName, readOnly = false }: FixedExp
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Active since: {new Date(expense.start_date).toLocaleDateString()}
-                    {expense.end_date && ` - ${new Date(expense.end_date).toLocaleDateString()}`}
+                    Active since: {new Date(expense.start_date + 'T00:00:00').toLocaleDateString()}
+                    {expense.end_date && ` - ${new Date(expense.end_date + 'T00:00:00').toLocaleDateString()}`}
                   </p>
                 </div>
                 {!readOnly && (
