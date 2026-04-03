@@ -67,6 +67,9 @@ export default function EarningsCalculator() {
   const [year, setYear] = useState<string>("2022");
   const [availability, setAvailability] = useState<number[]>([80]);
   const [visible, setVisible] = useState(false);
+  const [emailGated, setEmailGated] = useState(true);
+  const [gateEmail, setGateEmail] = useState("");
+  const [gateLoading, setGateLoading] = useState(false);
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
