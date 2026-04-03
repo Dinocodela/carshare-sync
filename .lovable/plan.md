@@ -1,32 +1,20 @@
 
 
-## Plan: Fix Email Confirmation Redirect
+## Problem
 
-### Problem
-When a user signs up, the confirmation email link redirects to `lovableproject.com` (the Lovable editor preview) instead of the actual app. This happens because `emailRedirectTo` uses `window.location.origin`, which resolves to the preview URL during testing.
+The blog article body looks like a wall of text because the Tailwind Typography plugin (`@tailwindcss/typography`) is installed but **not registered** in `tailwind.config.ts`. The `prose` classes on the blog content div have zero effect.
 
-### Fix
+## Fix
 
-**File: `src/hooks/useAuth.tsx`**
+**One line change** in `tailwind.config.ts`:
 
-Change the `emailRedirectTo` from `window.location.origin` to the production URL `https://teslys.app/`. This ensures confirmation emails always redirect to the real app regardless of where the signup was initiated.
+Add `require("@tailwindcss/typography")` to the plugins array (line 118):
 
-```typescript
-// Before
-const redirectUrl = `${window.location.origin}/`;
-
-// After
-const redirectUrl = "https://teslys.app/";
+```ts
+plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 ```
 
-### Existing Flow (already works, just needs the correct redirect)
-1. User clicks confirmation link → lands on `https://teslys.app/` with hash params
-2. `AuthCallbackHandler` detects `type=signup` + `access_token` → redirects to `/email-confirmed`
-3. `/email-confirmed` page shows "Email Confirmed! Your account is now under review"
-4. User signs in → `RequirePending` guard sends them to `/account-pending` until admin approves
+This single change will activate all the existing `prose` styling classes already applied in `BlogPost.tsx` — headings will get proper sizing/spacing, bullet lists will display with markers and indentation, paragraphs will have breathing room, and blockquotes will render correctly.
 
-No other file changes needed — the post-confirmation pages already exist and show the correct "under review" messaging.
-
-### Files Modified
-- `src/hooks/useAuth.tsx` — hardcode production redirect URL
+No other file changes needed — the `BlogPost.tsx` prose classes are already well-configured.
 
