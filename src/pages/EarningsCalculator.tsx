@@ -127,7 +127,7 @@ export default function EarningsCalculator() {
         keywords="Tesla earnings calculator, Tesla rental income, how much can I earn renting my Tesla, Tesla passive income calculator"
         canonical="https://teslysapp.lovable.app/earnings-calculator"
       />
-      <StructuredData data={faqSchema} />
+      <StructuredData type="faq" data={faqSchema} />
 
       <div className="min-h-screen bg-gradient-to-b from-background via-secondary/30 to-background">
         {/* Nav */}
