@@ -1,73 +1,52 @@
 
 
-## Plan: Modernize Edit Expense & Edit Earning Popups + Fix Zero-Clear UX
+## Plan: Fix Calendar Popover + Numeric Zero Display
 
-### Problem
-1. **Zero values stay in number inputs** -- when tapping a field showing "0", the zero remains and users must manually delete it before typing. This affects all numeric fields in both Expense and Earning forms (EV Charge, Carwash, Delivery, Toll, Other Expenses, Gross Earnings, Client/Host Profit %).
-2. **Both popups (Edit Expense, Edit Earning)** use plain, unstyled form layouts without the glassmorphic, trust-focused design used elsewhere.
-3. **Date fields** use native `<input type="date">` instead of the modern Shadcn Calendar/Popover datepicker.
+### Root Causes
+
+**Calendar not working**: The `Popover` renders its content via a Portal (outside the Sheet/Dialog DOM). Radix Dialog (used by Sheet) is modal by default -- it intercepts clicks outside its content area. When the user clicks a calendar day, the Sheet treats it as an "outside click" and closes everything before the selection registers.
+
+**Numeric zeros still showing**: The `NumericPlaceholderInput` component code is correct, but the `SheetContent` and `DialogContent` components don't pass `onInteractOutside` through. The zero issue may also be a stale build artifact -- the code analysis confirms all numeric fields correctly use `NumericPlaceholderInput`. To be safe, we'll add explicit `placeholder` props and verify every instance.
 
 ### Changes
 
-**1. Fix "select all on focus" for number inputs (all 4 form instances: mobile+desktop x expense+earning)**
+**1. Fix Calendar inside Sheet/Dialog (root cause fix)**
 
-For every `<Input type="number">` field, add an `onFocus` handler that selects all text so tapping/clicking clears the "0" and lets the user type fresh:
+Add `onInteractOutside` to every `SheetContent` and `DialogContent` that contains a Popover datepicker. This prevents the Sheet/Dialog from closing when the user clicks on the calendar popover portal:
 
 ```tsx
-onFocus={(e) => e.target.select()}
+<SheetContent
+  side="bottom"
+  onInteractOutside={(e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-radix-popper-content-wrapper]')) {
+      e.preventDefault();
+    }
+  }}
+  className="..."
+>
 ```
 
-This applies to: `ev_charge_cost`, `carwash_cost`, `delivery_cost`, `toll_cost`, `amount` (other expenses), `gross_earnings`, `client_profit_percentage`, `host_profit_percentage`. Across 4 form instances (mobile Sheet + desktop Dialog for each popup) = ~32 input updates.
+Apply to all 6 Sheet/Dialog instances that contain date pickers:
+- Mobile Expense Sheet
+- Desktop Expense Dialog  
+- Mobile Earning Sheet
+- Desktop Earning Dialog
+- Mobile Claim Sheet
+- Desktop Claim Dialog
 
-**2. Modernize Edit Expense popup (both mobile Sheet and desktop Dialog)**
+**2. Ensure CalendarWidget always has `pointer-events-auto`**
 
-- Add a sticky trust header with Shield icon and title/subtitle
-- Group fields into glassmorphic sections (`bg-card/60 backdrop-blur-sm rounded-2xl border border-border/50`):
-  - Section 1: "Trip & Vehicle" -- Trip ID, Car selector, Guest Name
-  - Section 2: "Cost Breakdown" -- EV Charge, Carwash, Delivery, Toll in 2-col grid + Other Expenses
-  - Section 3: "Details" -- Description textarea + Date picker
-- Add a secure footer with Lock icon
-- Style inputs with `rounded-xl` and section headers with icon + uppercase tracking labels
-- Replace `<Input type="date">` with Shadcn Calendar Popover datepicker using `pointer-events-auto`
+Verify every `<CalendarWidget>` instance has `className="p-3 pointer-events-auto"` (10 instances total). Some may be missing the class.
 
-**3. Modernize Edit Earning popup (both mobile Sheet and desktop Dialog)**
+**3. Verify NumericPlaceholderInput coverage**
 
-- Same trust header/footer pattern
-- Group fields into glassmorphic sections:
-  - Section 1: "Trip & Vehicle" -- Trip selector/input, Car, Guest Name
-  - Section 2: "Guest Contact" -- Phone, Email
-  - Section 3: "Earning Details" -- Earning Type, Payment Source, Gross Earnings
-  - Section 4: "Profit Calculation" -- the existing calculation card, styled with glassmorphic treatment + colored dividers
-  - Section 5: "Profit Split" -- Client %, Host %
-  - Section 6: "Schedule" -- Start Date/Time, End Date/Time (dates via Calendar Popover), Booking Calendar toggle
-  - Section 7: "Payment" -- Payment Status, Date Paid (via Calendar Popover)
-- Replace all `<Input type="date">` fields with Shadcn Calendar Popover datepickers
-- Style the Profit Calculation breakdown with a premium glassmorphic card using colored text for each line
+Double-check all numeric form fields pass `value={field.value}` and `onChange={field.onChange}` correctly. The component already handles zero-hiding; if the issue persists after a clean build, the fix is confirmed as a build cache issue.
 
-**4. Calendar Popover modernization**
-
-Replace every `<Input type="date" ...>` with:
-```tsx
-<Popover>
-  <PopoverTrigger asChild>
-    <Button variant="outline" className="w-full justify-start rounded-xl ...">
-      <CalendarIcon className="mr-2 h-4 w-4" />
-      {value ? format(new Date(value), "MM/dd/yyyy") : "Pick a date"}
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="w-auto p-0" align="start">
-    <Calendar mode="single" selected={...} onSelect={...} className="p-3 pointer-events-auto" />
-  </PopoverContent>
-</Popover>
-```
-
-Affected date fields: `expense_date`, `earning_period_start_date`, `earning_period_end_date`, `date_paid`.
-
-### File Modified
-- `src/pages/HostCarManagement.tsx` -- all changes in one file
+### Files Modified
+- `src/pages/HostCarManagement.tsx` -- add `onInteractOutside` to 6 Sheet/Dialog containers, verify all CalendarWidget and NumericPlaceholderInput instances
 
 ### Technical Notes
-- Need to add `format` from `date-fns`, `CalendarIcon` from `lucide-react`, and `Popover`/`PopoverTrigger`/`PopoverContent` + `Calendar` imports
-- The `onFocus` select-all pattern is the standard UX fix for numeric inputs that default to 0
-- All 4 form variants (mobile expense, desktop expense, mobile earning, desktop earning) will be updated consistently
+- The `onInteractOutside` handler checks if the click target is inside a `[data-radix-popper-content-wrapper]` (the Popover portal container) and prevents the Sheet/Dialog from closing
+- This is the standard Radix UI pattern for nested portals inside modal dialogs
 
