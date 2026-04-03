@@ -15,7 +15,7 @@ interface FixedExpensesListProps {
 export function FixedExpensesList({ carId, carName, readOnly = false }: FixedExpensesListProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<any>(null);
-  const { expenses, getMonthlyFixedCosts, deleteExpense, loading } = useClientCarExpenses();
+  const { expenses, getMonthlyFixedCosts, deleteExpense, loading, refetch } = useClientCarExpenses();
   
   // Filter expenses directly using the expenses state to ensure re-render
   const carExpenses = expenses.filter(expense => expense.car_id === carId);
@@ -59,7 +59,10 @@ export function FixedExpensesList({ carId, carName, readOnly = false }: FixedExp
         carName={carName}
         editExpense={editingExpense}
         onClose={handleCloseForm}
-        onSuccess={handleCloseForm}
+        onSuccess={() => {
+          handleCloseForm();
+          refetch();
+        }}
       />
     );
   }
@@ -119,8 +122,8 @@ export function FixedExpensesList({ carId, carName, readOnly = false }: FixedExp
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Active since: {new Date(expense.start_date).toLocaleDateString()}
-                    {expense.end_date && ` - ${new Date(expense.end_date).toLocaleDateString()}`}
+                    Active since: {new Date(expense.start_date + 'T00:00:00').toLocaleDateString()}
+                    {expense.end_date && ` - ${new Date(expense.end_date + 'T00:00:00').toLocaleDateString()}`}
                   </p>
                 </div>
                 {!readOnly && (
