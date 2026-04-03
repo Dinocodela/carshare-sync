@@ -226,8 +226,8 @@ export default function ClientAnalytics() {
                       <ExpenseBreakdown expenses={selectedCarData?.expenses || []} />
                     </div>
                     <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
-                      <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} />
-                      <RecentClaims claims={selectedCarData?.claims || []} />
+                      <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} carsMap={carsMap} />
+                      <RecentClaims claims={selectedCarData?.claims || []} carsMap={carsMap} />
                     </div>
                   </>
                 ) : (
