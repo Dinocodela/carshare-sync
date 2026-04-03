@@ -97,7 +97,7 @@ export default function EarningsCalculator() {
       setGateLoading(false);
     }
   };
-
+  useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
   }, []);
 
