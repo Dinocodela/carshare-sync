@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { StructuredData } from "@/components/StructuredData";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
