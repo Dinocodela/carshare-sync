@@ -94,7 +94,8 @@ function useRecentActivity(
           .order("created_at", { ascending: false })
           .limit(limit);
 
-        // Fetch earnings paid THIS MONTH only
+        // Fetch recent paid earnings — use earning_period_end for month filtering
+        // since date_paid may not always be populated
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
         const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
@@ -105,9 +106,9 @@ function useRecentActivity(
             .from("host_earnings")
             .select("id, amount, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
             .eq("payment_status", "paid")
-            .gte("date_paid", monthStart)
-            .lte("date_paid", monthEnd)
-            .order("date_paid", { ascending: false })
+            .gte("earning_period_end", monthStart)
+            .lte("earning_period_end", monthEnd)
+            .order("earning_period_end", { ascending: false })
             .limit(limit);
           earns = data || [];
         } else {
@@ -118,9 +119,9 @@ function useRecentActivity(
               .select("id, amount, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
               .eq("payment_status", "paid")
               .in("car_id", carIds)
-              .gte("date_paid", monthStart)
-              .lte("date_paid", monthEnd)
-              .order("date_paid", { ascending: false })
+              .gte("earning_period_end", monthStart)
+              .lte("earning_period_end", monthEnd)
+              .order("earning_period_end", { ascending: false })
               .limit(limit);
             earns = data || [];
           }
