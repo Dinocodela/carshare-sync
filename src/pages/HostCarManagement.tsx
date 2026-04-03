@@ -2174,6 +2174,13 @@ export default function HostCarManagement() {
                       <SheetContent
                         side="bottom"
                         className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
+                      
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
                       >
                         <SheetHead className="space-y-0 pb-4">
                           <div className="flex items-center gap-3 mb-2">
@@ -2626,7 +2633,14 @@ export default function HostCarManagement() {
                         Expense
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-h-[90vh] overflow-y-auto"
+                      onInteractOutside={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest('[data-radix-popper-content-wrapper]')) {
+                          e.preventDefault();
+                        }
+                        }}
+                    >
                       <DialogHeader className="space-y-0 pb-4">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -3264,7 +3278,14 @@ export default function HostCarManagement() {
                         <SheetContent
                           side="bottom"
                           className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
-                        >
+                        
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
                           <SheetHead className="space-y-0 pb-4">
                             <div className="flex items-center gap-3 mb-2">
                               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -3913,7 +3934,14 @@ export default function HostCarManagement() {
                         <SheetContent
                           side="bottom"
                           className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto text-base"
-                        >
+                        
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
                           <SheetHead>
                             <SheetTit>Earning Filters</SheetTit>
                             <SheetDesc>Refine the list of earnings.</SheetDesc>
@@ -4157,7 +4185,14 @@ export default function HostCarManagement() {
                         open={earningDialogOpen}
                         onOpenChange={setEarningDialogOpen}
                       >
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto"
+                      onInteractOutside={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest('[data-radix-popper-content-wrapper]')) {
+                          e.preventDefault();
+                        }
+                        }}
+                    >
                           <DialogHeader>
                             <DialogTitle>
                               {editingEarning
@@ -5218,7 +5253,14 @@ export default function HostCarManagement() {
                     <SheetContent
                       side="bottom"
                       className="rounded-t-3xl p-0 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto bg-background"
-                    >
+                    
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
                       {/* Trust header */}
                       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
                         <div className="px-5 pt-5 pb-4">
@@ -5622,7 +5664,14 @@ export default function HostCarManagement() {
                     <SheetContent
                       side="bottom"
                       className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
-                    >
+                    
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
                       <SheetHead>
                         <SheetTit>Claims Filters</SheetTit>
                         <SheetDesc>Refine the list of claims.</SheetDesc>
@@ -5802,7 +5851,14 @@ export default function HostCarManagement() {
                       File Claim
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl rounded-2xl border-border/50 p-0">
+                  <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl rounded-2xl border-border/50 p-0"
+                      onInteractOutside={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest('[data-radix-popper-content-wrapper]')) {
+                          e.preventDefault();
+                        }
+                        }}
+                    >
                     {/* Trust header */}
                     <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40 rounded-t-2xl">
                       <div className="px-6 pt-6 pb-4">
