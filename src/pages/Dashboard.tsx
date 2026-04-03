@@ -131,7 +131,8 @@ function useRecentActivity(
 
         // Paid earnings first — these are the most important
         (earns).forEach((e) => {
-          if (!e.date_paid) return;
+          const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
+          if (!ts) return;
           const payout = role === "host"
             ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
             : ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
@@ -140,7 +141,7 @@ function useRecentActivity(
           const guest = e.guest_name ? ` from ${e.guest_name}` : "";
           mapped.push({
             id: `earn_${e.id}`,
-            ts: e.date_paid,
+            ts,
             message: `Received $${Number(payout).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} payout${guest}${carLabel}`,
             icon: "💵",
           });
