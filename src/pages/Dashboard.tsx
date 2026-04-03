@@ -87,56 +87,105 @@ function useRecentActivity(
     (async () => {
       setLoading(true);
       try {
-        const { data: cars } = await supabase
+        const carQuery = supabase
           .from("cars")
-          .select("id, make, model, created_at, client_id")
-          .eq("client_id", userId)
-          .order("created_at", { ascending: false })
-          .limit(limit);
+          .select("id, make, model, created_at, client_id, host_id")
+          .order("created_at", { ascending: false });
 
-        // Fetch recent paid earnings — use earning_period_end for month filtering
-        // since date_paid may not always be populated
+        const { data: cars } =
+          role === "host"
+            ? await carQuery.or(`client_id.eq.${userId},host_id.eq.${userId}`)
+            : await carQuery.eq("client_id", userId);
+
+        const allCars = cars || [];
+        const recentCars = allCars.slice(0, limit);
+
+        // Show payouts received this calendar month.
+        // Primary source is date_paid; older legacy rows can fall back to earning_period_end.
         const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+        const monthStart = new Date(
+          Date.UTC(now.getFullYear(), now.getMonth(), 1)
+        )
+          .toISOString()
+          .slice(0, 10);
+        const nextMonthStart = new Date(
+          Date.UTC(now.getFullYear(), now.getMonth() + 1, 1)
+        )
+          .toISOString()
+          .slice(0, 10);
+        const monthStartTs = `${monthStart}T00:00:00.000Z`;
+        const nextMonthStartTs = `${nextMonthStart}T00:00:00.000Z`;
+        const payoutFields =
+          "id, amount, net_amount, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
 
         let earns: any[] = [];
         if (role === "host") {
           const { data } = await supabase
             .from("host_earnings")
-            .select("id, amount, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
+            .select(payoutFields)
             .eq("payment_status", "paid")
-            .gte("earning_period_end", monthStart)
-            .lte("earning_period_end", monthEnd)
-            .order("earning_period_end", { ascending: false })
+            .eq("host_id", userId)
+            .gte("date_paid", monthStart)
+            .lt("date_paid", nextMonthStart)
+            .order("date_paid", { ascending: false })
             .limit(limit);
           earns = data || [];
+
+          if (earns.length === 0) {
+            const { data: fallback } = await supabase
+              .from("host_earnings")
+              .select(payoutFields)
+              .eq("payment_status", "paid")
+              .eq("host_id", userId)
+              .is("date_paid", null)
+              .gte("earning_period_end", monthStartTs)
+              .lt("earning_period_end", nextMonthStartTs)
+              .order("earning_period_end", { ascending: false })
+              .limit(limit);
+            earns = fallback || [];
+          }
         } else {
-          const carIds = (cars || []).map((c) => c.id);
+          const carIds = allCars.map((c) => c.id);
           if (carIds.length) {
             const { data } = await supabase
               .from("host_earnings")
-              .select("id, amount, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end")
+              .select(payoutFields)
               .eq("payment_status", "paid")
               .in("car_id", carIds)
-              .gte("earning_period_end", monthStart)
-              .lte("earning_period_end", monthEnd)
-              .order("earning_period_end", { ascending: false })
+              .gte("date_paid", monthStart)
+              .lt("date_paid", nextMonthStart)
+              .order("date_paid", { ascending: false })
               .limit(limit);
             earns = data || [];
+
+            if (earns.length === 0) {
+              const { data: fallback } = await supabase
+                .from("host_earnings")
+                .select(payoutFields)
+                .eq("payment_status", "paid")
+                .in("car_id", carIds)
+                .is("date_paid", null)
+                .gte("earning_period_end", monthStartTs)
+                .lt("earning_period_end", nextMonthStartTs)
+                .order("earning_period_end", { ascending: false })
+                .limit(limit);
+              earns = fallback || [];
+            }
           }
         }
 
         const mapped: { id: string; ts: string; message: string; icon: string }[] = [];
 
         // Paid earnings first — these are the most important
-        (earns).forEach((e) => {
+        earns.forEach((e) => {
           const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
           if (!ts) return;
-          const payout = role === "host"
-            ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
-            : ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
-          const carInfo = (cars || []).find((c: any) => c.id === e.car_id);
+          const payout =
+            role === "host"
+              ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
+              : e.net_amount ??
+                ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
+          const carInfo = allCars.find((c: any) => c.id === e.car_id);
           const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
           const guest = e.guest_name ? ` from ${e.guest_name}` : "";
           mapped.push({
@@ -149,7 +198,7 @@ function useRecentActivity(
 
         // Only backfill with cars/requests if we need more items
         if (mapped.length < limit) {
-          (cars || []).forEach((c) =>
+          recentCars.forEach((c) =>
             mapped.push({
               id: `car_${c.id}`,
               ts: c.created_at,
