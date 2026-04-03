@@ -105,7 +105,7 @@ function useRecentActivity(
           role === "host"
             ? await supabase
                 .from("host_earnings")
-                .select("id, amount, host_profit_percentage, payment_date, payment_status")
+                .select("id, amount, host_profit_percentage, date_paid, payment_status")
                 .eq("payment_status", "paid")
                 .order("payment_date", { ascending: false })
                 .limit(limit)
