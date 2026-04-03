@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { RentATeslaLink } from "@/components/RentATeslaLink";
 import { OnboardingScreen1 } from "./OnboardingScreen1";
 import { OnboardingScreen2 } from "./OnboardingScreen2";
 import { OnboardingScreen3 } from "./OnboardingScreen3";
