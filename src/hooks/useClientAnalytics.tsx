@@ -81,6 +81,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
+  const [carsMap, setCarsMap] = useState<Record<string, CarInfo>>({});
   const [summary, setSummary] = useState<AnalyticsSummary>({
     totalEarnings: 0,
     totalExpenses: 0,
