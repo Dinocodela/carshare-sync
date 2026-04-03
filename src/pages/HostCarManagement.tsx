@@ -2323,9 +2323,9 @@ export default function HostCarManagement() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Date</FormLabel>
-                                  <FormControl>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
                                         <Button
                                           variant="outline"
                                           className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -2333,6 +2333,7 @@ export default function HostCarManagement() {
                                           <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                           {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                         </Button>
+                                    </FormControl>
                                       </PopoverTrigger>
                                       <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                         <CalendarWidget
@@ -2344,7 +2345,6 @@ export default function HostCarManagement() {
                                         />
                                       </PopoverContent>
                                     </Popover>
-                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -2789,9 +2789,9 @@ export default function HostCarManagement() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Date</FormLabel>
-                                <FormControl>
-                                  <Popover>
-                                    <PopoverTrigger asChild>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                  <FormControl>
                                       <Button
                                         variant="outline"
                                         className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -2799,6 +2799,7 @@ export default function HostCarManagement() {
                                         <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                         {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                       </Button>
+                                  </FormControl>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                       <CalendarWidget
@@ -2810,7 +2811,6 @@ export default function HostCarManagement() {
                                       />
                                     </PopoverContent>
                                   </Popover>
-                                </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -3642,9 +3642,9 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Start Date</FormLabel>
-                                      <FormControl>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
                                             <Button
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -3652,6 +3652,7 @@ export default function HostCarManagement() {
                                               <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                               {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                             </Button>
+                                        </FormControl>
                                           </PopoverTrigger>
                                           <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                             <CalendarWidget
@@ -3663,7 +3664,6 @@ export default function HostCarManagement() {
                                             />
                                           </PopoverContent>
                                         </Popover>
-                                      </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -3690,9 +3690,9 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>End Date</FormLabel>
-                                      <FormControl>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
                                             <Button
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -3700,6 +3700,7 @@ export default function HostCarManagement() {
                                               <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                               {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                             </Button>
+                                        </FormControl>
                                           </PopoverTrigger>
                                           <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                             <CalendarWidget
@@ -3711,7 +3712,6 @@ export default function HostCarManagement() {
                                             />
                                           </PopoverContent>
                                         </Popover>
-                                      </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -3798,9 +3798,9 @@ export default function HostCarManagement() {
                                       <FormLabel>
                                         Date Paid (Optional)
                                       </FormLabel>
-                                      <FormControl>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
                                             <Button
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -3808,6 +3808,7 @@ export default function HostCarManagement() {
                                               <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                               {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                             </Button>
+                                        </FormControl>
                                           </PopoverTrigger>
                                           <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                             <CalendarWidget
@@ -3819,7 +3820,6 @@ export default function HostCarManagement() {
                                             />
                                           </PopoverContent>
                                         </Popover>
-                                      </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -4541,9 +4541,9 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Start Date</FormLabel>
-                                      <FormControl>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
                                             <Button
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -4551,6 +4551,7 @@ export default function HostCarManagement() {
                                               <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                               {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                             </Button>
+                                        </FormControl>
                                           </PopoverTrigger>
                                           <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                             <CalendarWidget
@@ -4562,7 +4563,6 @@ export default function HostCarManagement() {
                                             />
                                           </PopoverContent>
                                         </Popover>
-                                      </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -4589,9 +4589,9 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>End Date</FormLabel>
-                                      <FormControl>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
                                             <Button
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -4599,6 +4599,7 @@ export default function HostCarManagement() {
                                               <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                               {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                             </Button>
+                                        </FormControl>
                                           </PopoverTrigger>
                                           <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                             <CalendarWidget
@@ -4610,7 +4611,6 @@ export default function HostCarManagement() {
                                             />
                                           </PopoverContent>
                                         </Popover>
-                                      </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -4697,9 +4697,9 @@ export default function HostCarManagement() {
                                       <FormLabel>
                                         Date Paid (Optional)
                                       </FormLabel>
-                                      <FormControl>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
                                             <Button
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -4707,6 +4707,7 @@ export default function HostCarManagement() {
                                               <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                               {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                             </Button>
+                                        </FormControl>
                                           </PopoverTrigger>
                                           <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                             <CalendarWidget
@@ -4718,7 +4719,6 @@ export default function HostCarManagement() {
                                             />
                                           </PopoverContent>
                                         </Popover>
-                                      </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -5407,9 +5407,9 @@ export default function HostCarManagement() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel className="text-xs font-medium">Incident Date</FormLabel>
-                                  <FormControl>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
                                         <Button
                                           variant="outline"
                                           className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -5417,6 +5417,7 @@ export default function HostCarManagement() {
                                           <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                           {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                         </Button>
+                                    </FormControl>
                                       </PopoverTrigger>
                                       <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                         <CalendarWidget
@@ -5428,7 +5429,6 @@ export default function HostCarManagement() {
                                         />
                                       </PopoverContent>
                                     </Popover>
-                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -5980,9 +5980,9 @@ export default function HostCarManagement() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-xs font-medium">Incident Date</FormLabel>
-                                <FormControl>
-                                  <Popover>
-                                    <PopoverTrigger asChild>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                  <FormControl>
                                       <Button
                                         variant="outline"
                                         className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
@@ -5990,6 +5990,7 @@ export default function HostCarManagement() {
                                         <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
                                         {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
                                       </Button>
+                                  </FormControl>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                                       <CalendarWidget
@@ -6001,7 +6002,6 @@ export default function HostCarManagement() {
                                       />
                                     </PopoverContent>
                                   </Popover>
-                                </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
