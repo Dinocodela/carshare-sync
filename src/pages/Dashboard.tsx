@@ -339,15 +339,29 @@ export default function Dashboard() {
     let cancelled = false;
     (async () => {
       if (!user?.id) return;
-      const from = new Date();
-      from.setDate(from.getDate() - 30);
+      const now = new Date();
+      const monthStart = new Date(
+        Date.UTC(now.getFullYear(), now.getMonth(), 1)
+      )
+        .toISOString()
+        .slice(0, 10);
+      const nextMonthStart = new Date(
+        Date.UTC(now.getFullYear(), now.getMonth() + 1, 1)
+      )
+        .toISOString()
+        .slice(0, 10);
+      const monthStartTs = `${monthStart}T00:00:00.000Z`;
+      const nextMonthStartTs = `${nextMonthStart}T00:00:00.000Z`;
 
       if (isHost) {
         const { data: rows } = await supabase
           .from("host_earnings")
-          .select("amount, host_profit_percentage, payment_status, date_paid")
+          .select("amount, host_profit_percentage, payment_status, date_paid, earning_period_end, host_id")
           .eq("payment_status", "paid")
-          .gte("date_paid", from.toISOString());
+          .eq("host_id", user.id)
+          .or(
+            `and(date_paid.gte.${monthStart},date_paid.lt.${nextMonthStart}),and(date_paid.is.null,earning_period_end.gte.${monthStartTs},earning_period_end.lt.${nextMonthStartTs})`
+          );
         const total = (rows || []).reduce(
           (s, r) => s + ((r.amount || 0) * (r.host_profit_percentage || 30)) / 100,
           0
@@ -359,13 +373,15 @@ export default function Dashboard() {
           const { data: rows } = await supabase
             .from("host_earnings")
             .select(
-              "amount, client_profit_percentage, payment_status, date_paid, car_id"
+              "amount, net_amount, client_profit_percentage, payment_status, date_paid, earning_period_end, car_id"
             )
             .eq("payment_status", "paid")
-            .gte("date_paid", from.toISOString())
-            .in("car_id", carIds);
+            .in("car_id", carIds)
+            .or(
+              `and(date_paid.gte.${monthStart},date_paid.lt.${nextMonthStart}),and(date_paid.is.null,earning_period_end.gte.${monthStartTs},earning_period_end.lt.${nextMonthStartTs})`
+            );
           const total = (rows || []).reduce(
-            (s, r) => s + ((r.amount || 0) * (r.client_profit_percentage || 70)) / 100,
+            (s, r) => s + (r.net_amount ?? ((r.amount || 0) * (r.client_profit_percentage || 70)) / 100),
             0
           );
           if (!cancelled) setEarn7Client(total);
