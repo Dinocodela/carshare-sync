@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/ui/logo';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react';
+import { RentATeslaLink } from '@/components/RentATeslaLink';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
