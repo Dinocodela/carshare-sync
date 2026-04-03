@@ -101,15 +101,29 @@ function useRecentActivity(
           .order("created_at", { ascending: false })
           .limit(limit);
 
-        const { data: earns } =
-          role === "host"
-            ? await supabase
-                .from("host_earnings")
-                .select("id, amount, host_profit_percentage, date_paid, payment_status")
-                .eq("payment_status", "paid")
-                .order("date_paid", { ascending: false })
-                .limit(limit)
-            : { data: [] as any[] };
+        let earns: any[] = [];
+        if (role === "host") {
+          const { data } = await supabase
+            .from("host_earnings")
+            .select("id, amount, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id")
+            .eq("payment_status", "paid")
+            .order("date_paid", { ascending: false })
+            .limit(limit);
+          earns = data || [];
+        } else {
+          // For clients, fetch paid earnings for their cars
+          const carIds = (cars || []).map((c) => c.id);
+          if (carIds.length) {
+            const { data } = await supabase
+              .from("host_earnings")
+              .select("id, amount, client_profit_percentage, date_paid, payment_status, car_id")
+              .eq("payment_status", "paid")
+              .in("car_id", carIds)
+              .order("date_paid", { ascending: false })
+              .limit(limit);
+            earns = data || [];
+          }
+        }
 
         const mapped: { id: string; ts: string; message: string; icon: string }[] = [];
 
