@@ -1,44 +1,38 @@
 
 
-## Plan: Add Advanced Filters to Host Analytics
+## Plan: Fix Dashboard Earnings and Activity Using Correct Date Column
 
-### What we're building
-A filter bar below the trust banner with four additional filters that let hosts slice their analytics data by car, payment source, payment status, and month — all working alongside the existing year filter.
+### Problem
+Two bugs on the Dashboard:
+
+1. **"$0 This month"** — The earnings query filters on `payment_date`, but the app stores paid dates in `date_paid`. Since `payment_date` is always null, the query returns zero results.
+2. **Activity feed showing $0 payouts** — Same root cause: the activity feed checks `e.payment_date` to determine if a payout exists, which is always null.
+
+Both affect host AND client views.
+
+### Root Cause
+The `create-host-earning` edge function and the earning edit form both write to the `date_paid` column. The `payment_date` column is never populated. The Dashboard queries reference the wrong column.
 
 ### Changes
 
-**1. Add filter state and car lookup to `useHostAnalytics.tsx`**
+**File: `src/pages/Dashboard.tsx`**
 
-- Add `payment_source` to the `HostEarning` interface (already fetched via `select("*")` but not typed)
-- Fetch the host's cars from the `cars` table (just `id`, `make`, `model`, `year`) so we can show car names in the filter
-- Expose new filter state: `selectedCarId`, `selectedPaymentSource`, `selectedPaymentStatus`, `selectedMonth`
-- Apply filters to the earnings/expenses/claims queries (car_id filter at DB level, others client-side for simplicity)
-- Recalculate summary when filters change
+1. **Host earnings query (line ~265):** Change `.select(...)` to include `date_paid` instead of `payment_date`, and change `.gte("payment_date", ...)` to `.gte("date_paid", ...)`
 
-**2. Add filter bar UI to `HostAnalytics.tsx`**
+2. **Client earnings query (line ~278):** Same fix — select `date_paid` and filter `.gte("date_paid", ...)`
 
-Below the trust banner, add a responsive filter strip with four `Select` dropdowns:
+3. **Recent activity hook (line ~108):** Change the select to include `date_paid` instead of `payment_date`, and update the activity mapping (line ~155) to check `e.date_paid` instead of `e.payment_date`
 
-| Filter | Options | Source |
-|--------|---------|--------|
-| Car | All Cars / {year make model} per car | `cars` table |
-| Source | All Sources / Turo / GetAround / etc. | Distinct `payment_source` from earnings |
-| Status | All / Paid / Pending | `payment_status` from earnings |
-| Month | All Months / Jan–Dec | Derived from selected year |
+### Technical Details
+```
+// Before (broken)
+.select("amount, host_profit_percentage, payment_status, payment_date")
+.gte("payment_date", from.toISOString())
 
-- On mobile: 2-column grid of selects
-- On desktop: horizontal flex row
-- Each filter styled with glassmorphic `bg-card/80 backdrop-blur-sm` to match existing design
-- Include a "Clear Filters" button that resets all to "All"
+// After (fixed)
+.select("amount, host_profit_percentage, payment_status, date_paid")
+.gte("date_paid", from.toISOString())
+```
 
-**3. Filter logic**
-
-- Car filter: applied at DB query level (`eq("car_id", ...)`) for efficiency
-- Payment source, payment status, month: applied client-side after fetch since data volume is small
-- Summary cards, charts, and tables all recalculate based on filtered data
-- Month filter only appears when a specific year is selected (not "All Time")
-
-### Files Modified
-- `src/hooks/useHostAnalytics.tsx` — add filter state, car fetching, filter application
-- `src/pages/HostAnalytics.tsx` — add filter bar UI, pass filters through
+Same pattern applied to client query and activity feed.
 
