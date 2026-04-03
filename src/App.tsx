@@ -191,6 +191,14 @@ const App = () => (
                       element={<HostCarManagement />}
                     />
                     <Route
+                      path="/host-reservations"
+                      element={<HostReservations />}
+                    />
+                    <Route
+                      path="/bonzah-insurance"
+                      element={<BonzahInsurance />}
+                    />
+                    <Route
                       path="/registered-clients"
                       element={<RegisteredClients />}
                     />
