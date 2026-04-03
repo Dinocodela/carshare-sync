@@ -52,6 +52,14 @@ import ResetPassword from "./pages/ResetPassword";
 import ScrollReset from "./components/router/ScrollReset";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
+import HowItWorks from "./pages/HowItWorks";
+import About from "./pages/About";
+import LosAngeles from "./pages/cities/LosAngeles";
+import Miami from "./pages/cities/Miami";
+import SanFrancisco from "./pages/cities/SanFrancisco";
+import NewYork from "./pages/cities/NewYork";
+import Austin from "./pages/cities/Austin";
+import SanDiego from "./pages/cities/SanDiego";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -111,6 +119,14 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/tesla-car-sharing-los-angeles" element={<LosAngeles />} />
+              <Route path="/tesla-car-sharing-miami" element={<Miami />} />
+              <Route path="/tesla-car-sharing-san-francisco" element={<SanFrancisco />} />
+              <Route path="/tesla-car-sharing-new-york" element={<NewYork />} />
+              <Route path="/tesla-car-sharing-austin" element={<Austin />} />
+              <Route path="/tesla-car-sharing-san-diego" element={<SanDiego />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>

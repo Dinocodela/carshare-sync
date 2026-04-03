@@ -341,6 +341,15 @@ const Index = () => {
                   <Logo className="h-7 opacity-80" />
                 </Link>
                 <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                  <Link to="/how-it-works" className="hover:text-foreground transition-colors">
+                    How It Works
+                  </Link>
+                  <Link to="/about" className="hover:text-foreground transition-colors">
+                    About
+                  </Link>
+                  <Link to="/blog" className="hover:text-foreground transition-colors">
+                    Blog
+                  </Link>
                   <Link to="/privacy" className="hover:text-foreground transition-colors">
                     Privacy Policy
                   </Link>
@@ -349,9 +358,6 @@ const Index = () => {
                   </Link>
                   <Link to="/sms-consent" className="hover:text-foreground transition-colors">
                     SMS Consent
-                  </Link>
-                  <Link to="/blog" className="hover:text-foreground transition-colors">
-                    Blog
                   </Link>
                   <button
                     onClick={() => {
