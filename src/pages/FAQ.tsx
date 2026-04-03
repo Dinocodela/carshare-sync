@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { PageContainer } from "@/components/layout/PageContainer";
