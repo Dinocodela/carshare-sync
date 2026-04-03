@@ -55,6 +55,14 @@ export interface ClientClaim {
   description: string;
 }
 
+export interface CarInfo {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  license_plate: string | null;
+}
+
 export interface AnalyticsSummary {
   totalEarnings: number;
   totalExpenses: number;
