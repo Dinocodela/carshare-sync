@@ -263,9 +263,9 @@ export default function Dashboard() {
       if (isHost) {
         const { data: rows } = await supabase
           .from("host_earnings")
-          .select("amount, host_profit_percentage, payment_status, payment_date")
+          .select("amount, host_profit_percentage, payment_status, date_paid")
           .eq("payment_status", "paid")
-          .gte("payment_date", from.toISOString());
+          .gte("date_paid", from.toISOString());
         const total = (rows || []).reduce(
           (s, r) => s + ((r.amount || 0) * (r.host_profit_percentage || 30)) / 100,
           0
