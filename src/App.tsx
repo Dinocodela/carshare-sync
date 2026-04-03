@@ -147,6 +147,9 @@ const App = () => (
               <Route path="/tesla-car-sharing-phoenix" element={<Phoenix />} />
               <Route path="/tesla-car-sharing-atlanta" element={<Atlanta />} />
 
+              {/* Programmatic Model + City Pages */}
+              <Route path="/:slug" element={<ModelCityPage />} />
+
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
                 {/* Pending */}
