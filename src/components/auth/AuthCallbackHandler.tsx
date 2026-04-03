@@ -44,6 +44,15 @@ export default function AuthCallbackHandler() {
       return;
     }
 
+    // Recovery flow — let ResetPassword page handle it
+    if (type === "recovery" && params.get("access_token")) {
+      // Don't clear hash or redirect — ResetPassword page needs the session
+      if (location.pathname !== "/reset-password") {
+        navigate("/reset-password", { replace: true });
+      }
+      return;
+    }
+
     // Successful signup confirmation — redirect to confirmation page
     if (type === "signup" && params.get("access_token")) {
       window.history.replaceState(
