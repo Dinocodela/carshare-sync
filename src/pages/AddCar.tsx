@@ -670,6 +670,25 @@ export default function AddCar() {
           </form>
         </Form>
       </div>
+
+      {showAgreement && createdCarId && createdCarInfo && (
+        <CoHostAgreementModal
+          open={showAgreement}
+          carId={createdCarId}
+          carInfo={createdCarInfo}
+          ownerName={
+            [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || ""
+          }
+          onComplete={() => {
+            setShowAgreement(false);
+            toast({
+              title: "Car added successfully!",
+              description: "Your car has been listed and agreement signed.",
+            });
+            navigate("/my-cars");
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }
