@@ -300,9 +300,19 @@ const Index = () => {
               )}
             </div>
 
+            {/* Earnings Calculator CTA */}
+            <div className="mt-6 mb-2 text-center">
+              <Link to="/earnings-calculator">
+                <Button variant="outline" size="sm" className="rounded-full text-xs border-primary/40 text-primary hover:bg-primary/5">
+                  <Calculator className="w-3.5 h-3.5 mr-1.5" />
+                  Calculate Your Earnings
+                </Button>
+              </Link>
+            </div>
+
             {/* Trust Indicators */}
             <div
-              className="flex justify-center gap-6 mt-6 mb-2 transition-all duration-700 delay-700 ease-out"
+              className="flex justify-center gap-6 mt-4 mb-2 transition-all duration-700 delay-700 ease-out"
               style={{
                 opacity: visible ? 1 : 0,
                 transform: visible ? "translateY(0)" : "translateY(10px)",
