@@ -107,7 +107,7 @@ function useRecentActivity(
                 .from("host_earnings")
                 .select("id, amount, host_profit_percentage, date_paid, payment_status")
                 .eq("payment_status", "paid")
-                .order("payment_date", { ascending: false })
+                .order("date_paid", { ascending: false })
                 .limit(limit)
             : { data: [] as any[] };
 
