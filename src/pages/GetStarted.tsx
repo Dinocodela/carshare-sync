@@ -44,6 +44,8 @@ export default function GetStarted() {
     "Earnings & expense analytics for tax season",
     "Block dates anytime you need your car",
     "No long-term commitment required",
+    "Fleet discount: 80/20 split for 5+ cars",
+    "Military program: 85/15 split for active-duty members",
   ];
 
   return (
