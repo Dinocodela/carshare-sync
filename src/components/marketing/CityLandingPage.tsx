@@ -330,8 +330,14 @@ export function CityLandingPage({ city }: { city: CityData }) {
               </div>
             </div>
           </section>
-        </main>
 
+          {/* Newsletter */}
+          <NewsletterSignup
+            source={`city-${city.slug}`}
+            heading={`Get Tesla Earning Tips for ${city.city}`}
+            subheading={`Join Tesla owners in ${city.city} getting weekly insights on maximizing rental income.`}
+          />
+        </main>
         {/* Footer */}
         <footer className="border-t border-border py-8">
           <div className="max-w-4xl mx-auto px-4">
