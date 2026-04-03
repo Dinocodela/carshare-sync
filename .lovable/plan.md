@@ -1,92 +1,42 @@
 
 
-# SEO & Organic Lead Generation Plan for Teslys
+# Phase 4: Tax/Business FAQs + Ad Landing Page Infrastructure
 
-## Current State Assessment
+## What We're Building
 
-**What's already in place (solid foundation):**
-- SEO component with meta tags, OG tags, Twitter cards, canonical URLs
-- Structured data (Organization, Website, Service, FAQ, LocalBusiness, SoftwareApplication)
-- 6 city landing pages targeting local "Tesla car sharing" keywords
-- Sitemap.xml and robots.txt properly configured
-- Blog system with published posts
-- FAQ page with structured data
-- GTM integration (active container GTM-WJ443454)
-- Earnings Calculator page
-
-**Gaps and opportunities:**
-
-### 1. Fix Critical OG Image Issue
-The `index.html` still points to the default Lovable placeholder OG image (`lovable.dev/opengraph-image-p98pqg.png`) instead of a Teslys-branded image. This hurts click-through rates from social shares and search previews.
-
-### 2. Add More High-Intent Landing Pages
-Currently only 6 cities. High-value additions:
-- **"Tesla Turo Management" comparison page** -- captures searchers comparing platforms
-- **"How Much Can I Earn Renting My Tesla" guide** -- long-form content page targeting the #1 question prospects ask
-- **More city pages** (Dallas, Chicago, Seattle, Denver, Phoenix, Atlanta) -- each generates its own local search footprint
-
-### 3. Blog Content Pipeline
-The blog infrastructure exists but needs consistent content targeting high-volume keywords:
-- "Is renting my Tesla on Turo worth it?"
-- "Tesla Model 3 vs Model Y rental income"
-- "How to make passive income with a Tesla"
-- "Tesla car sharing insurance guide"
-- "Best cities to rent out a Tesla"
-
-### 4. Lead Capture & Conversion Optimization
-- **Newsletter signup** on blog pages and landing pages (email capture for nurture sequences)
-- **Exit-intent or scroll-triggered CTA** on content pages
-- **Earnings calculator as a lead magnet** -- gate detailed results behind email capture
-- **"Get a Free Earnings Estimate" form** on city pages that captures email + car model
-
-### 5. Technical SEO Improvements
-- Add `hreflang` tag if targeting multiple regions
-- Improve internal linking between blog posts, city pages, FAQ, and calculator
-- Add breadcrumb structured data to all content pages
-- Create a `/glossary` or `/resources` hub page for topical authority
-- Ensure all images have proper `alt` text and `loading="lazy"`
-
-### 6. Programmatic SEO Pages
-Auto-generate pages for keyword combinations:
-- `/tesla-model-3-car-sharing-[city]`
-- `/tesla-model-y-rental-income-[city]`
-- These can reuse the `CityLandingPage` template with model-specific data
+Two things:
+1. **New FAQ entries** about tax write-offs and business advantages of renting out vehicles through Teslys
+2. **Ad-optimized landing page** at `/get-started` designed as a conversion-focused destination for Google/Meta ad campaigns
 
 ---
 
-## Recommended Implementation Priority
+## 1. Add Tax & Business Owner FAQ Entries
 
-### Phase 1 -- Quick Wins (implement now)
-1. **Fix OG image** in `index.html` to use Teslys branding
-2. **Add newsletter signup component** to blog and content pages
-3. **Add 4-6 more city pages** using the existing template
-4. **Improve internal linking** -- cross-link blog, FAQ, calculator, and city pages in footers and sidebars
+Add 4-5 new questions to the existing FAQ page covering:
 
-### Phase 2 -- Content & Conversion
-5. **Create a "Tesla Turo Management" comparison page** targeting competitive keywords
-6. **Create a long-form "How Much Can I Earn" guide** with embedded calculator
-7. **Add email capture to the earnings calculator** before showing detailed results
-8. **Add breadcrumb structured data** to all content pages consistently
+- **"What tax deductions can I claim when renting my Tesla?"** — depreciation (Section 179 & bonus depreciation), mileage/actual expenses, insurance, cleaning, maintenance, management fees, and home office if applicable
+- **"Can I write off my Tesla as a business expense?"** — if used for rental income, the vehicle qualifies as a business asset; mention LLC/S-Corp structuring benefits
+- **"What are the advantages for business owners listing their Tesla with Teslys?"** — passive income stream, fleet diversification, all management handled, analytics for bookkeeping, potential to offset car payments entirely
+- **"Should I form an LLC for my Tesla rental business?"** — liability protection, tax flexibility, separating personal/business finances; recommend consulting a CPA
+- **"Does Teslys provide reports I can use for taxes?"** — yes, earnings/expense dashboard with exportable data for Schedule C or business tax filings
 
-### Phase 3 -- Scale
-9. **Programmatic model+city pages** (Model 3 in LA, Model Y in Miami, etc.)
-10. **Blog editorial calendar** with 2-4 SEO-optimized posts per month
-11. **Google Search Console integration** for monitoring and iteration
+These get added to the existing `faqs` array in `src/pages/FAQ.tsx` and automatically included in the FAQ structured data for Google rich snippets.
 
----
+## 2. Ad Landing Page (`/get-started`)
 
-## Technical Details
+A dedicated, distraction-free landing page optimized for paid traffic (Google Ads, Meta Ads):
 
-| Item | Files Affected |
-|------|---------------|
-| Fix OG image | `index.html` (lines 49-50, 57-58) |
-| New city pages | New files in `src/pages/cities/`, route additions in `App.tsx`, sitemap update |
-| Newsletter component | New `src/components/marketing/NewsletterSignup.tsx`, added to blog/content pages |
-| Comparison page | New `src/pages/TuroComparison.tsx`, route in `App.tsx` |
-| Earnings guide | New `src/pages/EarningsGuide.tsx`, route in `App.tsx` |
-| Email gate on calculator | Modify `src/pages/EarningsCalculator.tsx` |
-| Breadcrumbs | Add `<StructuredData type="breadcrumblist">` to pages missing it |
-| Internal linking | Modify footer sections in content pages to cross-link |
+- **No navigation/sidebar** — clean, focused layout to minimize bounce
+- **Hero section**: bold headline ("Turn Your Tesla Into a Tax-Deductible Income Machine"), subheadline about passive income + tax benefits
+- **3 value props**: Earn $1,500-$3,000+/mo, Tax deductions on your vehicle, We handle everything
+- **Social proof**: testimonial quotes or stats (e.g., "500+ Teslas managed")
+- **Single CTA**: "Get Started" button → links to `/register/client`
+- **SEO tags** targeting "rent my Tesla for income", "Tesla tax write off rental"
+- **UTM-aware**: reads `utm_source`, `utm_campaign` from URL params and stores them in localStorage for attribution tracking when user eventually registers
 
-All new pages follow the existing pattern: SEO component + StructuredData + reusable layout templates.
+### Files affected:
+- **Edit**: `src/pages/FAQ.tsx` — add 4-5 new FAQ entries
+- **Create**: `src/pages/GetStarted.tsx` — ad landing page
+- **Edit**: `src/App.tsx` — add `/get-started` route
+- **Edit**: `public/sitemap.xml` — add new URL
 
