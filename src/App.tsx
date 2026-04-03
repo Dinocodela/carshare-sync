@@ -139,6 +139,7 @@ const App = () => (
               <Route path="/turo-management" element={<TuroComparison />} />
               <Route path="/how-much-can-i-earn" element={<EarningsGuide />} />
               <Route path="/get-started" element={<GetStarted />} />
+              <Route path="/military" element={<MilitaryProgram />} />
               <Route path="/tesla-car-sharing-los-angeles" element={<LosAngeles />} />
               <Route path="/tesla-car-sharing-miami" element={<Miami />} />
               <Route path="/tesla-car-sharing-san-francisco" element={<SanFrancisco />} />
