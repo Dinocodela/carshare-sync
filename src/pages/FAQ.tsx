@@ -88,6 +88,31 @@ export default function FAQ() {
       answer:
         "Teslys partnerships provide comprehensive commercial rental insurance that covers every booking. This is separate from your personal auto insurance and includes liability coverage, collision and comprehensive coverage, and guest protection. All insurance requirements are handled automatically when you list your Tesla.",
     },
+    {
+      question: "What tax deductions can I claim when renting my Tesla?",
+      answer:
+        "Renting your Tesla through Teslys can unlock significant tax deductions. Common write-offs include vehicle depreciation (Section 179 and bonus depreciation), insurance premiums, cleaning and maintenance costs, Teslys management fees, mileage or actual vehicle expenses, and even a home office deduction if you manage bookings from home. All rental-related expenses are potentially deductible against your rental income. We recommend consulting a CPA familiar with rental income to maximize your deductions.",
+    },
+    {
+      question: "Can I write off my Tesla as a business expense?",
+      answer:
+        "Yes — when your Tesla is used to generate rental income, it qualifies as a business asset. You may be eligible for Section 179 accelerated depreciation, which allows you to deduct a large portion of the vehicle's cost in the first year. Structuring your rental activity under an LLC or S-Corp can provide additional tax benefits and liability protection. Many Tesla owners offset their entire car payment through rental income and tax savings combined.",
+    },
+    {
+      question: "What are the advantages for business owners listing their Tesla with Teslys?",
+      answer:
+        "Business owners benefit from a fully managed passive income stream, tax-deductible vehicle expenses, and professional fleet management tools. Teslys handles guest screening, cleaning, maintenance coordination, and 24/7 support — so you focus on your business while your Tesla earns. Our analytics dashboard doubles as a bookkeeping tool, tracking every dollar of revenue and expenses for clean tax reporting. Many owners offset their car payments entirely and build equity in a scalable rental business.",
+    },
+    {
+      question: "Should I form an LLC for my Tesla rental business?",
+      answer:
+        "Forming an LLC is a smart move for many Tesla rental hosts. An LLC provides personal liability protection, separates your business and personal finances, and can offer tax flexibility (such as electing S-Corp status for potential payroll tax savings). It also adds credibility if you plan to scale to multiple vehicles. While not legally required, most CPAs recommend an LLC once your rental income becomes consistent. We always suggest consulting a tax professional for advice tailored to your situation.",
+    },
+    {
+      question: "Does Teslys provide reports I can use for taxes?",
+      answer:
+        "Absolutely. Our analytics dashboard provides detailed breakdowns of gross earnings, net profit, cleaning costs, maintenance expenses, and management fees — all exportable for tax season. Whether you file a Schedule C as a sole proprietor or report through an LLC, our reports give you and your CPA everything needed for accurate filings. You can view data by day, week, month, or per vehicle if you have multiple Teslas enrolled.",
+    },
   ];
 
   const faqSchema = faqs.map((faq) => ({
