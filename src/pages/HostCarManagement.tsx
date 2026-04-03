@@ -265,7 +265,7 @@ const earningSchema = z.object({
   client_profit_percentage: z.number().min(0).max(100).default(70),
   host_profit_percentage: z.number().min(0).max(100).default(30),
   payment_status: z.string().min(1, "Payment status is required"),
-  date_paid: z.string().optional(),
+  date_paid: z.string().min(1, "Date paid is required"),
 });
 
 const claimSchema = z.object({
@@ -3883,7 +3883,7 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>
-                                        Date Paid (Optional)
+                                        Date Paid *
                                       </FormLabel>
                                       <Popover>
                                         <PopoverTrigger asChild>
@@ -4185,7 +4185,7 @@ export default function HostCarManagement() {
                         open={earningDialogOpen}
                         onOpenChange={setEarningDialogOpen}
                       >
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto"
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border-border/50 bg-card/95 backdrop-blur-md"
                       onInteractOutside={(e) => {
                         const target = e.target as HTMLElement;
                         if (target.closest('[data-radix-popper-content-wrapper]')) {
@@ -4193,16 +4193,22 @@ export default function HostCarManagement() {
                         }
                         }}
                     >
-                          <DialogHeader>
-                            <DialogTitle>
-                              {editingEarning
-                                ? "Edit Earning"
-                                : "Record New Earning"}
-                            </DialogTitle>
-                            <DialogDescription>
-                              Add a new earning record from your hosting
-                              activities.
-                            </DialogDescription>
+                          <DialogHeader className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <DollarSign className="w-5 h-5 text-primary" />
+                              </div>
+                              <div>
+                                <DialogTitle className="text-lg font-semibold">
+                                  {editingEarning
+                                    ? "Edit Earning"
+                                    : "Record New Earning"}
+                                </DialogTitle>
+                                <DialogDescription className="text-xs text-muted-foreground">
+                                  {editingEarning ? "Update your earning record securely." : "Add a new earning record from your hosting activities."}
+                                </DialogDescription>
+                              </div>
+                            </div>
                           </DialogHeader>
                           <Form {...earningForm}>
                             <form
@@ -4790,7 +4796,7 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>
-                                        Date Paid (Optional)
+                                        Date Paid *
                                       </FormLabel>
                                       <Popover>
                                         <PopoverTrigger asChild>
@@ -4821,12 +4827,12 @@ export default function HostCarManagement() {
                                 />
                               </div>
 
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-4 border-t border-border/30">
                                 <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
                               </div>
-                              <div className="pt-2 flex justify-end gap-2">
-                                <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
-                                <Button type="submit" className="rounded-xl">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
+                              <div className="pt-3 flex justify-end gap-3">
+                                <Button type="button" variant="ghost" className="rounded-xl px-6" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
+                                <Button type="submit" className="rounded-xl px-6 shadow-md">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
                               </div>
                             </form>
                           </Form>
