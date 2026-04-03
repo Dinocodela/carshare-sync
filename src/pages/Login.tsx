@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/ui/logo';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowRight, Mail, Lock, Shield, Star, Users, Eye, EyeOff } from 'lucide-react';
+import { RentATeslaLink } from '@/components/RentATeslaLink';
 
 const Login = () => {
   const [email, setEmail] = useState('');
