@@ -255,7 +255,7 @@ export function EarningsChart({ earnings, expenses = [], selectedYear }: Earning
                 vertical={false}
               />
               <XAxis 
-                dataKey={isMobile ? 'monthInitial' : 'monthFull'} 
+                dataKey={isMobile ? 'monthInitial' : 'month'} 
                 interval={0}
                 fontSize={11}
                 fontWeight={500}
