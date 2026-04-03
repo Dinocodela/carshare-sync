@@ -101,15 +101,29 @@ function useRecentActivity(
           .order("created_at", { ascending: false })
           .limit(limit);
 
-        const { data: earns } =
-          role === "host"
-            ? await supabase
-                .from("host_earnings")
-                .select("id, amount, host_profit_percentage, date_paid, payment_status")
-                .eq("payment_status", "paid")
-                .order("date_paid", { ascending: false })
-                .limit(limit)
-            : { data: [] as any[] };
+        let earns: any[] = [];
+        if (role === "host") {
+          const { data } = await supabase
+            .from("host_earnings")
+            .select("id, amount, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id")
+            .eq("payment_status", "paid")
+            .order("date_paid", { ascending: false })
+            .limit(limit);
+          earns = data || [];
+        } else {
+          // For clients, fetch paid earnings for their cars
+          const carIds = (cars || []).map((c) => c.id);
+          if (carIds.length) {
+            const { data } = await supabase
+              .from("host_earnings")
+              .select("id, amount, client_profit_percentage, date_paid, payment_status, car_id")
+              .eq("payment_status", "paid")
+              .in("car_id", carIds)
+              .order("date_paid", { ascending: false })
+              .limit(limit);
+            earns = data || [];
+          }
+        }
 
         const mapped: { id: string; ts: string; message: string; icon: string }[] = [];
 
@@ -151,13 +165,17 @@ function useRecentActivity(
           }
         });
 
-        (earns || []).forEach((e) => {
+        (earns).forEach((e) => {
           if (!e.date_paid) return;
-          const hostProfit = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
+          const payout = role === "host"
+            ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
+            : ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
+          const carInfo = (cars || []).find((c) => c.id === e.car_id);
+          const carLabel = carInfo ? ` for ${carInfo.make} ${carInfo.model}` : "";
           mapped.push({
             id: `earn_${e.id}`,
             ts: e.date_paid,
-            message: `Received $${Number(hostProfit).toLocaleString()} payout`,
+            message: `Received $${Number(payout).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} payout${carLabel}`,
             icon: "💵",
           });
         });
