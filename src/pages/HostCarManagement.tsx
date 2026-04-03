@@ -4790,7 +4790,7 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>
-                                        Date Paid (Optional)
+                                        Date Paid *
                                       </FormLabel>
                                       <Popover>
                                         <PopoverTrigger asChild>
