@@ -26,6 +26,8 @@ import {
   Shield,
   Clock,
   Sparkles,
+  Mail,
+  Lock,
 } from "lucide-react";
 
 /* ── Static benchmark data from real platform rentals ── */
