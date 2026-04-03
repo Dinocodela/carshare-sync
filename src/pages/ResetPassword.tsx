@@ -19,30 +19,42 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Supabase client auto-processes the hash fragment and establishes a session.
-    // We listen for the PASSWORD_RECOVERY event to know the user is ready to reset.
+    let cancelled = false;
+
+    // Listen for PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (cancelled) return;
       if (event === 'PASSWORD_RECOVERY') {
         setReady(true);
-        // Clear the hash so it doesn't re-trigger
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      // Also accept SIGNED_IN if we're on this page (recovery may fire as SIGNED_IN
+      // if the Supabase client already processed the hash before we subscribed)
+      if (event === 'SIGNED_IN') {
+        setReady(true);
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     });
 
-    // Also check if there's already a session (in case the event fired before mount)
+    // Check immediately and with retries in case session is already established
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      if (!cancelled && session) {
         setReady(true);
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     };
 
-    // Give Supabase client a moment to process the hash
-    const timeout = setTimeout(checkSession, 1500);
+    // Check right away + retry after delays to handle slow token exchange
+    checkSession();
+    const t1 = setTimeout(checkSession, 1000);
+    const t2 = setTimeout(checkSession, 3000);
 
     return () => {
+      cancelled = true;
       subscription.unsubscribe();
-      clearTimeout(timeout);
+      clearTimeout(t1);
+      clearTimeout(t2);
     };
   }, []);
 
