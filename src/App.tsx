@@ -23,6 +23,8 @@ import EditCar from "./pages/EditCar";
 import HostRequests from "./pages/HostRequests";
 import HostingDetails from "./pages/HostingDetails";
 import HostCarManagement from "./pages/HostCarManagement";
+import BonzahInsurance from "./pages/BonzahInsurance";
+import HostReservations from "./pages/HostReservations";
 import RegisteredClients from "./pages/RegisteredClients";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
@@ -58,6 +60,7 @@ import EarningsCalculator from "./pages/EarningsCalculator";
 import TuroComparison from "./pages/TuroComparison";
 import EarningsGuide from "./pages/EarningsGuide";
 import GetStarted from "./pages/GetStarted";
+import MilitaryProgram from "./pages/MilitaryProgram";
 import LosAngeles from "./pages/cities/LosAngeles";
 import Miami from "./pages/cities/Miami";
 import SanFrancisco from "./pages/cities/SanFrancisco";
@@ -136,6 +139,7 @@ const App = () => (
               <Route path="/turo-management" element={<TuroComparison />} />
               <Route path="/how-much-can-i-earn" element={<EarningsGuide />} />
               <Route path="/get-started" element={<GetStarted />} />
+              <Route path="/military" element={<MilitaryProgram />} />
               <Route path="/tesla-car-sharing-los-angeles" element={<LosAngeles />} />
               <Route path="/tesla-car-sharing-miami" element={<Miami />} />
               <Route path="/tesla-car-sharing-san-francisco" element={<SanFrancisco />} />
@@ -185,6 +189,14 @@ const App = () => (
                     <Route
                       path="/host-car-management"
                       element={<HostCarManagement />}
+                    />
+                    <Route
+                      path="/host-reservations"
+                      element={<HostReservations />}
+                    />
+                    <Route
+                      path="/bonzah-insurance"
+                      element={<BonzahInsurance />}
                     />
                     <Route
                       path="/registered-clients"

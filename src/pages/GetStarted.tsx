@@ -44,6 +44,8 @@ export default function GetStarted() {
     "Earnings & expense analytics for tax season",
     "Block dates anytime you need your car",
     "No long-term commitment required",
+    "Fleet discount: 80/20 split for 5+ cars",
+    "Military program: 85/15 split for active-duty members",
   ];
 
   return (
@@ -136,6 +138,24 @@ export default function GetStarted() {
                 <Link to="/register/client">Start Earning Today</Link>
               </Button>
             </div>
+          </div>
+        </section>
+
+        {/* Promo Banner */}
+        <section className="bg-primary/5 border-y border-primary/20 px-6 py-10">
+          <div className="max-w-2xl mx-auto text-center space-y-4">
+            <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+              🎉 Limited-Time Offer
+            </span>
+            <h2 className="text-2xl font-bold text-foreground">
+              First Month Free — Keep 100% of Your Earnings
+            </h2>
+            <p className="text-muted-foreground">
+              Sign up now and keep every penny you earn for your first 30 days. No host commission deducted.
+            </p>
+            <Button asChild size="lg" className="text-lg px-10 py-6 h-auto rounded-xl shadow-lg">
+              <Link to="/register/client">Claim Your Free Month</Link>
+            </Button>
           </div>
         </section>
 

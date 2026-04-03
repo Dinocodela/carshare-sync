@@ -610,7 +610,25 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ─── Admin: Pending Accounts ─── */}
+          {/* ─── Bonzah Insurance (Host only) ─── */}
+          {isHost && (
+            <div style={fadeIn(5.5)} className="rounded-2xl bg-primary/5 border border-primary/20 p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-foreground">Rental Insurance by Bonzah</p>
+                  <p className="text-[11px] text-muted-foreground">Offer insurance to your private clients</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => navigate("/bonzah-insurance")} className="shrink-0">
+                  Learn More
+                </Button>
+              </div>
+            </div>
+          )}
+
+
           {isAdmin && (
             <div style={fadeIn(6)} className="rounded-2xl bg-card border border-border/60 overflow-hidden">
               <button

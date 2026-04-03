@@ -111,7 +111,27 @@ export default function FAQ() {
     {
       question: "Does Teslys provide reports I can use for taxes?",
       answer:
-        "Absolutely. Our analytics dashboard provides detailed breakdowns of gross earnings, net profit, cleaning costs, maintenance expenses, and management fees — all exportable for tax season. Whether you file a Schedule C as a sole proprietor or report through an LLC, our reports give you and your CPA everything needed for accurate filings. You can view data by day, week, month, or per vehicle if you have multiple Teslas enrolled.",
+      "Absolutely. Our analytics dashboard provides detailed breakdowns of gross earnings, net profit, cleaning costs, maintenance expenses, and management fees — all exportable for tax season. Whether you file a Schedule C as a sole proprietor or report through an LLC, our reports give you and your CPA everything needed for accurate filings. You can view data by day, week, month, or per vehicle if you have multiple Teslas enrolled.",
+    },
+    {
+      question: "Does Teslys offer a military program for active-duty members?",
+      answer:
+        "Yes! Teslys is veteran-owned and we offer a special 85/15 profit split for active-duty military members going on deployment. You keep 85% of all rental earnings while we manage your Tesla — handling guest screening, cleaning, maintenance, and support. It's the perfect way to keep your car earning while you serve. Visit our Military Program page to learn more and enroll.",
+    },
+    {
+      question: "Do I get a better rate if I have multiple cars with Teslys?",
+      answer:
+        "Yes — clients with 5 or more vehicles on the platform automatically qualify for our Fleet Discount, which provides an 80/20 profit split (you keep 80%, host receives 20%). This rewards owners who scale their rental business with Teslys and makes fleet management even more profitable.",
+    },
+    {
+      question: "Does Teslys offer any promotions for new clients?",
+      answer:
+        "From time to time we run limited-time promotions. Our current offer gives new clients 100% of their earnings for the first month — no host commission deducted. This lets you experience the full earning potential of your Tesla risk-free. Check our homepage or Get Started page for active promotions.",
+    },
+    {
+      question: "Can hosts offer rental insurance to their private clients?",
+      answer:
+        "Yes! Through our partnership with Bonzah, hosts can offer commercial rental insurance to guests booking directly. This provides comprehensive coverage for every rental, building trust with guests and protecting your vehicles. Our dedicated agent can set you up quickly — visit the Bonzah Insurance page in your host dashboard.",
     },
   ];
 
