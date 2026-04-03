@@ -152,11 +152,11 @@ function useRecentActivity(
         });
 
         (earns || []).forEach((e) => {
-          if (!e.payment_date) return;
+          if (!e.date_paid) return;
           const hostProfit = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
           mapped.push({
             id: `earn_${e.id}`,
-            ts: e.payment_date,
+            ts: e.date_paid,
             message: `Received $${Number(hostProfit).toLocaleString()} payout`,
             icon: "💵",
           });
