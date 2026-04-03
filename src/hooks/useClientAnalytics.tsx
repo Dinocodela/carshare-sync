@@ -299,6 +299,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     earnings,
     expenses,
     claims,
+    carsMap,
     summary,
     loading,
     error,
