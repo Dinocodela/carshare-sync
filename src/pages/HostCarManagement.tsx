@@ -5474,7 +5474,7 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel className="text-xs font-medium">Estimated Claim Amount</FormLabel>
                                   <FormControl>
-                                    <Input type="number" inputMode="decimal" step="0.01" placeholder="0.00" className="rounded-xl border-border/60 bg-background/80" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    <Input type="number" inputMode="decimal" step="0.01" placeholder="0.00" className="rounded-xl border-border/60 bg-background/80" {...field} onFocus={(e) => e.target.select()} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -6049,7 +6049,7 @@ export default function HostCarManagement() {
                               <FormItem>
                                 <FormLabel className="text-xs font-medium">Estimated Claim Amount</FormLabel>
                                 <FormControl>
-                                  <Input type="number" inputMode="decimal" step="0.01" placeholder="0.00" className="rounded-xl border-border/60 bg-background/80" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
+                                  <Input type="number" inputMode="decimal" step="0.01" placeholder="0.00" className="rounded-xl border-border/60 bg-background/80" {...field} onFocus={(e) => e.target.select()} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
