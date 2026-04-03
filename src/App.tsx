@@ -122,6 +122,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPostPage />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/about" element={<About />} />
+              <Route path="/earnings-calculator" element={<EarningsCalculator />} />
               <Route path="/tesla-car-sharing-los-angeles" element={<LosAngeles />} />
               <Route path="/tesla-car-sharing-miami" element={<Miami />} />
               <Route path="/tesla-car-sharing-san-francisco" element={<SanFrancisco />} />

@@ -360,6 +360,9 @@ const Index = () => {
                   <Link to="/blog" className="hover:text-foreground transition-colors">
                     Blog
                   </Link>
+                  <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">
+                    Earnings Calculator
+                  </Link>
                   <Link to="/privacy" className="hover:text-foreground transition-colors">
                     Privacy Policy
                   </Link>
