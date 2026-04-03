@@ -59,7 +59,10 @@ export function FixedExpensesList({ carId, carName, readOnly = false }: FixedExp
         carName={carName}
         editExpense={editingExpense}
         onClose={handleCloseForm}
-        onSuccess={handleCloseForm}
+        onSuccess={() => {
+          handleCloseForm();
+          refetch();
+        }}
       />
     );
   }
