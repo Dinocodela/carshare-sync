@@ -1,4 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  forwardRef,
+  type ComponentPropsWithoutRef,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Car,
@@ -312,6 +318,101 @@ const formatDetailedCarInfo = (car: CarWithClient) => (
     </div>
   </div>
 );
+
+interface NumericPlaceholderInputProps
+  extends Omit<
+    ComponentPropsWithoutRef<typeof Input>,
+    "type" | "value" | "onChange"
+  > {
+  value?: number | null;
+  onChange: (value: number) => void;
+  hideZeroWhenBlurred?: boolean;
+}
+
+const NumericPlaceholderInput = forwardRef<
+  HTMLInputElement,
+  NumericPlaceholderInputProps
+>(
+  (
+    {
+      value,
+      onChange,
+      onBlur,
+      onFocus,
+      hideZeroWhenBlurred = true,
+      ...props
+    },
+    ref
+  ) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const [inputValue, setInputValue] = useState("");
+
+    useEffect(() => {
+      if (isFocused) return;
+
+      if (
+        value === undefined ||
+        value === null ||
+        (hideZeroWhenBlurred && value === 0)
+      ) {
+        setInputValue("");
+        return;
+      }
+
+      setInputValue(String(value));
+    }, [value, isFocused, hideZeroWhenBlurred]);
+
+    return (
+      <Input
+        {...props}
+        ref={ref}
+        type="number"
+        value={inputValue}
+        onFocus={(e) => {
+          setIsFocused(true);
+          requestAnimationFrame(() => e.target.select());
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setIsFocused(false);
+          const nextValue = e.target.value.trim();
+
+          if (!nextValue) {
+            setInputValue("");
+            onChange(0);
+            onBlur?.(e);
+            return;
+          }
+
+          const parsedValue = parseFloat(nextValue);
+
+          if (Number.isNaN(parsedValue)) {
+            setInputValue("");
+            onChange(0);
+          } else {
+            onChange(parsedValue);
+          }
+
+          onBlur?.(e);
+        }}
+        onChange={(e) => {
+          const nextValue = e.target.value;
+          setInputValue(nextValue);
+
+          if (nextValue === "") {
+            onChange(0);
+            return;
+          }
+
+          const parsedValue = parseFloat(nextValue);
+          onChange(Number.isNaN(parsedValue) ? 0 : parsedValue);
+        }}
+      />
+    );
+  }
+);
+
+NumericPlaceholderInput.displayName = "NumericPlaceholderInput";
 
 export default function HostCarManagement() {
   const location = useLocation();
@@ -2180,18 +2281,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>EV Charge Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2205,18 +2303,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Carwash Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2230,18 +2325,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Delivery Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2255,18 +2347,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Toll Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2282,18 +2371,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Other Expenses</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2327,6 +2413,7 @@ export default function HostCarManagement() {
                                     <PopoverTrigger asChild>
                                     <FormControl>
                                         <Button
+                                          type="button"
                                           variant="outline"
                                           className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                         >
@@ -2646,18 +2733,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>EV Charge Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2671,18 +2755,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Carwash Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2696,18 +2777,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Delivery Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2721,18 +2799,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Toll Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2748,18 +2823,15 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel>Other Expenses</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      type="number"
+                                    <NumericPlaceholderInput
                                       inputMode="decimal"
                                       step="0.01"
                                       placeholder="0.00"
-                                      {...field}
-                                      onFocus={(e) => e.target.select()}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          parseFloat(e.target.value) || 0
-                                        )
-                                      }
+                                      name={field.name}
+                                      ref={field.ref}
+                                      value={field.value}
+                                      onBlur={field.onBlur}
+                                      onChange={field.onChange}
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -2793,6 +2865,7 @@ export default function HostCarManagement() {
                                   <PopoverTrigger asChild>
                                   <FormControl>
                                       <Button
+                                        type="button"
                                         variant="outline"
                                         className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                       >
@@ -3471,18 +3544,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Gross Earnings</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -3590,18 +3660,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Client Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="30"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 30
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3615,18 +3682,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Host Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="70"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 70
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3646,6 +3710,7 @@ export default function HostCarManagement() {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                              type="button"
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                             >
@@ -3694,6 +3759,7 @@ export default function HostCarManagement() {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                              type="button"
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                             >
@@ -3802,6 +3868,7 @@ export default function HostCarManagement() {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                              type="button"
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                             >
@@ -4370,18 +4437,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Gross Earnings</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -4489,18 +4553,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Client Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="30"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 30
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -4514,18 +4575,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Host Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="70"
-                                          {...field}
-                                          onFocus={(e) => e.target.select()}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 70
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -4545,6 +4603,7 @@ export default function HostCarManagement() {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                              type="button"
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                             >
@@ -4593,6 +4652,7 @@ export default function HostCarManagement() {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                              type="button"
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                             >
@@ -4701,6 +4761,7 @@ export default function HostCarManagement() {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                              type="button"
                                               variant="outline"
                                               className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                             >
@@ -5411,6 +5472,7 @@ export default function HostCarManagement() {
                                     <PopoverTrigger asChild>
                                     <FormControl>
                                         <Button
+                                          type="button"
                                           variant="outline"
                                           className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                         >
@@ -5474,7 +5536,17 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel className="text-xs font-medium">Estimated Claim Amount</FormLabel>
                                   <FormControl>
-                                    <Input type="number" inputMode="decimal" step="0.01" placeholder="0.00" className="rounded-xl border-border/60 bg-background/80" {...field} onFocus={(e) => e.target.select()} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    <NumericPlaceholderInput
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      className="rounded-xl border-border/60 bg-background/80"
+                                      name={field.name}
+                                      ref={field.ref}
+                                      value={field.value}
+                                      onBlur={field.onBlur}
+                                      onChange={field.onChange}
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -5984,6 +6056,7 @@ export default function HostCarManagement() {
                                   <PopoverTrigger asChild>
                                   <FormControl>
                                       <Button
+                                        type="button"
                                         variant="outline"
                                         className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
                                       >
@@ -6049,7 +6122,17 @@ export default function HostCarManagement() {
                               <FormItem>
                                 <FormLabel className="text-xs font-medium">Estimated Claim Amount</FormLabel>
                                 <FormControl>
-                                  <Input type="number" inputMode="decimal" step="0.01" placeholder="0.00" className="rounded-xl border-border/60 bg-background/80" {...field} onFocus={(e) => e.target.select()} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
+                                  <NumericPlaceholderInput
+                                    inputMode="decimal"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    className="rounded-xl border-border/60 bg-background/80"
+                                    name={field.name}
+                                    ref={field.ref}
+                                    value={field.value}
+                                    onBlur={field.onBlur}
+                                    onChange={field.onChange}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
