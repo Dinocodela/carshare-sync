@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/ui/logo';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowRight, Mail, Lock, Shield, Star, Users, Eye, EyeOff } from 'lucide-react';
+import { RentATeslaLink } from '@/components/RentATeslaLink';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -37,7 +38,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4 relative">
+      <RentATeslaLink />
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex justify-center mb-6">

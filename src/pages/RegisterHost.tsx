@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validatePassword } from "@/lib/passwordValidation";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 import { ArrowRight, ChevronLeft, Building2, User, Mail, Phone, Lock, MapPin, Wrench } from "lucide-react";
+import { RentATeslaLink } from "@/components/RentATeslaLink";
 
 const RegisterHost = () => {
   const [formData, setFormData] = useState({
@@ -90,7 +91,8 @@ const RegisterHost = () => {
   const inputClass = "h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg pl-9 transition-colors";
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4 relative">
+      <RentATeslaLink />
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-5">
           <Logo size="lg" linked />

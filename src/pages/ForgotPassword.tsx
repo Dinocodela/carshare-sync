@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/ui/logo';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react';
+import { RentATeslaLink } from '@/components/RentATeslaLink';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -31,7 +32,8 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4 relative">
+      <RentATeslaLink />
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-6">
           <Logo size="xl" linked />
