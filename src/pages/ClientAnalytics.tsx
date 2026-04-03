@@ -206,8 +206,8 @@ export default function ClientAnalytics() {
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
                 <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
-                  <RecentTrips earnings={earnings} expenses={expenses} />
-                  <RecentClaims claims={claims} />
+                   <RecentTrips earnings={earnings} expenses={expenses} carsMap={carsMap} />
+                   <RecentClaims claims={claims} carsMap={carsMap} />
                 </div>
               </TabsContent>
 
