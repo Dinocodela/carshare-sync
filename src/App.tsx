@@ -47,6 +47,8 @@ import FAQ from "./pages/FAQ";
 import DeleteAccount from "./pages/DeleteAccount";
 import SMSConsent from "./pages/SMSConsent";
 import EmailConfirmed from "./pages/EmailConfirmed";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ScrollReset from "./components/router/ScrollReset";
 import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
