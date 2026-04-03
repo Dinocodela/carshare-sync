@@ -69,6 +69,7 @@ import Seattle from "./pages/cities/Seattle";
 import Denver from "./pages/cities/Denver";
 import Phoenix from "./pages/cities/Phoenix";
 import Atlanta from "./pages/cities/Atlanta";
+import ModelCityPage from "./pages/ModelCityPage";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -145,6 +146,9 @@ const App = () => (
               <Route path="/tesla-car-sharing-denver" element={<Denver />} />
               <Route path="/tesla-car-sharing-phoenix" element={<Phoenix />} />
               <Route path="/tesla-car-sharing-atlanta" element={<Atlanta />} />
+
+              {/* Programmatic Model + City Pages */}
+              <Route path="/:slug" element={<ModelCityPage />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
