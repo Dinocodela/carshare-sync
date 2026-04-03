@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { StructuredData } from "@/components/StructuredData";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import {
