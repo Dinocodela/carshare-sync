@@ -327,32 +327,40 @@ const Index = () => {
             <Testimonials />
           </div>
 
-          {/* Legal Footer */}
-          <footer className="w-full py-6 text-center text-xs text-muted-foreground space-x-3">
-            <Link to="/privacy" className="hover:text-foreground transition underline-offset-2 hover:underline">
-              Privacy Policy
-            </Link>
-            <span>•</span>
-            <Link to="/terms" className="hover:text-foreground transition underline-offset-2 hover:underline">
-              Terms of Service
-            </Link>
-            <span>•</span>
-            <Link to="/sms-consent" className="hover:text-foreground transition underline-offset-2 hover:underline">
-              SMS Consent
-            </Link>
-            <span>•</span>
-            <Link to="/blog" className="hover:text-foreground transition underline-offset-2 hover:underline">
-              Blog
-            </Link>
-            <span>•</span>
-            <button
-              onClick={() => {
-                window.location.href = `mailto:${'support'}@${'teslys.com'}?subject=${encodeURIComponent('Teslys Support Request')}`;
-              }}
-              className="hover:text-foreground transition underline-offset-2 hover:underline"
-            >
-              Support
-            </button>
+          {/* Footer */}
+          <footer className="w-full mt-8 border-t border-border/50">
+            <div className="max-w-4xl mx-auto py-10 px-4">
+              <div className="flex flex-col items-center gap-6">
+                <Link to="/" className="mb-1">
+                  <Logo className="h-7 opacity-80" />
+                </Link>
+                <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                  <Link to="/privacy" className="hover:text-foreground transition-colors">
+                    Privacy Policy
+                  </Link>
+                  <Link to="/terms" className="hover:text-foreground transition-colors">
+                    Terms of Service
+                  </Link>
+                  <Link to="/sms-consent" className="hover:text-foreground transition-colors">
+                    SMS Consent
+                  </Link>
+                  <Link to="/blog" className="hover:text-foreground transition-colors">
+                    Blog
+                  </Link>
+                  <button
+                    onClick={() => {
+                      window.location.href = `mailto:${'support'}@${'teslys.com'}?subject=${encodeURIComponent('Teslys Support Request')}`;
+                    }}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Support
+                  </button>
+                </nav>
+                <p className="text-xs text-muted-foreground/60">
+                  © {new Date().getFullYear()} Teslys. All rights reserved.
+                </p>
+              </div>
+            </div>
           </footer>
         </div>
       </div>
