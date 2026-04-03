@@ -69,6 +69,7 @@ import Seattle from "./pages/cities/Seattle";
 import Denver from "./pages/cities/Denver";
 import Phoenix from "./pages/cities/Phoenix";
 import Atlanta from "./pages/cities/Atlanta";
+import ModelCityPage from "./pages/ModelCityPage";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
