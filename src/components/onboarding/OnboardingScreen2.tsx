@@ -12,7 +12,7 @@ export function OnboardingScreen2() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 text-center relative">
+    <div className="flex flex-col items-center justify-center min-h-full px-6 py-8 sm:py-12 text-center relative">
       {/* Background gradient */}
       <div className="absolute inset-0 pointer-events-none">
         <div
@@ -26,7 +26,7 @@ export function OnboardingScreen2() {
 
       {/* Shield icon with trust ring */}
       <div
-        className="mb-8 relative transition-all duration-700 ease-out"
+        className="mb-5 sm:mb-8 relative transition-all duration-700 ease-out"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.8)",
@@ -63,7 +63,7 @@ export function OnboardingScreen2() {
       </h1>
 
       <p
-        className="text-base text-muted-foreground mb-8 max-w-xs transition-all duration-700 delay-300 ease-out"
+        className="text-base text-muted-foreground mb-6 max-w-xs transition-all duration-700 delay-300 ease-out"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0)" : "translateY(20px)",

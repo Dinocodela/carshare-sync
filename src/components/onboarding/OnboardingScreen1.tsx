@@ -12,7 +12,7 @@ export function OnboardingScreen1() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 text-center relative">
+    <div className="flex flex-col items-center justify-center min-h-full px-6 py-8 sm:py-12 text-center relative">
       {/* Animated background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div
@@ -26,7 +26,7 @@ export function OnboardingScreen1() {
 
       {/* Icon with animated rings */}
       <div
-        className="mb-8 relative transition-all duration-700 ease-out"
+        className="mb-5 sm:mb-8 relative transition-all duration-700 ease-out"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.8)",
