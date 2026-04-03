@@ -75,6 +75,29 @@ export default function EarningsCalculator() {
   const [gateLoading, setGateLoading] = useState(false);
 
   useEffect(() => {
+    const unlocked = localStorage.getItem("calc_unlocked");
+    if (unlocked === "true") setEmailGated(false);
+  }, []);
+
+  const handleUnlockResults = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gateEmail.trim()) return;
+    setGateLoading(true);
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscriptions")
+        .insert({ email: gateEmail.trim().toLowerCase(), source: "earnings-calculator" });
+      if (error && error.code !== "23505") throw error;
+      localStorage.setItem("calc_unlocked", "true");
+      setEmailGated(false);
+      toast.success("Results unlocked!");
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setGateLoading(false);
+    }
+  };
+
     requestAnimationFrame(() => setVisible(true));
   }, []);
 
