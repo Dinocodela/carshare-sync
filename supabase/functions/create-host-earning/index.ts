@@ -22,31 +22,86 @@ interface EarningPayload {
   earning_type?: string;
 }
 
+/**
+ * Determine the best profit split for a client.
+ * Priority: first_month_free (100/0) > military (85/15) > fleet_5plus (80/20) > standard (70/30)
+ */
+async function resolveProfitSplit(
+  supabase: any,
+  carId: string
+): Promise<{ clientPct: number; hostPct: number }> {
+  // Get the car owner (client_id)
+  const { data: car } = await supabase
+    .from("cars")
+    .select("client_id")
+    .eq("id", carId)
+    .single();
+
+  if (!car?.client_id) return { clientPct: 70, hostPct: 30 };
+
+  const clientId = car.client_id;
+
+  // Get the client's profile
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("profit_program, promo_start_date, created_at")
+    .eq("user_id", clientId)
+    .single();
+
+  if (!profile) return { clientPct: 70, hostPct: 30 };
+
+  // 1. Check first_month_free promo
+  if (profile.promo_start_date) {
+    const promoStart = new Date(profile.promo_start_date);
+    const now = new Date();
+    const daysSincePromo = (now.getTime() - promoStart.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSincePromo <= 30) {
+      console.log("Applying first_month_free split 100/0 for client:", clientId);
+      return { clientPct: 100, hostPct: 0 };
+    }
+  }
+
+  // 2. Check military program
+  if (profile.profit_program === "military") {
+    console.log("Applying military split 85/15 for client:", clientId);
+    return { clientPct: 85, hostPct: 15 };
+  }
+
+  // 3. Check fleet discount (5+ cars)
+  const { count: carCount } = await supabase
+    .from("cars")
+    .select("id", { count: "exact", head: true })
+    .eq("client_id", clientId);
+
+  if ((carCount || 0) >= 5) {
+    console.log("Applying fleet_5plus split 80/20 for client:", clientId, "cars:", carCount);
+    return { clientPct: 80, hostPct: 20 };
+  }
+
+  // 4. Standard
+  return { clientPct: 70, hostPct: 30 };
+}
+
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get authorization header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      console.error("Missing authorization header");
       return new Response(
         JSON.stringify({ error: "Missing authorization header" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Create Supabase client with user's auth for authentication check
     const authClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Create admin client for database operations (bypasses RLS)
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -54,49 +109,35 @@ Deno.serve(async (req) => {
 
     const { data: { user }, error: authError } = await authClient.auth.getUser();
     if (authError || !user) {
-      console.error("Auth error:", authError?.message);
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Authenticated user:", user.id);
-
-    // Parse request body
     const payload: EarningPayload = await req.json();
-    console.log("Received payload:", JSON.stringify(payload));
 
     // Validate required fields
     if (!payload.trip_id) {
-      return new Response(
-        JSON.stringify({ error: "trip_id is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "trip_id is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-
     if (!payload.car_id) {
-      return new Response(
-        JSON.stringify({ error: "car_id is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "car_id is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-
     if (!payload.gross_earnings || payload.gross_earnings <= 0) {
-      return new Response(
-        JSON.stringify({ error: "gross_earnings must be a positive number" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "gross_earnings must be a positive number" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-
     if (!payload.earning_period_start || !payload.earning_period_end) {
-      return new Response(
-        JSON.stringify({ error: "earning_period_start and earning_period_end are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "earning_period_start and earning_period_end are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Build data object with only provided fields
+    // Resolve dynamic split (only used when percentages are NOT explicitly provided)
+    const dynamicSplit = await resolveProfitSplit(supabase, payload.car_id);
+
     const buildEarningData = (isInsert: boolean) => {
       const grossEarnings = parseFloat(String(payload.gross_earnings));
       const clientProfitPercentage = payload.client_profit_percentage !== undefined
@@ -114,14 +155,14 @@ Deno.serve(async (req) => {
         earning_period_end: payload.earning_period_end,
       };
 
-      // Calculate commission/net only when percentages are available
-      const cPct = clientProfitPercentage ?? 70;
-      const hPct = hostProfitPercentage ?? 30;
+      // Use explicit percentages if provided, otherwise use dynamic split
+      const cPct = clientProfitPercentage ?? dynamicSplit.clientPct;
+      const hPct = hostProfitPercentage ?? dynamicSplit.hostPct;
       data.commission = (grossEarnings * hPct) / 100;
       data.net_amount = (grossEarnings * cPct) / 100;
+      data.client_profit_percentage = cPct;
+      data.host_profit_percentage = hPct;
 
-      if (clientProfitPercentage !== undefined) data.client_profit_percentage = clientProfitPercentage;
-      if (hostProfitPercentage !== undefined) data.host_profit_percentage = hostProfitPercentage;
       if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
       if (payload.guest_phone !== undefined) data.guest_phone = payload.guest_phone || null;
       if (payload.guest_email !== undefined) data.guest_email = payload.guest_email || null;
@@ -130,19 +171,14 @@ Deno.serve(async (req) => {
       if (payload.payment_status !== undefined) data.payment_status = payload.payment_status;
       if (payload.date_paid !== undefined) data.date_paid = payload.date_paid || null;
 
-      // Set defaults only on insert
       if (isInsert) {
         if (!data.earning_type) data.earning_type = "hosting";
         if (!data.payment_source) data.payment_source = "Turo";
         if (!data.payment_status) data.payment_status = "pending";
-        if (data.client_profit_percentage === undefined) data.client_profit_percentage = 70;
-        if (data.host_profit_percentage === undefined) data.host_profit_percentage = 30;
       }
 
       return data;
     };
-
-    console.log("Payload keys:", Object.keys(payload));
 
     // Check if earning with this trip_id already exists
     const { data: existingEarning } = await supabase
@@ -156,70 +192,50 @@ Deno.serve(async (req) => {
     let action: "created" | "updated";
 
     if (existingEarning) {
-      // Verify ownership
       if (existingEarning.host_id !== user.id) {
-        return new Response(
-          JSON.stringify({ error: "Not authorized to update this earning" }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Not authorized to update this earning" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-
-      // Prevent updates to paid earnings
       if (existingEarning.payment_status === "paid") {
-        return new Response(
-          JSON.stringify({ error: "Cannot update earnings that are already marked as paid" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Cannot update earnings that are already marked as paid" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
       const updateData = buildEarningData(false);
-      console.log("Updating earning with fields:", Object.keys(updateData));
-
       const result = await supabase
         .from("host_earnings")
         .update(updateData)
         .eq("id", existingEarning.id)
         .select()
         .single();
-      
       data = result.data;
       error = result.error;
       action = "updated";
-      console.log("Updated earning:", existingEarning.id);
     } else {
       const insertData = buildEarningData(true);
-      console.log("Creating earning with fields:", Object.keys(insertData));
-
       const result = await supabase
         .from("host_earnings")
         .insert(insertData)
         .select()
         .single();
-      
       data = result.data;
       error = result.error;
       action = "created";
-      console.log("Created earning:", data?.id);
     }
 
     if (error) {
       console.error("Database error:", error.message);
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: error.message }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(
       JSON.stringify({ success: true, earning: data, action }),
       { status: action === "created" ? 201 : 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error) {
     console.error("Unexpected error:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: "Internal server error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
