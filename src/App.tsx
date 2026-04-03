@@ -135,6 +135,12 @@ const App = () => (
               <Route path="/tesla-car-sharing-new-york" element={<NewYork />} />
               <Route path="/tesla-car-sharing-austin" element={<Austin />} />
               <Route path="/tesla-car-sharing-san-diego" element={<SanDiego />} />
+              <Route path="/tesla-car-sharing-dallas" element={<Dallas />} />
+              <Route path="/tesla-car-sharing-chicago" element={<Chicago />} />
+              <Route path="/tesla-car-sharing-seattle" element={<Seattle />} />
+              <Route path="/tesla-car-sharing-denver" element={<Denver />} />
+              <Route path="/tesla-car-sharing-phoenix" element={<Phoenix />} />
+              <Route path="/tesla-car-sharing-atlanta" element={<Atlanta />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
