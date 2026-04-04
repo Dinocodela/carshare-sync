@@ -107,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
           ` : ''}
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || 'https://yourapp.com'}/my-cars" 
+            <a href="${Deno.env.get('APP_URL') || 'https://teslys.app'}/my-cars" 
                style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
               View My Cars
             </a>

@@ -41,6 +41,54 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          author_name: string
+          category: string
+          content: string
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          is_published: boolean
+          published_at: string | null
+          slug: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_name?: string
+          category?: string
+          content: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          category?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       car_access: {
         Row: {
           car_id: string
@@ -893,6 +941,39 @@ export type Database = {
           },
         ]
       }
+      insurance_inquiries: {
+        Row: {
+          car_count: number
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          car_count?: number
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          car_count?: number
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       maintenance_schedules: {
         Row: {
           actual_cost: number | null
@@ -1143,6 +1224,8 @@ export type Database = {
           location: string | null
           login_count: number | null
           phone: string
+          profit_program: string | null
+          promo_start_date: string | null
           rating: number | null
           rc_entitlements: Json | null
           rc_env: string | null
@@ -1183,6 +1266,8 @@ export type Database = {
           location?: string | null
           login_count?: number | null
           phone: string
+          profit_program?: string | null
+          promo_start_date?: string | null
           rating?: number | null
           rc_entitlements?: Json | null
           rc_env?: string | null
@@ -1223,6 +1308,8 @@ export type Database = {
           location?: string | null
           login_count?: number | null
           phone?: string
+          profit_program?: string | null
+          promo_start_date?: string | null
           rating?: number | null
           rc_entitlements?: Json | null
           rc_env?: string | null
@@ -1243,6 +1330,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_segment?: string | null
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          is_active: boolean
+          name: string
+          start_date: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          start_date?: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          start_date?: string
+          type?: string
         }
         Relationships: []
       }
@@ -1343,6 +1460,106 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "requests_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reservations: {
+        Row: {
+          car_id: string
+          created_at: string
+          daily_rate: number
+          end_date: string
+          guest_email: string | null
+          guest_name: string
+          guest_phone: string | null
+          host_id: string
+          id: string
+          notes: string | null
+          payment_source: string | null
+          start_date: string
+          status: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          daily_rate?: number
+          end_date: string
+          guest_email?: string | null
+          guest_name: string
+          guest_phone?: string | null
+          host_id: string
+          id?: string
+          notes?: string | null
+          payment_source?: string | null
+          start_date: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          daily_rate?: number
+          end_date?: string
+          guest_email?: string | null
+          guest_name?: string
+          guest_phone?: string | null
+          host_id?: string
+          id?: string
+          notes?: string | null
+          payment_source?: string | null
+          start_date?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signed_agreements: {
+        Row: {
+          agreement_version: string
+          car_id: string
+          id: string
+          ip_address: string | null
+          signed_at: string
+          signer_name: string
+          user_id: string
+        }
+        Insert: {
+          agreement_version?: string
+          car_id: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string
+          signer_name: string
+          user_id: string
+        }
+        Update: {
+          agreement_version?: string
+          car_id?: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string
+          signer_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signed_agreements_car_id_fkey"
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"

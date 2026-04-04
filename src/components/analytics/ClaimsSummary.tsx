@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -14,6 +13,7 @@ import {
   AlertCircle,
   DollarSign,
   FileWarning,
+  Shield,
 } from "lucide-react";
 import * as React from "react";
 
@@ -22,12 +22,8 @@ interface ClaimsSummaryProps {
   loading?: boolean;
 }
 
-/* ------------------------- small helpers ------------------------- */
 const fMoney = (n = 0) =>
-  `$${Number(n || 0).toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  `$${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
 const COLORS: Record<string, string> = {
   approved: "hsl(var(--chart-2))",
@@ -36,42 +32,27 @@ const COLORS: Record<string, string> = {
   closed: "hsl(var(--chart-4))",
 };
 
-const StatusIcon: Record<
-  string,
-  React.ComponentType<React.SVGProps<SVGSVGElement>>
-> = {
+const StatusIcon: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   approved: CheckCircle,
   pending: Clock,
   denied: XCircle,
   closed: AlertCircle,
 };
 
-/* ----------------------------- component ----------------------------- */
 export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Claims Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-36 rounded-xl bg-muted animate-pulse" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Claims by Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-36 rounded-xl bg-muted animate-pulse" />
-          </CardContent>
-        </Card>
+      <div className="grid gap-3 md:grid-cols-2">
+        {[0, 1].map((i) => (
+          <div key={i} className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 animate-pulse">
+            <div className="h-4 w-32 bg-muted rounded mb-4" />
+            <div className="h-24 bg-muted rounded-xl" />
+          </div>
+        ))}
       </div>
     );
   }
 
-  /* --- aggregations --- */
   const statusCounts = claims.reduce<Record<string, number>>((acc, c) => {
     const s = c.claim_status || "pending";
     acc[s] = (acc[s] || 0) + 1;
@@ -79,12 +60,8 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
   }, {});
   const totalClaims = claims.length;
   const totalAmount = claims.reduce((s, c) => s + (c.claim_amount || 0), 0);
-  const approvedAmount = claims
-    .filter((c) => c.claim_status === "approved")
-    .reduce((s, c) => s + (c.claim_amount || 0), 0);
-  const paidAmount = claims
-    .filter((c) => (c as any).is_paid === true)
-    .reduce((s, c) => s + (c.claim_amount || 0), 0);
+  const approvedAmount = claims.filter((c) => c.claim_status === "approved").reduce((s, c) => s + (c.claim_amount || 0), 0);
+  const paidAmount = claims.filter((c) => (c as any).is_paid === true).reduce((s, c) => s + (c.claim_amount || 0), 0);
 
   const chartData = Object.entries(statusCounts).map(([status, value]) => ({
     status,
@@ -94,122 +71,76 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
     color: COLORS[status] || "hsl(var(--muted))",
   }));
 
-  const chartConfig = {
-    value: { label: "Claims" },
-  };
+  const chartConfig = { value: { label: "Claims" } };
 
-  /* ----------------------------- UI ----------------------------- */
   return (
-    <div className="grid gap-2 md:grid-cols-2">
+    <div className="grid gap-3 md:grid-cols-2">
       {/* Claims Overview */}
-      <Card className="min-w-0">
-        <CardHeader className="pb-2 mt-2">
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            Claims Overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-2">
-          <div className="grid grid-cols-2 gap-2 sm:gap-6">
-            {/* Total Claims */}
-            <div className="rounded-xl border bg-background p-3 sm:p-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <FileWarning className="h-4 w-4" />
-                Total Claims
+      <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
+        <div className="flex items-center gap-2 p-4 pb-3">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-primary" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Claims Overview</h3>
+        </div>
+        <div className="px-4 pb-4">
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label: "Total Claims", value: totalClaims.toString(), icon: FileWarning, accent: "text-foreground" },
+              { label: "Total Amount", value: fMoney(totalAmount), icon: DollarSign, accent: "text-foreground" },
+              { label: "Approved", value: fMoney(approvedAmount), icon: CheckCircle, accent: "text-emerald-600" },
+              { label: "Paid Out", value: fMoney(paidAmount), icon: DollarSign, accent: "text-primary" },
+              { label: "Pending", value: (statusCounts.pending || 0).toString(), icon: Clock, accent: "text-amber-600" },
+            ].map((item, i) => (
+              <div key={i} className="rounded-xl border border-border/40 bg-background/50 p-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <item.icon className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
+                </div>
+                <p className={`text-lg font-bold tracking-tight ${item.accent}`}>{item.value}</p>
               </div>
-              <div className="mt-1 text-2xl font-extrabold tracking-tight">
-                {totalClaims}
-              </div>
-            </div>
-
-            {/* Total Amount */}
-            <div className="rounded-xl border bg-background p-3 sm:p-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <DollarSign className="h-4 w-4" />
-                Total Amount
-              </div>
-              <div className="mt-1 text-2xl font-extrabold tracking-tight">
-                {fMoney(totalAmount)}
-              </div>
-            </div>
-
-            {/* Approved Amount */}
-            <div className="rounded-xl border bg-background p-3 sm:p-4">
-              <div className="text-xs text-muted-foreground">
-                Approved Amount
-              </div>
-              <div className="mt-1 text-xl font-semibold text-emerald-600">
-                {fMoney(approvedAmount)}
-              </div>
-            </div>
-
-            {/* Amount Paid */}
-            <div className="rounded-xl border bg-background p-3 sm:p-4">
-              <div className="text-xs text-muted-foreground">
-                Amount Paid
-              </div>
-              <div className="mt-1 text-xl font-semibold text-primary">
-                {fMoney(paidAmount)}
-              </div>
-            </div>
-
-            {/* Pending Count */}
-            <div className="rounded-xl border bg-background p-3 sm:p-4">
-              <div className="text-xs text-muted-foreground">
-                Pending Claims
-              </div>
-              <div className="mt-1 text-xl font-semibold text-amber-600">
-                {statusCounts.pending || 0}
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Tiny status strip */}
           {chartData.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+            <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
               {chartData.map((d) => {
                 const Ico = StatusIcon[d.status] || AlertCircle;
                 return (
-                  <div
-                    key={d.status}
-                    className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5"
-                  >
-                    <span
-                      className="inline-block h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: d.color }}
-                    />
-                    <Ico className="h-3.5 w-3.5" />
+                  <div key={d.status} className="flex items-center gap-1.5 rounded-lg border border-border/40 bg-background/50 px-2 py-1.5 text-[11px]">
+                    <span className="inline-block h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+                    <Ico className="h-3 w-3 shrink-0" />
                     <span className="truncate">{d.name}</span>
-                    <span className="ml-auto tabular-nums">{d.value}</span>
+                    <span className="ml-auto tabular-nums font-medium">{d.value}</span>
                   </div>
                 );
               })}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Claims by Status */}
-      <Card className="min-w-0">
-        <CardHeader className="pb-2 mt-2">
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-primary" />
-            Claims by Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-2">
+      <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
+        <div className="flex items-center gap-2 p-4 pb-3">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+            <AlertCircle className="w-4 h-4 text-primary" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Claims by Status</h3>
+        </div>
+        <div className="px-4 pb-4">
           {totalClaims === 0 ? (
-            <div className="flex h-48 flex-col items-center justify-center text-center text-sm text-muted-foreground">
-              🎉 No claims yet — all clear!
+            <div className="flex h-44 flex-col items-center justify-center text-center">
+              <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
+                <CheckCircle className="w-6 h-6 text-emerald-500/60" />
+              </div>
+              <p className="text-sm text-muted-foreground">No claims — all clear!</p>
             </div>
           ) : (
             <>
-              <ChartContainer
-                config={chartConfig}
-                className="mx-auto h-48 w-full sm:h-56"
-              >
+              <ChartContainer config={chartConfig} className="mx-auto h-44 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart role="img" aria-label="Claims by status">
+                  <PieChart>
                     <Pie
                       data={chartData}
                       dataKey="value"
@@ -217,7 +148,7 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
                       cx="50%"
                       cy="50%"
                       innerRadius={38}
-                      outerRadius={70}
+                      outerRadius={65}
                       startAngle={90}
                       endAngle={-270}
                       isAnimationActive
@@ -226,35 +157,15 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
                       {chartData.map((d, i) => (
                         <Cell key={i} fill={d.color} />
                       ))}
-                      {/* Center label with total */}
                       <Label
                         position="center"
                         content={({ viewBox }) => {
-                          if (
-                            !viewBox ||
-                            !("cx" in viewBox) ||
-                            !("cy" in viewBox)
-                          )
-                            return null;
+                          if (!viewBox || !("cx" in viewBox) || !("cy" in viewBox)) return null;
                           const { cx, cy } = viewBox;
                           return (
                             <g>
-                              <text
-                                x={cx}
-                                y={cy - 6}
-                                textAnchor="middle"
-                                className="fill-foreground text-xl font-extrabold"
-                              >
-                                {totalClaims}
-                              </text>
-                              <text
-                                x={cx}
-                                y={cy + 12}
-                                textAnchor="middle"
-                                className="fill-muted-foreground text-[10px]"
-                              >
-                                total
-                              </text>
+                              <text x={cx} y={cy as number - 6} textAnchor="middle" className="fill-foreground text-xl font-extrabold">{totalClaims}</text>
+                              <text x={cx} y={cy as number + 12} textAnchor="middle" className="fill-muted-foreground text-[10px]">total</text>
                             </g>
                           );
                         }}
@@ -262,40 +173,29 @@ export function ClaimsSummary({ claims, loading }: ClaimsSummaryProps) {
                     </Pie>
                     <ChartTooltip
                       content={<ChartTooltipContent />}
-                      formatter={(v, _n, p) => [
-                        `${v} • ${p?.payload?.percent ?? 0}%`,
-                        p?.payload?.name ?? "Claims",
-                      ]}
+                      formatter={(v, _n, p) => [`${v} • ${p?.payload?.percent ?? 0}%`, p?.payload?.name ?? "Claims"]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </ChartContainer>
 
-              {/* Legend */}
-              <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+              <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                 {chartData.map((d) => {
                   const Ico = StatusIcon[d.status] || AlertCircle;
                   return (
-                    <div
-                      key={d.status}
-                      className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5"
-                    >
-                      <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: d.color }}
-                        aria-hidden
-                      />
-                      <Ico className="h-3.5 w-3.5" />
+                    <div key={d.status} className="flex items-center gap-1.5 rounded-lg border border-border/40 bg-background/50 px-2 py-1.5 text-[11px]">
+                      <span className="inline-block h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+                      <Ico className="h-3 w-3 shrink-0" />
                       <span className="truncate">{d.name}</span>
-                      <span className="ml-auto tabular-nums">{d.percent}%</span>
+                      <span className="ml-auto tabular-nums font-medium">{d.percent}%</span>
                     </div>
                   );
                 })}
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

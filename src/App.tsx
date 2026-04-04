@@ -23,6 +23,8 @@ import EditCar from "./pages/EditCar";
 import HostRequests from "./pages/HostRequests";
 import HostingDetails from "./pages/HostingDetails";
 import HostCarManagement from "./pages/HostCarManagement";
+import BonzahInsurance from "./pages/BonzahInsurance";
+
 import RegisteredClients from "./pages/RegisteredClients";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
@@ -46,7 +48,32 @@ import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
 import DeleteAccount from "./pages/DeleteAccount";
 import SMSConsent from "./pages/SMSConsent";
+import EmailConfirmed from "./pages/EmailConfirmed";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ScrollReset from "./components/router/ScrollReset";
+import Blog from "./pages/Blog";
+import BlogPostPage from "./pages/BlogPost";
+import HowItWorks from "./pages/HowItWorks";
+import About from "./pages/About";
+import EarningsCalculator from "./pages/EarningsCalculator";
+import TuroComparison from "./pages/TuroComparison";
+import EarningsGuide from "./pages/EarningsGuide";
+import GetStarted from "./pages/GetStarted";
+import MilitaryProgram from "./pages/MilitaryProgram";
+import LosAngeles from "./pages/cities/LosAngeles";
+import Miami from "./pages/cities/Miami";
+import SanFrancisco from "./pages/cities/SanFrancisco";
+import NewYork from "./pages/cities/NewYork";
+import Austin from "./pages/cities/Austin";
+import SanDiego from "./pages/cities/SanDiego";
+import Dallas from "./pages/cities/Dallas";
+import Chicago from "./pages/cities/Chicago";
+import Seattle from "./pages/cities/Seattle";
+import Denver from "./pages/cities/Denver";
+import Phoenix from "./pages/cities/Phoenix";
+import Atlanta from "./pages/cities/Atlanta";
+import ModelCityPage from "./pages/ModelCityPage";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -101,6 +128,33 @@ const App = () => (
               <Route path="/support" element={<Support />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
+              <Route path="/email-confirmed" element={<EmailConfirmed />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/earnings-calculator" element={<EarningsCalculator />} />
+              <Route path="/turo-management" element={<TuroComparison />} />
+              <Route path="/how-much-can-i-earn" element={<EarningsGuide />} />
+              <Route path="/get-started" element={<GetStarted />} />
+              <Route path="/military" element={<MilitaryProgram />} />
+              <Route path="/tesla-car-sharing-los-angeles" element={<LosAngeles />} />
+              <Route path="/tesla-car-sharing-miami" element={<Miami />} />
+              <Route path="/tesla-car-sharing-san-francisco" element={<SanFrancisco />} />
+              <Route path="/tesla-car-sharing-new-york" element={<NewYork />} />
+              <Route path="/tesla-car-sharing-austin" element={<Austin />} />
+              <Route path="/tesla-car-sharing-san-diego" element={<SanDiego />} />
+              <Route path="/tesla-car-sharing-dallas" element={<Dallas />} />
+              <Route path="/tesla-car-sharing-chicago" element={<Chicago />} />
+              <Route path="/tesla-car-sharing-seattle" element={<Seattle />} />
+              <Route path="/tesla-car-sharing-denver" element={<Denver />} />
+              <Route path="/tesla-car-sharing-phoenix" element={<Phoenix />} />
+              <Route path="/tesla-car-sharing-atlanta" element={<Atlanta />} />
+
+              {/* Programmatic Model + City Pages */}
+              <Route path="/:slug" element={<ModelCityPage />} />
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
@@ -135,6 +189,10 @@ const App = () => (
                     <Route
                       path="/host-car-management"
                       element={<HostCarManagement />}
+                    />
+                    <Route
+                      path="/bonzah-insurance"
+                      element={<BonzahInsurance />}
                     />
                     <Route
                       path="/registered-clients"

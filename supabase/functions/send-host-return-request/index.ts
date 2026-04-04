@@ -99,7 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; margin: 30px 0;">
             <p>Please coordinate with the client to arrange the car return.</p>
-            <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || 'https://yourapp.com'}/dashboard" 
+            <a href="${Deno.env.get('APP_URL') || 'https://teslys.app'}/dashboard" 
                style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
               View Dashboard
             </a>

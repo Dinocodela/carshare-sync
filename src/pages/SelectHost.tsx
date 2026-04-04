@@ -37,7 +37,6 @@ interface HostProfile {
   user_id: string;
   first_name: string;
   last_name: string;
-  email: string;
   company_name: string;
   location: string;
   bio: string;
@@ -106,7 +105,7 @@ export default function SelectHost() {
       // Fetch all approved host profiles, ordered by rating
       const { data: hostData, error: hostError } = await supabase
         .from("profiles")
-        .select("*, turo_reviews_count, turo_profile_url")
+        .select("id, user_id, first_name, last_name, company_name, location, bio, services, rating, turo_reviews_count, turo_profile_url")
         .eq("role", "host")
         .eq("account_status", "approved")
         .order("rating", { ascending: false, nullsFirst: false });
@@ -196,7 +195,7 @@ export default function SelectHost() {
       if (requestError) throw requestError;
 
       // Send notification email to host
-      const hostEmail = selectedHost.email;
+      // Host email is resolved server-side in the edge function
       const clientName = clientProfile
         ? `${clientProfile.first_name} ${clientProfile.last_name}`
         : user.email || "Client";
@@ -207,7 +206,7 @@ export default function SelectHost() {
           body: {
             requestId: requestData.id,
             hostId: selectedHost.user_id,
-            hostEmail: hostEmail,
+            // hostEmail resolved server-side
             hostName: `${selectedHost.first_name} ${selectedHost.last_name}`,
             clientName: clientName,
             clientPhone: clientProfile?.phone,

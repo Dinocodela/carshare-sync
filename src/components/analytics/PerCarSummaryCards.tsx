@@ -1,11 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DollarSign,
   TrendingUp,
   TrendingDown,
   Calendar,
   Car,
-  FileText,
   AlertTriangle,
   Activity,
   Target,
@@ -17,22 +15,15 @@ interface PerCarSummaryCardsProps {
   loading?: boolean;
 }
 
-export function PerCarSummaryCards({
-  performance,
-  loading,
-}: PerCarSummaryCardsProps) {
+export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsProps) {
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {[...Array(7)].map((_, i) => (
-          <Card key={i} className="mt-2">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Loading...</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-muted animate-pulse rounded"></div>
-            </CardContent>
-          </Card>
+          <div key={i} className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-4 animate-pulse">
+            <div className="h-3 w-20 bg-muted rounded mb-3" />
+            <div className="h-7 w-16 bg-muted rounded" />
+          </div>
         ))}
       </div>
     );
@@ -41,112 +32,103 @@ export function PerCarSummaryCards({
   const cards = [
     {
       title: "Total Earnings",
-      value: `$${performance.totalEarnings.toFixed(2)}`,
+      value: `$${performance.totalEarnings.toFixed(0)}`,
       icon: DollarSign,
-      description: "Total profit from this vehicle",
-      gradient: "from-emerald-500 to-emerald-600",
+      accent: "bg-emerald-500/10 text-emerald-600",
     },
     {
       title: "Fixed Costs",
-      value: `$${performance.monthlyFixedCosts.toFixed(2)}`,
+      value: `$${performance.monthlyFixedCosts.toFixed(0)}`,
       icon: TrendingDown,
-      description: "Monthly fixed expenses",
-      gradient: "from-orange-500 to-red-600",
+      accent: "bg-red-500/10 text-red-600",
     },
     {
       title: "True Net Profit",
-      value: `$${performance.trueNetProfit.toFixed(2)}`,
+      value: `$${performance.trueNetProfit.toFixed(0)}`,
       icon: TrendingUp,
-      description: "Profit after all costs",
-      valueClass:
-        performance.trueNetProfit >= 0 ? "text-emerald-600" : "text-red-600",
-      gradient:
-        performance.trueNetProfit >= 0
-          ? "from-emerald-500 to-green-600"
-          : "from-red-500 to-red-600",
+      accent: performance.trueNetProfit >= 0 ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600",
+      valueClass: performance.trueNetProfit >= 0 ? "text-emerald-600" : "text-red-600",
     },
     {
       title: "Profit Margin",
       value: `${performance.profitMargin.toFixed(1)}%`,
       icon: Target,
-      description: "Profitability percentage",
-      valueClass:
-        performance.profitMargin >= 0 ? "text-emerald-600" : "text-red-600",
-      gradient: "from-blue-500 to-blue-600",
+      accent: performance.profitMargin >= 0 ? "bg-blue-500/10 text-blue-600" : "bg-red-500/10 text-red-600",
+      valueClass: performance.profitMargin >= 0 ? "text-emerald-600" : "text-red-600",
     },
     {
       title: "Active Days",
       value: performance.activeDays.toString(),
       icon: Calendar,
-      description: "Days with earnings activity",
-      gradient: "from-purple-500 to-purple-600",
+      accent: "bg-violet-500/10 text-violet-600",
     },
     {
       title: "Total Trips",
       value: performance.totalTrips.toString(),
       icon: Car,
-      description: "Completed hosting trips",
-      gradient: "from-indigo-500 to-indigo-600",
+      accent: "bg-indigo-500/10 text-indigo-600",
     },
     {
       title: "Avg Per Trip",
       value: `$${performance.averagePerTrip.toFixed(0)}`,
       icon: DollarSign,
-      description: "Average earnings per trip",
-      gradient: "from-teal-500 to-teal-600",
+      accent: "bg-teal-500/10 text-teal-600",
     },
     {
       title: "Utilization",
       value: `${performance.utilizationRate.toFixed(1)}%`,
       icon: Activity,
-      description: "Usage rate (last 30 days)",
-      valueClass:
-        performance.utilizationRate >= 50
-          ? "text-emerald-600"
-          : performance.utilizationRate >= 25
-          ? "text-amber-600"
-          : "text-red-600",
-      gradient: "from-cyan-500 to-cyan-600",
+      accent: performance.utilizationRate >= 50
+        ? "bg-emerald-500/10 text-emerald-600"
+        : performance.utilizationRate >= 25
+        ? "bg-amber-500/10 text-amber-600"
+        : "bg-red-500/10 text-red-600",
+      valueClass: performance.utilizationRate >= 50
+        ? "text-emerald-600"
+        : performance.utilizationRate >= 25
+        ? "text-amber-600"
+        : "text-red-600",
     },
     {
       title: "Risk Score",
       value: performance.riskScore.toFixed(0),
       icon: AlertTriangle,
-      description: "Overall risk assessment",
-      valueClass:
-        performance.riskScore < 30
-          ? "text-emerald-600"
-          : performance.riskScore < 60
-          ? "text-amber-600"
-          : "text-red-600",
-      gradient: "from-orange-500 to-orange-600",
+      accent: performance.riskScore < 30
+        ? "bg-emerald-500/10 text-emerald-600"
+        : performance.riskScore < 60
+        ? "bg-amber-500/10 text-amber-600"
+        : "bg-red-500/10 text-red-600",
+      valueClass: performance.riskScore < 30
+        ? "text-emerald-600"
+        : performance.riskScore < 60
+        ? "text-amber-600"
+        : "text-red-600",
     },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {cards.map((card, index) => (
-        <Card key={index} className="relative overflow-hidden mt-2">
-          <div
-            className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-5`}
-          />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative">
-            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-            <div
-              className={`p-1.5 sm:p-2 rounded-full bg-gradient-to-br ${card.gradient} text-white shadow-lg`}
-            >
-              <card.icon className="h-4 w-4" />
+        <div
+          key={index}
+          className="group relative rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-4 transition-all duration-300 hover:shadow-md hover:border-primary/20"
+          style={{ animation: `fade-in 0.4s ease-out ${index * 60}ms both` }}
+        >
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-transparent to-muted/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                {card.title}
+              </span>
+              <div className={`w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center`}>
+                <card.icon className="w-4 h-4" />
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="relative">
-            <div className={`text-2xl font-bold ${card.valueClass || ""}`}>
+            <p className={`text-xl font-bold tracking-tight ${card.valueClass || "text-foreground"}`}>
               {card.value}
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {card.description}
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ))}
     </div>
   );

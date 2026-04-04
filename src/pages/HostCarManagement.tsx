@@ -1,4 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  forwardRef,
+  type ComponentPropsWithoutRef,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Car,
@@ -8,9 +14,10 @@ import {
   CheckCircle,
   XCircle,
   Settings,
-  Calendar,
+  Calendar as CalendarLucide,
   FileText,
   AlertTriangle,
+  AlertCircle,
   DollarSign,
   Plus,
   Edit,
@@ -19,6 +26,12 @@ import {
   Filter,
   X,
   MoreVertical,
+  Shield,
+  Lock,
+  TrendingUp,
+  Gauge,
+  Palette,
+  User,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -106,6 +119,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
+import { Calendar as CalendarWidget } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { format } from "date-fns";
+
 interface CarWithClient {
   id: string;
   make: string;
@@ -116,6 +133,7 @@ interface CarWithClient {
   mileage: number;
   color: string;
   description: string;
+  images: string[] | null;
   vin_number: string | null;
   license_plate: string | null;
   created_at: string;
@@ -247,7 +265,7 @@ const earningSchema = z.object({
   client_profit_percentage: z.number().min(0).max(100).default(70),
   host_profit_percentage: z.number().min(0).max(100).default(30),
   payment_status: z.string().min(1, "Payment status is required"),
-  date_paid: z.string().optional(),
+  date_paid: z.string().min(1, "Date paid is required"),
 });
 
 const claimSchema = z.object({
@@ -301,6 +319,101 @@ const formatDetailedCarInfo = (car: CarWithClient) => (
   </div>
 );
 
+interface NumericPlaceholderInputProps
+  extends Omit<
+    ComponentPropsWithoutRef<typeof Input>,
+    "type" | "value" | "onChange"
+  > {
+  value?: number | null;
+  onChange: (value: number) => void;
+  hideZeroWhenBlurred?: boolean;
+}
+
+const NumericPlaceholderInput = forwardRef<
+  HTMLInputElement,
+  NumericPlaceholderInputProps
+>(
+  (
+    {
+      value,
+      onChange,
+      onBlur,
+      onFocus,
+      hideZeroWhenBlurred = true,
+      ...props
+    },
+    ref
+  ) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const [inputValue, setInputValue] = useState("");
+
+    useEffect(() => {
+      if (isFocused) return;
+
+      if (
+        value === undefined ||
+        value === null ||
+        (hideZeroWhenBlurred && value === 0)
+      ) {
+        setInputValue("");
+        return;
+      }
+
+      setInputValue(String(value));
+    }, [value, isFocused, hideZeroWhenBlurred]);
+
+    return (
+      <Input
+        {...props}
+        ref={ref}
+        type="number"
+        value={inputValue}
+        onFocus={(e) => {
+          setIsFocused(true);
+          requestAnimationFrame(() => e.target.select());
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setIsFocused(false);
+          const nextValue = e.target.value.trim();
+
+          if (!nextValue) {
+            setInputValue("");
+            onChange(0);
+            onBlur?.(e);
+            return;
+          }
+
+          const parsedValue = parseFloat(nextValue);
+
+          if (Number.isNaN(parsedValue)) {
+            setInputValue("");
+            onChange(0);
+          } else {
+            onChange(parsedValue);
+          }
+
+          onBlur?.(e);
+        }}
+        onChange={(e) => {
+          const nextValue = e.target.value;
+          setInputValue(nextValue);
+
+          if (nextValue === "") {
+            onChange(0);
+            return;
+          }
+
+          const parsedValue = parseFloat(nextValue);
+          onChange(Number.isNaN(parsedValue) ? 0 : parsedValue);
+        }}
+      />
+    );
+  }
+);
+
+NumericPlaceholderInput.displayName = "NumericPlaceholderInput";
+
 export default function HostCarManagement() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -334,6 +447,34 @@ export default function HostCarManagement() {
   const [expenseFiltersOpen, setExpenseFiltersOpen] = useState(false);
   const [earningsFiltersOpen, setEarningsFiltersOpen] = useState(false);
   const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
+
+  // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
+  useEffect(() => {
+    const anyOpen =
+      expenseDialogOpen ||
+      earningDialogOpen ||
+      claimDialogOpen ||
+      deleteClaimDialogOpen ||
+      expenseFiltersOpen ||
+      earningsFiltersOpen ||
+      claimsFiltersOpen;
+
+    if (!anyOpen) {
+      // Use a short delay to let Radix finish its own cleanup first
+      const id = setTimeout(() => {
+        document.body.style.removeProperty("pointer-events");
+      }, 50);
+      return () => clearTimeout(id);
+    }
+  }, [
+    expenseDialogOpen,
+    earningDialogOpen,
+    claimDialogOpen,
+    deleteClaimDialogOpen,
+    expenseFiltersOpen,
+    earningsFiltersOpen,
+    claimsFiltersOpen,
+  ]);
 
   // Active tab state for conditional mobile UI
   const [tab, setTab] = useState<Tab>(() => tabFromHash(location.hash));
@@ -820,10 +961,19 @@ export default function HostCarManagement() {
     );
   }, [claims, claimsFilters]);
 
-  // Get distinct claim types from claims data
+  // Base claim types + any additional types from existing data
+  const BASE_CLAIM_TYPES = [
+    "Accident body damage",
+    "Interior damage",
+    "Scratched rims",
+    "Parking ticket",
+    "Speeding ticket",
+  ];
+
   const distinctClaimTypes = useMemo(() => {
-    const types = [...new Set(claims.map((c) => c.claim_type).filter(Boolean))];
-    return types.sort();
+    const fromData = claims.map((c) => c.claim_type).filter(Boolean);
+    const merged = [...new Set([...BASE_CLAIM_TYPES, ...fromData])];
+    return merged.sort();
   }, [claims]);
 
   // Count active filters
@@ -1627,8 +1777,9 @@ export default function HostCarManagement() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-lg text-muted-foreground">
-            Loading hosted cars...
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+            <p className="text-sm text-muted-foreground">Loading hosted cars…</p>
           </div>
         </div>
       </DashboardLayout>
@@ -1637,9 +1788,14 @@ export default function HostCarManagement() {
   return (
     <DashboardLayout>
       <>
-        <header className="z-10 flex items-center justify-center gap-2 py-2 mb-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold">Hosted</h1>
+        {/* Header */}
+        <header className="flex items-center gap-3 py-3 px-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <Car className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Hosted Cars</h1>
+            <p className="text-xs text-muted-foreground">Manage vehicles, expenses & earnings</p>
           </div>
         </header>
 
@@ -1652,171 +1808,94 @@ export default function HostCarManagement() {
             {/* Tabs header */}
             {/* Sticky header */}
             {/* Header that matches the bottom bar */}
-            <div
-              className="
-   z-40 border-b
-  backdrop-blur-md bg-white/70 supports-[backdrop-filter]:bg-white/60
-  shadow-[0_6px_16px_rgba(0,0,0,0.05)]
-"
-            >
-              <TabsList className="grid grid-cols-4 w-full h-11 px-1.5 gap-0 bg-transparent border-0">
+            <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm mb-4 overflow-hidden">
+              <TabsList className="grid grid-cols-4 w-full h-12 px-1 gap-0 bg-transparent border-0">
                 {[
-                  {
-                    key: "active",
-                    label: "Active",
-                    count: activeHostedCars.length,
-                  },
-                  {
-                    key: "expenses",
-                    label: "Expenses",
-                    count: expenses.length,
-                  },
-                  {
-                    key: "earnings",
-                    label: "Earnings",
-                    count: earnings.length,
-                  },
+                  { key: "active", label: "Active", count: activeHostedCars.length },
+                  { key: "expenses", label: "Expenses", count: expenses.length },
+                  { key: "earnings", label: "Earnings", count: earnings.length },
                   { key: "claims", label: "Claims", count: claims.length },
                 ].map(({ key, label, count }) => (
                   <TabsTrigger
                     key={key}
                     value={key as any}
-                    className="
-          group relative inline-flex items-center justify-center
-          h-11 px-3 rounded-none text-[15px] font-medium
-          text-muted-foreground data-[state=active]:text-primary
-          transition-colors
-        "
+                    className="group relative inline-flex items-center justify-center h-10 px-2 rounded-xl text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-primary/10 transition-all duration-200"
                   >
-                    {/* label (kept perfectly centered) */}
                     <span className="leading-none">{label}</span>
-
-                    {/* badge - lowered & tighter, with a subtle ring like iOS badges */}
                     {!!count && (
-                      <span
-                        className="
-              pointer-events-none absolute top-[0px] right-[0px]
-              inline-grid place-items-center tabular-nums
-              h-[18px] min-w-[18px] 
-              rounded-full text-[10px] leading-none
-              bg-muted/90 text-foreground/70 ring-1 ring-black/5
-              group-data-[state=active]:bg-primary/10
-              group-data-[state=active]:text-primary
-            "
-                      >
+                      <span className="ml-1.5 inline-grid place-items-center tabular-nums h-[18px] min-w-[18px] px-1 rounded-full text-[10px] leading-none bg-muted/80 text-muted-foreground group-data-[state=active]:bg-primary/20 group-data-[state=active]:text-primary">
                         {count}
                       </span>
                     )}
-
-                    {/* active underline */}
-                    <span
-                      aria-hidden
-                      className="
-            absolute left-2 right-2 -bottom-[1px] h-[2px] rounded-full
-            bg-primary opacity-0 group-data-[state=active]:opacity-100
-          "
-                    />
                   </TabsTrigger>
                 ))}
               </TabsList>
             </div>
 
-            <TabsContent value="active" className="space-y-4  sm:px-0">
+            <TabsContent value="active" className="space-y-4 sm:px-0">
               {activeHostedCars.length === 0 ? (
-                <Card className="w-full mx-0 max-w-none">
-                  <CardContent className="text-center p-4 sm:p-6">
-                    <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No cars currently hosted
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Cars you're hosting will appear here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Car className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Cars Currently Hosted</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Cars you're hosting will appear here once assigned.
+                  </p>
+                </div>
               ) : (
                 <Accordion
-                  /* multiple so desktop can keep several open; mobile starts collapsed */
                   type="multiple"
-                  defaultValue={
-                    !isMobile ? activeHostedCars.map((c) => c.id) : []
-                  }
+                  defaultValue={!isMobile ? activeHostedCars.map((c) => c.id) : []}
                   className="grid gap-3 md:gap-4 md:grid-cols-2"
                 >
                   {activeHostedCars.map((car) => (
-                    <AccordionItem
-                      key={car.id}
-                      value={car.id}
-                      className="border-none group"
-                    >
-                      <Card className="w-full mx-0 max-w-none">
-                        {/* Header becomes the accordion trigger */}
-                        <CardHeader className="p-3 sm:p-4 md:p-6 items-center">
-                          <AccordionTrigger
-                            className="
-                  group w-full rounded-md px-0
-                  [&[data-state=open]_.chev]:rotate-180
-                  hover:no-underline
-                "
-                          >
+                    <AccordionItem key={car.id} value={car.id} className="border-none group">
+                      <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                        <CardHeader className="p-4 sm:p-5 items-center">
+                          <AccordionTrigger className="group w-full rounded-md px-0 [&[data-state=open]_.chev]:rotate-180 hover:no-underline">
                             <div className="flex w-full items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <CardTitle className="text-sm sm:text-lg break-words">
-                                  {formatCarDisplayName(car)}
-                                </CardTitle>
-                                <CardDescription className="break-words">
-                                  Location: {car.location}
-                                </CardDescription>
-                                <Badge className="mt-2" variant="default">
-                                  Hosting
-                                </Badge>
+                              <div className="flex items-start gap-3 min-w-0">
+                                {car.images?.[0] ? (
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-border/50 shrink-0">
+                                    <img src={car.images[0]} alt={formatCarDisplayName(car)} className="w-full h-full object-cover" />
+                                  </div>
+                                ) : (
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Car className="w-5 h-5 text-primary" />
+                                  </div>
+                                )}
+                                <div className="min-w-0">
+                                  <CardTitle className="text-sm sm:text-base font-bold break-words">
+                                    {formatCarDisplayName(car)}
+                                  </CardTitle>
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                    <MapPin className="w-3 h-3" />
+                                    <span>{car.location}</span>
+                                  </div>
+                                  <Badge className="mt-1.5 rounded-lg text-[10px] uppercase tracking-wider" variant="default">
+                                    Active Host
+                                  </Badge>
+                                </div>
                               </div>
                             </div>
                           </AccordionTrigger>
-                          {/* Header actions: visible ONLY when collapsed */}
-                          <div className="mt-3 flex flex-col sm:flex-row gap-2 group-data-[state=open]:hidden">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full sm:w-auto"
-                              onClick={() =>
-                                window.open(`tel:${car.client.phone}`)
-                              }
-                            >
-                              <Phone className="h-4 w-4 mr-2" />
-                              Call Client
+                          <div className="mt-3 flex flex-col sm:flex-row gap-2 group-data-[state=open]:hidden ml-10">
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                              <Phone className="h-4 w-4 mr-2" />Call Client
                             </Button>
-
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="w-full sm:w-auto"
-                                >
-                                  <Settings className="h-4 w-4 mr-2" />
-                                  Manage
+                                <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl">
+                                  <Settings className="h-4 w-4 mr-2" />Manage
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleManagementAction("view-details", car)
-                                  }
-                                >
-                                  <FileText className="h-4 w-4 mr-2" />
-                                  View Car Details
+                                <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                  <FileText className="h-4 w-4 mr-2" />View Car Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleManagementAction(
-                                      "schedule-maintenance",
-                                      car
-                                    )
-                                  }
-                                >
-                                  <Calendar className="h-4 w-4 mr-2" />
-                                  Schedule Maintenance
+                                <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                  <CalendarLucide className="h-4 w-4 mr-2" />Schedule Maintenance
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                               </DropdownMenuContent>
@@ -1824,125 +1903,60 @@ export default function HostCarManagement() {
                           </div>
                         </CardHeader>
 
-                        {/* Body */}
                         <AccordionContent>
-                          <CardContent className="p-3 sm:p-4 md:p-6 space-y-4">
-                            {/* Car information */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Color:
-                                </span>
-                                <p className="font-medium">
-                                  {car.color || "N/A"}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Mileage:
-                                </span>
-                                <p className="font-medium">
-                                  {car.mileage
-                                    ? `${car.mileage.toLocaleString()} mi`
-                                    : "N/A"}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Hosting Since:
-                                </span>
-                                <p className="font-medium">
-                                  {new Date(
-                                    car.created_at
-                                  ).toLocaleDateString()}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Status:
-                                </span>
-                                <p className="font-medium text-green-600">
-                                  Active
-                                </p>
-                              </div>
+                          <CardContent className="px-4 sm:px-5 pb-5 space-y-4">
+                            {/* Car Stats Grid */}
+                            <div className="grid grid-cols-2 gap-2.5">
+                              {[
+                                { label: "Color", value: car.color || "N/A", icon: Palette },
+                                { label: "Mileage", value: car.mileage ? `${car.mileage.toLocaleString()} mi` : "N/A", icon: Gauge },
+                                { label: "Hosting Since", value: new Date(car.created_at).toLocaleDateString(), icon: CalendarLucide },
+                                { label: "Status", value: "Active", icon: CheckCircle },
+                              ].map((item, i) => (
+                                <div key={i} className="rounded-xl border border-border/40 bg-background/50 p-3">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <item.icon className="w-3 h-3 text-muted-foreground" />
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
+                                  </div>
+                                  <p className="text-sm font-semibold text-foreground">{item.value}</p>
+                                </div>
+                              ))}
                             </div>
 
-                            {/* Client Contact */}
-                            <div className="border-t pt-4">
-                              <h4 className="font-medium mb-2">
-                                Client Contact
-                              </h4>
-                              <div className="space-y-2">
-                                <p className="text-sm">
-                                  <strong>Name:</strong>{" "}
-                                  {car.client.first_name || car.client.last_name
-                                    ? `${car.client.first_name || ""} ${
-                                        car.client.last_name || ""
-                                      }`.trim()
-                                    : "Name not available"}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                  <Phone className="h-4 w-4 text-muted-foreground" />
-                                  <a
-                                    href={`tel:${car.client.phone}`}
-                                    className="text-sm hover:underline"
-                                  >
-                                    {car.client.phone}
-                                  </a>
-                                </div>
+                            {/* Client Contact Card */}
+                            <div className="rounded-xl border border-border/40 bg-background/50 p-3.5">
+                              <div className="flex items-center gap-2 mb-2.5">
+                                <User className="w-3.5 h-3.5 text-primary" />
+                                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client Contact</span>
+                              </div>
+                              <p className="text-sm font-medium text-foreground mb-1.5">
+                                {car.client.first_name || car.client.last_name
+                                  ? `${car.client.first_name || ""} ${car.client.last_name || ""}`.trim()
+                                  : "Name not available"}
+                              </p>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="h-3.5 w-3.5" />
+                                <a href={`tel:${car.client.phone}`} className="hover:text-foreground transition-colors">{car.client.phone}</a>
                               </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-col gap-2 pt-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full sm:w-auto"
-                                onClick={() =>
-                                  window.open(`tel:${car.client.phone}`)
-                                }
-                              >
-                                <Phone className="h-4 w-4 mr-2" />
-                                Call Client
+                            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                              <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl" onClick={() => window.open(`tel:${car.client.phone}`)}>
+                                <Phone className="h-4 w-4 mr-2" />Call Client
                               </Button>
-
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full sm:w-auto"
-                                  >
-                                    <Settings className="h-4 w-4 mr-2" />
-                                    Manage
+                                  <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl">
+                                    <Settings className="h-4 w-4 mr-2" />Manage
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align="end"
-                                  className="w-48"
-                                >
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleManagementAction(
-                                        "view-details",
-                                        car
-                                      )
-                                    }
-                                  >
-                                    <FileText className="h-4 w-4 mr-2" />
-                                    View Car Details
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => handleManagementAction("view-details", car)}>
+                                    <FileText className="h-4 w-4 mr-2" />View Car Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      handleManagementAction(
-                                        "schedule-maintenance",
-                                        car
-                                      )
-                                    }
-                                  >
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    Schedule Maintenance
+                                  <DropdownMenuItem onClick={() => handleManagementAction("schedule-maintenance", car)}>
+                                    <CalendarLucide className="h-4 w-4 mr-2" />Schedule Maintenance
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                 </DropdownMenuContent>
@@ -1950,7 +1964,7 @@ export default function HostCarManagement() {
                             </div>
                           </CardContent>
                         </AccordionContent>
-                      </Card>
+                      </div>
                     </AccordionItem>
                   ))}
                 </Accordion>
@@ -1959,17 +1973,15 @@ export default function HostCarManagement() {
 
             <TabsContent value="returns" className="space-y-4  sm:px-0">
               {readyForReturnCars.length === 0 ? (
-                <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
-                  <CardContent className="text-center p-4 sm:p-6">
-                    <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No cars ready for return
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Cars ready to be returned will appear here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Cars Ready for Return</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Cars ready to be returned will appear here.
+                  </p>
+                </div>
               ) : (
                 <Accordion
                   type="single"
@@ -1985,24 +1997,31 @@ export default function HostCarManagement() {
                       value={car.id}
                       className="border-none group" // 👈 enables data-state targeting
                     >
-                      <Card className="mx-auto w-full max-w-[calc(100vw-2rem)] sm:max-w-none border-orange-200">
+                      <div className="rounded-2xl border border-amber-500/30 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-amber-500/50 hover:shadow-sm">
                         {/* Header (trigger) */}
                         <AccordionTrigger className="w-full p-3 sm:p-4 md:p-6 hover:no-underline">
-                          <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap w-full">
-                            <div>
-                              <CardTitle className="text-sm sm:text-lg break-words">
+                          <div className="flex items-start gap-3 w-full">
+                            {car.images?.[0] ? (
+                              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-border/50 shrink-0">
+                                <img src={car.images[0]} alt={formatCarDisplayName(car)} className="w-full h-full object-cover" />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                                <Car className="w-5 h-5 text-amber-600" />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <CardTitle className="text-sm sm:text-base font-bold break-words">
                                 {formatCarDisplayName(car)}
                               </CardTitle>
-                              <CardDescription className="break-words">
-                                Location: {car.location}
-                              </CardDescription>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                <MapPin className="w-3 h-3" />
+                                <span>{car.location}</span>
+                              </div>
+                              <Badge className="mt-1.5 rounded-lg text-[10px] uppercase tracking-wider" variant="secondary">
+                                Ready for Return
+                              </Badge>
                             </div>
-                            <Badge
-                              className="w-full sm:w-auto flex items-center justify-center"
-                              variant="secondary"
-                            >
-                              Ready for Return
-                            </Badge>
                           </div>
                         </AccordionTrigger>
 
@@ -2091,7 +2110,7 @@ export default function HostCarManagement() {
                             </div>
                           </CardContent>
                         </AccordionContent>
-                      </Card>
+                      </div>
                     </AccordionItem>
                   ))}
                 </Accordion>
@@ -2155,18 +2174,24 @@ export default function HostCarManagement() {
                       <SheetContent
                         side="bottom"
                         className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
+                      
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
                       >
-                        <SheetHead>
-                          <SheetTit>
-                            {editingExpense
-                              ? "Edit Expense"
-                              : "Add New Expense"}
-                          </SheetTit>
-                          <SheetDesc>
-                            {editingExpense
-                              ? "Update your expense details."
-                              : "Record a new hosting-related expense."}
-                          </SheetDesc>
+                        <SheetHead className="space-y-0 pb-4">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                              <Shield className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <SheetTit className="text-base">{editingExpense ? "Edit Expense" : "Add New Expense"}</SheetTit>
+                              <SheetDesc className="text-xs">{editingExpense ? "Update your expense details securely." : "Record a new hosting-related expense."}</SheetDesc>
+                            </div>
+                          </div>
                         </SheetHead>
                         <Form {...expenseForm}>
                           <form
@@ -2254,7 +2279,7 @@ export default function HostCarManagement() {
                             />
 
                             <div className="space-y-4">
-                              <h4 className="font-medium">Cost Breakdown</h4>
+                              <h4 className="font-medium text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" />Cost Breakdown</h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={expenseForm.control}
@@ -2263,17 +2288,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>EV Charge Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2287,17 +2310,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Carwash Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2311,17 +2332,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Delivery Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2335,17 +2354,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Toll Cost</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="0.01"
                                           placeholder="0.00"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 0
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -2361,17 +2378,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Other Expenses</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2401,30 +2416,39 @@ export default function HostCarManagement() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Date</FormLabel>
-                                  <FormControl>
-                                    <Input type="date" {...field} />
-                                  </FormControl>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                        >
+                                          <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                          {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                        </Button>
+                                    </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                        <CalendarWidget
+                                          mode="single"
+                                          selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                          onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                          initialFocus
+                                          className="p-3 pointer-events-auto"
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                              <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                            </div>
                             <div className="pt-2 flex justify-end gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setExpenseDialogOpen(false);
-                                  setEditingExpense(null);
-                                  expenseForm.reset();
-                                }}
-                              >
-                                Cancel
-                              </Button>
-                              <Button type="submit">
-                                {editingExpense
-                                  ? "Update Expense"
-                                  : "Add Expense"}
-                              </Button>
+                              <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setExpenseDialogOpen(false); setEditingExpense(null); expenseForm.reset(); }}>Cancel</Button>
+                              <Button type="submit" className="rounded-xl">{editingExpense ? "Update Expense" : "Add Expense"}</Button>
                             </div>
                           </form>
                         </Form>
@@ -2609,16 +2633,24 @@ export default function HostCarManagement() {
                         Expense
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>
-                          {editingExpense ? "Edit Expense" : "Add New Expense"}
-                        </DialogTitle>
-                        <DialogDescription>
-                          {editingExpense
-                            ? "Update your expense details."
-                            : "Record a new hosting-related expense."}
-                        </DialogDescription>
+                    <DialogContent className="max-h-[90vh] overflow-y-auto"
+                      onInteractOutside={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest('[data-radix-popper-content-wrapper]')) {
+                          e.preventDefault();
+                        }
+                        }}
+                    >
+                      <DialogHeader className="space-y-0 pb-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Shield className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <DialogTitle className="text-base">{editingExpense ? "Edit Expense" : "Add New Expense"}</DialogTitle>
+                            <DialogDescription className="text-xs">{editingExpense ? "Update your expense details securely." : "Record a new hosting-related expense."}</DialogDescription>
+                          </div>
+                        </div>
                       </DialogHeader>
                       <Form {...expenseForm}>
                         <form
@@ -2706,7 +2738,7 @@ export default function HostCarManagement() {
                           />
 
                           <div className="space-y-4">
-                            <h4 className="font-medium">Cost Breakdown</h4>
+                            <h4 className="font-medium text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" />Cost Breakdown</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <FormField
                                 control={expenseForm.control}
@@ -2715,17 +2747,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>EV Charge Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2739,17 +2769,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Carwash Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2763,17 +2791,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Delivery Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2787,17 +2813,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Toll Cost</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -2813,17 +2837,15 @@ export default function HostCarManagement() {
                                 <FormItem>
                                   <FormLabel>Other Expenses</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      type="number"
+                                    <NumericPlaceholderInput
                                       inputMode="decimal"
                                       step="0.01"
                                       placeholder="0.00"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          parseFloat(e.target.value) || 0
-                                        )
-                                      }
+                                      name={field.name}
+                                      ref={field.ref}
+                                      value={field.value}
+                                      onBlur={field.onBlur}
+                                      onChange={field.onChange}
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -2853,30 +2875,39 @@ export default function HostCarManagement() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Date</FormLabel>
-                                <FormControl>
-                                  <Input type="date" {...field} />
-                                </FormControl>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                  <FormControl>
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                      >
+                                        <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                        {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                      </Button>
+                                  </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                      <CalendarWidget
+                                        mode="single"
+                                        selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                        initialFocus
+                                        className="p-3 pointer-events-auto"
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                            <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                          </div>
                           <div className="pt-2 flex justify-end gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setExpenseDialogOpen(false);
-                                setEditingExpense(null);
-                                expenseForm.reset();
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button type="submit">
-                              {editingExpense
-                                ? "Update Expense"
-                                : "Add Expense"}
-                            </Button>
+                            <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setExpenseDialogOpen(false); setEditingExpense(null); expenseForm.reset(); }}>Cancel</Button>
+                            <Button type="submit" className="rounded-xl">{editingExpense ? "Update Expense" : "Add Expense"}</Button>
                           </div>
                         </form>
                       </Form>
@@ -2887,7 +2918,7 @@ export default function HostCarManagement() {
 
               {/* Expense Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3042,173 +3073,148 @@ export default function HostCarManagement() {
                       )}
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {expensesLoading ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <div className="text-lg text-muted-foreground">
-                      Loading expenses...
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                    <p className="text-sm text-muted-foreground">Loading expenses…</p>
+                  </div>
+                </div>
               ) : expenses.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No expenses recorded
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Start tracking your hosting expenses.
-                    </p>
-                    <Button
-                      onClick={() => fetchExpenses(true)}
-                      className="mt-4"
-                    >
-                      Refresh Expenses
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Expenses Recorded</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting expenses.</p>
+                  <Button onClick={() => fetchExpenses(true)} size="sm" className="mt-4 rounded-xl">
+                    Refresh Expenses
+                  </Button>
+                </div>
               ) : filteredExpenses.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No expenses match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearFilters}>
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Expenses</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearFilters} size="sm" className="rounded-xl">Clear Filters</Button>
+                </div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-3">
                   {filteredExpenses.map((expense) => (
-                    <Card key={expense.id}>
-                      <CardContent className="p-3 sm:p-4">
-                        <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-medium capitalize break-words">
-                                {expense.expense_type}
-                              </h4>
+                    <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          {/* Left: Info */}
+                          <div className="min-w-0 flex-1 space-y-2.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <DollarSign className="w-4 h-4 text-primary" />
+                              </div>
+                              <h4 className="font-semibold text-sm capitalize">{expense.expense_type}</h4>
                               {expense.trip_id && (
-                                <Badge variant="outline" className="text-xs">
-                                  Trip# {expense.trip_id}
-                                </Badge>
+                                <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {expense.trip_id}</Badge>
                               )}
                             </div>
+
                             {expense.guest_name && (
-                              <p className="text-sm text-muted-foreground break-words">
-                                Guest: {expense.guest_name}
-                              </p>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                                <User className="w-3 h-3" />
+                                <span>{expense.guest_name}</span>
+                              </div>
                             )}
-                            <p className="text-sm text-muted-foreground break-words">
-                              {expense.description}
-                            </p>
-                            <p className="text-sm text-muted-foreground break-words">
-                              {new Date(
-                                expense.expense_date
-                              ).toLocaleDateString()}
-                            </p>
+
+                            {expense.description && (
+                              <p className="text-xs text-muted-foreground ml-10 line-clamp-2">{expense.description}</p>
+                            )}
+
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-10">
+                              <CalendarLucide className="w-3 h-3" />
+                              <span>{new Date(expense.expense_date).toLocaleDateString()}</span>
+                            </div>
 
                             {/* Cost Breakdown */}
-                            <div className="mt-2 space-y-1">
+                            <div className="ml-10 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                               {expense.ev_charge_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>EV Charge:</span>
-                                  <span>
-                                    ${expense.ev_charge_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">EV Charge</span>
+                                  <span className="text-xs font-semibold">${expense.ev_charge_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.carwash_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Carwash:</span>
-                                  <span>
-                                    ${expense.carwash_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Carwash</span>
+                                  <span className="text-xs font-semibold">${expense.carwash_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.delivery_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Delivery:</span>
-                                  <span>
-                                    ${expense.delivery_cost.toFixed(2)}
-                                  </span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Delivery</span>
+                                  <span className="text-xs font-semibold">${expense.delivery_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.toll_cost > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Tolls:</span>
-                                  <span>${expense.toll_cost.toFixed(2)}</span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Tolls</span>
+                                  <span className="text-xs font-semibold">${expense.toll_cost.toFixed(2)}</span>
                                 </div>
                               )}
                               {expense.amount > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Other:</span>
-                                  <span>${expense.amount.toFixed(2)}</span>
+                                <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Other</span>
+                                  <span className="text-xs font-semibold">${expense.amount.toFixed(2)}</span>
                                 </div>
                               )}
                             </div>
 
                             {/* Car Details */}
                             {(() => {
-                              const expenseCar = cars.find(
-                                (car) => car.id === expense.car_id
-                              );
+                              const expenseCar = cars.find((car) => car.id === expense.car_id);
                               if (!expenseCar) return null;
                               return (
-                                <div className="border-t mt-3 pt-3">
-                                  <p className="text-sm font-medium mb-2">
-                                    Vehicle Details:
-                                  </p>
+                                <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5 mt-2">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <Car className="w-3 h-3 text-muted-foreground" />
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
+                                  </div>
                                   {formatDetailedCarInfo(expenseCar)}
                                 </div>
                               );
                             })()}
                           </div>
-                          <div className="text-right">
-                            <div className="flex items-start gap-2 mb-2">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleEditExpense(expense)}
-                                  >
-                                    <Edit className="h-3 w-3 mr-2" /> Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => onDeleteExpense(expense.id)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash className="h-3 w-3 mr-2" /> Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+
+                          {/* Right: Total + Actions */}
+                          <div className="text-right shrink-0">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditExpense(expense)}>
+                                  <Edit className="h-3 w-3 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => onDeleteExpense(expense.id)} className="text-destructive">
+                                  <Trash className="h-3 w-3 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                            <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                              <p className="text-lg font-bold text-foreground tabular-nums">
+                                ${expense.total_expenses?.toFixed(2) || expense.amount.toFixed(2)}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
                             </div>
-                            <p className="font-bold text-lg">
-                              $
-                              {expense.total_expenses?.toFixed(2) ||
-                                expense.amount.toFixed(2)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Total
-                            </p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -3272,17 +3278,24 @@ export default function HostCarManagement() {
                         <SheetContent
                           side="bottom"
                           className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
-                        >
-                          <SheetHead>
-                            <SheetTit>
-                              {editingEarning
-                                ? "Edit Earning"
-                                : "Record New Earning"}
-                            </SheetTit>
-                            <SheetDesc>
-                              Add a new earning record from your hosting
-                              activities.
-                            </SheetDesc>
+                        
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                          <SheetHead className="space-y-0 pb-4">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <Shield className="w-5 h-5 text-primary" />
+                              </div>
+                              <div>
+                                <SheetTit className="text-base">{editingEarning ? "Edit Earning" : "Record New Earning"}</SheetTit>
+                                <SheetDesc className="text-xs">Add a new earning record securely.</SheetDesc>
+                              </div>
+                            </div>
                           </SheetHead>
                           <Form {...earningForm}>
                             <form
@@ -3552,17 +3565,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Gross Earnings</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -3571,7 +3582,7 @@ export default function HostCarManagement() {
                               />
 
                               {earningForm.watch("gross_earnings") > 0 && (
-                                <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                                <div className="bg-card/60 backdrop-blur-sm border border-border/50 p-4 rounded-2xl space-y-2">
                                   <h4 className="font-medium text-sm">
                                     Profit Calculation
                                   </h4>
@@ -3670,17 +3681,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Client Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="30"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 30
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3694,17 +3703,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Host Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="70"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 70
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -3720,9 +3727,29 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Start Date</FormLabel>
-                                      <FormControl>
-                                        <Input type="date" {...field} />
-                                      </FormControl>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -3749,9 +3776,29 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>End Date</FormLabel>
-                                      <FormControl>
-                                        <Input type="date" {...field} />
-                                      </FormControl>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -3782,7 +3829,7 @@ export default function HostCarManagement() {
                                     }
                                     className="flex items-center gap-2"
                                   >
-                                    <Calendar className="h-4 w-4" />
+                                    <CalendarLucide className="h-4 w-4" />
                                     {showCalendar ? "Hide" : "Show"} Booking
                                     Calendar
                                   </Button>
@@ -3836,34 +3883,43 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>
-                                        Date Paid (Optional)
+                                        Date Paid *
                                       </FormLabel>
-                                      <FormControl>
-                                        <Input type="date" {...field} />
-                                      </FormControl>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       <FormMessage />
                                     </FormItem>
                                   )}
                                 />
                               </div>
 
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-3">
+                                <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                              </div>
                               <div className="pt-2 flex justify-end gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setEarningDialogOpen(false);
-                                    setEditingEarning(null);
-                                    earningForm.reset();
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button type="submit">
-                                  {editingEarning
-                                    ? "Update Earning"
-                                    : "Record Earning"}
-                                </Button>
+                                <Button type="button" variant="outline" className="rounded-xl" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
+                                <Button type="submit" className="rounded-xl">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
                               </div>
                             </form>
                           </Form>
@@ -3878,7 +3934,14 @@ export default function HostCarManagement() {
                         <SheetContent
                           side="bottom"
                           className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto text-base"
-                        >
+                        
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
                           <SheetHead>
                             <SheetTit>Earning Filters</SheetTit>
                             <SheetDesc>Refine the list of earnings.</SheetDesc>
@@ -4122,17 +4185,30 @@ export default function HostCarManagement() {
                         open={earningDialogOpen}
                         onOpenChange={setEarningDialogOpen}
                       >
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>
-                              {editingEarning
-                                ? "Edit Earning"
-                                : "Record New Earning"}
-                            </DialogTitle>
-                            <DialogDescription>
-                              Add a new earning record from your hosting
-                              activities.
-                            </DialogDescription>
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border-border/50 bg-card/95 backdrop-blur-md"
+                      onInteractOutside={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest('[data-radix-popper-content-wrapper]')) {
+                          e.preventDefault();
+                        }
+                        }}
+                    >
+                          <DialogHeader className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <DollarSign className="w-5 h-5 text-primary" />
+                              </div>
+                              <div>
+                                <DialogTitle className="text-lg font-semibold">
+                                  {editingEarning
+                                    ? "Edit Earning"
+                                    : "Record New Earning"}
+                                </DialogTitle>
+                                <DialogDescription className="text-xs text-muted-foreground">
+                                  {editingEarning ? "Update your earning record securely." : "Add a new earning record from your hosting activities."}
+                                </DialogDescription>
+                              </div>
+                            </div>
                           </DialogHeader>
                           <Form {...earningForm}>
                             <form
@@ -4402,17 +4478,15 @@ export default function HostCarManagement() {
                                   <FormItem>
                                     <FormLabel>Gross Earnings</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="number"
+                                      <NumericPlaceholderInput
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
-                                        {...field}
-                                        onChange={(e) =>
-                                          field.onChange(
-                                            parseFloat(e.target.value) || 0
-                                          )
-                                        }
+                                        name={field.name}
+                                        ref={field.ref}
+                                        value={field.value}
+                                        onBlur={field.onBlur}
+                                        onChange={field.onChange}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -4421,7 +4495,7 @@ export default function HostCarManagement() {
                               />
 
                               {earningForm.watch("gross_earnings") > 0 && (
-                                <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                                <div className="bg-card/60 backdrop-blur-sm border border-border/50 p-4 rounded-2xl space-y-2">
                                   <h4 className="font-medium text-sm">
                                     Profit Calculation
                                   </h4>
@@ -4520,17 +4594,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Client Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="30"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 30
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -4544,17 +4616,15 @@ export default function HostCarManagement() {
                                     <FormItem>
                                       <FormLabel>Host Profit %</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="number"
+                                        <NumericPlaceholderInput
                                           inputMode="decimal"
                                           step="1"
                                           placeholder="70"
-                                          {...field}
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              parseFloat(e.target.value) || 70
-                                            )
-                                          }
+                                          name={field.name}
+                                          ref={field.ref}
+                                          value={field.value}
+                                          onBlur={field.onBlur}
+                                          onChange={field.onChange}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -4570,9 +4640,29 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Start Date</FormLabel>
-                                      <FormControl>
-                                        <Input type="date" {...field} />
-                                      </FormControl>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -4599,9 +4689,29 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>End Date</FormLabel>
-                                      <FormControl>
-                                        <Input type="date" {...field} />
-                                      </FormControl>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -4632,7 +4742,7 @@ export default function HostCarManagement() {
                                     }
                                     className="flex items-center gap-2"
                                   >
-                                    <Calendar className="h-4 w-4" />
+                                    <CalendarLucide className="h-4 w-4" />
                                     {showCalendar ? "Hide" : "Show"} Booking
                                     Calendar
                                   </Button>
@@ -4686,34 +4796,43 @@ export default function HostCarManagement() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>
-                                        Date Paid (Optional)
+                                        Date Paid *
                                       </FormLabel>
-                                      <FormControl>
-                                        <Input type="date" {...field} />
-                                      </FormControl>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                            >
+                                              <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                              {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                            </Button>
+                                        </FormControl>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                            <CalendarWidget
+                                              mode="single"
+                                              selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                              onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                              initialFocus
+                                              className="p-3 pointer-events-auto"
+                                            />
+                                          </PopoverContent>
+                                        </Popover>
                                       <FormMessage />
                                     </FormItem>
                                   )}
                                 />
                               </div>
 
-                              <div className="pt-2 flex justify-end gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setEarningDialogOpen(false);
-                                    setEditingEarning(null);
-                                    earningForm.reset();
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button type="submit">
-                                  {editingEarning
-                                    ? "Update Earning"
-                                    : "Record Earning"}
-                                </Button>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground pt-4 border-t border-border/30">
+                                <Lock className="h-3 w-3" /><span>Your data is encrypted and secure</span>
+                              </div>
+                              <div className="pt-3 flex justify-end gap-3">
+                                <Button type="button" variant="ghost" className="rounded-xl px-6" onClick={() => { setEarningDialogOpen(false); setEditingEarning(null); earningForm.reset(); }}>Cancel</Button>
+                                <Button type="submit" className="rounded-xl px-6 shadow-md">{editingEarning ? "Update Earning" : "Record Earning"}</Button>
                               </div>
                             </form>
                           </Form>
@@ -4726,7 +4845,7 @@ export default function HostCarManagement() {
 
               {/* Earnings Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
@@ -4886,333 +5005,190 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {earnings.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No earnings recorded
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Start tracking your hosting earnings.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Earnings Recorded</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting earnings.</p>
+                </div>
               ) : filteredEarnings.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No earnings match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearEarningsFilters}>
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Earnings</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearEarningsFilters} size="sm" className="rounded-xl">Clear Filters</Button>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {/* Summary Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="mx-0 max-w-none">
-                      <CardContent className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      {
+                        label: "Total Earnings",
+                        value: `$${earnings.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: TrendingUp,
+                      },
+                      {
+                        label: "Pending Payments",
+                        value: `$${earnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: Clock,
+                      },
+                      {
+                        label: "This Month",
+                        value: `$${earnings.filter((e) => new Date(e.earning_period_start).getMonth() === new Date().getMonth()).reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
+                        icon: CalendarLucide,
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Earnings
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              $
-                              {earnings
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
+                            </div>
+                            <p className="text-xl font-bold text-foreground tabular-nums">{item.value}</p>
                           </div>
-                          <DollarSign className="h-8 w-8 text-green-600" />
                         </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="mx-0 max-w-none">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Pending Payments
-                            </p>
-                            <p className="text-2xl font-bold text-yellow-600">
-                              $
-                              {earnings
-                                .filter((e) => e.payment_status === "pending")
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <Clock className="h-8 w-8 text-yellow-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="mx-0 max-w-none">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              This Month
-                            </p>
-                            <p className="text-2xl font-bold text-blue-600">
-                              $
-                              {earnings
-                                .filter(
-                                  (e) =>
-                                    new Date(
-                                      e.earning_period_start
-                                    ).getMonth() === new Date().getMonth()
-                                )
-                                .reduce((sum, e) => sum + e.amount, 0)
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <Calendar className="h-8 w-8 text-blue-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Earnings List */}
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {filteredEarnings.map((earning) => {
-                      // Calculate related expenses for this trip
-                      const relatedExpenses = earning.trip_id
-                        ? expenses.filter((e) => e.trip_id === earning.trip_id)
-                        : [];
-                      const totalExpenses = relatedExpenses.reduce(
-                        (sum, e) => sum + (e.total_expenses || e.amount),
-                        0
-                      );
+                      const relatedExpenses = earning.trip_id ? expenses.filter((e) => e.trip_id === earning.trip_id) : [];
+                      const totalExpenses = relatedExpenses.reduce((sum, e) => sum + (e.total_expenses || e.amount), 0);
                       const netProfit = earning.amount - totalExpenses;
+                      const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
+                      const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
 
                       return (
-                        <Card key={earning.id}>
-                          <CardContent className="p-3 sm:p-4">
-                            {/* Row 1: Title (Hosting) + actions */}
-                            <div className="flex items-start justify-between gap-2">
-                              <h4 className="font-semibold capitalize">
-                                {earning.earning_type}
-                              </h4>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="shrink-0"
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => handleEditEarning(earning)}
-                                  >
-                                    <Edit className="h-3 w-3 mr-2" /> Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => onDeleteEarning(earning.id)}
-                                    className="text-destructive"
-                                  >
-                                    <Trash className="h-3 w-3 mr-2" /> Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-
-                            {/* Row 2: Amount */}
-                            <div className="mt-1 mb-2">
-                              <p className="font-bold text-2xl text-green-600 leading-none">
-                                ${earning.amount.toFixed(2)}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Amount
-                              </p>
-                              {earning.date_paid && (
-                                <p className="text-xs text-muted-foreground">
-                                  Paid:{" "}
-                                  {new Date(
-                                    earning.date_paid
-                                  ).toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Row 3: Trip + payment status */}
-                            <div className="flex flex-wrap items-center gap-2 mb-3">
-                              {earning.trip_id && (
-                                <Badge variant="outline" className="text-xs">
-                                  Trip# {earning.trip_id}
-                                </Badge>
-                              )}
-                              <Badge
-                                variant={
-                                  earning.payment_status === "paid"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                              >
-                                {earning.payment_status}
-                              </Badge>
-                            </div>
-
-                            {/* Guest info */}
-                            <div className="space-y-2">
-                              {earning.guest_name && (
-                                <p className="text-sm text-muted-foreground break-words">
-                                  Guest: {earning.guest_name}
-                                </p>
-                              )}
-                              {(earning.guest_phone || earning.guest_email) && (
-                                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                                  {earning.guest_phone && (
-                                    <span className="flex items-center gap-1">
-                                      <Phone className="h-3 w-3" />
-                                      {earning.guest_phone}
-                                    </span>
+                        <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              {/* Left info */}
+                              <div className="min-w-0 flex-1 space-y-3">
+                                {/* Title row */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <TrendingUp className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <h4 className="font-semibold text-sm capitalize">{earning.earning_type}</h4>
+                                  {earning.trip_id && (
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {earning.trip_id}</Badge>
                                   )}
-                                  {earning.guest_email && (
-                                    <span className="flex items-center gap-1">
-                                      <Mail className="h-3 w-3" />
-                                      {earning.guest_email}
-                                    </span>
+                                  <Badge variant={earning.payment_status === "paid" ? "default" : "secondary"} className="text-[10px] rounded-lg">
+                                    {earning.payment_status}
+                                  </Badge>
+                                </div>
+
+                                {/* Guest & period info */}
+                                <div className="ml-10 space-y-1.5">
+                                  {earning.guest_name && (
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                      <User className="w-3 h-3" />
+                                      <span>{earning.guest_name}</span>
+                                    </div>
                                   )}
-                                </div>
-                              )}
-                              <p className="text-sm text-muted-foreground break-words">
-                                {new Date(
-                                  earning.earning_period_start
-                                ).toLocaleDateString()}{" "}
-                                –{" "}
-                                {new Date(
-                                  earning.earning_period_end
-                                ).toLocaleDateString()}
-                              </p>
-                              <p className="text-sm text-muted-foreground break-words">
-                                Source: {earning.payment_source}
-                              </p>
-
-                              {/* Profit breakdown */}
-                              <div className="grid grid-cols-2 gap-4 text-sm pt-1">
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Gross Earnings:
-                                  </span>
-                                  <p className="font-medium">
-                                    $
-                                    {earning.gross_earnings?.toFixed(2) ||
-                                      "0.00"}
-                                  </p>
-                                </div>
-                                {/* Calculate profits based on net profit (amount - expenses) */}
-                                {(() => {
-                                  const relatedExpenses = earning.trip_id
-                                    ? expenses.filter(
-                                        (e) => e.trip_id === earning.trip_id
-                                      )
-                                    : [];
-                                  const totalExpenses = relatedExpenses.reduce(
-                                    (sum, e) =>
-                                      sum + (e.total_expenses || e.amount),
-                                    0
-                                  );
-                                  const netProfit = earning.amount - totalExpenses;
-                                  const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
-                                  const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
-
-                                  return (
-                                    <>
-                                      {totalExpenses > 0 && (
-                                        <div>
-                                          <span className="text-muted-foreground">
-                                            Total Expenses:
-                                          </span>
-                                          <p className="font-medium text-red-600">
-                                            -${totalExpenses.toFixed(2)}
-                                          </p>
-                                        </div>
+                                  {(earning.guest_phone || earning.guest_email) && (
+                                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                      {earning.guest_phone && (
+                                        <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{earning.guest_phone}</span>
                                       )}
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Net Profit:
-                                        </span>
-                                        <p
-                                          className={`font-medium ${
-                                            netProfit >= 0
-                                              ? "text-green-600"
-                                              : "text-red-600"
-                                          }`}
-                                        >
-                                          ${netProfit.toFixed(2)}
-                                        </p>
+                                      {earning.guest_email && (
+                                        <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{earning.guest_email}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <CalendarLucide className="w-3 h-3" />
+                                    <span>{new Date(earning.earning_period_start).toLocaleDateString()} – {new Date(earning.earning_period_end).toLocaleDateString()}</span>
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">Source: {earning.payment_source}</div>
+                                  {earning.date_paid && (
+                                    <div className="text-xs text-muted-foreground">Paid: {new Date(earning.date_paid).toLocaleDateString()}</div>
+                                  )}
+                                </div>
+
+                                {/* Profit Breakdown Grid */}
+                                <div className="ml-10 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Gross</span>
+                                    <span className="text-xs font-semibold tabular-nums">${earning.gross_earnings?.toFixed(2) || "0.00"}</span>
+                                  </div>
+                                  {totalExpenses > 0 && (
+                                    <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Expenses</span>
+                                      <span className="text-xs font-semibold text-destructive tabular-nums">-${totalExpenses.toFixed(2)}</span>
+                                    </div>
+                                  )}
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Net</span>
+                                    <span className={`text-xs font-semibold tabular-nums ${netProfit >= 0 ? "text-foreground" : "text-destructive"}`}>${netProfit.toFixed(2)}</span>
+                                  </div>
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Client ({earning.client_profit_percentage || 70}%)</span>
+                                    <span className="text-xs font-semibold tabular-nums">${clientProfit.toFixed(2)}</span>
+                                  </div>
+                                  <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Host ({earning.host_profit_percentage || 30}%)</span>
+                                    <span className="text-xs font-semibold tabular-nums">${hostProfit.toFixed(2)}</span>
+                                  </div>
+                                </div>
+
+                                {/* Related expenses count */}
+                                {earning.trip_id && relatedExpenses.length > 0 && (
+                                  <div className="ml-10 text-[10px] text-muted-foreground">{relatedExpenses.length} related expense(s)</div>
+                                )}
+
+                                {/* Vehicle */}
+                                {(() => {
+                                  const earningCar = cars.find((car) => car.id === earning.car_id);
+                                  return earningCar ? (
+                                    <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
+                                      <div className="flex items-center gap-1.5 mb-1">
+                                        <Car className="w-3 h-3 text-muted-foreground" />
+                                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
                                       </div>
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Client Profit (
-                                          {earning.client_profit_percentage || 70}%):
-                                        </span>
-                                        <p className="font-medium">
-                                          ${clientProfit.toFixed(2)}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Host Profit (
-                                          {earning.host_profit_percentage || 30}%):
-                                        </span>
-                                        <p className="font-medium">
-                                          ${hostProfit.toFixed(2)}
-                                        </p>
-                                      </div>
-                                    </>
-                                  );
+                                      {formatDetailedCarInfo(earningCar)}
+                                    </div>
+                                  ) : null;
                                 })()}
                               </div>
 
-                              {/* Related expenses count */}
-                              {earning.trip_id &&
-                                expenses.some(
-                                  (e) => e.trip_id === earning.trip_id
-                                ) && (
-                                  <div className="text-xs text-muted-foreground">
-                                    Related expenses:{" "}
-                                    {
-                                      expenses.filter(
-                                        (e) => e.trip_id === earning.trip_id
-                                      ).length
-                                    }{" "}
-                                    item(s)
-                                  </div>
-                                )}
-
-                              {/* Vehicle details */}
-                              {(() => {
-                                const earningCar = cars.find(
-                                  (car) => car.id === earning.car_id
-                                );
-                                return earningCar ? (
-                                  <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">
-                                      Vehicle Details:
-                                    </p>
-                                    {formatDetailedCarInfo(earningCar)}
-                                  </div>
-                                ) : null;
-                              })()}
+                              {/* Right: Amount + Actions */}
+                              <div className="text-right shrink-0">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditEarning(earning)}>
+                                      <Edit className="h-3 w-3 mr-2" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => onDeleteEarning(earning.id)} className="text-destructive">
+                                      <Trash className="h-3 w-3 mr-2" /> Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                                  <p className="text-lg font-bold text-foreground tabular-nums">${earning.amount.toFixed(2)}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Amount</p>
+                                </div>
+                              </div>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -5282,306 +5258,299 @@ export default function HostCarManagement() {
                   >
                     <SheetContent
                       side="bottom"
-                      className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
-                    >
-                      <SheetHead>
-                        <SheetTit>
-                          {editingClaim ? "Edit Claim" : "File New Claim"}
-                        </SheetTit>
-                        <SheetDesc>
-                          {editingClaim
-                            ? "Update your claim details."
-                            : "Submit a claim for damages or incidents."}
-                        </SheetDesc>
-                      </SheetHead>
+                      className="rounded-t-3xl p-0 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto bg-background"
+                    
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                      {/* Trust header */}
+                      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
+                        <div className="px-5 pt-5 pb-4">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                              <Shield className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <SheetHead className="p-0">
+                                <SheetTit className="text-lg font-bold text-foreground">
+                                  {editingClaim ? "Edit Claim" : "File New Claim"}
+                                </SheetTit>
+                                <SheetDesc className="text-sm text-muted-foreground mt-0.5">
+                                  {editingClaim
+                                    ? "Update your claim details below."
+                                    : "Submit a claim for damages or incidents. All data is encrypted and secure."}
+                                </SheetDesc>
+                              </SheetHead>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       <Form {...claimForm}>
                         <form
                           onSubmit={claimForm.handleSubmit(onClaimSubmit)}
-                          className="space-y-4"
+                          className="px-5 py-4 space-y-5"
                         >
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <FormField
-                              control={claimForm.control}
-                              name="car_id"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Car *</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select a car" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                      onPointerDownOutside={(e) =>
-                                        e.stopPropagation()
-                                      }
-                                    >
-                                      {cars.map((car) => (
-                                        <SelectItem key={car.id} value={car.id}>
-                                          {formatCarDisplayName(car)}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={claimForm.control}
-                              name="claim_type"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Claim Type *</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select claim type" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                      onPointerDownOutside={(e) =>
-                                        e.stopPropagation()
-                                      }
-                                    >
-                                      {distinctClaimTypes.map((type) => (
-                                        <SelectItem key={type} value={type}>
-                                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={claimForm.control}
-                              name="claim_status"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Claim Status *</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select status" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent
-                                      className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                      position="popper"
-                                      side="bottom"
-                                      avoidCollisions={false}
-                                      onPointerDownOutside={(e) =>
-                                        e.stopPropagation()
-                                      }
-                                    >
-                                      <SelectItem value="pending">
-                                        Pending
-                                      </SelectItem>
-                                      <SelectItem value="approved">
-                                        Approved
-                                      </SelectItem>
-                                      <SelectItem value="rejected">
-                                        Rejected
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                          {/* Section: Vehicle & Type */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Car className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vehicle & Claim Info</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={claimForm.control}
+                                name="car_id"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs font-medium">Car *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select a car" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        {cars.map((car) => (
+                                          <SelectItem key={car.id} value={car.id}>{formatCarDisplayName(car)}</SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="claim_type"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs font-medium">Claim Type *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select claim type" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        {distinctClaimTypes.map((type) => (
+                                          <SelectItem key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="claim_status"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs font-medium">Status *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="approved">Approved</SelectItem>
+                                        <SelectItem value="rejected">Rejected</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
                           </div>
 
-                          <FormField
-                            control={claimForm.control}
-                            name="incident_id"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Incident ID</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Enter incident ID (optional)"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="trip_id"
-                            render={({ field }) => {
-                              const selectedCarId = claimForm.watch("car_id");
-                              const allTripIds = [
-                                ...new Set(
-                                  expenses
-                                    .filter(
-                                      (e) =>
-                                        e.trip_id && e.trip_id.trim() !== ""
-                                    )
-                                    .map((e) => e.trip_id)
-                                    .filter(Boolean)
-                                ),
-                              ] as string[];
-                              const availableTripIds = selectedCarId
-                                ? ([
-                                    ...new Set(
-                                      expenses
-                                        .filter(
-                                          (e) =>
-                                            e.car_id === selectedCarId &&
-                                            e.trip_id &&
-                                            e.trip_id.trim() !== ""
-                                        )
-                                        .map((e) => e.trip_id)
-                                        .filter(Boolean)
-                                    ),
-                                  ] as string[])
-                                : allTripIds;
-                              return (
+                          {/* Section: IDs & Trip */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <FileText className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reference Details</span>
+                            </div>
+                            <FormField
+                              control={claimForm.control}
+                              name="incident_id"
+                              render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="flex items-center gap-2">
-                                    Trip ID
-                                    {field.value && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs bg-green-50 text-green-700 border-green-200"
-                                      >
-                                        Auto-filled
-                                      </Badge>
-                                    )}
-                                  </FormLabel>
+                                  <FormLabel className="text-xs font-medium">Incident ID</FormLabel>
                                   <FormControl>
-                                    <div className="space-y-2">
-                                      {loading ? (
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                          <span className="text-sm text-muted-foreground">
-                                            Loading trip IDs...
-                                          </span>
-                                        </div>
-                                      ) : availableTripIds.length > 0 ? (
-                                        <Select
-                                          value={field.value}
-                                          onValueChange={(value) => {
-                                            field.onChange(value);
-                                            // Auto-populate car field based on trip ID
-                                            const expenseWithTripId =
-                                              expenses.find(
-                                                (e) =>
-                                                  e.trip_id === value &&
-                                                  e.car_id
-                                              );
-                                            if (
-                                              expenseWithTripId &&
-                                              expenseWithTripId.car_id
-                                            ) {
-                                              claimForm.setValue(
-                                                "car_id",
-                                                expenseWithTripId.car_id
-                                              );
-                                            }
-                                          }}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue
-                                              placeholder={
-                                                selectedCarId
-                                                  ? `Select trip ID (${availableTripIds.length} for this car)`
-                                                  : `Select trip ID (${availableTripIds.length} total)`
-                                              }
-                                            />
-                                          </SelectTrigger>
-                                          <SelectContent
-                                            className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                            position="popper"
-                                            side="bottom"
-                                            avoidCollisions={false}
-                                            onPointerDownOutside={(e) =>
-                                              e.stopPropagation()
-                                            }
-                                          >
-                                            {availableTripIds.map((tripId) => (
-                                              <SelectItem
-                                                key={tripId}
-                                                value={tripId}
-                                              >
-                                                {tripId}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      ) : selectedCarId ? (
-                                        <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                          No existing trip IDs found for this
-                                          car. You can enter a new one below.
-                                        </div>
-                                      ) : (
-                                        <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                          No trip IDs found in expenses. You can
-                                          enter a new one below.
-                                        </div>
+                                    <Input placeholder="Enter incident ID (optional)" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="trip_id"
+                              render={({ field }) => {
+                                const selectedCarId = claimForm.watch("car_id");
+                                const allTripIds = [...new Set(expenses.filter((e) => e.trip_id && e.trip_id.trim() !== "").map((e) => e.trip_id).filter(Boolean))] as string[];
+                                const availableTripIds = selectedCarId
+                                  ? ([...new Set(expenses.filter((e) => e.car_id === selectedCarId && e.trip_id && e.trip_id.trim() !== "").map((e) => e.trip_id).filter(Boolean))] as string[])
+                                  : allTripIds;
+                                return (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                      Trip ID
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
                                       )}
-                                      <Input
-                                        placeholder={
-                                          availableTripIds.length > 0
-                                            ? "Or enter new trip ID"
-                                            : "Enter trip ID"
-                                        }
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                      />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              );
-                            }}
-                          />
+                                    </FormLabel>
+                                    <FormControl>
+                                      <div className="space-y-2">
+                                        {loading ? (
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                            <span className="text-sm text-muted-foreground">Loading trip IDs...</span>
+                                          </div>
+                                        ) : availableTripIds.length > 0 ? (
+                                          <Select value={field.value} onValueChange={(value) => {
+                                            field.onChange(value);
+                                            const expenseWithTripId = expenses.find((e) => e.trip_id === value && e.car_id);
+                                            if (expenseWithTripId && expenseWithTripId.car_id) {
+                                              claimForm.setValue("car_id", expenseWithTripId.car_id);
+                                            }
+                                          }}>
+                                            <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                              <SelectValue placeholder={selectedCarId ? `Select trip ID (${availableTripIds.length} for this car)` : `Select trip ID (${availableTripIds.length} total)`} />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                              {availableTripIds.map((tripId) => (
+                                                <SelectItem key={tripId} value={tripId}>{tripId}</SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        ) : selectedCarId ? (
+                                          <div className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-xl border border-border/40">No existing trip IDs found for this car. Enter a new one below.</div>
+                                        ) : (
+                                          <div className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-xl border border-border/40">No trip IDs found. Enter one below.</div>
+                                        )}
+                                        <Input placeholder={availableTripIds.length > 0 ? "Or enter new trip ID" : "Enter trip ID"} value={field.value} onChange={field.onChange} className="rounded-xl border-border/60 bg-background/80" />
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Section: Guest & Payment */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <User className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Guest & Payment</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <FormField
+                                control={claimForm.control}
+                                name="guest_name"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                      Guest Name
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
+                                      )}
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Guest name" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="payment_source"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                      Payment Source
+                                      {field.value && field.value !== "Turo" && (
+                                        <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
+                                      )}
+                                    </FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                          <SelectValue placeholder="Select payment source" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                        <SelectItem value="Turo">Turo</SelectItem>
+                                        <SelectItem value="Eon">Eon</SelectItem>
+                                        <SelectItem value="GetAround">GetAround</SelectItem>
+                                        <SelectItem value="Private">Private</SelectItem>
+                                        <SelectItem value="Insurance">Insurance</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Section: Incident Details */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <AlertCircle className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Incident Details</span>
+                            </div>
                             <FormField
                               control={claimForm.control}
-                              name="guest_name"
+                              name="incident_date"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="flex items-center gap-2">
-                                    Guest Name
-                                    {field.value && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs bg-green-50 text-green-700 border-green-200"
-                                      >
-                                        Auto-filled
-                                      </Badge>
-                                    )}
-                                  </FormLabel>
+                                  <FormLabel className="text-xs font-medium">Incident Date</FormLabel>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                        >
+                                          <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                          {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                        </Button>
+                                    </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                        <CalendarWidget
+                                          mode="single"
+                                          selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                          onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                          initialFocus
+                                          className="p-3 pointer-events-auto"
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Incident Description</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      placeholder="Guest name"
-                                      {...field}
-                                    />
+                                    <Textarea placeholder="Describe what happened..." className="rounded-xl border-border/60 bg-background/80 min-h-[80px]" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -5589,186 +5558,105 @@ export default function HostCarManagement() {
                             />
                             <FormField
                               control={claimForm.control}
-                              name="payment_source"
+                              name="accident_description"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="flex items-center gap-2">
-                                    Payment Source
-                                    {field.value && field.value !== "Turo" && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs bg-green-50 text-green-700 border-green-200"
-                                      >
-                                        Auto-filled
-                                      </Badge>
-                                    )}
-                                  </FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select payment source" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="Turo">Turo</SelectItem>
-                                      <SelectItem value="Eon">Eon</SelectItem>
-                                      <SelectItem value="GetAround">
-                                        GetAround
-                                      </SelectItem>
-                                      <SelectItem value="Private">
-                                        Private
-                                      </SelectItem>
-                                      <SelectItem value="Insurance">
-                                        Insurance
-                                      </SelectItem>
-                                      <SelectItem value="Other">
-                                        Other
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                  <FormLabel className="text-xs font-medium">Detailed Accident Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea placeholder="Provide additional details about the accident..." className="rounded-xl border-border/60 bg-background/80 min-h-[80px]" {...field} />
+                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
                           </div>
 
-                          <FormField
-                            control={claimForm.control}
-                            name="incident_date"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Incident Date</FormLabel>
-                                <FormControl>
-                                  <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="description"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Incident Description</FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Describe what happened..."
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="accident_description"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>
-                                  Detailed Accident Description
-                                </FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder="Provide additional details about the accident..."
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={claimForm.control}
-                            name="claim_amount"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Estimated Claim Amount</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    inputMode="decimal"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        parseFloat(e.target.value) || 0
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
+                          {/* Section: Financial & Status */}
+                          <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <DollarSign className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Financial</span>
+                            </div>
+                            <FormField
                               control={claimForm.control}
-                              name="photos_taken"
+                              name="claim_amount"
                               render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Estimated Claim Amount</FormLabel>
                                   <FormControl>
-                                    <input
-                                      type="checkbox"
-                                      checked={field.value}
+                                    <NumericPlaceholderInput
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      className="rounded-xl border-border/60 bg-background/80"
+                                      name={field.name}
+                                      ref={field.ref}
+                                      value={field.value}
+                                      onBlur={field.onBlur}
                                       onChange={field.onChange}
-                                      className="h-4 w-4"
                                     />
                                   </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel>
-                                      Photos taken of damage/incident
-                                    </FormLabel>
-                                  </div>
+                                  <FormMessage />
                                 </FormItem>
                               )}
                             />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <FormField
+                                control={claimForm.control}
+                                name="photos_taken"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center gap-3 rounded-xl border border-border/40 bg-background/50 p-3 space-y-0">
+                                    <FormControl>
+                                      <input type="checkbox" checked={field.value} onChange={field.onChange} className="h-4 w-4 rounded border-border accent-primary" />
+                                    </FormControl>
+                                    <div className="space-y-0.5 leading-none">
+                                      <FormLabel className="text-xs font-medium cursor-pointer">Photos taken of damage</FormLabel>
+                                      <p className="text-[10px] text-muted-foreground">Helps accelerate claim processing</p>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={claimForm.control}
+                                name="is_paid"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center gap-3 rounded-xl border border-border/40 bg-background/50 p-3 space-y-0">
+                                    <FormControl>
+                                      <input type="checkbox" checked={field.value} onChange={field.onChange} className="h-4 w-4 rounded border-border accent-primary" />
+                                    </FormControl>
+                                    <div className="space-y-0.5 leading-none">
+                                      <FormLabel className="text-xs font-medium cursor-pointer">Claim has been paid</FormLabel>
+                                      <p className="text-[10px] text-muted-foreground">Mark if payment was received</p>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
 
-                          <FormField
-                              control={claimForm.control}
-                              name="is_paid"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                                  <FormControl>
-                                    <input
-                                      type="checkbox"
-                                      checked={field.value}
-                                      onChange={field.onChange}
-                                      className="h-4 w-4"
-                                    />
-                                  </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel>
-                                      Claim has been paid
-                                    </FormLabel>
-                                  </div>
-                                </FormItem>
-                              )}
-                            />
-
-                          <div className="pt-2 flex justify-end gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setClaimDialogOpen(false);
-                                setEditingClaim(null);
-                                claimForm.reset();
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button type="submit">
-                              {editingClaim ? "Update Claim" : "Submit Claim"}
-                            </Button>
+                          {/* Trust footer + Actions */}
+                          <div className="space-y-3 pb-2">
+                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground justify-center">
+                              <Lock className="w-3 h-3" />
+                              <span>Your claim data is securely stored and encrypted</span>
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="rounded-xl"
+                                onClick={() => {
+                                  setClaimDialogOpen(false);
+                                  setEditingClaim(null);
+                                  claimForm.reset();
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                              <Button type="submit" className="rounded-xl px-6">
+                                {editingClaim ? "Update Claim" : "Submit Claim"}
+                              </Button>
+                            </div>
                           </div>
                         </form>
                       </Form>
@@ -5782,7 +5670,14 @@ export default function HostCarManagement() {
                     <SheetContent
                       side="bottom"
                       className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[80vh] overflow-y-auto"
-                    >
+                    
+                        onInteractOutside={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest('[data-radix-popper-content-wrapper]')) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
                       <SheetHead>
                         <SheetTit>Claims Filters</SheetTit>
                         <SheetDesc>Refine the list of claims.</SheetDesc>
@@ -5942,6 +5837,7 @@ export default function HostCarManagement() {
                 >
                   <DialogTrigger asChild>
                     <Button
+                      className="rounded-xl"
                       onClick={() => {
                         setEditingClaim(null);
                         claimForm.reset({
@@ -5961,493 +5857,406 @@ export default function HostCarManagement() {
                       File Claim
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingClaim ? "Edit Claim" : "File New Claim"}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {editingClaim
-                          ? "Update your claim details."
-                          : "Submit a claim for damages or incidents."}
-                      </DialogDescription>
-                    </DialogHeader>
+                  <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl rounded-2xl border-border/50 p-0"
+                      onInteractOutside={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest('[data-radix-popper-content-wrapper]')) {
+                          e.preventDefault();
+                        }
+                        }}
+                    >
+                    {/* Trust header */}
+                    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40 rounded-t-2xl">
+                      <div className="px-6 pt-6 pb-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                            <Shield className="w-5 h-5 text-primary" />
+                          </div>
+                          <DialogHeader className="space-y-1">
+                            <DialogTitle className="text-lg font-bold">
+                              {editingClaim ? "Edit Claim" : "File New Claim"}
+                            </DialogTitle>
+                            <DialogDescription className="text-sm">
+                              {editingClaim
+                                ? "Update your claim details below."
+                                : "Submit a claim for damages or incidents. All data is encrypted and secure."}
+                            </DialogDescription>
+                          </DialogHeader>
+                        </div>
+                      </div>
+                    </div>
+
                     <Form {...claimForm}>
                       <form
                         onSubmit={claimForm.handleSubmit(onClaimSubmit)}
-                        className="space-y-4"
+                        className="px-6 py-4 space-y-5"
                       >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={claimForm.control}
-                            name="car_id"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Car *</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a car" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent
-                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                    position="popper"
-                                    side="bottom"
-                                    avoidCollisions={false}
-                                    onPointerDownOutside={(e) =>
-                                      e.stopPropagation()
-                                    }
-                                  >
-                                    {cars.map((car) => (
-                                      <SelectItem key={car.id} value={car.id}>
-                                        {formatCarDisplayName(car)}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={claimForm.control}
-                            name="claim_type"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Claim Type *</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select claim type" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent
-                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                    position="popper"
-                                    side="bottom"
-                                    avoidCollisions={false}
-                                    onPointerDownOutside={(e) =>
-                                      e.stopPropagation()
-                                    }
-                                  >
-                                    {distinctClaimTypes.map((type) => (
-                                      <SelectItem key={type} value={type}>
-                                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={claimForm.control}
-                            name="claim_status"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Claim Status *</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select status" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent
-                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                    position="popper"
-                                    side="bottom"
-                                    avoidCollisions={false}
-                                    onPointerDownOutside={(e) =>
-                                      e.stopPropagation()
-                                    }
-                                  >
-                                    <SelectItem value="pending">
-                                      Pending
-                                    </SelectItem>
-                                    <SelectItem value="approved">
-                                      Approved
-                                    </SelectItem>
-                                    <SelectItem value="rejected">
-                                      Rejected
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                        {/* Section: Vehicle & Type */}
+                        <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Car className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vehicle & Claim Info</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <FormField
+                              control={claimForm.control}
+                              name="car_id"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Car *</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                        <SelectValue placeholder="Select a car" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                      {cars.map((car) => (
+                                        <SelectItem key={car.id} value={car.id}>{formatCarDisplayName(car)}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="claim_type"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Claim Type *</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                        <SelectValue placeholder="Select claim type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                      {distinctClaimTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="claim_status"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Status *</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                        <SelectValue placeholder="Select status" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                      <SelectItem value="pending">Pending</SelectItem>
+                                      <SelectItem value="approved">Approved</SelectItem>
+                                      <SelectItem value="rejected">Rejected</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
                         </div>
 
-                        <FormField
-                          control={claimForm.control}
-                          name="incident_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Incident ID</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter incident ID (optional)"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={claimForm.control}
-                          name="trip_id"
-                          render={({ field }) => {
-                            const selectedCarId = claimForm.watch("car_id");
-                            const allTripIds = [
-                              ...new Set(
-                                expenses
-                                  .filter(
-                                    (e) => e.trip_id && e.trip_id.trim() !== ""
-                                  )
-                                  .map((e) => e.trip_id)
-                                  .filter(Boolean)
-                              ),
-                            ] as string[];
-                            const availableTripIds = selectedCarId
-                              ? ([
-                                  ...new Set(
-                                    expenses
-                                      .filter(
-                                        (e) =>
-                                          e.car_id === selectedCarId &&
-                                          e.trip_id &&
-                                          e.trip_id.trim() !== ""
-                                      )
-                                      .map((e) => e.trip_id)
-                                      .filter(Boolean)
-                                  ),
-                                ] as string[])
-                              : allTripIds;
-                            return (
-                              <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  Trip ID
-                                  {field.value && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs bg-green-50 text-green-700 border-green-200"
-                                    >
-                                      Auto-filled
-                                    </Badge>
-                                  )}
-                                </FormLabel>
-                                <FormControl>
-                                  <div className="space-y-2">
-                                    {loading ? (
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                        <span className="text-sm text-muted-foreground">
-                                          Loading trip IDs...
-                                        </span>
-                                      </div>
-                                    ) : availableTripIds.length > 0 ? (
-                                      <Select
-                                        value={field.value}
-                                        onValueChange={(value) => {
-                                          field.onChange(value);
-                                          // Auto-populate car field based on trip ID
-                                          const expenseWithTripId =
-                                            expenses.find(
-                                              (e) =>
-                                                e.trip_id === value && e.car_id
-                                            );
-                                          if (
-                                            expenseWithTripId &&
-                                            expenseWithTripId.car_id
-                                          ) {
-                                            claimForm.setValue(
-                                              "car_id",
-                                              expenseWithTripId.car_id
-                                            );
-                                          }
-                                        }}
-                                      >
-                                        <SelectTrigger>
-                                          <SelectValue
-                                            placeholder={
-                                              selectedCarId
-                                                ? `Select trip ID (${availableTripIds.length} for this car)`
-                                                : `Select trip ID (${availableTripIds.length} total)`
+                        {/* Section: IDs & Trip */}
+                        <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <FileText className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reference Details</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField
+                              control={claimForm.control}
+                              name="incident_id"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Incident ID</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Enter incident ID (optional)" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="trip_id"
+                              render={({ field }) => {
+                                const selectedCarId = claimForm.watch("car_id");
+                                const allTripIds = [...new Set(expenses.filter((e) => e.trip_id && e.trip_id.trim() !== "").map((e) => e.trip_id).filter(Boolean))] as string[];
+                                const availableTripIds = selectedCarId
+                                  ? ([...new Set(expenses.filter((e) => e.car_id === selectedCarId && e.trip_id && e.trip_id.trim() !== "").map((e) => e.trip_id).filter(Boolean))] as string[])
+                                  : allTripIds;
+                                return (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                      Trip ID
+                                      {field.value && (
+                                        <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
+                                      )}
+                                    </FormLabel>
+                                    <FormControl>
+                                      <div className="space-y-2">
+                                        {loading ? (
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                            <span className="text-sm text-muted-foreground">Loading trip IDs...</span>
+                                          </div>
+                                        ) : availableTripIds.length > 0 ? (
+                                          <Select value={field.value} onValueChange={(value) => {
+                                            field.onChange(value);
+                                            const expenseWithTripId = expenses.find((e) => e.trip_id === value && e.car_id);
+                                            if (expenseWithTripId && expenseWithTripId.car_id) {
+                                              claimForm.setValue("car_id", expenseWithTripId.car_id);
                                             }
-                                          />
-                                        </SelectTrigger>
-                                        <SelectContent
-                                          className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                          position="popper"
-                                          side="bottom"
-                                          avoidCollisions={false}
-                                          onPointerDownOutside={(e) =>
-                                            e.stopPropagation()
-                                          }
-                                        >
-                                          {availableTripIds.map((tripId) => (
-                                            <SelectItem
-                                              key={tripId}
-                                              value={tripId}
-                                            >
-                                              {tripId}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    ) : selectedCarId ? (
-                                      <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                        No existing trip IDs found for this car.
-                                        You can enter a new one below.
+                                          }}>
+                                            <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                              <SelectValue placeholder={selectedCarId ? `Select trip ID (${availableTripIds.length} for this car)` : `Select trip ID (${availableTripIds.length} total)`} />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                              {availableTripIds.map((tripId) => (
+                                                <SelectItem key={tripId} value={tripId}>{tripId}</SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        ) : selectedCarId ? (
+                                          <div className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-xl border border-border/40">No existing trip IDs found for this car. Enter a new one below.</div>
+                                        ) : (
+                                          <div className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-xl border border-border/40">No trip IDs found. Enter one below.</div>
+                                        )}
+                                        <Input placeholder={availableTripIds.length > 0 ? "Or enter new trip ID" : "Enter trip ID"} value={field.value} onChange={field.onChange} className="rounded-xl border-border/60 bg-background/80" />
                                       </div>
-                                    ) : (
-                                      <div className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border">
-                                        No trip IDs found in expenses. You can
-                                        enter a new one below.
-                                      </div>
-                                    )}
-                                    <Input
-                                      placeholder={
-                                        availableTripIds.length > 0
-                                          ? "Or enter new trip ID"
-                                          : "Enter trip ID"
-                                      }
-                                      value={field.value}
-                                      onChange={field.onChange}
-                                    />
-                                  </div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            );
-                          }}
-                        />
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <FormField
-                            control={claimForm.control}
-                            name="guest_name"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  Guest Name
-                                  {field.value && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs bg-green-50 text-green-700 border-green-200"
-                                    >
-                                      Auto-filled
-                                    </Badge>
-                                  )}
-                                </FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Guest name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={claimForm.control}
-                            name="payment_source"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  Payment Source
-                                  {field.value && field.value !== "Turo" && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs bg-green-50 text-green-700 border-green-200"
-                                    >
-                                      Auto-filled
-                                    </Badge>
-                                  )}
-                                </FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select payment source" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent
-                                    className="bg-popover border shadow-md z-[9999] touch-manipulation"
-                                    position="popper"
-                                    side="bottom"
-                                    avoidCollisions={false}
-                                    onPointerDownOutside={(e) =>
-                                      e.stopPropagation()
-                                    }
-                                  >
-                                    <SelectItem value="Turo">Turo</SelectItem>
-                                    <SelectItem value="Eon">Eon</SelectItem>
-                                    <SelectItem value="GetAround">
-                                      GetAround
-                                    </SelectItem>
-                                    <SelectItem value="Private">
-                                      Private
-                                    </SelectItem>
-                                    <SelectItem value="Insurance">
-                                      Insurance
-                                    </SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          </div>
                         </div>
 
-                        <FormField
-                          control={claimForm.control}
-                          name="incident_date"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Incident Date</FormLabel>
-                              <FormControl>
-                                <Input type="date" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        {/* Section: Guest & Payment */}
+                        <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <User className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Guest & Payment</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField
+                              control={claimForm.control}
+                              name="guest_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                    Guest Name
+                                    {field.value && (
+                                      <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
+                                    )}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Guest name" className="rounded-xl border-border/60 bg-background/80" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="payment_source"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="flex items-center gap-2 text-xs font-medium">
+                                    Payment Source
+                                    {field.value && field.value !== "Turo" && (
+                                      <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">Auto-filled</Badge>
+                                    )}
+                                  </FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="rounded-xl border-border/60 bg-background/80">
+                                        <SelectValue placeholder="Select payment source" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-popover border shadow-md z-[9999] touch-manipulation" position="popper" side="bottom" avoidCollisions={false} onPointerDownOutside={(e) => e.stopPropagation()}>
+                                      <SelectItem value="Turo">Turo</SelectItem>
+                                      <SelectItem value="Eon">Eon</SelectItem>
+                                      <SelectItem value="GetAround">GetAround</SelectItem>
+                                      <SelectItem value="Private">Private</SelectItem>
+                                      <SelectItem value="Insurance">Insurance</SelectItem>
+                                      <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
 
-                        <FormField
-                          control={claimForm.control}
-                          name="description"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Incident Description</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Describe what happened..."
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        {/* Section: Incident Details */}
+                        <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <AlertCircle className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Incident Details</span>
+                          </div>
+                          <FormField
+                            control={claimForm.control}
+                            name="incident_date"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">Incident Date</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                  <FormControl>
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal rounded-xl bg-background/50"
+                                      >
+                                        <CalendarLucide className="mr-2 h-4 w-4 opacity-50" />
+                                        {field.value ? format(new Date(field.value + "T00:00:00"), "MMM dd, yyyy") : <span className="text-muted-foreground">Pick a date</span>}
+                                      </Button>
+                                  </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                                      <CalendarWidget
+                                        mode="single"
+                                        selected={field.value ? new Date(field.value + "T00:00:00") : undefined}
+                                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                        initialFocus
+                                        className="p-3 pointer-events-auto"
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField
+                              control={claimForm.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Incident Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea placeholder="Describe what happened..." className="rounded-xl border-border/60 bg-background/80 min-h-[80px]" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="accident_description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Detailed Accident Description</FormLabel>
+                                  <FormControl>
+                                    <Textarea placeholder="Provide additional details..." className="rounded-xl border-border/60 bg-background/80 min-h-[80px]" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
 
-                        <FormField
-                          control={claimForm.control}
-                          name="accident_description"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Detailed Accident Description
-                              </FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Provide additional details about the accident..."
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        {/* Section: Financial & Status */}
+                        <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 space-y-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <DollarSign className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Financial</span>
+                          </div>
+                          <FormField
+                            control={claimForm.control}
+                            name="claim_amount"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">Estimated Claim Amount</FormLabel>
+                                <FormControl>
+                                  <NumericPlaceholderInput
+                                    inputMode="decimal"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    className="rounded-xl border-border/60 bg-background/80"
+                                    name={field.name}
+                                    ref={field.ref}
+                                    value={field.value}
+                                    onBlur={field.onBlur}
+                                    onChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <FormField
+                              control={claimForm.control}
+                              name="photos_taken"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center gap-3 rounded-xl border border-border/40 bg-background/50 p-3 space-y-0">
+                                  <FormControl>
+                                    <input type="checkbox" checked={field.value} onChange={field.onChange} className="h-4 w-4 rounded border-border accent-primary" />
+                                  </FormControl>
+                                  <div className="space-y-0.5 leading-none">
+                                    <FormLabel className="text-xs font-medium cursor-pointer">Photos taken of damage</FormLabel>
+                                    <p className="text-[10px] text-muted-foreground">Helps accelerate claim processing</p>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={claimForm.control}
+                              name="is_paid"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center gap-3 rounded-xl border border-border/40 bg-background/50 p-3 space-y-0">
+                                  <FormControl>
+                                    <input type="checkbox" checked={field.value} onChange={field.onChange} className="h-4 w-4 rounded border-border accent-primary" />
+                                  </FormControl>
+                                  <div className="space-y-0.5 leading-none">
+                                    <FormLabel className="text-xs font-medium cursor-pointer">Claim has been paid</FormLabel>
+                                    <p className="text-[10px] text-muted-foreground">Mark if payment was received</p>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
 
-                        <FormField
-                          control={claimForm.control}
-                          name="claim_amount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Estimated Claim Amount</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  inputMode="decimal"
-                                  step="0.01"
-                                  placeholder="0.00"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      parseFloat(e.target.value) || 0
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={claimForm.control}
-                          name="photos_taken"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <input
-                                  type="checkbox"
-                                  checked={field.value}
-                                  onChange={field.onChange}
-                                  className="h-4 w-4"
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel>
-                                  Photos taken of damage/incident
-                                </FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={claimForm.control}
-                          name="is_paid"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <input
-                                  type="checkbox"
-                                  checked={field.value}
-                                  onChange={field.onChange}
-                                  className="h-4 w-4"
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel>
-                                  Claim has been paid
-                                </FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="pt-2 flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setClaimDialogOpen(false);
-                              setEditingClaim(null);
-                              claimForm.reset();
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                          <Button type="submit">
-                            {editingClaim ? "Update Claim" : "Submit Claim"}
-                          </Button>
+                        {/* Trust footer + Actions */}
+                        <div className="space-y-3 pb-2">
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground justify-center">
+                            <Lock className="w-3 h-3" />
+                            <span>Your claim data is securely stored and encrypted</span>
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="rounded-xl"
+                              onClick={() => {
+                                setClaimDialogOpen(false);
+                                setEditingClaim(null);
+                                claimForm.reset();
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button type="submit" className="rounded-xl px-6">
+                              {editingClaim ? "Update Claim" : "Submit Claim"}
+                            </Button>
+                          </div>
                         </div>
                       </form>
                     </Form>
@@ -6455,9 +6264,11 @@ export default function HostCarManagement() {
                 </Dialog>
               )}
 
+
+
               {/* Claims Filters */}
               {!isMobile && (
-                <Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between">
@@ -6601,297 +6412,162 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </div>
               )}
 
               {claims.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No claims filed
-                    </h3>
-                    <p className="text-muted-foreground">
-                      File claims for damages or incidents here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Claims Filed</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">File claims for damages or incidents here.</p>
+                </div>
               ) : filteredClaims.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      No claims match your filters
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters to see more results.
-                    </p>
-                    <Button variant="outline" onClick={clearClaimsFilters}>
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Filter className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">No Matching Claims</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">Try adjusting your filters to see more results.</p>
+                  <Button variant="outline" onClick={clearClaimsFilters} size="sm" className="rounded-xl">Clear Filters</Button>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {/* Claims Summary */}
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Claims
-                            </p>
-                            <p className="text-2xl font-bold">
-                              {claims.length}
-                            </p>
-                          </div>
-                          <FileText className="h-8 w-8 text-blue-600" />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                    {[
+                      { label: "Total Claims", value: claims.length.toString(), icon: FileText },
+                      { label: "Pending", value: claims.filter((c) => c.claim_status === "pending").length.toString(), icon: Clock },
+                      { label: "Approved", value: claims.filter((c) => c.claim_status === "approved").length.toString(), icon: CheckCircle },
+                      { label: "Total Amount", value: `$${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: DollarSign },
+                      { label: "Amount Paid", value: `$${claims.filter((c) => c.is_paid).reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: CheckCircle },
+                    ].map((item, i) => (
+                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-3.5">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</span>
                         </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Pending
-                            </p>
-                            <p className="text-2xl font-bold text-yellow-600">
-                              {
-                                claims.filter(
-                                  (c) => c.claim_status === "pending"
-                                ).length
-                              }
-                            </p>
-                          </div>
-                          <AlertTriangle className="h-8 w-8 text-yellow-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Approved
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              {
-                                claims.filter(
-                                  (c) => c.claim_status === "approved"
-                                ).length
-                              }
-                            </p>
-                          </div>
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Total Amount
-                            </p>
-                            <p className="text-2xl font-bold">
-                              $
-                              {claims
-                                .reduce(
-                                  (sum, c) => sum + (c.claim_amount || 0),
-                                  0
-                                )
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <DollarSign className="h-8 w-8 text-purple-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              Amount Paid
-                            </p>
-                            <p className="text-2xl font-bold text-green-600">
-                              $
-                              {claims
-                                .filter((c) => c.is_paid)
-                                .reduce(
-                                  (sum, c) => sum + (c.claim_amount || 0),
-                                  0
-                                )
-                                .toFixed(2)}
-                            </p>
-                          </div>
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
+                        <p className="text-lg font-bold text-foreground tabular-nums">{item.value}</p>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Claims List */}
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {filteredClaims.map((claim) => {
-                      // Find the car for this claim
-                      const claimCar = cars.find(
-                        (car) => car.id === claim.car_id
-                      );
-
+                      const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
-                        <Card key={claim.id}>
-                          <CardContent className="p-3 sm:p-4">
-                            <div className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-medium capitalize break-words">
-                                    {claim.claim_type} Claim
-                                  </h4>
-                                  <Badge
-                                    variant={
-                                      claim.claim_status === "approved"
-                                        ? "default"
-                                        : claim.claim_status === "denied"
-                                        ? "destructive"
-                                        : "secondary"
-                                    }
-                                  >
+                        <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              {/* Left info */}
+                              <div className="min-w-0 flex-1 space-y-2.5">
+                                {/* Title row */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Shield className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <h4 className="font-semibold text-sm capitalize">{claim.claim_type} Claim</h4>
+                                  <Badge variant={claim.claim_status === "approved" ? "default" : claim.claim_status === "denied" ? "destructive" : "secondary"} className="text-[10px] rounded-lg">
                                     {claim.claim_status}
                                   </Badge>
                                   {claim.is_paid && (
-                                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                                      Paid
-                                    </Badge>
+                                    <Badge variant="default" className="text-[10px] rounded-lg">Paid</Badge>
                                   )}
+                                </div>
+
+                                {/* Badges row */}
+                                <div className="ml-10 flex flex-wrap gap-1.5">
                                   {claim.trip_id && (
-                                    <Badge variant="outline">
-                                      Trip# {claim.trip_id}
-                                    </Badge>
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {claim.trip_id}</Badge>
                                   )}
                                   {claim.incident_id && (
-                                    <Badge variant="outline">
-                                      Incident# {claim.incident_id}
-                                    </Badge>
+                                    <Badge variant="outline" className="text-[10px] rounded-lg">Incident# {claim.incident_id}</Badge>
                                   )}
                                 </div>
 
-                                {/* Trip Details */}
-                                <div className="flex flex-wrap items-center gap-2 text-sm">
+                                {/* Details */}
+                                <div className="ml-10 space-y-1.5">
                                   {claim.guest_name && (
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">
-                                        Guest:
-                                      </span>
-                                      <span className="font-medium">
-                                        {claim.guest_name}
-                                      </span>
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                      <User className="w-3 h-3" />
+                                      <span>{claim.guest_name}</span>
+                                      {claim.payment_source && (
+                                        <span className="text-muted-foreground/60">• {claim.payment_source}</span>
+                                      )}
                                     </div>
                                   )}
-                                  {claim.payment_source && (
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-muted-foreground">
-                                        •
-                                      </span>
-                                      <span className="text-muted-foreground">
-                                        Source:
-                                      </span>
-                                      <span className="font-medium">
-                                        {claim.payment_source}
-                                      </span>
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <CalendarLucide className="w-3 h-3" />
+                                    <span>Incident: {new Date(claim.incident_date).toLocaleDateString()}</span>
+                                  </div>
+                                  {claim.description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-2">{claim.description}</p>
+                                  )}
+                                  {claim.accident_description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-2"><span className="font-medium">Details:</span> {claim.accident_description}</p>
+                                  )}
+                                </div>
+
+                                {/* Status indicators */}
+                                <div className="ml-10 flex flex-wrap gap-2">
+                                  {claim.photos_taken && (
+                                    <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-background/50 px-2 py-1 text-[10px]">
+                                      <CheckCircle className="h-3 w-3 text-primary" />
+                                      <span>Photos documented</span>
+                                    </div>
+                                  )}
+                                  {claim.claim_status !== "pending" && (
+                                    <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-background/50 px-2 py-1 text-[10px] text-muted-foreground">
+                                      <Clock className="h-3 w-3" />
+                                      <span>Filed: {new Date(claim.created_at).toLocaleDateString()}</span>
                                     </div>
                                   )}
                                 </div>
 
-                                {/* Car Details */}
+                                {/* Vehicle */}
                                 {claimCar && (
-                                  <div className="border-t mt-3 pt-3">
-                                    <p className="text-sm font-medium mb-2">
-                                      Vehicle Details:
-                                    </p>
+                                  <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                      <Car className="w-3 h-3 text-muted-foreground" />
+                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
+                                    </div>
                                     {formatDetailedCarInfo(claimCar)}
                                   </div>
                                 )}
-                                <p className="text-sm text-muted-foreground">
-                                  {claim.description}
-                                </p>
-                                {claim.accident_description && (
-                                  <p className="text-sm text-muted-foreground">
-                                    <strong>Details:</strong>{" "}
-                                    {claim.accident_description}
-                                  </p>
-                                )}
-                                <p className="text-sm text-muted-foreground">
-                                  <strong>Incident Date:</strong>{" "}
-                                  {new Date(
-                                    claim.incident_date
-                                  ).toLocaleDateString()}
-                                </p>
-
-                                {claim.photos_taken && (
-                                  <div className="flex items-center gap-1 text-sm text-green-600">
-                                    <CheckCircle className="h-4 w-4" />
-                                    <span>Photos documented</span>
-                                  </div>
-                                )}
-
-                                {/* Progress Indicators */}
-                                {claim.claim_status !== "pending" && (
-                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span>
-                                      Filed:{" "}
-                                      {new Date(
-                                        claim.created_at
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                )}
                               </div>
-                              <div className="text-right">
-                                <div className="flex items-start gap-2 mb-2">
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="outline" size="sm">
-                                        <MoreVertical className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        onClick={() => handleEditClaim(claim)}
-                                      >
-                                        <Edit className="h-3 w-3 mr-2" /> Edit
-                                        Claim
-                                      </DropdownMenuItem>
-                                      {claim.claim_status === "pending" && (
-                                        <>
-                                          <DropdownMenuSeparator />
-                                          <DropdownMenuItem
-                                            onClick={() => {
-                                              setDeleteClaimId(claim.id);
-                                              setDeleteClaimDialogOpen(true);
-                                            }}
-                                            className="text-destructive focus:text-destructive"
-                                          >
-                                            <Trash className="h-3 w-3 mr-2" />{" "}
-                                            Delete Claim
-                                          </DropdownMenuItem>
-                                        </>
-                                      )}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+
+                              {/* Right: Amount + Actions */}
+                              <div className="text-right shrink-0">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-xl">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleEditClaim(claim)}>
+                                      <Edit className="h-3 w-3 mr-2" /> Edit Claim
+                                    </DropdownMenuItem>
+                                    {claim.claim_status === "pending" && (
+                                      <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => { setDeleteClaimId(claim.id); setDeleteClaimDialogOpen(true); }} className="text-destructive focus:text-destructive">
+                                          <Trash className="h-3 w-3 mr-2" /> Delete Claim
+                                        </DropdownMenuItem>
+                                      </>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <div className="mt-2 rounded-xl border border-border/40 bg-background/50 px-3 py-2">
+                                  <p className="text-lg font-bold text-foreground tabular-nums">${claim.claim_amount?.toFixed(2) || "0.00"}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Amount</p>
                                 </div>
-                                <p className="font-bold text-lg">
-                                  ${claim.claim_amount?.toFixed(2) || "0.00"}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  Claim Amount
-                                </p>
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>

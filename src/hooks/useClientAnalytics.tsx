@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-const AVAILABLE_YEARS = [2022, 2023, 2024, 2025];
+
 
 export interface ClientEarning {
   id: string;
@@ -20,8 +20,6 @@ export interface ClientEarning {
   payment_status: string;
   trip_id?: string | null;
   guest_name?: string | null;
-  guest_phone?: string | null;
-  guest_email?: string | null;
   earning_type: string;
   payment_source: string;
   created_at: string;
@@ -57,6 +55,14 @@ export interface ClientClaim {
   description: string;
 }
 
+export interface CarInfo {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  license_plate: string | null;
+}
+
 export interface AnalyticsSummary {
   totalEarnings: number;
   totalExpenses: number;
@@ -75,6 +81,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
+  const [carsMap, setCarsMap] = useState<Record<string, CarInfo>>({});
   const [summary, setSummary] = useState<AnalyticsSummary>({
     totalEarnings: 0,
     totalExpenses: 0,
@@ -88,6 +95,21 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()]);
+
+  const fetchAvailableYears = useCallback(async (carIds: string[]) => {
+    if (carIds.length === 0) return;
+    try {
+      const yearsSet = new Set<number>();
+      const { data: e } = await supabase.from('host_earnings').select('earning_period_start').in('car_id', carIds);
+      (e || []).forEach((r: any) => { if (r.earning_period_start) yearsSet.add(new Date(r.earning_period_start).getFullYear()); });
+      const { data: x } = await supabase.from('host_expenses').select('expense_date').in('car_id', carIds);
+      (x || []).forEach((r: any) => { if (r.expense_date) yearsSet.add(new Date(r.expense_date).getFullYear()); });
+      const { data: c } = await supabase.from('host_claims').select('incident_date').in('car_id', carIds);
+      (c || []).forEach((r: any) => { if (r.incident_date) yearsSet.add(new Date(r.incident_date).getFullYear()); });
+      if (yearsSet.size > 0) setAvailableYears(Array.from(yearsSet).sort((a, b) => b - a));
+    } catch (err) { console.error('Error fetching available years:', err); }
+  }, []);
 
   const fetchClientAnalytics = useCallback(async () => {
     if (!user) return;
@@ -98,7 +120,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       // Get accessible cars: owned + shared
       const { data: ownedCars, error: carsError } = await supabase
         .from('cars')
-        .select('id')
+        .select('id, make, model, year, license_plate')
         .eq('client_id', user.id);
       if (carsError) throw carsError;
 
@@ -108,6 +130,12 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .eq('user_id', user.id);
       if (accessErr) throw accessErr;
 
+      // Build car info map from owned cars
+      const carInfoMap: Record<string, CarInfo> = {};
+      (ownedCars || []).forEach((c: any) => {
+        carInfoMap[c.id] = { id: c.id, make: c.make, model: c.model, year: c.year, license_plate: c.license_plate };
+      });
+
       const ownedIds = (ownedCars || []).map((c: any) => c.id);
       const sharedIds = (access || []).map((a: any) => a.car_id);
       const carIds = Array.from(new Set([...ownedIds, ...sharedIds]));
@@ -116,13 +144,28 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         setEarnings([]);
         setExpenses([]);
         setClaims([]);
+        setCarsMap({});
         return;
       }
 
-      // Build year filter for earnings (based on earning_period_start)
+      // Fetch shared car details
+      const missingIds = sharedIds.filter((id: string) => !carInfoMap[id]);
+      if (missingIds.length > 0) {
+        const { data: sharedCars } = await supabase
+          .from('cars')
+          .select('id, make, model, year, license_plate')
+          .in('id', missingIds);
+        (sharedCars || []).forEach((c: any) => {
+          carInfoMap[c.id] = { id: c.id, make: c.make, model: c.model, year: c.year, license_plate: c.license_plate };
+        });
+      }
+
+      setCarsMap(carInfoMap);
+
+      fetchAvailableYears(carIds);
       let earningsQuery = supabase
         .from('host_earnings')
-        .select('*')
+        .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, guest_name, earning_type, payment_source, created_at')
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
@@ -256,12 +299,13 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     earnings,
     expenses,
     claims,
+    carsMap,
     summary,
     loading,
     error,
     refetch,
     selectedYear,
     setSelectedYear,
-    availableYears: AVAILABLE_YEARS,
+    availableYears,
   };
 }

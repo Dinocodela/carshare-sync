@@ -12,6 +12,7 @@ export default function AuthCallbackHandler() {
 
     const params = new URLSearchParams(location.hash.slice(1));
     const error = params.get("error");
+    const type = params.get("type");
 
     if (error) {
       const errorCode = params.get("error_code") || "";
@@ -40,6 +41,26 @@ export default function AuthCallbackHandler() {
       if (location.pathname !== "/") {
         navigate("/", { replace: true });
       }
+      return;
+    }
+
+    // Recovery flow — let ResetPassword page handle it
+    if (type === "recovery" && params.get("access_token")) {
+      // Don't clear hash or redirect — ResetPassword page needs the session
+      if (location.pathname !== "/reset-password") {
+        navigate("/reset-password", { replace: true });
+      }
+      return;
+    }
+
+    // Successful signup confirmation — redirect to confirmation page
+    if (type === "signup" && params.get("access_token")) {
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
+      navigate("/email-confirmed", { replace: true });
     }
   }, [location.hash, location.pathname, navigate, toast]);
 

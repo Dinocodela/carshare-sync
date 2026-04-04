@@ -12,8 +12,8 @@ const corsHeaders = {
 
 interface HostNotificationRequest {
   requestId: string;
-  hostId?: string;
-  hostEmail: string;
+  hostId: string;
+  hostEmail?: string; // Deprecated: resolved server-side now
   hostName: string;
   clientName: string;
   clientPhone?: string;
@@ -29,7 +29,29 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { requestId, hostId, hostEmail, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
+    const { requestId, hostId, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
+
+    if (!hostId) {
+      throw new Error("hostId is required");
+    }
+
+    // Resolve host email server-side using service role
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: hostProfile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('email')
+      .eq('user_id', hostId)
+      .single();
+
+    if (profileError || !hostProfile?.email) {
+      throw new Error("Could not resolve host email");
+    }
+
+    const hostEmail = hostProfile.email;
 
     console.log("Sending host notification email for request:", requestId);
 
@@ -100,32 +122,25 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Host notification email sent successfully:", emailResponse);
 
     // Send push notification for new host request
-    if (hostId) {
-      try {
-        const supabaseAdmin = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        );
-
-        const pushResponse = await supabaseAdmin.functions.invoke('push-send', {
-          body: {
-            targetUserId: hostId,
-            title: 'New Hosting Request!',
-            body: `${clientName} wants to host their ${carDetails}`,
-            icon: '/favicon.ico',
-            url: '/dashboard'
-          }
-        });
-        
-        if (pushResponse.error) {
-          console.log("Push notification failed:", pushResponse.error);
-        } else {
-          console.log("Push notification sent successfully");
+    try {
+      const pushResponse = await supabaseAdmin.functions.invoke('push-send', {
+        body: {
+          targetUserId: hostId,
+          title: 'New Hosting Request!',
+          body: `${clientName} wants to host their ${carDetails}`,
+          icon: '/favicon.ico',
+          url: '/dashboard'
         }
-      } catch (pushError) {
-        console.error("Push notification error:", pushError);
-        // Don't fail the whole request if push fails
+      });
+      
+      if (pushResponse.error) {
+        console.log("Push notification failed:", pushResponse.error);
+      } else {
+        console.log("Push notification sent successfully");
       }
+    } catch (pushError) {
+      console.error("Push notification error:", pushError);
+      // Don't fail the whole request if push fails
     }
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
