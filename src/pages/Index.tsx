@@ -17,6 +17,7 @@ import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Testimonials } from "@/components/Testimonials";
+import { RentATeslaLink } from "@/components/RentATeslaLink";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
