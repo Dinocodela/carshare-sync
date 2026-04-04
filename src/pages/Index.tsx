@@ -17,6 +17,7 @@ import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Testimonials } from "@/components/Testimonials";
+import { RentATeslaLink } from "@/components/RentATeslaLink";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
@@ -107,6 +108,7 @@ const Index = () => {
       <StructuredData type="software" />
       <StructuredData type="localbusiness" />
 
+      <RentATeslaLink />
       <div className="min-h-screen pt-safe-top bg-gradient-hero overflow-y-auto">
         <div className="flex flex-col items-center p-4 pb-0">
           <div className="w-full max-w-xl">
