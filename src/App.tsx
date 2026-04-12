@@ -73,7 +73,14 @@ import Seattle from "./pages/cities/Seattle";
 import Denver from "./pages/cities/Denver";
 import Phoenix from "./pages/cities/Phoenix";
 import Atlanta from "./pages/cities/Atlanta";
+import LasVegas from "./pages/cities/LasVegas";
+import OklahomaCity from "./pages/cities/OklahomaCity";
 import ModelCityPage from "./pages/ModelCityPage";
+import CybertruckRental from "./pages/models/CybertruckRental";
+import ModelXRental from "./pages/models/ModelXRental";
+import ModelSRental from "./pages/models/ModelSRental";
+import TeslaMonthlyRental from "./pages/TeslaMonthlyRental";
+import TeslaRentalCost from "./pages/TeslaRentalCost";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
