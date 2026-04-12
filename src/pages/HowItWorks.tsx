@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
+import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -247,6 +248,8 @@ export default function HowItWorks() {
             </div>
           </section>
         </main>
+
+        <RelatedPages heading="Learn More About Tesla Rentals" />
 
         {/* Footer */}
         <footer className="border-t border-border py-8">
