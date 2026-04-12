@@ -39,6 +39,29 @@ const TOPIC_AREAS = [
   "How to set boundaries and rules for your Turo Tesla renters",
 ];
 
+const COVER_IMAGES = [
+  "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1620891549027-942fdc95d3f5?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1554744512-d6c603f27c54?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1617704548623-340376564e68?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1536700503339-1e4b06520771?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1619317190042-b2cb44807416?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1625231334401-55e8e06a2e5e?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1562053913-4e2b3bcc6225?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1571987502227-9231b837d92a?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1570733577524-3a047079e80d?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1516728043-d3e2c71a4907?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1494905998402-395d579af36f?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1532581140115-3e355d1ed1de?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=1600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1462396881884-de2c07cb95ed?w=1600&h=900&fit=crop",
+];
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
