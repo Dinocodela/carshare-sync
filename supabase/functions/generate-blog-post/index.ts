@@ -51,7 +51,12 @@ const TOPIC_AREAS = [
 
 async function generateCoverImage(title: string, apiKey: string): Promise<string | null> {
   try {
-    const prompt = `Create a professional, high-quality blog cover image (16:9 landscape) for an article titled: "${title}". The image should visually represent the topic. Use a modern, editorial photography style with rich colors and cinematic lighting. Do NOT include any text or words in the image. Clean, professional composition suitable for a tech/automotive blog.`;
+    const prompt = `Create a professional, cinematic blog cover image (16:9 landscape) for an article titled: "${title}". 
+The image must visually represent the SPECIFIC topic of this article — not just a generic car photo.
+Think about what scene, setting, objects, or concept would best illustrate this topic.
+For example: if about "tax strategies" show documents/calculator/financial setting; if about "fleet management" show multiple vehicles being organized; if about "guest experience" show a happy person receiving car keys.
+Use modern editorial photography style with rich colors and cinematic lighting. 
+Do NOT include any text, words, or watermarks in the image.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
