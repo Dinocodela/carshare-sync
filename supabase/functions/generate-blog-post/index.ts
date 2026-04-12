@@ -49,27 +49,93 @@ const TOPIC_AREAS = [
   "Tesla rental cost breakdown: what renters pay and what hosts earn in 2026",
 ];
 
-const COVER_IMAGES = [
+async function generateCoverImage(title: string, apiKey: string): Promise<string | null> {
+  try {
+    const prompt = `Create a professional, high-quality blog cover image (16:9 landscape) for an article titled: "${title}". The image should visually represent the topic. Use a modern, editorial photography style with rich colors and cinematic lighting. Do NOT include any text or words in the image. Clean, professional composition suitable for a tech/automotive blog.`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-image",
+        messages: [{ role: "user", content: prompt }],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Image generation failed:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    return imageUrl || null;
+  } catch (err) {
+    console.error("Image generation error:", err);
+    return null;
+  }
+}
+
+async function uploadImageToStorage(
+  supabase: any,
+  base64DataUrl: string,
+  slug: string
+): Promise<string | null> {
+  try {
+    // Extract base64 data and mime type
+    const matches = base64DataUrl.match(/^data:([^;]+);base64,(.+)$/);
+    if (!matches) return null;
+
+    const mimeType = matches[1];
+    const base64Data = matches[2];
+    const extension = mimeType.includes("png") ? "png" : "jpg";
+    const fileName = `blog-covers/${slug}-${Date.now()}.${extension}`;
+
+    // Convert base64 to Uint8Array
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Ensure bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some((b: any) => b.name === "blog-images");
+    if (!bucketExists) {
+      await supabase.storage.createBucket("blog-images", { public: true });
+    }
+
+    const { error } = await supabase.storage
+      .from("blog-images")
+      .upload(fileName, bytes, { contentType: mimeType, upsert: true });
+
+    if (error) {
+      console.error("Storage upload error:", error);
+      return null;
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from("blog-images")
+      .getPublicUrl(fileName);
+
+    return publicUrl?.publicUrl || null;
+  } catch (err) {
+    console.error("Upload error:", err);
+    return null;
+  }
+}
+
+// Fallback images if AI generation fails
+const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=1600&h=900&fit=crop",
   "https://images.unsplash.com/photo-1620891549027-942fdc95d3f5?w=1600&h=900&fit=crop",
   "https://images.unsplash.com/photo-1554744512-d6c603f27c54?w=1600&h=900&fit=crop",
   "https://images.unsplash.com/photo-1617704548623-340376564e68?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1536700503339-1e4b06520771?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1600&h=900&fit=crop",
   "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1619317190042-b2cb44807416?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1625231334401-55e8e06a2e5e?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1562053913-4e2b3bcc6225?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1571987502227-9231b837d92a?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1570733577524-3a047079e80d?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1516728043-d3e2c71a4907?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1494905998402-395d579af36f?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1532581140115-3e355d1ed1de?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=1600&h=900&fit=crop",
-  "https://images.unsplash.com/photo-1462396881884-de2c07cb95ed?w=1600&h=900&fit=crop",
 ];
 
 Deno.serve(async (req) => {
@@ -95,13 +161,6 @@ Deno.serve(async (req) => {
 
     const existingTitles = (existingPosts || []).map((p) => p.title);
     const existingSlugs = (existingPosts || []).map((p) => p.slug);
-    const usedImages = (existingPosts || []).map((p) => p.cover_image).filter(Boolean);
-
-    // Pick an image not recently used, fallback to random
-    const availableImages = COVER_IMAGES.filter((img) => !usedImages.includes(img));
-    const coverImage = availableImages.length > 0
-      ? availableImages[Math.floor(Math.random() * availableImages.length)]
-      : COVER_IMAGES[Math.floor(Math.random() * COVER_IMAGES.length)];
 
     // Pick a random topic area
     const topic = TOPIC_AREAS[Math.floor(Math.random() * TOPIC_AREAS.length)];
@@ -212,6 +271,22 @@ Return a valid JSON object with these exact keys:
     let finalSlug = post.slug;
     if (existingSlugs.includes(finalSlug)) {
       finalSlug = `${finalSlug}-${Date.now()}`;
+    }
+
+    // Generate a cover image based on the post title
+    console.log(`Generating cover image for: "${post.title}"`);
+    let coverImage: string | null = null;
+
+    const base64Image = await generateCoverImage(post.title, LOVABLE_API_KEY);
+    if (base64Image) {
+      coverImage = await uploadImageToStorage(supabase, base64Image, finalSlug);
+      console.log(`Cover image uploaded: ${coverImage}`);
+    }
+
+    // Fallback to stock image if generation failed
+    if (!coverImage) {
+      console.log("Using fallback cover image");
+      coverImage = FALLBACK_IMAGES[Math.floor(Math.random() * FALLBACK_IMAGES.length)];
     }
 
     // Insert into database
