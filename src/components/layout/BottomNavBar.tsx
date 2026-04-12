@@ -7,6 +7,7 @@ import {
   Settings,
   Plus,
   ShieldAlert,
+  BookOpen,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
