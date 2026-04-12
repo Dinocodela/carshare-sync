@@ -69,7 +69,7 @@ export function SiteFooter() {
             {/* Brand column — wider */}
             <div className="lg:col-span-5 flex flex-col gap-5">
               <Link to="/" className="inline-block">
-                <Logo className="h-8 brightness-0 invert opacity-95" />
+                <Logo size="sm" className="brightness-0 invert opacity-95" />
               </Link>
               <p className="text-sm text-navy-foreground/50 max-w-xs leading-relaxed">
                 The premium Tesla car sharing management platform — connecting
