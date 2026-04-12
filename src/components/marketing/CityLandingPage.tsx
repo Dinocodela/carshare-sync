@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
+import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { StructuredData } from "@/components/StructuredData";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
@@ -99,6 +100,10 @@ export function CityLandingPage({ city }: { city: CityData }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
       <div className="min-h-screen bg-background">
@@ -337,6 +342,8 @@ export function CityLandingPage({ city }: { city: CityData }) {
             heading={`Get Tesla Earning Tips for ${city.city}`}
             subheading={`Join Tesla owners in ${city.city} getting weekly insights on maximizing rental income.`}
           />
+
+          <RelatedPages heading="Explore More" />
         </main>
         {/* Footer */}
         <footer className="border-t border-border py-8">
