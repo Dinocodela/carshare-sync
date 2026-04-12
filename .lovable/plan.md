@@ -1,38 +1,82 @@
 
 
-# New SEO Landing Page: "Tesla Rental Near Me"
+# SEO & GEO Improvement Strategy for Teslys.app (Semrush-Guided)
 
-## Overview
-Create a new optimized landing page at `/tesla-rental-near-me` targeting the keyword "tesla rental near me". This is a renter-facing page (unlike most existing pages which target car owners/hosts), positioned to capture high-intent local search traffic and direct users to book on Teslys.
+## Current State Assessment
 
-## SEO Metadata
-- **Title**: Tesla Rental Near Me | Rent a Tesla Today | Teslys (54 chars)
-- **Meta**: Rent a Tesla near you with Teslys. Browse Model 3, Model Y, and Model X vehicles. Daily, weekly, and monthly rates with delivery to your door. (148 chars)
-- **H1**: Tesla Rental Near Me — Find and Rent a Tesla Today
+Your site already has solid foundations: structured data (Organization, LocalBusiness, FAQ, BreadcrumbList), 40+ programmatic pages, GTM tracking, and a sitemap. Here's what to prioritize next, organized by impact.
 
-## Page Sections (~900 words total)
-1. **Hero/CTA above the fold** — H1, subheadline emphasizing convenience and delivery, primary CTA to browse vehicles on eonrides link, secondary CTA to earnings calculator
-2. **Available Tesla Models** — Model 3 (affordable), Model Y (versatile SUV), Model X (luxury) cards with daily rates and key specs
-3. **Pricing Options** — Daily, weekly, monthly rate comparison table with savings percentages
-4. **How It Works** — 4-step process: Browse, Verify, Pick Up/Delivery, Drive
-5. **Charging & Tesla Superchargers** — Info about Tesla Supercharger network, charging tips, range by model
-6. **Terms and Conditions Overview** — Insurance, mileage policy, age requirements, cancellation
-7. **FAQ Section** — 6 questions covering cost, insurance, mileage, availability, charging, delivery (with JSON-LD FAQ schema)
-8. **Bottom CTA** — Strong conversion section
-9. **Footer** with internal links
+---
 
-## Internal Links
-- Links to `/tesla-monthly-rental` and `/tesla-rental-cost` (existing pages — mapped from the requested `/rent-tesla-month` and `/rent-tesla-day`)
-- Links to model-specific pages, city pages, earnings calculator, and blog
+## Priority 1 — Technical SEO Fixes (Quick Wins)
+
+These are issues Semrush's Site Audit will flag immediately:
+
+1. **Fix canonical tag in index.html** — Currently `<link rel="canonical" href="/" />` (relative). Must be absolute: `https://teslys.app/`
+2. **Duplicate meta tags** — `index.html` has hardcoded OG/description tags AND the React `<SEO>` component injects them dynamically, causing duplicates. Remove the static ones from `index.html` and let React handle them.
+3. **Missing hreflang** — Not critical yet but good practice if you plan international expansion.
+4. **robots.txt enhancement** — Add `Disallow` rules for app-only routes (dashboard, settings, my-cars, etc.) that shouldn't be indexed.
+5. **Sitemap automation** — Currently hand-maintained. Generate it at build time from the route config so new pages are never missed.
+
+## Priority 2 — On-Page SEO Improvements
+
+6. **Add `alt` text audit** — Ensure all images across landing pages have descriptive, keyword-rich alt attributes.
+7. **Internal linking mesh** — Your pages link sparsely. Add a "Related Pages" section to every landing page (city pages link to model pages, model pages link to city pages, intent pages link to both).
+8. **Heading hierarchy** — Audit all pages for proper H1 > H2 > H3 nesting. Some pages may skip levels.
+9. **Page speed** — Lazy-load below-fold sections and images. Add `loading="lazy"` and consider code-splitting heavy pages.
+
+## Priority 3 — Content & Keyword Gaps
+
+10. **Blog internal links** — Each blog post should link to 2-3 money pages (earnings calculator, get-started, city pages). Currently blog posts likely have no internal links.
+11. **New content clusters** based on Semrush keyword gaps:
+    - "Tesla rental insurance" — dedicated page
+    - "Turo vs Teslys" — expand the existing comparison page
+    - "How to list your Tesla on Turo" — informational content that funnels to Teslys
+    - "Electric car rental business" — broader funnel-top content
+12. **FAQ expansion** — Add FAQ schema to every landing page (city pages, model pages) not just the main FAQ page.
+
+## Priority 4 — GEO (Generative Engine Optimization)
+
+This is about being cited by AI search engines (ChatGPT, Perplexity, Google AI Overviews):
+
+13. **Entity-first structured data** — Your Organization and LocalBusiness schemas are good. Add `sameAs` links to any real social profiles, Crunchbase, LinkedIn company page.
+14. **Authoritative "About" content** — Add founder bios with credentials, company founding date, and specific operational metrics (e.g., "managing 200+ Teslas across 14 cities").
+15. **Cite-worthy statistics** — Create a `/tesla-rental-statistics` or `/tesla-sharing-report` page with original data (average earnings by city, booking rates, etc.). AI engines love citing original research.
+16. **Clear, concise answers** — Structure FAQ answers as direct 1-2 sentence responses followed by detail. AI engines extract the first sentence.
+17. **Topical authority** — Increase blog frequency and cover every angle of Tesla rentals so AI engines recognize Teslys as the authority on this topic.
+
+## Priority 5 — Tracking & Measurement in Semrush
+
+18. **Set up Position Tracking** in Semrush for your top 50 keywords
+19. **Connect Google Search Console** to Semrush for real impression/click data
+20. **Run Site Audit weekly** and track score improvements
+21. **Set up Backlink monitoring** — Start building backlinks from EV blogs, local business directories, and automotive review sites
+
+---
+
+## Recommended Implementation Order
+
+| Phase | Tasks | Impact |
+|-------|-------|--------|
+| Week 1 | Fix canonical, remove duplicate meta, update robots.txt | High (technical health) |
+| Week 2 | Add FAQ schema to all city/model pages, internal linking mesh | High (rich snippets + crawl equity) |
+| Week 3 | Create statistics page, enhance About page for GEO | Medium (AI visibility) |
+| Week 4 | New content pages (insurance, Turo guide), blog internal links | Medium (keyword coverage) |
+| Ongoing | Weekly blog posts, Semrush position tracking, backlink outreach | Compounding |
 
 ## Technical Details
 
-**File to create:**
-- `src/pages/TeslaRentalNearMe.tsx` — follows the same pattern as `TeslaMonthlyRental.tsx` with nav, SEO component, JsonLd for FAQ schema, content sections, newsletter signup, and footer
+**Files to edit:**
+- `index.html` — fix canonical, remove duplicate meta tags
+- `public/robots.txt` — add Disallow rules for app routes
+- `src/components/StructuredData.tsx` — minor schema improvements
+- `src/components/marketing/CityLandingPage.tsx` — add FAQ schema + cross-links
+- `src/components/marketing/ModelCityLandingPage.tsx` — add FAQ schema + cross-links
+- `src/components/marketing/ModelDetailPage.tsx` — add FAQ schema + cross-links
+- Multiple landing pages — add "Related Pages" internal linking sections
 
-**File to edit:**
-- `src/App.tsx` — add route `/tesla-rental-near-me` before the `/:slug` catch-all
-- `public/sitemap.xml` — add new URL entry
-
-**Keywords naturally woven in:** "tesla rental near me" (H1 + 2-3 times in body), "rent a tesla", "tesla vehicles", "tesla superchargers", "car rental", "charging stations" — all used naturally without stuffing.
+**Files to create:**
+- `src/pages/TeslaRentalStatistics.tsx` — original data page for GEO
+- `src/pages/TeslaRentalInsurance.tsx` — new keyword target
+- Build-time sitemap generation script
 
