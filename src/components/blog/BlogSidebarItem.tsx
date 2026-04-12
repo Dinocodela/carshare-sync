@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import type { BlogPost } from "@/hooks/useBlogPosts";
+import blogDefaultCover from "@/assets/blog-default-cover.jpg";
 
 interface BlogSidebarItemProps {
   post: BlogPost;
@@ -17,7 +18,7 @@ export function BlogSidebarItem({ post, index }: BlogSidebarItemProps) {
       )}
       <div className="w-16 h-16 rounded overflow-hidden shrink-0">
         <img
-          src={post.cover_image || "/placeholder.svg"}
+          src={post.cover_image || blogDefaultCover}
           alt={post.title}
           className="w-full h-full object-cover"
           loading="lazy"
