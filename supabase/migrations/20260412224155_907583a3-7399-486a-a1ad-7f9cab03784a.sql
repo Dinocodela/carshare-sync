@@ -1,0 +1,1 @@
+ALTER TABLE public.host_earnings ADD COLUMN trip_idd text;
