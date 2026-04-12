@@ -70,6 +70,11 @@ export function AppSidebar() {
           icon: Plus,
         },
         {
+          title: "Blog",
+          url: "/blog",
+          icon: BookOpen,
+        },
+        {
           title: "Settings",
           url: "/settings",
           icon: Settings,
@@ -97,6 +102,11 @@ export function AppSidebar() {
           title: "Claims",
           url: "/host-car-management#claims",
           icon: Shield,
+        },
+        {
+          title: "Blog",
+          url: "/blog",
+          icon: BookOpen,
         },
         {
           title: "Settings",
