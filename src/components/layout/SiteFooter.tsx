@@ -113,7 +113,7 @@ export function SiteFooter() {
           </p>
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5 text-xs text-navy-foreground/40">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
               All systems operational
             </span>
           </div>
