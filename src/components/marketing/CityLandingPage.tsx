@@ -87,6 +87,28 @@ export function CityLandingPage({ city }: { city: CityData }) {
     sameAs: ["https://teslys.app"],
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `How much can I earn renting my Tesla in ${city.city}?`,
+        acceptedAnswer: { "@type": "Answer", text: `Tesla owners in ${city.city} earn an average of ${city.marketStats.avgMonthlyEarnings}/month through Teslys. Earnings vary by model and booking frequency, with average daily rates of ${city.marketStats.avgDailyRate}.` },
+      },
+      {
+        "@type": "Question",
+        name: `Is Tesla car sharing available in ${city.city}?`,
+        acceptedAnswer: { "@type": "Answer", text: `Yes. Teslys operates a full-service Tesla car sharing platform in ${city.city}, ${city.state}. We connect Tesla owners with vetted professional hosts who handle all rental management.` },
+      },
+      {
+        "@type": "Question",
+        name: `What does Teslys handle for Tesla owners in ${city.city}?`,
+        acceptedAnswer: { "@type": "Answer", text: `Teslys provides complete rental management including listing optimization, guest screening, vehicle cleaning, key exchange, damage claims, and maintenance coordination. Tesla owners earn passively without lifting a finger.` },
+      },
+    ],
+  };
+
   return (
     <>
       <SEO
