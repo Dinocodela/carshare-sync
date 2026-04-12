@@ -37,6 +37,16 @@ const TOPIC_AREAS = [
   "The ROI breakdown: buying a Tesla specifically for Turo hosting",
   "Why fleet management software is a game-changer for Turo hosts",
   "How to set boundaries and rules for your Turo Tesla renters",
+  "How to charge a rental Tesla: a complete Supercharger guide for hosts and guests",
+  "Does your car insurance cover Tesla rentals? What every host needs to know",
+  "Using your Tesla for Uber and rideshare: rental income vs ride income comparison",
+  "Tesla Cybertruck rental market analysis: demand, pricing, and ROI projections",
+  "Monthly vs daily Tesla rentals: which strategy earns more for hosts?",
+  "Tesla Model X rental income guide: is the luxury SUV worth it for Turo?",
+  "Tesla Model S Plaid on Turo: premium pricing strategies for performance sedans",
+  "Las Vegas Tesla rental market: why Sin City is a goldmine for EV hosts",
+  "Long-term Tesla rental strategies: how to attract 30-day renters",
+  "Tesla rental cost breakdown: what renters pay and what hosts earn in 2026",
 ];
 
 const COVER_IMAGES = [
