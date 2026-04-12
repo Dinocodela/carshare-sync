@@ -142,8 +142,54 @@ export default function TeslaRentalInsurance() {
         </div>
       </section>
 
-      {/* For Owners */}
+      {/* Bonzah Partnership */}
       <section className="py-16 bg-background">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="bg-card border-2 border-primary/20 rounded-2xl p-8 md:p-10 max-w-4xl mx-auto">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="h-6 w-6 text-primary" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Official Insurance Partner</span>
+            </div>
+            <h2 className="text-3xl font-bold mb-3">Powered by Bonzah Insurance</h2>
+            <p className="text-muted-foreground mb-6 max-w-2xl">
+              Teslys partners with Bonzah to provide commercial rental insurance specifically designed for Tesla car-sharing. This coverage protects your vehicle during every active booking and allows hosts to offer professional insurance to private rental clients outside standard platform bookings.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-6 mb-8">
+              {[
+                { title: "Commercial Coverage", desc: "Your Tesla is covered under a commercial rental policy during every active booking — from pickup to return." },
+                { title: "Damage Claims", desc: "If a renter causes damage, Teslys and Bonzah handle the entire claims process. Your personal insurance is not affected." },
+                { title: "Private Rental Coverage", desc: "Hosts can extend professional insurance to private clients outside of standard platform bookings through the Bonzah partnership." },
+              ].map((item) => (
+                <div key={item.title}>
+                  <h3 className="text-sm font-semibold mb-1">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+            <div className="bg-muted/50 rounded-xl p-6 border border-border">
+              <h3 className="text-lg font-semibold mb-2">Get Set Up with Bonzah</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Contact our dedicated Bonzah agent to set up commercial rental insurance for your Tesla fleet.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Agent:</span>{" "}
+                  <span className="font-medium text-foreground">Brandon Rockow</span>
+                </div>
+                <a href="tel:+15157266924" className="inline-flex items-center gap-1.5 text-primary hover:underline">
+                  <Phone className="w-3.5 h-3.5" /> (515) 726-6924
+                </a>
+                <a href="tel:+15154445669" className="inline-flex items-center gap-1.5 text-primary hover:underline">
+                  <Phone className="w-3.5 h-3.5" /> (515) 444-5669
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* For Owners */}
+      <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-3">Insurance for Tesla Owners</h2>
           <p className="text-muted-foreground mb-8 max-w-3xl">
