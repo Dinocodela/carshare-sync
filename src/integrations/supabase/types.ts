@@ -808,6 +808,7 @@ export type Database = {
           payment_source: string | null
           payment_status: string
           trip_id: string | null
+          trip_idd: string | null
           updated_at: string
         }
         Insert: {
@@ -833,6 +834,7 @@ export type Database = {
           payment_source?: string | null
           payment_status?: string
           trip_id?: string | null
+          trip_idd?: string | null
           updated_at?: string
         }
         Update: {
@@ -858,6 +860,7 @@ export type Database = {
           payment_source?: string | null
           payment_status?: string
           trip_id?: string | null
+          trip_idd?: string | null
           updated_at?: string
         }
         Relationships: [
