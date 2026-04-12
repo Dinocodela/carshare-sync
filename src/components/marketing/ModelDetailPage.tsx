@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
+import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -222,6 +223,8 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
       </section>
 
       <section className="py-16 bg-background"><div className="max-w-2xl mx-auto px-4"><NewsletterSignup /></div></section>
+
+      <RelatedPages heading="Explore More" />
 
       <footer className="border-t py-8">
         <div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
