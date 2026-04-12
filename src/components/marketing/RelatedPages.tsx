@@ -8,7 +8,7 @@ interface RelatedLink {
 
 interface RelatedPagesProps {
   heading?: string;
-  links: RelatedLink[];
+  links?: RelatedLink[];
 }
 
 const defaultLinks: RelatedLink[] = [
