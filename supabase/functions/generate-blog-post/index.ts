@@ -79,12 +79,19 @@ Deno.serve(async (req) => {
     // Get existing slugs to avoid duplicates
     const { data: existingPosts } = await supabase
       .from("blog_posts")
-      .select("slug, title")
+      .select("slug, title, cover_image")
       .order("created_at", { ascending: false })
       .limit(50);
 
     const existingTitles = (existingPosts || []).map((p) => p.title);
     const existingSlugs = (existingPosts || []).map((p) => p.slug);
+    const usedImages = (existingPosts || []).map((p) => p.cover_image).filter(Boolean);
+
+    // Pick an image not recently used, fallback to random
+    const availableImages = COVER_IMAGES.filter((img) => !usedImages.includes(img));
+    const coverImage = availableImages.length > 0
+      ? availableImages[Math.floor(Math.random() * availableImages.length)]
+      : COVER_IMAGES[Math.floor(Math.random() * COVER_IMAGES.length)];
 
     // Pick a random topic area
     const topic = TOPIC_AREAS[Math.floor(Math.random() * TOPIC_AREAS.length)];
