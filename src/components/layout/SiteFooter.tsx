@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/ui/logo";
-import { MapPin, Phone, ArrowUpRight, Shield, Clock, Headphones } from "lucide-react";
+import { MapPin, Phone, ArrowUpRight, Shield, Clock, Headphones, Instagram } from "lucide-react";
 
 const navSections = [
   {
@@ -91,6 +91,18 @@ export function SiteFooter() {
                 >
                   <Phone className="w-3.5 h-3.5 shrink-0 text-primary/60 group-hover:text-primary transition-colors" />
                   (310) 699-0473
+                </a>
+              </div>
+              {/* Social */}
+              <div className="flex items-center gap-3 mt-2">
+                <a
+                  href="https://www.instagram.com/teslysla"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-center w-8 h-8 rounded-full border border-navy-foreground/10 hover:border-primary/40 transition-colors"
+                  aria-label="Follow Teslys on Instagram"
+                >
+                  <Instagram className="w-4 h-4 text-navy-foreground/40 group-hover:text-primary transition-colors" />
                 </a>
               </div>
             </div>
