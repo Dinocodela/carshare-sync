@@ -18,6 +18,7 @@ import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Testimonials } from "@/components/Testimonials";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
@@ -345,68 +346,7 @@ const Index = () => {
             <Testimonials />
           </div>
 
-          {/* Footer */}
-          <footer className="w-full mt-8 border-t border-border/50">
-            <div className="max-w-4xl mx-auto py-10 px-4">
-              <div className="flex flex-col items-center gap-6">
-                <Link to="/" className="mb-1">
-                  <Logo className="h-7 opacity-80" />
-                </Link>
-                <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                  <Link to="/how-it-works" className="hover:text-foreground transition-colors">
-                    How It Works
-                  </Link>
-                  <Link to="/about" className="hover:text-foreground transition-colors">
-                    About
-                  </Link>
-                  <Link to="/blog" className="hover:text-foreground transition-colors">
-                    Blog
-                  </Link>
-                  <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">
-                    Earnings Calculator
-                  </Link>
-                  <Link to="/privacy" className="hover:text-foreground transition-colors">
-                    Privacy Policy
-                  </Link>
-                  <Link to="/terms" className="hover:text-foreground transition-colors">
-                    Terms of Service
-                  </Link>
-                  <Link to="/sms-consent" className="hover:text-foreground transition-colors">
-                    SMS Consent
-                  </Link>
-                  <button
-                    onClick={() => {
-                      window.location.href = `mailto:${'support'}@${'teslys.com'}?subject=${encodeURIComponent('Teslys Support Request')}`;
-                    }}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Support
-                  </button>
-                </nav>
-                <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
-                  <a
-                    href="https://www.google.com/maps/search/?api=1&query=475+Washington+Blvd+Marina+Del+Rey+CA+90292"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
-                  >
-                    <MapPin className="w-3.5 h-3.5" />
-                    475 Washington Blvd, Marina Del Rey, CA 90292
-                  </a>
-                  <a
-                    href="tel:+13106990473"
-                    className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    (310) 699-0473
-                  </a>
-                </div>
-                <p className="text-xs text-muted-foreground/60">
-                  © {new Date().getFullYear()} Teslys. All rights reserved.
-                </p>
-              </div>
-            </div>
-          </footer>
+          <SiteFooter />
         </div>
       </div>
     </>
