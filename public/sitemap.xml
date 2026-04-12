@@ -12,26 +12,17 @@
   <url><loc>https://teslys.app/turo-management</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/how-much-can-i-earn</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/military</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://teslys.app/bonzah-insurance</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://teslys.app/support</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://teslys.app/privacy</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://teslys.app/terms</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://teslys.app/onboarding</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://teslys.app/forgot-password</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
-
-  <!-- Intent Pages -->
   <url><loc>https://teslys.app/tesla-monthly-rental</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
- <url><loc>https://teslys.app/tesla-rental-cost</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
- <url><loc>https://teslys.app/tesla-rental-near-me</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
- <url><loc>https://teslys.app/tesla-rental-insurance</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
- <url><loc>https://teslys.app/tesla-rental-statistics</loc><lastmod>2026-04-12</lastmod><changefreq>quarterly</changefreq><priority>0.8</priority></url>
-
-  <!-- Model Detail Pages -->
+  <url><loc>https://teslys.app/tesla-rental-cost</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://teslys.app/tesla-rental-near-me</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://teslys.app/tesla-rental-insurance</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://teslys.app/tesla-rental-statistics</loc><lastmod>2026-04-12</lastmod><changefreq>quarterly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-cybertruck-rental</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/tesla-model-x-rental</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/tesla-model-s-rental</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-
-  <!-- City Landing Pages -->
   <url><loc>https://teslys.app/tesla-car-sharing-los-angeles</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/tesla-car-sharing-miami</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/tesla-car-sharing-san-francisco</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -46,8 +37,6 @@
   <url><loc>https://teslys.app/tesla-car-sharing-atlanta</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/tesla-car-sharing-las-vegas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://teslys.app/tesla-car-sharing-oklahoma-city</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-
-  <!-- Programmatic Model + City Pages: Model 3 -->
   <url><loc>https://teslys.app/tesla-model-3-rental-income-los-angeles</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-3-rental-income-miami</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-3-rental-income-san-francisco</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -56,8 +45,6 @@
   <url><loc>https://teslys.app/tesla-model-3-rental-income-dallas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-3-rental-income-las-vegas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-3-rental-income-oklahoma-city</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-
-  <!-- Programmatic Model + City Pages: Model Y -->
   <url><loc>https://teslys.app/tesla-model-y-rental-income-los-angeles</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-y-rental-income-miami</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-y-rental-income-san-francisco</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -66,8 +53,6 @@
   <url><loc>https://teslys.app/tesla-model-y-rental-income-dallas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-y-rental-income-las-vegas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-y-rental-income-oklahoma-city</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-
-  <!-- Programmatic Model + City Pages: Model X -->
   <url><loc>https://teslys.app/tesla-model-x-rental-income-los-angeles</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-x-rental-income-miami</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-x-rental-income-san-francisco</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -76,8 +61,6 @@
   <url><loc>https://teslys.app/tesla-model-x-rental-income-dallas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-x-rental-income-las-vegas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-x-rental-income-oklahoma-city</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-
-  <!-- Programmatic Model + City Pages: Model S -->
   <url><loc>https://teslys.app/tesla-model-s-rental-income-los-angeles</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-s-rental-income-miami</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-s-rental-income-san-francisco</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -86,8 +69,6 @@
   <url><loc>https://teslys.app/tesla-model-s-rental-income-dallas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-s-rental-income-las-vegas</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-model-s-rental-income-oklahoma-city</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-
-  <!-- Programmatic Model + City Pages: Cybertruck -->
   <url><loc>https://teslys.app/tesla-cybertruck-rental-income-los-angeles</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-cybertruck-rental-income-miami</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teslys.app/tesla-cybertruck-rental-income-san-francisco</loc><lastmod>2026-04-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
