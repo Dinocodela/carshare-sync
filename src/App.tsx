@@ -82,6 +82,8 @@ import ModelSRental from "./pages/models/ModelSRental";
 import TeslaMonthlyRental from "./pages/TeslaMonthlyRental";
 import TeslaRentalCost from "./pages/TeslaRentalCost";
 import TeslaRentalNearMe from "./pages/TeslaRentalNearMe";
+import TeslaRentalInsurance from "./pages/TeslaRentalInsurance";
+import TeslaRentalStatistics from "./pages/TeslaRentalStatistics";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -172,6 +174,8 @@ const App = () => (
               <Route path="/tesla-monthly-rental" element={<TeslaMonthlyRental />} />
               <Route path="/tesla-rental-cost" element={<TeslaRentalCost />} />
               <Route path="/tesla-rental-near-me" element={<TeslaRentalNearMe />} />
+              <Route path="/tesla-rental-insurance" element={<TeslaRentalInsurance />} />
+              <Route path="/tesla-rental-statistics" element={<TeslaRentalStatistics />} />
 
               {/* Programmatic Model + City Pages */}
               <Route path="/:slug" element={<ModelCityPage />} />
