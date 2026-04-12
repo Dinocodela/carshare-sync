@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
+import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import type { ModelCityData } from "@/data/modelCityPages";
@@ -268,6 +269,8 @@ export function ModelCityLandingPage({ data }: { data: ModelCityData }) {
             heading={`${data.modelShort} Earning Tips for ${data.city}`}
             subheading={`Get weekly insights on maximizing your ${data.modelShort} rental income in ${data.city}.`}
           />
+
+          <RelatedPages heading="Explore More" />
         </main>
 
         {/* Footer */}

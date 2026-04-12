@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
+import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -259,6 +260,8 @@ export default function TeslaRentalNearMe() {
           <Link to="/register/client"><Button variant="outline" size="lg">Start Earning <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
         </div>
       </section>
+
+      <RelatedPages heading="Explore More" />
 
       {/* Footer */}
       <footer className="border-t py-8">
