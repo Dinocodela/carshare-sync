@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { BlogPost } from "@/hooks/useBlogPosts";
+import blogDefaultCover from "@/assets/blog-default-cover.jpg";
 
 interface BlogHeroPostProps {
   post: BlogPost;
@@ -11,7 +12,7 @@ export function BlogHeroPost({ post }: BlogHeroPostProps) {
   return (
     <Link to={`/blog/${post.slug}`} className="group block relative rounded-xl overflow-hidden aspect-[16/9] md:aspect-[21/9]">
       <img
-        src={post.cover_image || "/placeholder.svg"}
+        src={post.cover_image || blogDefaultCover}
         alt={post.title}
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="eager"
