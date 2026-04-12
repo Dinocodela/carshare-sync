@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { StructuredData } from "@/components/StructuredData";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import {
   TrendingUp,
   MapPin,
 } from "lucide-react";
+import { useEffect } from "react";
 
 export interface ModelDetailData {
   slug: string;
@@ -34,6 +34,17 @@ export interface ModelDetailData {
   comparisonModels: { model: string; dailyRate: string; monthlyEarnings: string; bestFor: string }[];
   faqs: { question: string; answer: string }[];
   topCities: { city: string; slug: string }[];
+}
+
+function JsonLd({ data }: { data: Record<string, any> }) {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(data);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [data]);
+  return null;
 }
 
 export function ModelDetailPage({ data }: { data: ModelDetailData }) {
@@ -65,32 +76,22 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
   return (
     <div className="min-h-screen bg-background">
       <SEO title={data.metaTitle} description={data.metaDescription} />
-      <StructuredData data={jsonLd} />
-      <StructuredData data={faqJsonLd} />
+      <JsonLd data={jsonLd} />
+      <JsonLd data={faqJsonLd} />
 
-      {/* Nav */}
       <nav className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <Logo className="h-7 w-auto" />
-          </Link>
+          <Link to="/" className="flex items-center gap-2"><Logo className="h-7 w-auto" /></Link>
           <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost" size="sm">Log in</Button>
-            </Link>
-            <Link to="/get-started">
-              <Button size="sm">Get Started</Button>
-            </Link>
+            <Link to="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
+            <Link to="/get-started"><Button size="sm">Get Started</Button></Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
       <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-4">
-          <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-            <ArrowLeft className="h-4 w-4" /> Back to Home
-          </Link>
+          <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">{data.headline}</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mb-8">{data.subheadline}</p>
           <div className="flex flex-wrap gap-6 mb-8">
@@ -110,17 +111,12 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link to="/register/client">
-              <Button size="lg">List Your {data.modelShort} <ArrowRight className="ml-2 h-4 w-4" /></Button>
-            </Link>
-            <Link to="/earnings-calculator">
-              <Button variant="outline" size="lg"><Calculator className="mr-2 h-4 w-4" /> Calculate Earnings</Button>
-            </Link>
+            <Link to="/register/client"><Button size="lg">List Your {data.modelShort} <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
+            <Link to="/earnings-calculator"><Button variant="outline" size="lg"><Calculator className="mr-2 h-4 w-4" /> Calculate Earnings</Button></Link>
           </div>
         </div>
       </section>
 
-      {/* Overview */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-6">Why Rent Out Your {data.modelShort}?</h2>
@@ -132,7 +128,6 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
         </div>
       </section>
 
-      {/* Specs */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">{data.modelShort} Key Specs</h2>
@@ -147,20 +142,12 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
         </div>
       </section>
 
-      {/* Model Comparison */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">How the {data.modelShort} Compares</h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-semibold">Model</th>
-                  <th className="text-left py-3 px-4 font-semibold">Avg. Daily Rate</th>
-                  <th className="text-left py-3 px-4 font-semibold">Avg. Monthly Earnings</th>
-                  <th className="text-left py-3 px-4 font-semibold">Best For</th>
-                </tr>
-              </thead>
+              <thead><tr className="border-b"><th className="text-left py-3 px-4 font-semibold">Model</th><th className="text-left py-3 px-4 font-semibold">Avg. Daily Rate</th><th className="text-left py-3 px-4 font-semibold">Avg. Monthly Earnings</th><th className="text-left py-3 px-4 font-semibold">Best For</th></tr></thead>
               <tbody>
                 {data.comparisonModels.map((m) => (
                   <tr key={m.model} className="border-b hover:bg-muted/50">
@@ -176,7 +163,6 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
         </div>
       </section>
 
-      {/* Trust */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Why Hosts Trust Teslys</h2>
@@ -196,7 +182,6 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
         </div>
       </section>
 
-      {/* Top Cities */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Top Cities for {data.modelShort} Rentals</h2>
@@ -211,7 +196,6 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
@@ -226,30 +210,19 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Start Earning with Your {data.modelShort} Today</h2>
           <p className="text-lg opacity-90 mb-8">Join Teslys and let us handle the work while you earn passive income.</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link to="/register/client">
-              <Button size="lg" variant="secondary">List Your Tesla <ArrowRight className="ml-2 h-4 w-4" /></Button>
-            </Link>
-            <Link to="/how-it-works">
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">How It Works</Button>
-            </Link>
+            <Link to="/register/client"><Button size="lg" variant="secondary">List Your Tesla <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
+            <Link to="/how-it-works"><Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">How It Works</Button></Link>
           </div>
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-16 bg-background">
-        <div className="max-w-2xl mx-auto px-4">
-          <NewsletterSignup />
-        </div>
-      </section>
+      <section className="py-16 bg-background"><div className="max-w-2xl mx-auto px-4"><NewsletterSignup /></div></section>
 
-      {/* Footer links */}
       <footer className="border-t py-8">
         <div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
           <Link to="/" className="hover:text-foreground">Home</Link>

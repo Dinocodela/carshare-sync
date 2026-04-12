@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { StructuredData } from "@/components/StructuredData";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,18 @@ import {
   TrendingUp,
   Car,
 } from "lucide-react";
+import { useEffect } from "react";
+
+function JsonLd({ data }: { data: Record<string, any> }) {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(data);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [data]);
+  return null;
+}
 
 export default function TeslaMonthlyRental() {
   const faqJsonLd = {
@@ -30,7 +41,7 @@ export default function TeslaMonthlyRental() {
   return (
     <div className="min-h-screen bg-background">
       <SEO title="Tesla Monthly Rental | Long-Term Rates & Earnings | Teslys" description="Explore monthly Tesla rental rates and long-term rental income opportunities. List your Tesla for monthly rentals with Teslys and earn consistent passive income." />
-      <StructuredData data={faqJsonLd} />
+      <JsonLd data={faqJsonLd} />
 
       <nav className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -54,7 +65,6 @@ export default function TeslaMonthlyRental() {
         </div>
       </section>
 
-      {/* Monthly Pricing */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Monthly Tesla Rental Rates by Model</h2>
@@ -78,7 +88,6 @@ export default function TeslaMonthlyRental() {
         </div>
       </section>
 
-      {/* Benefits */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Why Long-Term Tesla Rentals Win</h2>
@@ -98,7 +107,6 @@ export default function TeslaMonthlyRental() {
         </div>
       </section>
 
-      {/* Monthly vs Daily */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Monthly vs. Daily Tesla Rental: Owner Comparison</h2>
@@ -125,7 +133,6 @@ export default function TeslaMonthlyRental() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
@@ -145,7 +152,6 @@ export default function TeslaMonthlyRental() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Earn Monthly Income from Your Tesla?</h2>

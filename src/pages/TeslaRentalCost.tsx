@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { StructuredData } from "@/components/StructuredData";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
@@ -12,8 +11,19 @@ import {
   Car,
   TrendingUp,
   Shield,
-  CheckCircle,
 } from "lucide-react";
+import { useEffect } from "react";
+
+function JsonLd({ data }: { data: Record<string, any> }) {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(data);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [data]);
+  return null;
+}
 
 export default function TeslaRentalCost() {
   const faqJsonLd = {
@@ -29,7 +39,7 @@ export default function TeslaRentalCost() {
   return (
     <div className="min-h-screen bg-background">
       <SEO title="Tesla Rental Cost Breakdown | Daily, Weekly & Monthly Rates | Teslys" description="How much does it cost to rent a Tesla? Complete pricing breakdown by model with daily, weekly, and monthly rates. Calculate your potential rental income." />
-      <StructuredData data={faqJsonLd} />
+      <JsonLd data={faqJsonLd} />
 
       <nav className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -53,7 +63,6 @@ export default function TeslaRentalCost() {
         </div>
       </section>
 
-      {/* Pricing Table */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Tesla Rental Rates by Model (2026)</h2>
@@ -91,7 +100,6 @@ export default function TeslaRentalCost() {
         </div>
       </section>
 
-      {/* What affects cost */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">What Affects Tesla Rental Pricing?</h2>
@@ -112,7 +120,6 @@ export default function TeslaRentalCost() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
