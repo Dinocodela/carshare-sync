@@ -214,6 +214,7 @@ Return a valid JSON object with these exact keys:
         category: post.category,
         tags: post.tags,
         content: post.content,
+        cover_image: coverImage,
         author_name: post.author_name || "Teslys Team",
         is_published: true,
         published_at: new Date().toISOString(),
