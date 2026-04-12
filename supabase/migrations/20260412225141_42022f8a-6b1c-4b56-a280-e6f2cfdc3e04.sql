@@ -1,0 +1,1 @@
+UPDATE public.host_earnings SET trip_idd = '49929644' WHERE id IN ('2f22aac5-71f5-4d7a-ad9e-44c1df620801', 'a95fda47-ac68-45d8-8da8-8565964c93eb', 'ec30bd9c-7670-47c8-9c23-246d87aa5786', 'cbeb0b9b-0f10-4764-abc6-2974300cfafc', '67d2d6f7-2689-4932-bc70-52d4847db245');
