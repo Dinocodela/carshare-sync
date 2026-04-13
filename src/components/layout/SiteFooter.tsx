@@ -42,7 +42,7 @@ export function SiteFooter() {
   return (
     <footer className="relative w-full overflow-hidden">
       {/* Trust badges strip */}
-      <div className="bg-gradient-to-r from-charcoal via-[hsl(215,50%,18%)] to-charcoal">
+      <div className="bg-[hsl(220,85%,13%)]">
         <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
           {trustBadges.map((badge) => (
             <div
