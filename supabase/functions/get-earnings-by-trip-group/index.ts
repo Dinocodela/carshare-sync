@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
     const { data, error } = await supabase
       .from("host_earnings")
-      .select("*")
+      .select("amount, commission, net_amount, payment_status, payment_date, guest_name, gross_earnings, payment_source, trip_id, trip_idd")
       .or(`trip_id.eq.${tripValue},trip_idd.eq.${tripValue}`);
 
     if (error) {
