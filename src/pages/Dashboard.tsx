@@ -371,20 +371,28 @@ export default function Dashboard() {
       } else {
         const carIds = (clientData?.cars || []).map((c: any) => c.id);
         if (carIds.length) {
-          const { data: rows } = await supabase
-            .from("host_earnings")
-            .select(
-              "amount, net_amount, client_profit_percentage, payment_status, date_paid, earning_period_end, car_id"
-            )
-            .eq("payment_status", "paid")
-            .in("car_id", carIds)
-            .or(
-              `and(date_paid.gte.${monthStart},date_paid.lt.${nextMonthStart}),and(date_paid.is.null,earning_period_end.gte.${monthStartTs},earning_period_end.lt.${nextMonthStartTs})`
-            );
-          const total = (rows || []).reduce(
-            (s, r) => s + (r.net_amount ?? ((r.amount || 0) * (r.client_profit_percentage || 70)) / 100),
-            0
-          );
+          const [{ data: rows }, { data: expRows }] = await Promise.all([
+            supabase
+              .from("host_earnings")
+              .select(
+                "amount, trip_id, client_profit_percentage, payment_status, date_paid, earning_period_end, car_id"
+              )
+              .eq("payment_status", "paid")
+              .in("car_id", carIds)
+              .or(
+                `and(date_paid.gte.${monthStart},date_paid.lt.${nextMonthStart}),and(date_paid.is.null,earning_period_end.gte.${monthStartTs},earning_period_end.lt.${nextMonthStartTs})`
+              ),
+            supabase
+              .from("host_expenses")
+              .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
+              .in("car_id", carIds),
+          ]);
+          const expenses = (expRows || []) as any[];
+          const total = (rows || []).reduce((s, r) => {
+            const tripExp = getTripExpensesTotal(r.trip_id, expenses);
+            const net = (r.amount || 0) - tripExp;
+            return s + (net * (r.client_profit_percentage || 70)) / 100;
+          }, 0);
           if (!cancelled) setEarn7Client(total);
         } else {
           if (!cancelled) setEarn7Client(0);
