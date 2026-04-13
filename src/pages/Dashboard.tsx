@@ -175,17 +175,31 @@ function useRecentActivity(
           }
         }
 
+        // Fetch expenses for expense-adjusted profit calculation
+        const allCarIds = allCars.map((c: any) => c.id);
+        let activityExpenses: any[] = [];
+        if (allCarIds.length && role === "client") {
+          const { data: expData } = await supabase
+            .from("host_expenses")
+            .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
+            .in("car_id", allCarIds);
+          activityExpenses = expData || [];
+        }
+
         const mapped: { id: string; ts: string; message: string; icon: string }[] = [];
 
         // Paid earnings first — these are the most important
         earns.forEach((e) => {
           const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
           if (!ts) return;
-          const payout =
-            role === "host"
-              ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
-              : e.net_amount ??
-                ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
+          let payout: number;
+          if (role === "host") {
+            payout = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
+          } else {
+            const tripExp = getTripExpensesTotal(e.trip_id, activityExpenses);
+            const net = (e.amount || 0) - tripExp;
+            payout = (net * (e.client_profit_percentage || 70)) / 100;
+          }
           const carInfo = allCars.find((c: any) => c.id === e.car_id);
           const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
           const guest = e.guest_name ? ` from ${e.guest_name}` : "";
