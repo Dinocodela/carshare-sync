@@ -32,16 +32,11 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const [earningsRes, expensesRes] = await Promise.all([
-      supabase
-        .from("host_earnings")
-        .select("amount, commission, payment_status, payment_date, guest_name, gross_earnings, payment_source, trip_id, trip_idd, earning_period_end")
-        .or(`trip_id.eq.${tripValue},trip_idd.eq.${tripValue}`),
-      supabase
-        .from("host_expenses")
-        .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
-        .eq("trip_id", tripValue),
-    ]);
+    // Step 1: Fetch earnings
+    const earningsRes = await supabase
+      .from("host_earnings")
+      .select("amount, commission, payment_status, payment_date, guest_name, gross_earnings, payment_source, trip_id, trip_idd, earning_period_end")
+      .or(`trip_id.eq.${tripValue},trip_idd.eq.${tripValue}`);
 
     if (earningsRes.error) {
       console.error("Earnings query error:", earningsRes.error);
@@ -51,8 +46,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    const expenses = expensesRes.data || [];
+    const earnings = earningsRes.data || [];
 
+    // Step 2: Collect all unique trip_ids from earnings to fetch their expenses
+    const tripIds = [...new Set(earnings.map((e) => e.trip_id).filter(Boolean))];
+
+    let expenses: any[] = [];
+    if (tripIds.length > 0) {
+      const expensesRes = await supabase
+        .from("host_expenses")
+        .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
+        .in("trip_id", tripIds);
+
+      expenses = expensesRes.data || [];
+    }
+
+    // Step 3: Build response with total_expenses and dynamic net_amount
     const getTripExpenses = (tripId: string | null): number => {
       if (!tripId) return 0;
       return expenses
@@ -69,12 +78,13 @@ Deno.serve(async (req) => {
         );
     };
 
-    const enriched = (earningsRes.data || []).map((earning) => {
-      const tripExpenses = getTripExpenses(earning.trip_id);
+    const enriched = earnings.map((earning) => {
+      const totalExpenses = getTripExpenses(earning.trip_id);
       return {
         amount: earning.amount,
         commission: earning.commission,
-        net_amount: (earning.amount || 0) - tripExpenses,
+        net_amount: (earning.amount || 0) - totalExpenses,
+        total_expenses: totalExpenses,
         payment_status: earning.payment_status,
         payment_date: earning.payment_date,
         guest_name: earning.guest_name,
