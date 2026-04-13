@@ -117,7 +117,7 @@ function useRecentActivity(
         const monthStartTs = `${monthStart}T00:00:00.000Z`;
         const nextMonthStartTs = `${nextMonthStart}T00:00:00.000Z`;
         const payoutFields =
-          "id, amount, net_amount, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
+          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
 
         let earns: any[] = [];
         if (role === "host") {
