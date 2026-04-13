@@ -8,6 +8,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { supabase } from "@/integrations/supabase/client";
+import { getTripExpensesTotal } from "@/lib/expenseMatching";
 import {
   Plus,
   Car,
