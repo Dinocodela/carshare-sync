@@ -8,6 +8,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { supabase } from "@/integrations/supabase/client";
+import { getTripExpensesTotal } from "@/lib/expenseMatching";
 import {
   Plus,
   Car,
@@ -116,7 +117,7 @@ function useRecentActivity(
         const monthStartTs = `${monthStart}T00:00:00.000Z`;
         const nextMonthStartTs = `${nextMonthStart}T00:00:00.000Z`;
         const payoutFields =
-          "id, amount, net_amount, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
+          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
 
         let earns: any[] = [];
         if (role === "host") {
@@ -174,17 +175,31 @@ function useRecentActivity(
           }
         }
 
+        // Fetch expenses for expense-adjusted profit calculation
+        const allCarIds = allCars.map((c: any) => c.id);
+        let activityExpenses: any[] = [];
+        if (allCarIds.length && role === "client") {
+          const { data: expData } = await supabase
+            .from("host_expenses")
+            .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
+            .in("car_id", allCarIds);
+          activityExpenses = expData || [];
+        }
+
         const mapped: { id: string; ts: string; message: string; icon: string }[] = [];
 
         // Paid earnings first — these are the most important
         earns.forEach((e) => {
           const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
           if (!ts) return;
-          const payout =
-            role === "host"
-              ? ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100
-              : e.net_amount ??
-                ((e.amount || 0) * (e.client_profit_percentage || 70)) / 100;
+          let payout: number;
+          if (role === "host") {
+            payout = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
+          } else {
+            const tripExp = getTripExpensesTotal(e.trip_id, activityExpenses);
+            const net = (e.amount || 0) - tripExp;
+            payout = (net * (e.client_profit_percentage || 70)) / 100;
+          }
           const carInfo = allCars.find((c: any) => c.id === e.car_id);
           const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
           const guest = e.guest_name ? ` from ${e.guest_name}` : "";
@@ -370,20 +385,28 @@ export default function Dashboard() {
       } else {
         const carIds = (clientData?.cars || []).map((c: any) => c.id);
         if (carIds.length) {
-          const { data: rows } = await supabase
-            .from("host_earnings")
-            .select(
-              "amount, net_amount, client_profit_percentage, payment_status, date_paid, earning_period_end, car_id"
-            )
-            .eq("payment_status", "paid")
-            .in("car_id", carIds)
-            .or(
-              `and(date_paid.gte.${monthStart},date_paid.lt.${nextMonthStart}),and(date_paid.is.null,earning_period_end.gte.${monthStartTs},earning_period_end.lt.${nextMonthStartTs})`
-            );
-          const total = (rows || []).reduce(
-            (s, r) => s + (r.net_amount ?? ((r.amount || 0) * (r.client_profit_percentage || 70)) / 100),
-            0
-          );
+          const [{ data: rows }, { data: expRows }] = await Promise.all([
+            supabase
+              .from("host_earnings")
+              .select(
+                "amount, trip_id, client_profit_percentage, payment_status, date_paid, earning_period_end, car_id"
+              )
+              .eq("payment_status", "paid")
+              .in("car_id", carIds)
+              .or(
+                `and(date_paid.gte.${monthStart},date_paid.lt.${nextMonthStart}),and(date_paid.is.null,earning_period_end.gte.${monthStartTs},earning_period_end.lt.${nextMonthStartTs})`
+              ),
+            supabase
+              .from("host_expenses")
+              .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
+              .in("car_id", carIds),
+          ]);
+          const expenses = (expRows || []) as any[];
+          const total = (rows || []).reduce((s, r) => {
+            const tripExp = getTripExpensesTotal(r.trip_id, expenses);
+            const net = (r.amount || 0) - tripExp;
+            return s + (net * (r.client_profit_percentage || 70)) / 100;
+          }, 0);
           if (!cancelled) setEarn7Client(total);
         } else {
           if (!cancelled) setEarn7Client(0);
