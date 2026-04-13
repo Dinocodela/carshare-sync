@@ -32,7 +32,14 @@ import {
   Gauge,
   Palette,
   User,
+  Info,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
@@ -5029,24 +5036,37 @@ export default function HostCarManagement() {
                 <div className="space-y-4">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[
-                      {
-                        label: "Total Earnings",
-                        value: `$${earnings.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
-                        icon: TrendingUp,
-                      },
-                      {
-                        label: "Pending Payments",
-                        value: `$${earnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
-                        icon: Clock,
-                      },
-                      {
-                        label: "This Month",
-                        value: `$${earnings.filter((e) => new Date(e.earning_period_start).getMonth() === new Date().getMonth()).reduce((sum, e) => sum + e.amount, 0).toFixed(2)}`,
-                        icon: CalendarLucide,
-                      },
-                    ].map((item, i) => (
-                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4">
+                    {(() => {
+                      const getNetForEarning = (e: any) => {
+                        const relExp = e.trip_id ? expenses.filter((ex) => ex.trip_id === e.trip_id) : [];
+                        const totalExp = relExp.reduce((s, ex) => s + (ex.total_expenses || ex.amount), 0);
+                        return e.amount - totalExp;
+                      };
+                      const now = new Date();
+                      const currentMonth = now.getMonth();
+                      const currentYear = now.getFullYear();
+                      return [
+                        {
+                          label: "Total Earnings",
+                          value: `$${earnings.reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
+                          icon: TrendingUp,
+                          tooltip: "Sum of gross earnings minus trip expenses for all displayed earnings",
+                        },
+                        {
+                          label: "Pending Payments",
+                          value: `$${earnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
+                          icon: Clock,
+                          tooltip: "Sum of net earnings (gross − expenses) for trips with pending payment status",
+                        },
+                        {
+                          label: "This Month",
+                          value: `$${earnings.filter((e) => { const d = new Date(e.earning_period_start); return d.getMonth() === currentMonth && d.getFullYear() === currentYear; }).reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
+                          icon: CalendarLucide,
+                          tooltip: "Sum of net earnings (gross − expenses) for trips starting in the current calendar month",
+                        },
+                      ];
+                    })().map((item, i) => (
+                      <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 relative">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1">
@@ -5056,6 +5076,16 @@ export default function HostCarManagement() {
                             <p className="text-xl font-bold text-foreground tabular-nums">{item.value}</p>
                           </div>
                         </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-help absolute bottom-2.5 right-2.5 transition-colors" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[220px] text-xs">
+                              {item.tooltip}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ))}
                   </div>
