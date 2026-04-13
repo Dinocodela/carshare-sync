@@ -5089,7 +5089,7 @@ export default function HostCarManagement() {
                         </button>
                         <div
                           role="note"
-                          className="pointer-events-none absolute bottom-10 right-2 z-20 w-60 rounded-xl border border-border/60 bg-popover p-3 text-left text-xs leading-relaxed text-popover-foreground shadow-md opacity-0 transition-opacity duration-150 peer-hover:opacity-100 peer-focus-visible:opacity-100 group-hover:opacity-100/0"
+                          className="pointer-events-none absolute bottom-10 right-2 z-20 w-60 rounded-xl border border-border/60 bg-popover p-3 text-left text-xs leading-relaxed text-popover-foreground shadow-md opacity-0 transition-opacity duration-150 peer-hover:opacity-100 peer-focus-visible:opacity-100"
                         >
                           {item.tooltip}
                         </div>
