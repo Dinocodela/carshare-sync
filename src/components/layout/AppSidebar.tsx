@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -70,6 +70,11 @@ export function AppSidebar() {
           icon: Plus,
         },
         {
+          title: "Blog",
+          url: "/blog",
+          icon: BookOpen,
+        },
+        {
           title: "Settings",
           url: "/settings",
           icon: Settings,
@@ -97,6 +102,11 @@ export function AppSidebar() {
           title: "Claims",
           url: "/host-car-management#claims",
           icon: Shield,
+        },
+        {
+          title: "Blog",
+          url: "/blog",
+          icon: BookOpen,
         },
         {
           title: "Settings",

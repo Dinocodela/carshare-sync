@@ -7,6 +7,7 @@ import {
   Settings,
   Plus,
   ShieldAlert,
+  BookOpen,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,7 +63,7 @@ export function BottomNavBar() {
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Analytics", url: "/client-analytics", icon: BarChart3 },
       { title: "Add", url: "/add-car", icon: Plus, kind: "add" },
-      { title: "My Cars", url: "/my-cars", icon: Car },
+      { title: "Blog", url: "/blog", icon: BookOpen },
       { title: "Settings", url: "/settings", icon: Settings },
     ],
     []
@@ -73,11 +74,7 @@ export function BottomNavBar() {
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Analytics", url: "/host-analytics", icon: BarChart3 },
       { title: "Hosted", url: "/host-car-management#active", icon: Car },
-      {
-        title: "Claims",
-        url: "/host-car-management#claims",
-        icon: ShieldAlert,
-      },
+      { title: "Blog", url: "/blog", icon: BookOpen },
       { title: "Settings", url: "/settings", icon: Settings },
     ],
     []

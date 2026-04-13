@@ -73,7 +73,17 @@ import Seattle from "./pages/cities/Seattle";
 import Denver from "./pages/cities/Denver";
 import Phoenix from "./pages/cities/Phoenix";
 import Atlanta from "./pages/cities/Atlanta";
+import LasVegas from "./pages/cities/LasVegas";
+import OklahomaCity from "./pages/cities/OklahomaCity";
 import ModelCityPage from "./pages/ModelCityPage";
+import CybertruckRental from "./pages/models/CybertruckRental";
+import ModelXRental from "./pages/models/ModelXRental";
+import ModelSRental from "./pages/models/ModelSRental";
+import TeslaMonthlyRental from "./pages/TeslaMonthlyRental";
+import TeslaRentalCost from "./pages/TeslaRentalCost";
+import TeslaRentalNearMe from "./pages/TeslaRentalNearMe";
+import TeslaRentalInsurance from "./pages/TeslaRentalInsurance";
+import TeslaRentalStatistics from "./pages/TeslaRentalStatistics";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -152,6 +162,20 @@ const App = () => (
               <Route path="/tesla-car-sharing-denver" element={<Denver />} />
               <Route path="/tesla-car-sharing-phoenix" element={<Phoenix />} />
               <Route path="/tesla-car-sharing-atlanta" element={<Atlanta />} />
+              <Route path="/tesla-car-sharing-las-vegas" element={<LasVegas />} />
+              <Route path="/tesla-car-sharing-oklahoma-city" element={<OklahomaCity />} />
+
+              {/* Model Detail Pages */}
+              <Route path="/tesla-cybertruck-rental" element={<CybertruckRental />} />
+              <Route path="/tesla-model-x-rental" element={<ModelXRental />} />
+              <Route path="/tesla-model-s-rental" element={<ModelSRental />} />
+
+              {/* Intent Pages */}
+              <Route path="/tesla-monthly-rental" element={<TeslaMonthlyRental />} />
+              <Route path="/tesla-rental-cost" element={<TeslaRentalCost />} />
+              <Route path="/tesla-rental-near-me" element={<TeslaRentalNearMe />} />
+              <Route path="/tesla-rental-insurance" element={<TeslaRentalInsurance />} />
+              <Route path="/tesla-rental-statistics" element={<TeslaRentalStatistics />} />
 
               {/* Programmatic Model + City Pages */}
               <Route path="/:slug" element={<ModelCityPage />} />

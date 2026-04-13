@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { BlogPost } from "@/hooks/useBlogPosts";
+import blogDefaultCover from "@/assets/blog-default-cover.jpg";
 
 interface BlogPostCardProps {
   post: BlogPost;
@@ -13,7 +14,7 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
       <div className="rounded-lg overflow-hidden border border-border bg-card transition-shadow hover:shadow-lg">
         <div className="aspect-[16/9] overflow-hidden">
           <img
-            src={post.cover_image || "/placeholder.svg"}
+            src={post.cover_image || blogDefaultCover}
             alt={post.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"

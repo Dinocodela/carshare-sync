@@ -7,6 +7,7 @@ const corsHeaders = {
 
 interface EarningPayload {
   trip_id: string;
+  trip_idd?: string;
   car_id: string;
   guest_name?: string;
   guest_phone?: string;
@@ -166,6 +167,7 @@ Deno.serve(async (req) => {
       if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
       if (payload.guest_phone !== undefined) data.guest_phone = payload.guest_phone || null;
       if (payload.guest_email !== undefined) data.guest_email = payload.guest_email || null;
+      if (payload.trip_idd !== undefined) data.trip_idd = payload.trip_idd || null;
       if (payload.earning_type !== undefined) data.earning_type = payload.earning_type;
       if (payload.payment_source !== undefined) data.payment_source = payload.payment_source;
       if (payload.payment_status !== undefined) data.payment_status = payload.payment_status;

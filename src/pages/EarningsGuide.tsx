@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
+import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -237,6 +238,8 @@ export default function EarningsGuide() {
         </main>
 
         <NewsletterSignup source="earnings-guide" />
+
+        <RelatedPages heading="More Tesla Earning Resources" />
 
         {/* Footer */}
         <footer className="border-t border-border py-8">
