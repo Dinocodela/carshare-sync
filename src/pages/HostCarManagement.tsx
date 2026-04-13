@@ -5076,18 +5076,19 @@ export default function HostCarManagement() {
                             <p className="text-xl font-bold text-foreground tabular-nums">{item.value}</p>
                           </div>
                         </div>
-                        <TooltipProvider delayDuration={0}>
+                        <TooltipProvider delayDuration={0} skipDelayDuration={0}>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button
                                 type="button"
                                 aria-label={`How ${item.label} is calculated`}
-                                className="absolute bottom-2 right-2 inline-flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                onClick={(e) => e.preventDefault()}
+                                className="absolute bottom-2 right-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-muted/40 text-muted-foreground/70 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               >
-                                <Info className="h-3.5 w-3.5" />
+                                <Info className="h-3.5 w-3.5 pointer-events-none" />
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" align="end" sideOffset={8} className="max-w-[220px] text-xs">
+                            <TooltipContent side="top" align="end" sideOffset={6} className="max-w-[240px] text-xs leading-relaxed p-3">
                               {item.tooltip}
                             </TooltipContent>
                           </Tooltip>
