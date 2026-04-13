@@ -5079,7 +5079,9 @@ export default function HostCarManagement() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground cursor-help absolute bottom-2.5 right-2.5 transition-colors" />
+                              <span className="absolute bottom-2.5 right-2.5 cursor-help">
+                                <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
+                              </span>
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-[220px] text-xs">
                               {item.tooltip}
