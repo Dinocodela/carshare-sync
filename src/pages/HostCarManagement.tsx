@@ -5082,6 +5082,7 @@ export default function HostCarManagement() {
                               <button
                                 type="button"
                                 aria-label={`How ${item.label} is calculated`}
+                                title={item.tooltip}
                                 onClick={(e) => e.preventDefault()}
                                 className="absolute bottom-2 right-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-muted/40 text-muted-foreground/70 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               >
