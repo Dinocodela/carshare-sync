@@ -334,8 +334,15 @@ const Index = () => {
               ))}
             </div>
 
-            {/* Native-only: compact reviews link */}
-            {isNative && <ReadReviewsLink />}
+            {/* Reviews link (web + native) */}
+            <ReadReviewsLink />
+
+            {/* Web-only: App Store badges */}
+            {!isNative && (
+              <div className="mt-4 mb-4">
+                <AppStoreBadges heading="Get the mobile app" size="small" />
+              </div>
+            )}
           </div>
         </div>
       </div>
