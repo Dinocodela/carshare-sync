@@ -13,12 +13,11 @@ import { ScreenOrientation } from "@capacitor/screen-orientation";
 
 import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
 import HostRegisterCard from "@/components/auth/HostRegisterCard";
-import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
-import { Testimonials } from "@/components/Testimonials";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
-import { SiteFooter } from "@/components/layout/SiteFooter";
+import { ReadReviewsLink } from "@/components/ReadReviewsLink";
+import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
@@ -335,18 +334,16 @@ const Index = () => {
               ))}
             </div>
 
-            {/* App Store */}
-            <div className="mt-4 mb-4">
-              <AppStoreBadges heading="Available on mobile" size="small" />
-            </div>
-          </div>
+            {/* Reviews link (web + native) */}
+            <ReadReviewsLink />
 
-          {/* Testimonials */}
-          <div className="w-full py-8 mt-4">
-            <Testimonials />
+            {/* Web-only: App Store badges */}
+            {!isNative && (
+              <div className="mt-4 mb-4">
+                <AppStoreBadges heading="Get the mobile app" size="small" />
+              </div>
+            )}
           </div>
-
-          <SiteFooter />
         </div>
       </div>
     </>
