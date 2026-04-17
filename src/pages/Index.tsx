@@ -13,12 +13,9 @@ import { ScreenOrientation } from "@capacitor/screen-orientation";
 
 import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
 import HostRegisterCard from "@/components/auth/HostRegisterCard";
-import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
-import { Testimonials } from "@/components/Testimonials";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
-import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ReadReviewsLink } from "@/components/ReadReviewsLink";
 
 type Role = "client" | "host";
@@ -338,24 +335,7 @@ const Index = () => {
 
             {/* Native-only: compact reviews link */}
             {isNative && <ReadReviewsLink />}
-
-            {/* Web-only: App Store badges */}
-            {!isNative && (
-              <div className="mt-4 mb-4">
-                <AppStoreBadges heading="Available on mobile" size="small" />
-              </div>
-            )}
           </div>
-
-          {/* Web-only: Testimonials + Footer */}
-          {!isNative && (
-            <>
-              <div className="w-full py-8 mt-4">
-                <Testimonials />
-              </div>
-              <SiteFooter />
-            </>
-          )}
         </div>
       </div>
     </>
