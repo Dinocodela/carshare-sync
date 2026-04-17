@@ -1,81 +1,69 @@
 project_id = "texsltzecmvqprdjxtnh"
 
 [api]
-enabled = true
-port = 54321
-schemas = ["public", "graphql_public"]
-extra_search_path = ["public", "extensions"]
-max_rows = 1000
+  enabled = true
+  extra_search_path = ["public", "extensions"]
+  max_rows = 1000
+  port = 54321
+  schemas = ["public", "graphql_public"]
 
 [auth]
-enabled = true
-port = 54324
-site_url = "https://teslys.app"
-additional_redirect_urls = ["https://texsltzecmvqprdjxtnh.supabase.co", "https://teslys.app"]
-jwt_expiry = 3600
-refresh_token_rotation_enabled = true
-security_update_password_require_reauthentication = true
-enable_manual_linking = false
+  additional_redirect_urls = ["https://texsltzecmvqprdjxtnh.supabase.co", "https://teslys.app"]
+  enable_manual_linking = false
+  enabled = true
+  jwt_expiry = 3600
+  port = 54324
+  refresh_token_rotation_enabled = true
+  security_update_password_require_reauthentication = true
+  site_url = "https://teslys.app"
 
 [db]
-enabled = true
-port = 54322
-major_version = 15
+  enabled = true
+  major_version = 15
+  port = 54322
 
 [edge_functions]
-enabled = true
-port = 54323
+  enabled = true
+  port = 54323
 
-[functions.send-host-notification]
-verify_jwt = false
-
-[functions.send-client-confirmation]
-verify_jwt = false
-
-[functions.send-client-commission-paid]
-verify_jwt = false
-
-[functions.share-car-access]
-verify_jwt = true
-
-[functions.save-push-subscription]
-verify_jwt = true
-
-[functions.push-send]
-verify_jwt = true
-
-[functions.get-vapid-public-key]
-verify_jwt = false
-
-[functions.sync-turo-rating]
-verify_jwt = true
-
-[functions.create-host-expense]
-verify_jwt = true
-
-[functions.create-host-earning]
-verify_jwt = true
-
-[functions.upsert-claim]
-verify_jwt = true
-
-[functions.create-car]
-verify_jwt = true
-
-[functions.assign-host]
-verify_jwt = true
-
-[functions.notify-admin-new-client]
-verify_jwt = false
-
-[functions.generate-blog-post]
-verify_jwt = false
-
-[functions.insert-blog-post]
-verify_jwt = false
+[functions]
+  [functions.assign-host]
+    verify_jwt = true
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.create-car]
+    verify_jwt = true
+  [functions.create-host-earning]
+    verify_jwt = true
+  [functions.create-host-expense]
+    verify_jwt = true
+  [functions.generate-blog-post]
+    verify_jwt = false
+  [functions.get-vapid-public-key]
+    verify_jwt = false
+  [functions.insert-blog-post]
+    verify_jwt = false
+  [functions.notify-admin-new-client]
+    verify_jwt = false
+  [functions.push-send]
+    verify_jwt = true
+  [functions.save-push-subscription]
+    verify_jwt = true
+  [functions.send-client-commission-paid]
+    verify_jwt = false
+  [functions.send-client-confirmation]
+    verify_jwt = false
+  [functions.send-host-notification]
+    verify_jwt = false
+  [functions.share-car-access]
+    verify_jwt = true
+  [functions.sync-turo-rating]
+    verify_jwt = true
+  [functions.upsert-claim]
+    verify_jwt = true
 
 [storage]
-enabled = true
-port = 54324
-file_size_limit = "50MiB"
-upload_timeout = "60s"
+  enabled = true
+  file_size_limit = "50MiB"
+  port = 54324
+  upload_timeout = "60s"
