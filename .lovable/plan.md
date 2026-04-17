@@ -1,48 +1,50 @@
 
-## Goal
+## Problem
 
-On native mobile (Capacitor app), hide the marketing sections below the auth card so the app looks clean and app-like. On web, keep the existing experience. Replace the inline `Testimonials` block with a small, tappable "Read Reviews" link that opens the Teslys Google Business reviews page.
+User is viewing the preview at desktop viewport (1357px wide) and sees Testimonials + SiteFooter. The current code in `Index.tsx` already hides these on native (`{!isNative && (...)}`), but:
 
-## What's currently rendered below the auth card on `Index.tsx`
+1. On the **web preview**, `isNative` is `false`, so testimonials + footer still render. The user wants the landing page to feel like a "web app" not a marketing website — so these should go on web too.
+2. The user is also worried they'll appear in the wrapped Capacitor app. Since `isNative` is correctly `true` inside Capacitor, the conditional already hides them there — but removing them entirely makes this guaranteed.
 
-1. Earnings Calculator CTA
-2. Trust Indicators (Fully Insured / Top Rated / Trusted Hosts)
-3. App Store badges ("Available on mobile")
-4. Testimonials section (full grid)
-5. SiteFooter (large premium footer)
+## Decision
+
+Remove the Testimonials block AND the SiteFooter from `Index.tsx` entirely (web + native). The Testimonials and Footer components themselves stay in the codebase — they're still rendered on other marketing/SEO pages (city pages, model pages, blog, etc.), so SEO value is preserved across the site.
+
+Also remove the `AppStoreBadges` block on the landing page for the same "web app, not website" reason — keep the page focused on the auth card.
 
 ## Changes
 
-### 1. `src/pages/Index.tsx`
-- Detect native via existing `isNative = Capacitor.isNativePlatform()` (already in the file).
-- Wrap these sections so they only render on web (`!isNative`):
-  - App Store badges (no point on native — they're already in the app)
-  - Full `<Testimonials />` block
-  - `<SiteFooter />`
-- Keep on both web + native:
-  - Earnings Calculator CTA
-  - Trust Indicators (small, app-appropriate)
-- On native only, render a new compact "Read Reviews" pill/link below the trust indicators that opens the Google Business reviews page in the system browser.
+**File: `src/pages/Index.tsx`**
 
-### 2. New component: `src/components/ReadReviewsLink.tsx`
-A small, cute card-style link:
-- Star icon + "Read Our Reviews" + chevron
-- Subtle muted card styling matching the auth card aesthetic
-- Opens the Google Business reviews URL in a new tab / system browser
+Remove the entire trailing block:
+```tsx
+{/* Web-only: App Store badges */}
+{!isNative && (
+  <div className="mt-4 mb-4">
+    <AppStoreBadges heading="Available on mobile" size="small" />
+  </div>
+)}
+...
+{/* Web-only: Testimonials + Footer */}
+{!isNative && (
+  <>
+    <div className="w-full py-8 mt-4">
+      <Testimonials />
+    </div>
+    <SiteFooter />
+  </>
+)}
+```
 
-### Google Business URL
-I need one quick clarification before building — what URL should the link open?
+Also remove the now-unused imports: `AppStoreBadges`, `Testimonials`, `SiteFooter`.
 
-Options:
-- A Google Maps reviews URL (e.g. `https://g.page/r/<id>/review` or `https://search.google.com/local/reviews?placeid=...`)
-- A general Google search for "Teslys reviews"
-- The Teslys Google Business Profile page
+Keep:
+- Earnings Calculator CTA
+- Trust Indicators (Fully Insured / Top Rated / Trusted Hosts)
+- `ReadReviewsLink` (native only, as is)
 
-I'll ask the user for the exact link.
+## Result
 
-## Files touched
-- `src/pages/Index.tsx` — conditionally render marketing sections based on `isNative`; add `ReadReviewsLink` for native
-- `src/components/ReadReviewsLink.tsx` — new small reviews link component
-
-## Open question for user
-Need the exact Google Business / reviews URL to link to.
+- Web landing page: clean auth-focused "web app" feel — auth card, trust indicators, calculator CTA. No long marketing scroll.
+- Native app: identical to web minus the AppStore badges (already hidden), plus the compact Read Reviews link.
+- SEO: unaffected — Testimonials and SiteFooter still render on `/blog`, `/how-it-works`, all city/model SEO pages, etc.
