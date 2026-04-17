@@ -1,32 +1,16 @@
 
+The "Rent A Tesla" button uses `fixed top-4 right-4` which puts it 16px from the top of the viewport. On native iOS/Android, that area is covered by the status bar (battery, Wi-Fi, signal icons) because the app uses `overlaysWebView: true` (Capacitor StatusBar config) and `viewport-fit=cover`.
 
-## Problem Analysis
-
-The three summary cards on the Earnings tab have accuracy and UX issues:
-
-1. **Total Earnings** — sums `e.amount` (gross earnings), not net profit. Should be gross minus trip expenses.
-2. **Pending Payments** — same issue, uses gross `amount` for pending records.
-3. **This Month** — uses gross `amount` AND has a bug: it only checks `.getMonth()` without comparing the year, so January 2025 earnings would show in January 2026.
-4. **No explanation tooltips** — user wants hover tooltips explaining what each number means.
+The fix: respect the safe-area inset on top so the button sits below the status bar on native devices, while staying in the same place on web.
 
 ## Plan
 
-### 1. Fix the three summary card calculations (HostCarManagement.tsx ~lines 5031-5060)
+**File**: `src/components/RentATeslaLink.tsx`
 
-For each earning, calculate net amount as `earning.amount - totalTripExpenses` (matching the pattern already used on line 5067-5068 for individual cards). The summary cards will use these net values:
+Replace the static `top-4` with a safe-area-aware offset:
+- Use Tailwind's arbitrary value: `top-[calc(env(safe-area-inset-top)+0.5rem)]`
+- Keep `right-4` and the rest of the styling unchanged
 
-- **Total Earnings**: Sum of `(earning.amount - matchedExpenses)` for all filtered earnings
-- **Pending Payments**: Same calculation but only for `payment_status === "pending"`
-- **This Month**: Same calculation but filtered to current month AND current year
+This uses the iOS/Android safe-area inset (which is 0 on web/desktop, ~44–54px on iPhones with a notch/Dynamic Island, and the status bar height on Android), pushing the button just below the system status bar on native, with no visual change on web.
 
-### 2. Add info icon with hover tooltip to each card
-
-Add a small `Info` (lucide) icon in the bottom-right corner of each card. Wrap it in a `Tooltip` component (already available in the project). Tooltip content:
-
-- **Total Earnings**: "Sum of gross earnings minus trip expenses for all displayed earnings"
-- **Pending Payments**: "Sum of net earnings (gross - expenses) for trips with pending payment status"
-- **This Month**: "Sum of net earnings (gross - expenses) for trips starting in the current calendar month"
-
-### Files to edit
-- `src/pages/HostCarManagement.tsx` — lines ~5031-5060 (summary cards section)
-
+No other files need to change — `viewport-fit=cover` is already set in `index.html`, and `pt-safe-top` utility is already used elsewhere in the project, confirming safe-area CSS is wired up.
