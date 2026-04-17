@@ -13,12 +13,9 @@ import { ScreenOrientation } from "@capacitor/screen-orientation";
 
 import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
 import HostRegisterCard from "@/components/auth/HostRegisterCard";
-import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
-import { Testimonials } from "@/components/Testimonials";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
-import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ReadReviewsLink } from "@/components/ReadReviewsLink";
 
 type Role = "client" | "host";
