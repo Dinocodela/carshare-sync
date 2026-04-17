@@ -1,6 +1,6 @@
 import { Star, ChevronRight } from "lucide-react";
 
-const REVIEWS_URL = "https://g.page/r/CSZM0Vxe9T-sEAE/review";
+const REVIEWS_URL = "https://g.page/r/CSZM0Vxe9T-sEBE/review";
 
 export function ReadReviewsLink() {
   return (
