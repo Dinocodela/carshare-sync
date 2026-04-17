@@ -17,6 +17,7 @@ import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
 import { ReadReviewsLink } from "@/components/ReadReviewsLink";
+import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 
 type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
@@ -333,8 +334,15 @@ const Index = () => {
               ))}
             </div>
 
-            {/* Native-only: compact reviews link */}
-            {isNative && <ReadReviewsLink />}
+            {/* Reviews link (web + native) */}
+            <ReadReviewsLink />
+
+            {/* Web-only: App Store badges */}
+            {!isNative && (
+              <div className="mt-4 mb-4">
+                <AppStoreBadges heading="Get the mobile app" size="small" />
+              </div>
+            )}
           </div>
         </div>
       </div>
