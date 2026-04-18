@@ -1,50 +1,34 @@
 
-## Problem
+The `/earnings-calculator` page header uses `sticky top-0` without respecting the iOS safe-area inset, so the logo, back chevron, and "Get Started" button get hidden under the iPhone notch/status bar in the Capacitor app.
 
-User is viewing the preview at desktop viewport (1357px wide) and sees Testimonials + SiteFooter. The current code in `Index.tsx` already hides these on native (`{!isNative && (...)}`), but:
+Same fix that was applied to the homepage's "Rent a Tesla" link needs to be applied here.
 
-1. On the **web preview**, `isNative` is `false`, so testimonials + footer still render. The user wants the landing page to feel like a "web app" not a marketing website — so these should go on web too.
-2. The user is also worried they'll appear in the wrapped Capacitor app. Since `isNative` is correctly `true` inside Capacitor, the conditional already hides them there — but removing them entirely makes this guaranteed.
+## The fix
 
-## Decision
+In `src/pages/EarningsCalculator.tsx`, update the sticky `<header>` to add safe-area top padding so its content sits below the device status bar.
 
-Remove the Testimonials block AND the SiteFooter from `Index.tsx` entirely (web + native). The Testimonials and Footer components themselves stay in the codebase — they're still rendered on other marketing/SEO pages (city pages, model pages, blog, etc.), so SEO value is preserved across the site.
-
-Also remove the `AppStoreBadges` block on the landing page for the same "web app, not website" reason — keep the page focused on the auth card.
-
-## Changes
-
-**File: `src/pages/Index.tsx`**
-
-Remove the entire trailing block:
+**Change:**
 ```tsx
-{/* Web-only: App Store badges */}
-{!isNative && (
-  <div className="mt-4 mb-4">
-    <AppStoreBadges heading="Available on mobile" size="small" />
-  </div>
-)}
-...
-{/* Web-only: Testimonials + Footer */}
-{!isNative && (
-  <>
-    <div className="w-full py-8 mt-4">
-      <Testimonials />
-    </div>
-    <SiteFooter />
-  </>
-)}
+<header className="sticky top-0 z-30 bg-navy/80 backdrop-blur-xl border-b border-white/10">
+  <div className="mx-auto max-w-screen-lg px-4 sm:px-6 flex items-center justify-between py-3.5">
 ```
 
-Also remove the now-unused imports: `AppStoreBadges`, `Testimonials`, `SiteFooter`.
+**To:**
+```tsx
+<header
+  className="sticky top-0 z-30 bg-navy/80 backdrop-blur-xl border-b border-white/10"
+  style={{ paddingTop: "env(safe-area-inset-top)" }}
+>
+  <div className="mx-auto max-w-screen-lg px-4 sm:px-6 flex items-center justify-between py-3.5">
+```
 
-Keep:
-- Earnings Calculator CTA
-- Trust Indicators (Fully Insured / Top Rated / Trusted Hosts)
-- `ReadReviewsLink` (native only, as is)
+This pushes the logo + back chevron + "Get Started" button down by the height of the iPhone status bar / notch on native, and has zero visual effect on web/desktop (the inset is `0`).
 
-## Result
+## Why this works
 
-- Web landing page: clean auth-focused "web app" feel — auth card, trust indicators, calculator CTA. No long marketing scroll.
-- Native app: identical to web minus the AppStore badges (already hidden), plus the compact Read Reviews link.
-- SEO: unaffected — Testimonials and SiteFooter still render on `/blog`, `/how-it-works`, all city/model SEO pages, etc.
+- Matches the pattern already used elsewhere (e.g. `PageContainer` uses `env(safe-area-inset-bottom)`).
+- Capacitor on iOS exposes `env(safe-area-inset-top)` once the viewport meta has `viewport-fit=cover` (already configured in this project).
+- No layout changes on desktop preview — only native devices get the offset.
+
+## Files touched
+- `src/pages/EarningsCalculator.tsx` — single header element update.
