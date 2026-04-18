@@ -174,7 +174,10 @@ export default function EarningsCalculator() {
         </div>
 
         {/* Nav */}
-        <header className="sticky top-0 z-30 bg-navy/80 backdrop-blur-xl border-b border-white/10">
+        <header
+          className="sticky top-0 z-30 bg-navy/80 backdrop-blur-xl border-b border-white/10"
+          style={{ paddingTop: "env(safe-area-inset-top)" }}
+        >
           <div className="mx-auto max-w-screen-lg px-4 sm:px-6 flex items-center justify-between py-3.5">
             <Link to="/" className="flex items-center gap-2 group">
               <ChevronLeft className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
