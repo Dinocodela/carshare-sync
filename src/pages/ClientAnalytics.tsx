@@ -27,11 +27,26 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 export default function ClientAnalytics() {
   const {
     earnings, expenses, claims, carsMap, summary,
     loading, error, refetch,
-    selectedYear, setSelectedYear, availableYears,
+    selectedYear, setSelectedYear, selectedMonth, setSelectedMonth, availableYears,
   } = useClientAnalytics();
   const [selectedCarId, setSelectedCarId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState("portfolio");
@@ -52,7 +67,8 @@ export default function ClientAnalytics() {
     cars, carPerformanceData, selectedCarData, selectedCarPerformance,
     loading: perCarLoading, error: perCarError, refetch: refetchPerCar,
     setSelectedYear: setPerCarSelectedYear,
-  } = usePerCarAnalytics(selectedCarId, selectedYear);
+    setSelectedMonth: setPerCarSelectedMonth,
+  } = usePerCarAnalytics(selectedCarId, selectedYear, selectedMonth);
 
   useEffect(() => {
     const t = setInterval(() => {
