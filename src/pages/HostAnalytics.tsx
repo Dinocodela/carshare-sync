@@ -87,11 +87,6 @@ export default function HostAnalytics() {
     return () => cancelAnimationFrame(t);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => { if (!loading) refetch(); }, 30000);
-    return () => clearInterval(interval);
-  }, [loading, refetch]);
-
   const handleYearChange = (value: string) => {
     setSelectedYear(value === "all" ? null : parseInt(value, 10));
     if (value === "all") setSelectedMonth(null);

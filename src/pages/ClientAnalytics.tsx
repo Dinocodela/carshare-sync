@@ -70,13 +70,6 @@ export default function ClientAnalytics() {
     setSelectedMonth: setPerCarSelectedMonth,
   } = usePerCarAnalytics(selectedCarId, selectedYear, selectedMonth);
 
-  useEffect(() => {
-    const t = setInterval(() => {
-      if (!loading && !perCarLoading) { refetch(); refetchPerCar(); }
-    }, 30_000);
-    return () => clearInterval(t);
-  }, [loading, perCarLoading, refetch, refetchPerCar]);
-
   const handleRefresh = () => { refetch(); refetchPerCar(); };
 
   const handleViewDetails = (carId: string) => {
