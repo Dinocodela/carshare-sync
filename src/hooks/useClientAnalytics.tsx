@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useClientCarExpenses } from './useClientCarExpenses';
+import { getActiveRentalDays, getAnalyticsDateRange } from '@/lib/analyticsDateRanges';
 
 
 
@@ -77,21 +78,6 @@ export interface AnalyticsSummary {
   pendingClaims: number;
   approvedClaimsAmount: number;
 }
-
-const getDateRange = (year: number | null, month: number | null) => {
-  if (!year) return null;
-
-  const monthIndex = month ?? 1;
-  const lastDay = month ? new Date(year, month, 0).getDate() : 31;
-  const endMonth = month ?? 12;
-
-  return {
-    timestampStart: `${year}-${String(monthIndex).padStart(2, '0')}-01T00:00:00`,
-    timestampEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}T23:59:59`,
-    dateStart: `${year}-${String(monthIndex).padStart(2, '0')}-01`,
-    dateEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
-  };
-};
 
 export function useClientAnalytics(initialYear: number | null = new Date().getFullYear()) {
   const { user } = useAuth();
@@ -204,12 +190,12 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      const dateRange = getDateRange(selectedYear, selectedMonth);
+      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
 
       if (dateRange) {
         earningsQuery = earningsQuery
-          .gte('earning_period_start', dateRange.timestampStart)
-          .lte('earning_period_start', dateRange.timestampEnd);
+          .lte('earning_period_start', dateRange.timestampEnd)
+          .gte('earning_period_end', dateRange.timestampStart);
       }
 
       const { data: earningsData, error: earningsError } = await earningsQuery;
@@ -286,13 +272,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     const totalTrips = earnings.length;
     const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;
     
-    // Calculate active days (unique earning dates)
-    const uniqueDates = new Set(
-      earnings
-        .filter(e => e.earning_period_start)
-        .map(e => e.earning_period_start.split('T')[0])
-    );
-    const activeDays = uniqueDates.size;
+    const activeDays = getActiveRentalDays(earnings, getAnalyticsDateRange(selectedYear, selectedMonth));
 
     // Calculate claims summary
     const totalClaims = claims.length;
