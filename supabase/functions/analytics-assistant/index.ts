@@ -310,7 +310,7 @@ Deno.serve(async (req) => {
         acc.periodDays += car.periodDays || 0;
         return acc;
       },
-      { totalEarnings: 0, tripExpenses: 0, fixedCosts: 0, trueNetProfit: 0, totalTrips: 0, claimsCount: 0, otherExpenses: 0 }
+      { totalEarnings: 0, tripExpenses: 0, fixedCosts: 0, trueNetProfit: 0, totalTrips: 0, claimsCount: 0, otherExpenses: 0, activeRentalDays: 0, periodDays: 0 }
     );
 
     const analyticsContext = {
