@@ -3,6 +3,7 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ClientEarning, ClientExpense, ClientClaim } from './useClientAnalytics';
 import { useClientCarExpenses } from './useClientCarExpenses';
+import { getActiveRentalDays, getAnalyticsDateRange, getPeriodDayCount } from '@/lib/analyticsDateRanges';
 
 export interface CarPerformance {
   car_id: string;
@@ -38,21 +39,6 @@ export interface CarAnalyticsData {
 
 const currentYear = new Date().getFullYear();
 const availableYears = Array.from({ length: new Date().getFullYear() - 2021 }, (_, i) => 2022 + i);
-
-const getDateRange = (year: number | null, month: number | null) => {
-  if (!year) return null;
-
-  const monthIndex = month ?? 1;
-  const lastDay = month ? new Date(year, month, 0).getDate() : 31;
-  const endMonth = month ?? 12;
-
-  return {
-    timestampStart: `${year}-${String(monthIndex).padStart(2, '0')}-01T00:00:00`,
-    timestampEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}T23:59:59`,
-    dateStart: `${year}-${String(monthIndex).padStart(2, '0')}-01`,
-    dateEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
-  };
-};
 
 export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear, initialMonth: number | null = null) {
   const { user } = useAuth();
@@ -114,7 +100,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
       const carIds = allCars.map(car => car.id);
 
-      const dateRange = getDateRange(selectedYear, selectedMonth);
+      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
 
       // Get all analytics data with year filtering
       let earningsQuery = supabase
@@ -136,7 +122,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
         .order('incident_date', { ascending: false });
 
       if (dateRange) {
-        earningsQuery = earningsQuery.gte('earning_period_start', dateRange.timestampStart).lte('earning_period_start', dateRange.timestampEnd);
+        earningsQuery = earningsQuery.lte('earning_period_start', dateRange.timestampEnd).gte('earning_period_end', dateRange.timestampStart);
         expensesQuery = expensesQuery.gte('expense_date', dateRange.dateStart).lte('expense_date', dateRange.dateEnd);
         claimsQuery = claimsQuery.gte('incident_date', dateRange.dateStart).lte('incident_date', dateRange.dateEnd);
       }
