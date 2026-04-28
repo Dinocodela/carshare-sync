@@ -12,13 +12,21 @@ type ChatMessage = {
 
 type AnalyticsAssistantRequest = {
   messages?: ChatMessage[];
+  conversationId?: string | null;
   selectedYear?: number | null;
   selectedMonth?: number | null;
   selectedCarId?: string | null;
+  selectedCarName?: string | null;
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MAX_MESSAGES = 12;
+
+const makeTitle = (question: string) => {
+  const cleaned = question.replace(/\s+/g, " ").trim();
+  if (!cleaned) return "Analytics conversation";
+  return cleaned.length > 64 ? `${cleaned.slice(0, 61)}...` : cleaned;
+};
 
 const jsonResponse = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -175,6 +183,50 @@ Deno.serve(async (req) => {
     const selectedYear = typeof body.selectedYear === "number" ? body.selectedYear : null;
     const selectedMonth = typeof body.selectedMonth === "number" ? body.selectedMonth : null;
     const selectedCarId = typeof body.selectedCarId === "string" && body.selectedCarId ? body.selectedCarId : null;
+    const selectedCarName = typeof body.selectedCarName === "string" && body.selectedCarName ? body.selectedCarName : null;
+    const latestUserMessage = messages[messages.length - 1];
+    let conversationId = typeof body.conversationId === "string" && body.conversationId ? body.conversationId : null;
+
+    if (conversationId) {
+      const { data: existingConversation, error: conversationError } = await supabase
+        .from("analytics_assistant_conversations")
+        .select("id")
+        .eq("id", conversationId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (conversationError || !existingConversation) {
+        return jsonResponse({ error: "Saved conversation not found." }, 404);
+      }
+    } else {
+      const { data: newConversation, error: createConversationError } = await supabase
+        .from("analytics_assistant_conversations")
+        .insert({
+          user_id: user.id,
+          title: makeTitle(latestUserMessage.content),
+          selected_year: selectedYear,
+          selected_month: selectedMonth,
+          selected_car_id: selectedCarId,
+          selected_car_name: selectedCarName,
+        })
+        .select("id")
+        .single();
+
+      if (createConversationError || !newConversation) throw createConversationError;
+      conversationId = newConversation.id;
+    }
+
+    const { error: saveUserMessageError } = await supabase
+      .from("analytics_assistant_messages")
+      .insert({
+        conversation_id: conversationId,
+        user_id: user.id,
+        role: "user",
+        content: latestUserMessage.content,
+      });
+
+    if (saveUserMessageError) throw saveUserMessageError;
+
     const range = getRange(selectedYear, selectedMonth);
 
     const { data: ownedCars, error: carsError } = await supabase
@@ -375,7 +427,29 @@ ${JSON.stringify(analyticsContext, null, 2)}`;
     const aiData = await aiResponse.json();
     const answer = aiData.choices?.[0]?.message?.content || "I couldn't generate an answer. Please try asking again.";
 
-    return jsonResponse({ answer });
+    const { error: saveAssistantMessageError } = await supabase
+      .from("analytics_assistant_messages")
+      .insert({
+        conversation_id: conversationId,
+        user_id: user.id,
+        role: "assistant",
+        content: answer,
+      });
+
+    if (saveAssistantMessageError) throw saveAssistantMessageError;
+
+    await supabase
+      .from("analytics_assistant_conversations")
+      .update({
+        selected_year: selectedYear,
+        selected_month: selectedMonth,
+        selected_car_id: selectedCarId,
+        selected_car_name: selectedCarName,
+      })
+      .eq("id", conversationId)
+      .eq("user_id", user.id);
+
+    return jsonResponse({ answer, conversationId });
   } catch (error) {
     console.error("analytics-assistant error:", error);
     return jsonResponse({ error: error instanceof Error ? error.message : "Unable to answer right now." }, 500);
