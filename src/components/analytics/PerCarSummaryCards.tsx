@@ -102,7 +102,7 @@ export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsP
         : performance.utilizationRate >= 25
         ? "text-amber-600"
         : "text-red-600",
-      tooltip: "How many of the last 30 days had recorded earnings for this car, divided by 30. Higher means the car is being used more often.",
+      tooltip: "Rented calendar days divided by total days in the selected period. Long rentals count for every day they overlap the selected month or year.",
     },
     {
       title: "Risk Score",
@@ -118,7 +118,7 @@ export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsP
         : performance.riskScore < 60
         ? "text-amber-600"
         : "text-red-600",
-      tooltip: "A 0–100 score based on claims, profitability, and utilization. Lower is better; higher means the car may need closer attention.",
+      tooltip: "A 0–100 estimate based on claims, true net profit after fixed costs, profit margin, and utilization. Lower is better.",
     },
   ];
 

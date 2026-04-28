@@ -10,6 +10,12 @@ import {
   Car as CarIcon,
 } from "lucide-react";
 import * as React from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CarPerformanceCardProps {
   performance: CarPerformance;
@@ -123,7 +129,18 @@ export function CarPerformanceCard({
 
           {/* Utilization */}
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Utilization</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-left text-xs text-muted-foreground underline-offset-2 hover:underline">
+                    Utilization
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[260px] text-xs leading-relaxed">
+                  Rented calendar days divided by total days in the selected period.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <div className="font-semibold">{utilPct.toFixed(1)}%</div>
             <div className="mt-1 h-1.5 w-full rounded-full bg-muted">
               <div
@@ -135,7 +152,18 @@ export function CarPerformanceCard({
 
           {/* Risk */}
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Risk Score</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-left text-xs text-muted-foreground underline-offset-2 hover:underline">
+                    Risk Score
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[260px] text-xs leading-relaxed">
+                  0–100 estimate from claims, true net profit, profit margin, and utilization. Lower is better.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <div className={`font-semibold ${riskColor(risk)}`}>
               {Math.round(risk)}
             </div>

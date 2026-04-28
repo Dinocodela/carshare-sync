@@ -28,6 +28,8 @@ const transformSummaryForDisplay = (hostSummary: any) => ({
   totalEarnings: hostSummary.totalEarnings,
   totalExpenses: hostSummary.totalExpenses,
   netProfit: hostSummary.netProfit,
+  totalFixedCosts: 0,
+  trueNetProfit: hostSummary.netProfit,
   totalTrips: hostSummary.totalTrips,
   activeDays: hostSummary.activeHostingDays,
   totalClaims: hostSummary.totalClaims,
