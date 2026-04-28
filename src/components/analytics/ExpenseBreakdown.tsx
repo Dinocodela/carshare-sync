@@ -1,11 +1,41 @@
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell } from 'recharts';
 import { ClientExpense } from '@/hooks/useClientAnalytics';
-import { Receipt } from 'lucide-react';
+import { Info, Receipt } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ExpenseBreakdownProps {
   expenses: ClientExpense[];
+}
+
+const OTHER_EXPENSES_EXPLANATION =
+  'Other Expenses may include Turo long-term rental discounts or guest discounts applied by Turo for monthly or subscription-style rentals. These are platform adjustments to the trip payout, not unexpected charges from Teslys or the host.';
+
+const OTHER_EXPENSES_SHORT_EXPLANATION =
+  'This often reflects Turo discounts given to guests on longer rentals. It helps explain the net payout and does not mean the client is being charged extra.';
+
+function ExpenseTooltip({ active, payload }: { active?: boolean; payload?: any[] }) {
+  if (!active || !payload?.length) return null;
+
+  const item = payload[0]?.payload;
+  const isOtherExpenses = item?.name === 'Other Expenses';
+
+  return (
+    <div className="max-w-[280px] rounded-xl border border-border/60 bg-background/95 p-3 text-xs shadow-2xl backdrop-blur-sm">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-semibold text-foreground">{item?.name}</span>
+        <span className="font-mono font-semibold tabular-nums text-foreground">
+          ${Number(item?.value || 0).toFixed(2)}
+        </span>
+      </div>
+      {isOtherExpenses && (
+        <p className="mt-2 leading-relaxed text-muted-foreground">
+          {OTHER_EXPENSES_EXPLANATION}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
