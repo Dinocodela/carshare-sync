@@ -56,7 +56,7 @@ const getDateRange = (year: number | null, month: number | null) => {
 
 export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear, initialMonth: number | null = null) {
   const { user } = useAuth();
-  const { getMonthlyFixedCosts } = useClientCarExpenses();
+  const { getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth);
   const [cars, setCars] = useState<any[]>([]);
@@ -192,8 +192,8 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
                (e.carwash_cost || 0) + (e.ev_charge_cost || 0);
       }, 0);
       
-      // Get monthly fixed costs for this car
-      const monthlyFixedCosts = getMonthlyFixedCosts(car.id);
+      // Get fixed costs for this car in the selected period
+      const monthlyFixedCosts = getFixedCostsForPeriod(car.id, selectedYear, selectedMonth);
       
       // True Net Profit = Net Earnings From Trips - Monthly Fixed Costs
       const trueNetProfit = netEarningsFromTrips - monthlyFixedCosts;
@@ -293,7 +293,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
         breakEvenTrips
       };
     });
-  }, [cars, allData]);
+  }, [cars, allData, getFixedCostsForPeriod, selectedYear, selectedMonth]);
 
   // Filter data for selected car
   const selectedCarData = useMemo((): CarAnalyticsData | null => {

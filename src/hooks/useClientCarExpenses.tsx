@@ -186,6 +186,32 @@ export function useClientCarExpenses() {
     }, 0);
   };
 
+  const getFixedCostsForPeriod = (carId: string, year: number | null, month: number | null): number => {
+    const carExpenses = getExpensesByCarId(carId);
+    if (!year) return getMonthlyFixedCosts(carId);
+
+    const periodStart = new Date(`${year}-${String(month ?? 1).padStart(2, '0')}-01T00:00:00`);
+    const periodEnd = month
+      ? new Date(year, month, 0, 23, 59, 59)
+      : new Date(year, 11, 31, 23, 59, 59);
+
+    return carExpenses.reduce((total, expense) => {
+      const startDate = new Date(`${expense.start_date}T00:00:00`);
+      const endDate = expense.end_date ? new Date(`${expense.end_date}T23:59:59`) : null;
+      const overlapsPeriod = startDate <= periodEnd && (!endDate || endDate >= periodStart);
+      if (!overlapsPeriod) return total;
+
+      let monthlyAmount = expense.amount;
+      if (expense.frequency === 'yearly') {
+        monthlyAmount = expense.amount / 12;
+      } else if (expense.frequency === 'quarterly') {
+        monthlyAmount = expense.amount / 3;
+      }
+
+      return total + (month ? monthlyAmount : monthlyAmount * 12);
+    }, 0);
+  };
+
   useEffect(() => {
     if (user) {
       fetchExpenses();
@@ -201,6 +227,7 @@ export function useClientCarExpenses() {
     deleteExpense,
     getExpensesByCarId,
     getMonthlyFixedCosts,
+    getFixedCostsForPeriod,
     refetch: fetchExpenses,
   };
 }
