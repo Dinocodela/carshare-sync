@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   Info,
   Receipt,
-  Shield,
 } from "lucide-react";
 import {
   Tooltip,
@@ -26,6 +25,8 @@ interface SummaryCardsProps {
     totalEarnings?: string;
     netProfit?: string;
     totalExpenses?: string;
+    trueNetProfit?: string;
+    totalFixedCosts?: string;
     activeDays?: string;
     totalTrips?: string;
     totalClaims?: string;
@@ -43,7 +44,7 @@ export function SummaryCards({
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {[...Array(hideNetProfit ? 5 : 6)].map((_, i) => (
+        {[...Array(hideNetProfit ? 6 : 7)].map((_, i) => (
           <div
             key={i}
             className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-4 animate-pulse"
@@ -66,13 +67,22 @@ export function SummaryCards({
       tooltip: tooltips?.totalEarnings || "Your share after trip-related expenses are deducted and your profit split is applied. This is not the full guest payment.",
     },
     {
-      title: "Net Profit",
+      title: "Trip Net",
       value: `$${summary.netProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
       icon: TrendingUp,
       accent: summary.netProfit >= 0 ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600",
       iconBg: summary.netProfit >= 0 ? "bg-emerald-500" : "bg-red-500",
       valueClass: summary.netProfit >= 0 ? "text-emerald-600" : "text-red-600",
-      tooltip: tooltips?.netProfit || "Total Earnings minus recorded expenses for the selected time range.",
+      tooltip: tooltips?.netProfit || "Total Earnings minus recorded trip expenses for the selected time range, before fixed monthly costs.",
+    },
+    {
+      title: "True Net Profit",
+      value: `$${(summary.trueNetProfit ?? summary.netProfit).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      icon: TrendingUp,
+      accent: (summary.trueNetProfit ?? summary.netProfit) >= 0 ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600",
+      iconBg: (summary.trueNetProfit ?? summary.netProfit) >= 0 ? "bg-emerald-500" : "bg-red-500",
+      valueClass: (summary.trueNetProfit ?? summary.netProfit) >= 0 ? "text-emerald-600" : "text-red-600",
+      tooltip: tooltips?.trueNetProfit || "Total Earnings after matched trip expenses and after fixed costs entered under Settings for each car. This is the investor-focused profit number.",
     },
     {
       title: "Active Days",
@@ -111,7 +121,7 @@ export function SummaryCards({
   let displayCards = cards;
   if (replaceNetProfitWithTotalExpenses) {
     displayCards = cards.map((c) =>
-      c.title === "Net Profit"
+      c.title === "Trip Net"
         ? {
             title: "Total Expenses",
             value: `$${(summary.totalExpenses ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
@@ -126,7 +136,7 @@ export function SummaryCards({
   }
 
   const finalCards = hideNetProfit
-    ? displayCards.filter((c) => c.title !== "Net Profit")
+    ? displayCards.filter((c) => c.title !== "Trip Net")
     : displayCards;
 
   return (
