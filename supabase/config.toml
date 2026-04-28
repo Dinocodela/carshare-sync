@@ -27,6 +27,8 @@ project_id = "texsltzecmvqprdjxtnh"
   port = 54323
 
 [functions]
+  [functions.analytics-assistant]
+    verify_jwt = true
   [functions.assign-host]
     verify_jwt = true
   [functions.auth-email-hook]
