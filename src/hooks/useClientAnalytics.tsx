@@ -75,9 +75,25 @@ export interface AnalyticsSummary {
   approvedClaimsAmount: number;
 }
 
+const getDateRange = (year: number | null, month: number | null) => {
+  if (!year) return null;
+
+  const monthIndex = month ?? 1;
+  const lastDay = month ? new Date(year, month, 0).getDate() : 31;
+  const endMonth = month ?? 12;
+
+  return {
+    timestampStart: `${year}-${String(monthIndex).padStart(2, '0')}-01T00:00:00`,
+    timestampEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}T23:59:59`,
+    dateStart: `${year}-${String(monthIndex).padStart(2, '0')}-01`,
+    dateEnd: `${year}-${String(endMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
+  };
+};
+
 export function useClientAnalytics(initialYear: number | null = new Date().getFullYear()) {
   const { user } = useAuth();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
@@ -169,12 +185,12 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      if (selectedYear !== null) {
-        const yearStart = `${selectedYear}-01-01T00:00:00`;
-        const yearEnd = `${selectedYear}-12-31T23:59:59`;
+      const dateRange = getDateRange(selectedYear, selectedMonth);
+
+      if (dateRange) {
         earningsQuery = earningsQuery
-          .gte('earning_period_start', yearStart)
-          .lte('earning_period_start', yearEnd);
+          .gte('earning_period_start', dateRange.timestampStart)
+          .lte('earning_period_start', dateRange.timestampEnd);
       }
 
       const { data: earningsData, error: earningsError } = await earningsQuery;
@@ -188,12 +204,10 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      if (selectedYear !== null) {
-        const yearStart = `${selectedYear}-01-01`;
-        const yearEnd = `${selectedYear}-12-31`;
+      if (dateRange) {
         expensesQuery = expensesQuery
-          .gte('expense_date', yearStart)
-          .lte('expense_date', yearEnd);
+          .gte('expense_date', dateRange.dateStart)
+          .lte('expense_date', dateRange.dateEnd);
       }
 
       const { data: expensesData, error: expensesError } = await expensesQuery;
@@ -207,12 +221,10 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      if (selectedYear !== null) {
-        const yearStart = `${selectedYear}-01-01`;
-        const yearEnd = `${selectedYear}-12-31`;
+      if (dateRange) {
         claimsQuery = claimsQuery
-          .gte('incident_date', yearStart)
-          .lte('incident_date', yearEnd);
+          .gte('incident_date', dateRange.dateStart)
+          .lte('incident_date', dateRange.dateEnd);
       }
 
       const { data: claimsData, error: claimsError } = await claimsQuery;
@@ -223,7 +235,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       console.error('Error fetching client analytics:', err);
       setError('Failed to load analytics data');
     }
-  }, [user, selectedYear]);
+  }, [user, selectedYear, selectedMonth]);
 
   const calculateSummary = () => {
     const totalEarnings = earnings.reduce((sum, earning) => {
@@ -285,7 +297,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     };
 
     fetchData();
-  }, [user, selectedYear, fetchClientAnalytics]);
+  }, [user, selectedYear, selectedMonth, fetchClientAnalytics]);
 
   useEffect(() => {
     calculateSummary();
@@ -306,6 +318,8 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     refetch,
     selectedYear,
     setSelectedYear,
+    selectedMonth,
+    setSelectedMonth,
     availableYears,
   };
 }
