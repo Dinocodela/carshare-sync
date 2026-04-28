@@ -1,54 +1,46 @@
-I’ll add clear explanations to the analytics cards so users understand exactly what each number means and how it is calculated.
+I’ll add a month filter to `/client-analytics` so you can filter analytics by car, year, and month.
 
 ## What will change
 
-### 1. Add a small info legend on every analytics card
-Each card will show an info/help indicator near the icon/title. On desktop, hovering will open the explanation. On mobile/app, tapping the icon/info indicator will show the same explanation.
+### 1. Add a Month dropdown next to the Year filter
+In the analytics header controls, I’ll add:
+- **All Months**
+- January through December
 
-This applies to:
-- Total Earnings
-- Fixed Costs / Total Expenses
-- True Net Profit / Net Profit
-- Profit Margin
-- Active Days
-- Total Trips
-- Average Per Trip
-- Utilization
-- Risk Score
-- Claims-related cards where shown
+The month filter will work together with the existing car and year filters.
 
-### 2. Use plain-language explanations
-Examples of the wording I’ll add:
+### 2. Filter the portfolio and per-car data by month
+The selected month will apply to:
+- Overview summary cards
+- Per-car summary cards
+- Earnings chart
+- Expense breakdown
+- Recent trips
+- Recent claims
+- Comparison data where it uses the same analytics dataset
 
-- **Total Earnings**: “Your share after trip-related expenses are deducted and your profit split is applied. This is not the full guest payment.”
-- **Fixed Costs**: “Monthly fixed costs you entered for this car, such as car payment, insurance, subscriptions, or other recurring costs.”
-- **True Net Profit**: “Total Earnings minus monthly fixed costs.”
-- **Profit Margin**: “True Net Profit divided by Total Earnings, shown as a percentage.”
-- **Active Days**: “Unique days with recorded earnings/trips in the selected time range.”
-- **Total Trips**: “Number of earning records/trips in the selected time range.”
-- **Average Per Trip**: “Total Earnings divided by Total Trips.”
-- **Utilization**: “How many of the last 30 days had earnings, divided by 30.”
-- **Risk Score**: “A 0–100 score based on claims, profitability, and utilization. Lower is better.”
-
-### 3. Keep the design clean and TESLYS-branded
-I’ll keep the current card layout, colors, rounded corners, and spacing. The help indicator will be subtle so the dashboard doesn’t feel cluttered, but visible enough that users know they can learn more.
-
-### 4. Make it work across client, host, and per-car analytics
-There are two summary-card components:
-- `src/components/analytics/SummaryCards.tsx`
-- `src/components/analytics/PerCarSummaryCards.tsx`
-
-I’ll update both so the explanations are consistent wherever these metrics appear.
+### 3. Keep behavior simple
+- Default: current year + **All Months**
+- If the user selects a specific month, results will show only that month in the selected year.
+- If the user switches Year to **All Time**, the month filter will reset/disable because “March across all years” could be confusing.
 
 ## Technical details
 
-- Use the existing tooltip system in `src/components/ui/tooltip.tsx`.
-- Expand the existing `tooltips` support in `SummaryCards` so every metric can have an explanation, not just a few fields.
-- Add tooltip explanations directly in `PerCarSummaryCards` using the actual formulas from `usePerCarAnalytics`.
-- Preserve mobile compatibility by using button-based tooltip triggers, so tap/focus works in the native app as well as hover on desktop.
+I’ll update:
+- `src/hooks/useClientAnalytics.tsx`
+  - Add `selectedMonth` state.
+  - Apply month date ranges to `host_earnings`, `host_expenses`, and `host_claims` queries.
+  - Return `selectedMonth` and `setSelectedMonth`.
 
-## Files to update
+- `src/hooks/usePerCarAnalytics.tsx`
+  - Add the same month filtering so per-car performance uses the same selected month.
+  - Make sure the selected car cards and charts are based on the filtered month.
 
-- `src/components/analytics/SummaryCards.tsx`
-- `src/components/analytics/PerCarSummaryCards.tsx`
-- Possibly `src/pages/HostAnalytics.tsx` only if needed to pass more context-specific tooltip text for host earnings.
+- `src/pages/ClientAnalytics.tsx`
+  - Add the Month dropdown beside the Year dropdown.
+  - Reset month when selecting “All Time.”
+  - Pass the month filter into both analytics hooks.
+
+## Date handling
+
+For timestamp fields like `earning_period_start`, I’ll use month start/end ranges with proper time boundaries. For date-only fields like `expense_date` and `incident_date`, I’ll use date-only start/end strings. This keeps the filter accurate and avoids timezone/off-by-one issues.
