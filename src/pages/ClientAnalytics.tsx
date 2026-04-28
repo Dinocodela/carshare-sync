@@ -165,6 +165,10 @@ export default function ClientAnalytics() {
                     const year = value === "all" ? null : parseInt(value);
                     setSelectedYear(year);
                     setPerCarSelectedYear(year);
+                    if (year === null) {
+                      setSelectedMonth(null);
+                      setPerCarSelectedMonth(null);
+                    }
                   }}
                 >
                   <SelectTrigger className="w-[100px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9">
@@ -175,6 +179,26 @@ export default function ClientAnalytics() {
                     <SelectItem value="all">All Time</SelectItem>
                     {availableYears.map((year) => (
                       <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selectedMonth?.toString() ?? "all"}
+                  disabled={selectedYear === null}
+                  onValueChange={(value) => {
+                    const month = value === "all" ? null : parseInt(value);
+                    setSelectedMonth(month);
+                    setPerCarSelectedMonth(month);
+                  }}
+                >
+                  <SelectTrigger className="w-[116px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9 disabled:opacity-50">
+                    <Calendar className="mr-1.5 h-3.5 w-3.5" />
+                    <SelectValue placeholder="Month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Months</SelectItem>
+                    {MONTHS.map((month, index) => (
+                      <SelectItem key={month} value={(index + 1).toString()}>{month}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
