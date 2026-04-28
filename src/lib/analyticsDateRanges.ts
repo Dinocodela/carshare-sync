@@ -1,4 +1,4 @@
-import { ClientEarning } from "@/hooks/useClientAnalytics";
+import type { ClientEarning } from "@/hooks/useClientAnalytics";
 
 export interface AnalyticsDateRange {
   timestampStart: string;
