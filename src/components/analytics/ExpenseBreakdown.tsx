@@ -92,7 +92,7 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis dataKey="name" type="category" tickLine={false} axisLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} tickFormatter={(value) => getInitials(String(value))} />
                 <YAxis type="number" tickLine={false} axisLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} tickFormatter={(value) => `$${Number(value).toLocaleString()}`} />
-                <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-0 bg-background/95 backdrop-blur-sm shadow-2xl" />} formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Amount']} />
+                <ChartTooltip content={<ExpenseTooltip />} />
                 <Bar dataKey="value" barSize={isMobile ? 12 : 16} radius={[6, 6, 0, 0]}>
                   {chartData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -111,6 +111,24 @@ export function ExpenseBreakdown({ expenses }: ExpenseBreakdownProps) {
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                     <span className="text-muted-foreground">{item.name}</span>
+                    {item.name === 'Other Expenses' && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label="About Other Expenses"
+                              className="text-muted-foreground/60 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            >
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[280px] text-xs leading-relaxed">
+                            {OTHER_EXPENSES_SHORT_EXPLANATION}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-foreground">${item.value.toFixed(2)}</span>
