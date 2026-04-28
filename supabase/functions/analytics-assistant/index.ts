@@ -50,6 +50,34 @@ const getRange = (year?: number | null, month?: number | null) => {
   };
 };
 
+const inclusiveDayCount = (start: Date, end: Date) => {
+  const normalizedStart = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
+  const normalizedEnd = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
+  if (normalizedEnd < normalizedStart) return 0;
+  return Math.floor((normalizedEnd.getTime() - normalizedStart.getTime()) / MS_PER_DAY) + 1;
+};
+
+const periodDayCount = (earnings: any[], range: ReturnType<typeof getRange>) => {
+  if (range) {
+    return inclusiveDayCount(new Date(`${range.dateStart}T00:00:00Z`), new Date(`${range.dateEnd}T00:00:00Z`));
+  }
+
+  const dated = earnings.filter((earning) => earning.earning_period_start && earning.earning_period_end);
+  if (dated.length === 0) return 0;
+
+  const firstStart = dated.reduce((earliest, earning) => {
+    const start = new Date(earning.earning_period_start);
+    return start < earliest ? start : earliest;
+  }, new Date(dated[0].earning_period_start));
+
+  const lastEnd = dated.reduce((latest, earning) => {
+    const end = new Date(earning.earning_period_end);
+    return end > latest ? end : latest;
+  }, new Date(dated[0].earning_period_end));
+
+  return inclusiveDayCount(firstStart, lastEnd);
+};
+
 const activeRentalDays = (earnings: any[], range: ReturnType<typeof getRange>) => {
   const active = new Set<string>();
   const rangeStart = range ? new Date(`${range.dateStart}T00:00:00Z`) : null;
@@ -247,6 +275,8 @@ Deno.serve(async (req) => {
       const fixedCosts = fixedCostsForPeriod(fixedExpenses, car.id, selectedYear, selectedMonth);
       const trueNetProfit = netEarnings - fixedCosts;
       const activeDays = activeRentalDays(carEarnings, range);
+      const periodDays = periodDayCount(carEarnings, range);
+      const utilizationRate = periodDays > 0 ? Math.min(100, (activeDays / periodDays) * 100) : 0;
       const claimsAmount = carClaims.reduce((sum: number, claim: any) => sum + parseNumber(claim.claim_amount), 0);
 
       return {
@@ -258,6 +288,8 @@ Deno.serve(async (req) => {
         trueNetProfit: currency(trueNetProfit),
         totalTrips: carEarnings.length,
         activeRentalDays: activeDays,
+        periodDays,
+        utilizationRate: `${utilizationRate.toFixed(1)}%`,
         claimsCount: carClaims.length,
         claimsAmount: currency(claimsAmount),
         otherExpenses: currency(carTripExpenses.reduce((sum: number, expense: any) => sum + parseNumber(expense.amount), 0)),
@@ -274,6 +306,8 @@ Deno.serve(async (req) => {
         acc.totalTrips += car.totalTrips;
         acc.claimsCount += car.claimsCount;
         acc.otherExpenses += toNum(car.otherExpenses);
+        acc.activeRentalDays += car.activeRentalDays || 0;
+        acc.periodDays += car.periodDays || 0;
         return acc;
       },
       { totalEarnings: 0, tripExpenses: 0, fixedCosts: 0, trueNetProfit: 0, totalTrips: 0, claimsCount: 0, otherExpenses: 0 }
@@ -290,6 +324,8 @@ Deno.serve(async (req) => {
         totalTrips: totals.totalTrips,
         claimsCount: totals.claimsCount,
         otherExpenses: currency(totals.otherExpenses),
+        activeRentalDays: totals.activeRentalDays,
+        utilizationRate: totals.periodDays > 0 ? `${Math.min(100, (totals.activeRentalDays / totals.periodDays) * 100).toFixed(1)}%` : "0%",
       },
       perCar,
       notes: [
