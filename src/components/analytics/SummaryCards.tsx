@@ -26,6 +26,10 @@ interface SummaryCardsProps {
     totalEarnings?: string;
     netProfit?: string;
     totalExpenses?: string;
+    activeDays?: string;
+    totalTrips?: string;
+    totalClaims?: string;
+    pendingClaims?: string;
   };
 }
 
@@ -59,6 +63,7 @@ export function SummaryCards({
       icon: DollarSign,
       accent: "bg-emerald-500/10 text-emerald-600",
       iconBg: "bg-emerald-500",
+      tooltip: tooltips?.totalEarnings || "Your share after trip-related expenses are deducted and your profit split is applied. This is not the full guest payment.",
     },
     {
       title: "Net Profit",
@@ -67,6 +72,7 @@ export function SummaryCards({
       accent: summary.netProfit >= 0 ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600",
       iconBg: summary.netProfit >= 0 ? "bg-emerald-500" : "bg-red-500",
       valueClass: summary.netProfit >= 0 ? "text-emerald-600" : "text-red-600",
+      tooltip: tooltips?.netProfit || "Total Earnings minus recorded expenses for the selected time range.",
     },
     {
       title: "Active Days",
@@ -74,6 +80,7 @@ export function SummaryCards({
       icon: Calendar,
       accent: "bg-blue-500/10 text-blue-600",
       iconBg: "bg-blue-500",
+      tooltip: tooltips?.activeDays || "Unique calendar days with recorded earnings or trips in the selected time range.",
     },
     {
       title: "Total Trips",
@@ -81,6 +88,7 @@ export function SummaryCards({
       icon: Car,
       accent: "bg-violet-500/10 text-violet-600",
       iconBg: "bg-violet-500",
+      tooltip: tooltips?.totalTrips || "Number of earning records or trips included in the selected filters.",
     },
     {
       title: "Total Claims",
@@ -88,6 +96,7 @@ export function SummaryCards({
       icon: FileText,
       accent: "bg-orange-500/10 text-orange-600",
       iconBg: "bg-orange-500",
+      tooltip: tooltips?.totalClaims || "Total number of claim records tied to these vehicles in the selected time range.",
     },
     {
       title: "Pending Claims",
@@ -95,6 +104,7 @@ export function SummaryCards({
       icon: AlertTriangle,
       accent: "bg-amber-500/10 text-amber-600",
       iconBg: "bg-amber-500",
+      tooltip: tooltips?.pendingClaims || "Claims that are still marked pending and have not been approved or closed yet.",
     },
   ];
 
@@ -109,6 +119,7 @@ export function SummaryCards({
             accent: "bg-red-500/10 text-red-600",
             iconBg: "bg-red-500",
             valueClass: "text-red-600",
+            tooltip: tooltips?.totalExpenses || "Sum of all recorded expenses in the selected filters, including tolls, delivery, charging, car wash, and other expense amounts.",
           }
         : c
     );
@@ -121,14 +132,7 @@ export function SummaryCards({
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {finalCards.map((card, index) => {
-        const tooltipText =
-          card.title === "Total Earnings"
-            ? tooltips?.totalEarnings
-            : card.title === "Net Profit"
-            ? tooltips?.netProfit
-            : card.title === "Total Expenses"
-            ? tooltips?.totalExpenses
-            : undefined;
+        const tooltipText = (card as any).tooltip;
 
         return (
           <div
@@ -161,9 +165,23 @@ export function SummaryCards({
                     </TooltipProvider>
                   )}
                 </div>
-                <div className={`w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center`}>
-                  <card.icon className="w-4 h-4" />
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label={`How ${card.title} is calculated`}
+                        className={`relative w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+                      >
+                        <card.icon className="w-4 h-4" />
+                        <Info className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-card text-muted-foreground shadow-sm" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[260px] text-xs leading-relaxed">
+                      {tooltipText}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <p className={`text-xl font-bold tracking-tight ${(card as any).valueClass || "text-foreground"}`}>
                 {card.value}
