@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useClientCarExpenses } from './useClientCarExpenses';
 
 
 
@@ -67,6 +68,8 @@ export interface AnalyticsSummary {
   totalEarnings: number;
   totalExpenses: number;
   netProfit: number;
+  totalFixedCosts: number;
+  trueNetProfit: number;
   activeDays: number;
   totalTrips: number;
   averagePerTrip: number;
@@ -92,6 +95,7 @@ const getDateRange = (year: number | null, month: number | null) => {
 
 export function useClientAnalytics(initialYear: number | null = new Date().getFullYear()) {
   const { user } = useAuth();
+  const { expenses: fixedExpenses, getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
@@ -102,6 +106,8 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     totalEarnings: 0,
     totalExpenses: 0,
     netProfit: 0,
+    totalFixedCosts: 0,
+    trueNetProfit: 0,
     activeDays: 0,
     totalTrips: 0,
     averagePerTrip: 0,
@@ -161,6 +167,19 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         setExpenses([]);
         setClaims([]);
         setCarsMap({});
+        setSummary({
+          totalEarnings: 0,
+          totalExpenses: 0,
+          netProfit: 0,
+          totalFixedCosts: 0,
+          trueNetProfit: 0,
+          activeDays: 0,
+          totalTrips: 0,
+          averagePerTrip: 0,
+          totalClaims: 0,
+          pendingClaims: 0,
+          approvedClaimsAmount: 0,
+        });
         return;
       }
 
@@ -258,6 +277,12 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       return sum + expenseTotal;
     }, 0);
     const netProfit = totalEarnings - totalExpenses;
+    const accessibleCarIds = Object.keys(carsMap);
+    const totalFixedCosts = accessibleCarIds.reduce(
+      (sum, carId) => sum + getFixedCostsForPeriod(carId, selectedYear, selectedMonth),
+      0
+    );
+    const trueNetProfit = totalEarnings - totalFixedCosts;
     const totalTrips = earnings.length;
     const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;
     
@@ -280,6 +305,8 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       totalEarnings,
       totalExpenses,
       netProfit,
+      totalFixedCosts,
+      trueNetProfit,
       activeDays,
       totalTrips,
       averagePerTrip,
@@ -301,7 +328,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
 
   useEffect(() => {
     calculateSummary();
-  }, [earnings, expenses, claims]);
+  }, [earnings, expenses, claims, carsMap, fixedExpenses, selectedYear, selectedMonth]);
 
   const refetch = useCallback(() => {
     fetchClientAnalytics();
