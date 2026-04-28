@@ -9,6 +9,7 @@ import { RecentClaims } from "@/components/analytics/RecentClaims";
 import { CarSelector } from "@/components/analytics/CarSelector";
 import { CarPerformanceCard } from "@/components/analytics/CarPerformanceCard";
 import { CarComparisonTable } from "@/components/analytics/CarComparisonTable";
+import { AnalyticsAssistant } from "@/components/analytics/AnalyticsAssistant";
 import { CarManagementDialog } from "@/components/cars/CarManagementDialog";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { usePerCarAnalytics } from "@/hooks/usePerCarAnalytics";
@@ -113,6 +114,10 @@ export default function ClientAnalytics() {
   }
 
   const EDGE = "w-full max-w-full overflow-hidden";
+  const selectedAssistantCar = selectedCarId ? cars.find((car: any) => car.id === selectedCarId) : null;
+  const selectedAssistantCarName = selectedAssistantCar
+    ? `${selectedAssistantCar.year} ${selectedAssistantCar.make} ${selectedAssistantCar.model}`
+    : null;
 
   return (
     <DashboardLayout>
@@ -229,16 +234,24 @@ export default function ClientAnalytics() {
               {/* Portfolio */}
               <TabsContent value="portfolio" className="space-y-5 pt-4">
                 <div style={fadeIn(2)} className={EDGE}>
-                  <SummaryCards summary={summary} loading={loading} hideNetProfit />
+                  <AnalyticsAssistant
+                    selectedYear={selectedYear}
+                    selectedMonth={selectedMonth}
+                    selectedCarId={selectedCarId ?? null}
+                    selectedCarName={selectedAssistantCarName}
+                  />
                 </div>
                 <div style={fadeIn(3)} className={EDGE}>
+                  <SummaryCards summary={summary} loading={loading} hideNetProfit />
+                </div>
+                <div style={fadeIn(4)} className={EDGE}>
                   <ClaimsSummary claims={claims} loading={loading} />
                 </div>
-                <div style={fadeIn(4)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                   <EarningsChart earnings={earnings} expenses={expenses} selectedYear={selectedYear} />
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
-                <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
+                <div style={fadeIn(6)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
                    <RecentTrips earnings={earnings} expenses={expenses} carsMap={carsMap} />
                    <RecentClaims claims={claims} carsMap={carsMap} />
                 </div>
@@ -249,16 +262,24 @@ export default function ClientAnalytics() {
                 {selectedCarId && selectedCarPerformance ? (
                   <>
                     <div style={fadeIn(2)} className={EDGE}>
-                      <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
+                      <AnalyticsAssistant
+                        selectedYear={selectedYear}
+                        selectedMonth={selectedMonth}
+                        selectedCarId={selectedCarId}
+                        selectedCarName={selectedAssistantCarName}
+                      />
                     </div>
                     <div style={fadeIn(3)} className={EDGE}>
+                      <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
+                    </div>
+                    <div style={fadeIn(4)} className={EDGE}>
                       <ClaimsSummary claims={selectedCarData?.claims || []} loading={perCarLoading} />
                     </div>
-                    <div style={fadeIn(4)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                    <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                       <EarningsChart earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} selectedYear={selectedYear} />
                       <ExpenseBreakdown expenses={selectedCarData?.expenses || []} />
                     </div>
-                    <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                    <div style={fadeIn(6)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                       <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} carsMap={carsMap} />
                       <RecentClaims claims={selectedCarData?.claims || []} carsMap={carsMap} />
                     </div>
@@ -276,6 +297,14 @@ export default function ClientAnalytics() {
 
               {/* Comparison */}
               <TabsContent value="comparison" className="space-y-5 pt-4">
+                <div className={EDGE}>
+                  <AnalyticsAssistant
+                    selectedYear={selectedYear}
+                    selectedMonth={selectedMonth}
+                    selectedCarId={selectedCarId ?? null}
+                    selectedCarName={selectedAssistantCarName}
+                  />
+                </div>
                 <div className={`grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${EDGE}`}>
                   {carPerformanceData.map((p) => (
                     <CarPerformanceCard key={p.car_id} performance={p} onViewDetails={handleViewDetails} onManageStatus={handleManageStatus} />
