@@ -52,6 +52,20 @@ const SUGGESTED_QUESTIONS = [
 const formatConversationDate = (value: string) =>
   new Date(value).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
+const getAssistantErrorMessage = async (error: unknown) => {
+  const context = (error as { context?: Response })?.context;
+  if (context) {
+    try {
+      const data = await context.clone().json();
+      if (typeof data?.error === "string") return data.error;
+    } catch {
+      // Keep the SDK message below if the response is not JSON.
+    }
+  }
+
+  return error instanceof Error ? error.message : "The AI assistant could not answer right now.";
+};
+
 export function AnalyticsAssistant({
   selectedYear,
   selectedMonth,
@@ -189,7 +203,7 @@ export function AnalyticsAssistant({
       ]);
       loadConversations();
     } catch (error) {
-      const description = error instanceof Error ? error.message : "The AI assistant could not answer right now.";
+      const description = await getAssistantErrorMessage(error);
       toast({
         title: "AI assistant unavailable",
         description,

@@ -34,6 +34,22 @@ const jsonResponse = (body: Record<string, unknown>, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+const errorDetails = (error: unknown) => {
+  if (error instanceof Error) {
+    return { message: error.message, name: error.name, stack: error.stack };
+  }
+  if (error && typeof error === "object") {
+    const record = error as Record<string, unknown>;
+    return {
+      message: String(record.message ?? record.error_description ?? record.details ?? record.hint ?? "Unknown object error"),
+      code: record.code,
+      details: record.details,
+      hint: record.hint,
+    };
+  }
+  return { message: String(error ?? "Unknown error") };
+};
+
 const parseNumber = (value: unknown): number => {
   const n = Number(value ?? 0);
   return Number.isFinite(n) ? n : 0;
@@ -246,7 +262,11 @@ Deno.serve(async (req) => {
     const carIds = Array.from(new Set([...ownedIds, ...sharedIds]));
 
     if (carIds.length === 0) {
-      return jsonResponse({ answer: "I don't see any vehicles connected to your account yet, so I don't have analytics data to explain." });
+      const answer = "I don't see any vehicles connected to your account yet, so I don't have analytics data to explain.";
+      await supabase
+        .from("analytics_assistant_messages")
+        .insert({ conversation_id: conversationId, user_id: user.id, role: "assistant", content: answer });
+      return jsonResponse({ answer, conversationId });
     }
 
     const missingSharedIds = sharedIds.filter((id: string) => !(ownedCars || []).some((car: any) => car.id === id));
@@ -451,7 +471,8 @@ ${JSON.stringify(analyticsContext, null, 2)}`;
 
     return jsonResponse({ answer, conversationId });
   } catch (error) {
-    console.error("analytics-assistant error:", error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "Unable to answer right now." }, 500);
+    const details = errorDetails(error);
+    console.error("analytics-assistant error:", JSON.stringify(details));
+    return jsonResponse({ error: details.message || "Unable to answer right now." }, 500);
   }
 });
