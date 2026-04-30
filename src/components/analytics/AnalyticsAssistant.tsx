@@ -302,7 +302,7 @@ export function AnalyticsAssistant({
         <div className="relative flex items-start justify-between gap-2">
           <div className="flex items-start gap-2.5 min-w-0">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Sparkles className="h-4.5 w-4.5" />
+              <Sparkles className="h-5 w-5" />
             </div>
             <div className="min-w-0">
               <h3 className="text-sm font-semibold text-foreground">AI Analytics Assistant</h3>
