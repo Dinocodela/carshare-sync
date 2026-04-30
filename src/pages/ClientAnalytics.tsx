@@ -307,6 +307,13 @@ export default function ClientAnalytics() {
             onCarUpdated={handleCarUpdated}
           />
         )}
+
+        <AnalyticsAssistant
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          selectedCarId={selectedCarId ?? null}
+          selectedCarName={selectedAssistantCarName}
+        />
       </PageContainer>
     </DashboardLayout>
   );
