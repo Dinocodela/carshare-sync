@@ -233,14 +233,6 @@ export default function ClientAnalytics() {
 
               {/* Portfolio */}
               <TabsContent value="portfolio" className="space-y-5 pt-4">
-                <div style={fadeIn(2)} className={EDGE}>
-                  <AnalyticsAssistant
-                    selectedYear={selectedYear}
-                    selectedMonth={selectedMonth}
-                    selectedCarId={selectedCarId ?? null}
-                    selectedCarName={selectedAssistantCarName}
-                  />
-                </div>
                 <div style={fadeIn(3)} className={EDGE}>
                   <SummaryCards summary={summary} loading={loading} hideNetProfit />
                 </div>
