@@ -79,11 +79,14 @@ export interface AnalyticsSummary {
   approvedClaimsAmount: number;
 }
 
-export function useClientAnalytics(initialYear: number | null = new Date().getFullYear()) {
+export function useClientAnalytics(
+  initialYear: number | null = new Date().getFullYear(),
+  initialMonth: number | null = new Date().getMonth() + 1,
+) {
   const { user } = useAuth();
   const { expenses: fixedExpenses, getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth);
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
