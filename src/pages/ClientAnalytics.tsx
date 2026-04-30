@@ -253,14 +253,6 @@ export default function ClientAnalytics() {
               <TabsContent value="per-car" className="space-y-5 pt-4">
                 {selectedCarId && selectedCarPerformance ? (
                   <>
-                    <div style={fadeIn(2)} className={EDGE}>
-                      <AnalyticsAssistant
-                        selectedYear={selectedYear}
-                        selectedMonth={selectedMonth}
-                        selectedCarId={selectedCarId}
-                        selectedCarName={selectedAssistantCarName}
-                      />
-                    </div>
                     <div style={fadeIn(3)} className={EDGE}>
                       <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
                     </div>
