@@ -1,11 +1,14 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Bot, History, Loader2, MessageSquare, Plus, Send, Sparkles, Trash2, UserRound } from "lucide-react";
+import { Bot, History, Loader2, MessageSquare, Plus, Send, Sparkles, Trash2, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 export type AnalyticsAssistantMessage = {
@@ -59,10 +62,9 @@ const getAssistantErrorMessage = async (error: unknown) => {
       const data = await context.clone().json();
       if (typeof data?.error === "string") return data.error;
     } catch {
-      // Keep the SDK message below if the response is not JSON.
+      // ignore
     }
   }
-
   return error instanceof Error ? error.message : "The AI assistant could not answer right now.";
 };
 
@@ -72,6 +74,8 @@ export function AnalyticsAssistant({
   selectedCarId,
   selectedCarName,
 }: AnalyticsAssistantProps) {
+  const [open, setOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [messages, setMessages] = useState<AnalyticsAssistantMessage[]>([WELCOME_MESSAGE]);
   const [conversations, setConversations] = useState<SavedConversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
@@ -79,7 +83,9 @@ export function AnalyticsAssistant({
   const [isLoading, setIsLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const db = supabase as any;
 
@@ -98,7 +104,7 @@ export function AnalyticsAssistant({
         .from("analytics_assistant_conversations")
         .select("id, title, selected_year, selected_month, selected_car_name, created_at, updated_at")
         .order("updated_at", { ascending: false })
-        .limit(12);
+        .limit(20);
 
       if (error) throw error;
       setConversations((data || []) as SavedConversation[]);
@@ -111,16 +117,28 @@ export function AnalyticsAssistant({
     loadConversations();
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => inputRef.current?.focus());
+    }
+  }, [open]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, isLoading]);
+
   const startNewConversation = () => {
     setCurrentConversationId(null);
     setMessages([WELCOME_MESSAGE]);
     setInput("");
+    setHistoryOpen(false);
     requestAnimationFrame(() => inputRef.current?.focus());
   };
 
   const loadConversation = async (conversationId: string) => {
     try {
       setHistoryLoading(true);
+      setHistoryOpen(false);
       const { data, error } = await db
         .from("analytics_assistant_messages")
         .select("role, content, created_at")
@@ -227,177 +245,278 @@ export function AnalyticsAssistant({
     sendMessage();
   };
 
-  return (
-    <section className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
-      <div className="relative overflow-hidden border-b border-border/50 p-4">
-        <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/10" />
-        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Sparkles className="h-5 w-5" />
+  const HistoryList = (
+    <div className="space-y-2">
+      {conversations.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border/70 p-3 text-xs leading-relaxed text-muted-foreground">
+          Your questions and answers will be saved here after you ask the assistant.
+        </div>
+      ) : (
+        conversations.map((conversation) => (
+          <div
+            key={conversation.id}
+            className={cn(
+              "group rounded-xl border p-2 transition-colors",
+              currentConversationId === conversation.id
+                ? "border-primary/40 bg-primary/10"
+                : "border-border/50 bg-card/60 hover:border-primary/25"
+            )}
+          >
+            <button
+              type="button"
+              onClick={() => loadConversation(conversation.id)}
+              disabled={historyLoading || isLoading}
+              className="w-full text-left disabled:opacity-60"
+            >
+              <div className="flex items-start gap-2">
+                <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-xs font-medium leading-snug text-foreground">{conversation.title}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {formatConversationDate(conversation.updated_at)}
+                    {conversation.selected_car_name ? ` · ${conversation.selected_car_name}` : ""}
+                  </p>
+                </div>
+              </div>
+            </button>
+            <button
+              type="button"
+              aria-label="Delete saved chat"
+              onClick={() => deleteConversation(conversation.id)}
+              className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground opacity-70 transition-opacity hover:text-destructive group-hover:opacity-100"
+            >
+              <Trash2 className="h-3 w-3" />
+              Delete
+            </button>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  const ChatBody = (
+    <div className="flex h-full min-h-0 flex-col">
+      {/* Header */}
+      <div className="relative shrink-0 overflow-hidden border-b border-border/50 px-4 py-3">
+        <div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-primary/10" />
+        <div className="relative flex items-start justify-between gap-2">
+          <div className="flex items-start gap-2.5 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Sparkles className="h-4.5 w-4.5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="text-sm font-semibold text-foreground">AI Analytics Assistant</h3>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Ask plain-English questions about earnings, expenses, utilization, and profitability.
+              <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                {periodLabel}
+                {selectedCarName ? ` · ${selectedCarName}` : " · Portfolio"}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="rounded-xl border border-border/50 bg-background/70 px-3 py-2 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Context:</span> {periodLabel}
-              {selectedCarName ? ` · ${selectedCarName}` : " · Portfolio"}
-            </div>
-            <Button type="button" variant="outline" size="sm" className="h-9 rounded-xl text-xs" onClick={startNewConversation}>
-              <Plus className="mr-1.5 h-3.5 w-3.5" />
-              New chat
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 rounded-lg"
+            onClick={() => setOpen(false)}
+            aria-label="Close assistant"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
-      </div>
-
-      <div className="grid gap-4 p-4 lg:grid-cols-[240px_1fr]">
-        <aside className="rounded-2xl border border-border/50 bg-background/60 p-3">
-          <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <History className="h-3.5 w-3.5" />
-            Saved chats
-          </div>
-          <ScrollArea className="h-[320px] pr-2">
-            {conversations.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border/70 p-3 text-xs leading-relaxed text-muted-foreground">
-                Your questions and answers will be saved here after you ask the assistant.
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {conversations.map((conversation) => (
-                  <div
-                    key={conversation.id}
-                    className={cn(
-                      "group rounded-xl border p-2 transition-colors",
-                      currentConversationId === conversation.id
-                        ? "border-primary/40 bg-primary/10"
-                        : "border-border/50 bg-card/60 hover:border-primary/25"
-                    )}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => loadConversation(conversation.id)}
-                      disabled={historyLoading || isLoading}
-                      className="w-full text-left disabled:opacity-60"
-                    >
-                      <div className="flex items-start gap-2">
-                        <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                        <div className="min-w-0 flex-1">
-                          <p className="line-clamp-2 text-xs font-medium leading-snug text-foreground">{conversation.title}</p>
-                          <p className="mt-1 text-[11px] text-muted-foreground">
-                            {formatConversationDate(conversation.updated_at)}
-                            {conversation.selected_car_name ? ` · ${conversation.selected_car_name}` : ""}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Delete saved chat"
-                      onClick={() => deleteConversation(conversation.id)}
-                      className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground opacity-70 transition-opacity hover:text-destructive group-hover:opacity-100"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </aside>
-
-        <div className="min-w-0">
-          <ScrollArea className="h-[360px] pr-3">
-            <div className="space-y-3">
-              {messages.map((message, index) => {
-                const isAssistant = message.role === "assistant";
-                return (
-                  <div
-                    key={`${message.role}-${index}`}
-                    className={cn("flex gap-2", isAssistant ? "justify-start" : "justify-end")}
-                  >
-                    {isAssistant && (
-                      <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                        <Bot className="h-4 w-4" />
-                      </div>
-                    )}
-                    <div
-                      className={cn(
-                        "max-w-[86%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
-                        isAssistant
-                          ? "border border-border/50 bg-background text-foreground"
-                          : "bg-primary text-primary-foreground"
-                      )}
-                    >
-                      {isAssistant ? (
-                        <div className="prose prose-sm max-w-none text-foreground prose-p:my-1 prose-ul:my-1 prose-li:my-0 prose-strong:text-foreground">
-                          <ReactMarkdown>{message.content}</ReactMarkdown>
-                        </div>
-                      ) : (
-                        <p>{message.content}</p>
-                      )}
-                    </div>
-                    {!isAssistant && (
-                      <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-                        <UserRound className="h-4 w-4" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-              {(isLoading || historyLoading) && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {historyLoading ? "Opening saved chat…" : "Reviewing your analytics…"}
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {SUGGESTED_QUESTIONS.map((question) => (
-              <button
-                key={question}
+        <div className="relative mt-2 flex flex-wrap items-center gap-2">
+          {isMobile ? (
+            <>
+              <Button
                 type="button"
-                disabled={isLoading || historyLoading}
-                onClick={() => sendMessage(question)}
-                className="rounded-full border border-border/60 bg-background px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                variant="ghost"
+                size="sm"
+                className="h-7 rounded-md px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setHistoryOpen(true)}
               >
-                {question}
-              </button>
-            ))}
-          </div>
-
-          <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
-            <Textarea
-              ref={inputRef}
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  sendMessage();
-                }
-              }}
-              placeholder="Ask: Why is my true net profit down this month?"
-              className="min-h-[44px] resize-none rounded-xl text-sm"
-              disabled={isLoading || historyLoading}
-            />
-            <Button type="submit" size="icon" className="h-11 w-11 shrink-0 rounded-xl" disabled={isLoading || historyLoading || !input.trim()}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </Button>
-          </form>
-          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">
-            Your assistant conversations are saved to your account. AI answers are explanatory only, not tax or investment advice.
-          </p>
+                <History className="mr-1 h-3.5 w-3.5" />
+                History ({conversations.length})
+              </Button>
+              <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
+                <SheetContent side="right" className="w-[85vw] max-w-sm p-4">
+                  <div className="mb-3 mt-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <History className="h-3.5 w-3.5" />
+                    Saved chats
+                  </div>
+                  <ScrollArea className="h-[calc(100vh-8rem)] pr-2">{HistoryList}</ScrollArea>
+                </SheetContent>
+              </Sheet>
+            </>
+          ) : (
+            <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 rounded-md px-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <History className="mr-1 h-3.5 w-3.5" />
+                  History ({conversations.length})
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-80 p-3">
+                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <History className="h-3.5 w-3.5" />
+                  Saved chats
+                </div>
+                <ScrollArea className="h-72 pr-2">{HistoryList}</ScrollArea>
+              </PopoverContent>
+            </Popover>
+          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 rounded-md px-2 text-xs text-muted-foreground hover:text-foreground"
+            onClick={startNewConversation}
+          >
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            New chat
+          </Button>
         </div>
       </div>
-    </section>
+
+      {/* Messages */}
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="space-y-3 p-3 sm:p-4">
+          {messages.map((message, index) => {
+            const isAssistant = message.role === "assistant";
+            return (
+              <div
+                key={`${message.role}-${index}`}
+                className={cn("flex gap-2", isAssistant ? "justify-start" : "justify-end")}
+              >
+                {isAssistant && (
+                  <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Bot className="h-4 w-4" />
+                  </div>
+                )}
+                <div
+                  className={cn(
+                    "max-w-[82%] rounded-2xl px-3 py-2 text-sm leading-relaxed break-words",
+                    isAssistant
+                      ? "border border-border/50 bg-background text-foreground"
+                      : "bg-primary text-primary-foreground"
+                  )}
+                >
+                  {isAssistant ? (
+                    <div className="prose prose-sm max-w-none text-foreground prose-p:my-1 prose-ul:my-1 prose-li:my-0 prose-strong:text-foreground">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p>{message.content}</p>
+                  )}
+                </div>
+                {!isAssistant && (
+                  <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                    <UserRound className="h-4 w-4" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {(isLoading || historyLoading) && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              {historyLoading ? "Opening saved chat…" : "Reviewing your analytics…"}
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
+
+      {/* Footer */}
+      <div className="shrink-0 border-t border-border/50 bg-background/80 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          {SUGGESTED_QUESTIONS.map((question) => (
+            <button
+              key={question}
+              type="button"
+              disabled={isLoading || historyLoading}
+              onClick={() => sendMessage(question)}
+              className="rounded-full border border-border/60 bg-background px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {question}
+            </button>
+          ))}
+        </div>
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Textarea
+            ref={inputRef}
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="Ask about your earnings…"
+            className="min-h-[42px] max-h-32 flex-1 min-w-0 resize-none rounded-xl text-sm"
+            disabled={isLoading || historyLoading}
+          />
+          <Button
+            type="submit"
+            size="icon"
+            className="h-[42px] w-[42px] shrink-0 rounded-xl"
+            disabled={isLoading || historyLoading || !input.trim()}
+          >
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Floating bubble */}
+      {!open && (
+        <button
+          type="button"
+          aria-label="Open AI Analytics Assistant"
+          onClick={() => setOpen(true)}
+          className={cn(
+            "fixed z-50 flex h-14 w-14 items-center justify-center rounded-full",
+            "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground",
+            "shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.6)] transition-transform hover:scale-105 active:scale-95",
+            "bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 sm:bottom-6 sm:right-6"
+          )}
+        >
+          <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-primary/30 opacity-40" />
+          <Sparkles className="h-6 w-6" />
+        </button>
+      )}
+
+      {/* Mobile: bottom sheet */}
+      {isMobile ? (
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetContent
+            side="bottom"
+            className="h-[92vh] rounded-t-2xl p-0 [&>button]:hidden"
+          >
+            {ChatBody}
+          </SheetContent>
+        </Sheet>
+      ) : (
+        // Desktop: floating panel
+        open && (
+          <div
+            className={cn(
+              "fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/95 shadow-2xl backdrop-blur",
+              "bottom-4 right-4 sm:bottom-6 sm:right-6",
+              "w-[400px] max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-3rem)]"
+            )}
+          >
+            {ChatBody}
+          </div>
+        )
+      )}
+    </>
   );
 }
