@@ -281,14 +281,6 @@ export default function ClientAnalytics() {
 
               {/* Comparison */}
               <TabsContent value="comparison" className="space-y-5 pt-4">
-                <div className={EDGE}>
-                  <AnalyticsAssistant
-                    selectedYear={selectedYear}
-                    selectedMonth={selectedMonth}
-                    selectedCarId={selectedCarId ?? null}
-                    selectedCarName={selectedAssistantCarName}
-                  />
-                </div>
                 <div className={`grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${EDGE}`}>
                   {carPerformanceData.map((p) => (
                     <CarPerformanceCard key={p.car_id} performance={p} onViewDetails={handleViewDetails} onManageStatus={handleManageStatus} />
