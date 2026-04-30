@@ -233,14 +233,6 @@ export default function ClientAnalytics() {
 
               {/* Portfolio */}
               <TabsContent value="portfolio" className="space-y-5 pt-4">
-                <div style={fadeIn(2)} className={EDGE}>
-                  <AnalyticsAssistant
-                    selectedYear={selectedYear}
-                    selectedMonth={selectedMonth}
-                    selectedCarId={selectedCarId ?? null}
-                    selectedCarName={selectedAssistantCarName}
-                  />
-                </div>
                 <div style={fadeIn(3)} className={EDGE}>
                   <SummaryCards summary={summary} loading={loading} hideNetProfit />
                 </div>
@@ -261,14 +253,6 @@ export default function ClientAnalytics() {
               <TabsContent value="per-car" className="space-y-5 pt-4">
                 {selectedCarId && selectedCarPerformance ? (
                   <>
-                    <div style={fadeIn(2)} className={EDGE}>
-                      <AnalyticsAssistant
-                        selectedYear={selectedYear}
-                        selectedMonth={selectedMonth}
-                        selectedCarId={selectedCarId}
-                        selectedCarName={selectedAssistantCarName}
-                      />
-                    </div>
                     <div style={fadeIn(3)} className={EDGE}>
                       <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
                     </div>
@@ -297,14 +281,6 @@ export default function ClientAnalytics() {
 
               {/* Comparison */}
               <TabsContent value="comparison" className="space-y-5 pt-4">
-                <div className={EDGE}>
-                  <AnalyticsAssistant
-                    selectedYear={selectedYear}
-                    selectedMonth={selectedMonth}
-                    selectedCarId={selectedCarId ?? null}
-                    selectedCarName={selectedAssistantCarName}
-                  />
-                </div>
                 <div className={`grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${EDGE}`}>
                   {carPerformanceData.map((p) => (
                     <CarPerformanceCard key={p.car_id} performance={p} onViewDetails={handleViewDetails} onManageStatus={handleManageStatus} />
@@ -331,6 +307,13 @@ export default function ClientAnalytics() {
             onCarUpdated={handleCarUpdated}
           />
         )}
+
+        <AnalyticsAssistant
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          selectedCarId={selectedCarId ?? null}
+          selectedCarName={selectedAssistantCarName}
+        />
       </PageContainer>
     </DashboardLayout>
   );
