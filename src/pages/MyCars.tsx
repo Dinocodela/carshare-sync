@@ -41,6 +41,7 @@ import { ShareCarDialog } from "@/components/cars/ShareCarDialog";
 import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
 import { CompleteReturnButton } from "@/components/cars/CompleteReturnButton";
+import { CarBookingHistoryModal } from "@/components/cars/CarBookingHistoryModal";
 
 /* ── helpers ── */
 function useMounted() {
