@@ -29,6 +29,7 @@ import RegisteredClients from "./pages/RegisteredClients";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
 import ClientFixedExpenses from "./pages/ClientFixedExpenses";
+import AuditLog from "./pages/AuditLog";
 import HostAnalytics from "./pages/HostAnalytics";
 import ScheduleMaintenance from "./pages/ScheduleMaintenance";
 import Settings from "./pages/Settings";
