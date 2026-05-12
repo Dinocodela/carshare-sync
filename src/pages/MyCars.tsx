@@ -117,6 +117,12 @@ export default function MyCars() {
   const totalCars = cars.length;
   const hostedCars = cars.filter((c: CarData) => c.status === "hosted").length;
   const availableCars = cars.filter((c: CarData) => c.status === "available").length;
+  const filteredCars =
+    statusFilter === "all"
+      ? cars
+      : statusFilter === "hosted"
+      ? cars.filter((c: CarData) => c.status === "hosted")
+      : cars.filter((c: CarData) => c.status === "available");
 
   if (loading) {
     return (
