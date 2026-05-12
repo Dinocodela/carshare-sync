@@ -92,6 +92,19 @@ export default function MyCars() {
   const [bookingsCarId, setBookingsCarId] = useState<string | null>(null);
   const handleUnhost = async () => {
     if (!unhostCarId) return;
+    // Capture scroll position before any DOM/state churn
+    const scrollY = window.scrollY;
+    const restoreScroll = () => {
+      // Restore across multiple frames to beat dialog-close + re-render reflows
+      const target = scrollY;
+      window.scrollTo({ top: target, behavior: "auto" });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: target, behavior: "auto" });
+        requestAnimationFrame(() => window.scrollTo({ top: target, behavior: "auto" }));
+      });
+      setTimeout(() => window.scrollTo({ top: target, behavior: "auto" }), 120);
+      setTimeout(() => window.scrollTo({ top: target, behavior: "auto" }), 350);
+    };
     setUnhosting(true);
     try {
       const { error } = await supabase
@@ -102,6 +115,7 @@ export default function MyCars() {
       toast({ title: "Removed from hosting", description: "The car is now marked available." });
       setUnhostCarId(null);
       refetch();
+      restoreScroll();
     } catch (err: any) {
       toast({ title: "Failed to remove", description: err.message ?? "Try again.", variant: "destructive" });
     } finally {
