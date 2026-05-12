@@ -159,8 +159,16 @@ export default function ClientAnalytics() {
               {/* Quick toggle: This Month vs All Months */}
               <div className="flex items-center gap-1 pt-1 bg-white/10 rounded-lg p-1 w-fit">
                 {(() => {
-                  const isMonthView = selectedYear !== null && selectedMonth !== null;
+                  const isMonthView = !customRange && selectedYear !== null && selectedMonth !== null;
+                  const clearRange = () => {
+                    if (customRange) {
+                      setRangePickerValue(undefined);
+                      setCustomRange(null);
+                      setPerCarCustomRange(null);
+                    }
+                  };
                   const setMonthView = () => {
+                    clearRange();
                     const now = new Date();
                     const y = now.getFullYear();
                     const m = now.getMonth() + 1;
@@ -170,6 +178,7 @@ export default function ClientAnalytics() {
                     setPerCarSelectedMonth(m);
                   };
                   const setYearView = () => {
+                    clearRange();
                     const y = selectedYear ?? new Date().getFullYear();
                     setSelectedYear(y);
                     setPerCarSelectedYear(y);
