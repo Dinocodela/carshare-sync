@@ -89,7 +89,7 @@ export default function MyCars() {
   const [unhostCarId, setUnhostCarId] = useState<string | null>(null);
   const [unhosting, setUnhosting] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "hosted" | "available">("all");
-
+  const [bookingsCarId, setBookingsCarId] = useState<string | null>(null);
   const handleUnhost = async () => {
     if (!unhostCarId) return;
     setUnhosting(true);
