@@ -223,13 +223,39 @@ export default function MyCars() {
             <>
               {/* ─── Section title ─── */}
               <div style={fadeIn(5)} className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-semibold text-foreground">Your Vehicles</h2>
-                <span className="text-xs text-muted-foreground">{totalCars} total</span>
+                <h2 className="text-sm font-semibold text-foreground">
+                  {statusFilter === "all"
+                    ? "Your Vehicles"
+                    : statusFilter === "hosted"
+                    ? "Hosted Vehicles"
+                    : "Available Vehicles"}
+                </h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    {filteredCars.length} {statusFilter === "all" ? "total" : "shown"}
+                  </span>
+                  {statusFilter !== "all" && (
+                    <button
+                      type="button"
+                      onClick={() => setStatusFilter("all")}
+                      className="text-xs text-primary font-medium hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* ─── Car Cards ─── */}
               <div className="space-y-4">
-                {cars.map((car: CarData, idx: number) => {
+                {filteredCars.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-border/80 bg-card/40 p-8 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No {statusFilter} vehicles right now.
+                    </p>
+                  </div>
+                ) : null}
+                {filteredCars.map((car: CarData, idx: number) => {
                   const cfg = STATUS_CFG[car.status] ?? { label: car.status, desc: "", color: "bg-muted-foreground" };
 
                   return (
