@@ -1493,6 +1493,8 @@ export default function HostCarManagement() {
 
         if (error) throw error;
 
+        if (inserted?.id) await upsertGuestContact(inserted.id);
+
         toast({
           title: "Earning recorded successfully",
           description: "Your earning has been added to the system.",
