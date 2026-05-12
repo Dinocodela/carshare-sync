@@ -3,7 +3,8 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ClientEarning, ClientExpense, ClientClaim } from './useClientAnalytics';
 import { useClientCarExpenses } from './useClientCarExpenses';
-import { getActiveRentalDays, getAnalyticsDateRange, getPeriodDayCount } from '@/lib/analyticsDateRanges';
+import { getActiveRentalDays, getAnalyticsDateRange, getPeriodDayCount, buildCustomDateRange } from '@/lib/analyticsDateRanges';
+import type { CustomDateRange } from './useClientAnalytics';
 
 export interface CarPerformance {
   car_id: string;
