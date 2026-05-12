@@ -199,7 +199,9 @@ export function useClientAnalytics(
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
 
       if (dateRange) {
         earningsQuery = earningsQuery
