@@ -1143,7 +1143,26 @@ export default function HostCarManagement() {
 
       if (error) throw error;
 
-      setEarnings(data || []);
+      // Merge guest contact info from private table
+      const earningIds = (data || []).map((e: any) => e.id);
+      let contactMap: Record<string, { guest_email?: string | null; guest_phone?: string | null }> = {};
+      if (earningIds.length > 0) {
+        const { data: contacts } = await (supabase as any)
+          .from("host_earnings_guest_contact")
+          .select("earning_id, guest_email, guest_phone")
+          .in("earning_id", earningIds);
+        (contacts || []).forEach((c: any) => {
+          contactMap[c.earning_id] = { guest_email: c.guest_email, guest_phone: c.guest_phone };
+        });
+      }
+
+      setEarnings(
+        (data || []).map((e: any) => ({
+          ...e,
+          guest_email: contactMap[e.id]?.guest_email ?? null,
+          guest_phone: contactMap[e.id]?.guest_phone ?? null,
+        }))
+      );
     } catch (error) {
       console.error("Error fetching earnings:", error);
     } finally {
