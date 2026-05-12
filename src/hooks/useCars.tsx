@@ -103,18 +103,18 @@ export function useCars() {
     }
   };
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (silent = false) => {
+    if (!silent) setLoading(true);
     await Promise.all([fetchAccessibleCars(), fetchRequests()]);
-    setLoading(false);
+    if (!silent) setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
   }, [user]);
 
-  const refetch = () => {
-    fetchData();
+  const refetch = (silent = true) => {
+    fetchData(silent);
   };
 
   return {
