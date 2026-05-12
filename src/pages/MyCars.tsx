@@ -12,6 +12,9 @@ import {
   MapPin,
   Calendar,
   ChevronRight,
+  Hash,
+  CreditCard,
+  XCircle,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -19,8 +22,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useCars } from "@/hooks/useCars";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { ShareCarDialog } from "@/components/cars/ShareCarDialog";
 import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
@@ -57,15 +72,39 @@ interface CarData {
   status: string;
   created_at: string;
   host_id: string | null;
+  license_plate?: string | null;
+  vin_number?: string | null;
   is_shared?: boolean;
 }
 
 export default function MyCars() {
   const navigate = useNavigate();
   const mounted = useMounted();
-  const { cars, loading } = useCars();
+  const { cars, loading, refetch } = useCars();
+  const { toast } = useToast();
   const [shareCarId, setShareCarId] = useState<string | null>(null);
   const [manageAccessCarId, setManageAccessCarId] = useState<string | null>(null);
+  const [unhostCarId, setUnhostCarId] = useState<string | null>(null);
+  const [unhosting, setUnhosting] = useState(false);
+
+  const handleUnhost = async () => {
+    if (!unhostCarId) return;
+    setUnhosting(true);
+    try {
+      const { error } = await supabase
+        .from("cars")
+        .update({ status: "available", host_id: null })
+        .eq("id", unhostCarId);
+      if (error) throw error;
+      toast({ title: "Removed from hosting", description: "The car is now marked available." });
+      setUnhostCarId(null);
+      refetch();
+    } catch (err: any) {
+      toast({ title: "Failed to remove", description: err.message ?? "Try again.", variant: "destructive" });
+    } finally {
+      setUnhosting(false);
+    }
+  };
 
   const fadeIn = (idx: number) =>
     ({
@@ -247,7 +286,7 @@ export default function MyCars() {
                         </div>
 
                         {/* Meta row */}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {car.location}
@@ -257,6 +296,24 @@ export default function MyCars() {
                             {new Date(car.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                           </span>
                         </div>
+
+                        {/* Identifiers */}
+                        {(car.license_plate || car.vin_number) && !car.is_shared && (
+                          <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                            {car.license_plate && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                                <CreditCard className="w-3 h-3 text-muted-foreground" />
+                                {car.license_plate}
+                              </span>
+                            )}
+                            {car.vin_number && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                                <Hash className="w-3 h-3 text-muted-foreground" />
+                                {car.vin_number}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                         {/* Actions */}
                         <div className="pt-1 space-y-2">
@@ -296,15 +353,37 @@ export default function MyCars() {
                                 </Button>
                               )}
                               {car.status === "hosted" && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full rounded-xl h-11 gap-2"
+                                    onClick={() => navigate(`/hosting-details/${car.id}`)}
+                                    disabled={!car.host_id}
+                                  >
+                                    <ArrowUpRight className="w-4 h-4" />
+                                    View Host Contact
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => setUnhostCarId(car.id)}
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                    Remove from Hosting
+                                  </Button>
+                                </>
+                              )}
+                              {car.status === "pending" && car.host_id && (
                                 <Button
-                                  variant="outline"
+                                  variant="ghost"
                                   size="sm"
-                                  className="w-full rounded-xl h-11 gap-2"
-                                  onClick={() => navigate(`/hosting-details/${car.id}`)}
-                                  disabled={!car.host_id}
+                                  className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  onClick={() => setUnhostCarId(car.id)}
                                 >
-                                  <ArrowUpRight className="w-4 h-4" />
-                                  View Host Contact
+                                  <XCircle className="w-4 h-4" />
+                                  Cancel & Remove from Hosting
                                 </Button>
                               )}
                               {car.status === "ready_for_return" && (() => {
@@ -364,6 +443,30 @@ export default function MyCars() {
         open={!!manageAccessCarId}
         onOpenChange={(open) => setManageAccessCarId(open ? manageAccessCarId : null)}
       />
+
+      <AlertDialog open={!!unhostCarId} onOpenChange={(o) => !o && setUnhostCarId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this car from hosting?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The car will be marked as available and unassigned from its current host. Use this if you've sold the car or no longer want it hosted. You can request hosting again later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={unhosting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleUnhost();
+              }}
+              disabled={unhosting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {unhosting ? "Removing..." : "Remove from Hosting"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
