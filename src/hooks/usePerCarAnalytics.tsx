@@ -271,7 +271,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
         breakEvenTrips
       };
     });
-  }, [cars, allData, getFixedCostsForPeriod, selectedYear, selectedMonth]);
+  }, [cars, allData, getFixedCostsForPeriod, selectedYear, selectedMonth, customRange]);
 
   // Filter data for selected car
   const selectedCarData = useMemo((): CarAnalyticsData | null => {
