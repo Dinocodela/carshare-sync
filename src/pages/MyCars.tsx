@@ -353,15 +353,37 @@ export default function MyCars() {
                                 </Button>
                               )}
                               {car.status === "hosted" && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full rounded-xl h-11 gap-2"
+                                    onClick={() => navigate(`/hosting-details/${car.id}`)}
+                                    disabled={!car.host_id}
+                                  >
+                                    <ArrowUpRight className="w-4 h-4" />
+                                    View Host Contact
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => setUnhostCarId(car.id)}
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                    Remove from Hosting
+                                  </Button>
+                                </>
+                              )}
+                              {car.status === "pending" && car.host_id && (
                                 <Button
-                                  variant="outline"
+                                  variant="ghost"
                                   size="sm"
-                                  className="w-full rounded-xl h-11 gap-2"
-                                  onClick={() => navigate(`/hosting-details/${car.id}`)}
-                                  disabled={!car.host_id}
+                                  className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  onClick={() => setUnhostCarId(car.id)}
                                 >
-                                  <ArrowUpRight className="w-4 h-4" />
-                                  View Host Contact
+                                  <XCircle className="w-4 h-4" />
+                                  Cancel & Remove from Hosting
                                 </Button>
                               )}
                               {car.status === "ready_for_return" && (() => {
