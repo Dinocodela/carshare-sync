@@ -260,8 +260,65 @@ export default function ClientAnalytics() {
             </div>
           </div>
 
+          {/* ─── Net Profit Summary ─── */}
+          {(() => {
+            const np = summary.netProfit ?? 0;
+            const positive = np >= 0;
+            const isMonthView = selectedYear !== null && selectedMonth !== null;
+            const periodLabel = isMonthView
+              ? `${MONTHS[(selectedMonth as number) - 1]} ${selectedYear}`
+              : selectedYear !== null
+              ? `${selectedYear}`
+              : "all time";
+            const formatted = `${np < 0 ? "-" : ""}$${Math.abs(np).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+            const headline = positive
+              ? np === 0
+                ? `You're just getting started in ${periodLabel}`
+                : `Nice work — you're in the green for ${periodLabel}`
+              : `Heads up — you're running a loss in ${periodLabel}`;
+            const subline = positive
+              ? np === 0
+                ? "No earnings yet for this period. Once trips come in, your profit will show here."
+                : "Keep it rolling. Your fleet is producing real income."
+              : "Expenses are outpacing earnings right now. Review your trip costs to find quick wins.";
+            return (
+              <div
+                style={fadeIn(1)}
+                className={`rounded-2xl border p-4 sm:p-5 ${
+                  positive
+                    ? "border-emerald-500/20 bg-emerald-500/5"
+                    : "border-amber-500/20 bg-amber-500/5"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
+                      positive ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"
+                    }`}
+                  >
+                    <TrendingUp className={`w-5 h-5 ${positive ? "" : "rotate-180"}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Net profit · {periodLabel}
+                    </p>
+                    <p
+                      className={`text-2xl sm:text-3xl font-bold mt-0.5 ${
+                        positive ? "text-emerald-600" : "text-amber-700"
+                      }`}
+                    >
+                      {formatted}
+                    </p>
+                    <p className="text-sm font-semibold text-foreground mt-1">{headline}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{subline}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* ─── Tabs ─── */}
-          <div style={fadeIn(1)}>
+          <div style={fadeIn(2)}>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-1 bg-muted/50 backdrop-blur-sm rounded-xl p-1">
                 <TabsTrigger value="portfolio" className="min-w-max whitespace-nowrap px-3 py-2 rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">
