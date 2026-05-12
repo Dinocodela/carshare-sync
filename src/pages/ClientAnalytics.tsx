@@ -10,6 +10,7 @@ import { CarSelector } from "@/components/analytics/CarSelector";
 import { CarPerformanceCard } from "@/components/analytics/CarPerformanceCard";
 import { CarComparisonTable } from "@/components/analytics/CarComparisonTable";
 import { AnalyticsAssistant } from "@/components/analytics/AnalyticsAssistant";
+import { BestMonthWidget } from "@/components/analytics/BestMonthWidget";
 import { CarManagementDialog } from "@/components/cars/CarManagementDialog";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { usePerCarAnalytics } from "@/hooks/usePerCarAnalytics";
