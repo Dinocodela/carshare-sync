@@ -102,7 +102,9 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
       const carIds = allCars.map(car => car.id);
 
-      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
 
       // Get all analytics data with year filtering
       let earningsQuery = supabase
