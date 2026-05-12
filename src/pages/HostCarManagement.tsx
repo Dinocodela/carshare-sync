@@ -1403,8 +1403,6 @@ export default function HostCarManagement() {
         car_id: values.car_id,
         trip_id: values.trip_id,
         guest_name: values.guest_name,
-        guest_phone: values.guest_phone || null,
-        guest_email: values.guest_email || null,
         earning_type: values.earning_type,
         amount: grossEarnings,
         gross_earnings: grossEarnings,
@@ -1417,6 +1415,27 @@ export default function HostCarManagement() {
         earning_period_end: endDateTime,
         payment_status: values.payment_status,
         date_paid: values.date_paid || null,
+      };
+
+      const guestContact = {
+        guest_email: values.guest_email || null,
+        guest_phone: values.guest_phone || null,
+      };
+
+      const upsertGuestContact = async (earningId: string) => {
+        if (!guestContact.guest_email && !guestContact.guest_phone) {
+          await (supabase as any)
+            .from("host_earnings_guest_contact")
+            .delete()
+            .eq("earning_id", earningId);
+          return;
+        }
+        await (supabase as any)
+          .from("host_earnings_guest_contact")
+          .upsert(
+            { earning_id: earningId, ...guestContact },
+            { onConflict: "earning_id" }
+          );
       };
 
       if (editingEarning) {
