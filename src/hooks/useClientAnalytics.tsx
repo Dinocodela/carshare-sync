@@ -251,7 +251,7 @@ export function useClientAnalytics(
       console.error('Error fetching client analytics:', err);
       setError('Failed to load analytics data');
     }
-  }, [user, selectedYear, selectedMonth]);
+  }, [user, selectedYear, selectedMonth, customRange]);
 
   const calculateSummary = () => {
     const totalEarnings = earnings.reduce((sum, earning) => {
