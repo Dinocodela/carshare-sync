@@ -443,6 +443,30 @@ export default function MyCars() {
         open={!!manageAccessCarId}
         onOpenChange={(open) => setManageAccessCarId(open ? manageAccessCarId : null)}
       />
+
+      <AlertDialog open={!!unhostCarId} onOpenChange={(o) => !o && setUnhostCarId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this car from hosting?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The car will be marked as available and unassigned from its current host. Use this if you've sold the car or no longer want it hosted. You can request hosting again later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={unhosting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleUnhost();
+              }}
+              disabled={unhosting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {unhosting ? "Removing..." : "Remove from Hosting"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
