@@ -358,6 +358,9 @@ export default function ClientAnalytics() {
                 {selectedCarId && selectedCarPerformance ? (
                   <>
                     <div style={fadeIn(3)} className={EDGE}>
+                      <BestMonthWidget carId={selectedCarId} carName={selectedAssistantCarName} />
+                    </div>
+                    <div style={fadeIn(3)} className={EDGE}>
                       <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
                     </div>
                     <div style={fadeIn(4)} className={EDGE}>
