@@ -286,7 +286,7 @@ export default function MyCars() {
                         </div>
 
                         {/* Meta row */}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {car.location}
@@ -296,6 +296,24 @@ export default function MyCars() {
                             {new Date(car.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                           </span>
                         </div>
+
+                        {/* Identifiers */}
+                        {(car.license_plate || car.vin_number) && !car.is_shared && (
+                          <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                            {car.license_plate && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                                <CreditCard className="w-3 h-3 text-muted-foreground" />
+                                {car.license_plate}
+                              </span>
+                            )}
+                            {car.vin_number && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                                <Hash className="w-3 h-3 text-muted-foreground" />
+                                {car.vin_number}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                         {/* Actions */}
                         <div className="pt-1 space-y-2">
