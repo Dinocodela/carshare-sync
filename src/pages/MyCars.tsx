@@ -175,22 +175,30 @@ export default function MyCars() {
           {/* ─── Stat Pills ─── */}
           <div style={fadeIn(1)} className="grid grid-cols-3 gap-3">
             {[
-              { label: "Total", value: totalCars, accent: "bg-primary/10 text-primary", icon: CarIcon },
-              { label: "Hosted", value: hostedCars, accent: "bg-emerald-50 text-emerald-600", icon: Shield },
-              { label: "Available", value: availableCars, accent: "bg-amber-50 text-amber-600", icon: Plus },
-            ].map((stat, i) => (
-              <div
-                key={stat.label}
-                style={fadeIn(i + 2)}
-                className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/60 p-4 text-left"
-              >
-                <div className={`w-9 h-9 rounded-xl ${stat.accent} flex items-center justify-center mb-3`}>
-                  <stat.icon className="w-[18px] h-[18px]" />
-                </div>
-                <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
-                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{stat.label}</p>
-              </div>
-            ))}
+              { key: "all" as const, label: "Total", value: totalCars, accent: "bg-primary/10 text-primary", icon: CarIcon },
+              { key: "hosted" as const, label: "Hosted", value: hostedCars, accent: "bg-emerald-50 text-emerald-600", icon: Shield },
+              { key: "available" as const, label: "Available", value: availableCars, accent: "bg-amber-50 text-amber-600", icon: Plus },
+            ].map((stat, i) => {
+              const isActive = statusFilter === stat.key;
+              return (
+                <button
+                  key={stat.label}
+                  type="button"
+                  onClick={() => setStatusFilter(stat.key)}
+                  style={fadeIn(i + 2)}
+                  aria-pressed={isActive}
+                  className={`rounded-2xl bg-card/80 backdrop-blur-sm border p-4 text-left transition-all hover:border-primary/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                    isActive ? "border-primary ring-2 ring-primary/20" : "border-border/60"
+                  }`}
+                >
+                  <div className={`w-9 h-9 rounded-xl ${stat.accent} flex items-center justify-center mb-3`}>
+                    <stat.icon className="w-[18px] h-[18px]" />
+                  </div>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
+                  <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{stat.label}</p>
+                </button>
+              );
+            })}
           </div>
 
           {/* ─── Empty state ─── */}
