@@ -147,6 +147,53 @@ export default function ClientAnalytics() {
                 Real-time tracking · Verified data · Insured vehicles
               </p>
 
+              {/* Quick toggle: This Month vs All Months */}
+              <div className="flex items-center gap-1 pt-1 bg-white/10 rounded-lg p-1 w-fit">
+                {(() => {
+                  const isMonthView = selectedYear !== null && selectedMonth !== null;
+                  const setMonthView = () => {
+                    const now = new Date();
+                    const y = now.getFullYear();
+                    const m = now.getMonth() + 1;
+                    setSelectedYear(y);
+                    setPerCarSelectedYear(y);
+                    setSelectedMonth(m);
+                    setPerCarSelectedMonth(m);
+                  };
+                  const setYearView = () => {
+                    const y = selectedYear ?? new Date().getFullYear();
+                    setSelectedYear(y);
+                    setPerCarSelectedYear(y);
+                    setSelectedMonth(null);
+                    setPerCarSelectedMonth(null);
+                  };
+                  return (
+                    <>
+                      <button
+                        onClick={setMonthView}
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                          isMonthView
+                            ? "bg-white text-primary"
+                            : "text-primary-foreground/80 hover:bg-white/10"
+                        }`}
+                      >
+                        This Month
+                      </button>
+                      <button
+                        onClick={setYearView}
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                          !isMonthView
+                            ? "bg-white text-primary"
+                            : "text-primary-foreground/80 hover:bg-white/10"
+                        }`}
+                      >
+                        All Months
+                      </button>
+                    </>
+                  );
+                })()}
+              </div>
+
               {/* Controls */}
               <div className="flex items-center gap-2 pt-1">
                 <div className="flex-1 min-w-0">
