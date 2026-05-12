@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -77,9 +78,25 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
         });
       } else {
         toast({
-          title: "Registration successful!",
-          description: "Please verify your email.",
+          title: "Application submitted!",
+          description: "Please verify your email. An admin will review your account shortly.",
         });
+
+        try {
+          await supabase.functions.invoke("notify-admin-new-host", {
+            body: {
+              hostName: formData.adminName,
+              hostEmail: formData.email,
+              hostPhone: formData.phone,
+              companyName: formData.companyName,
+              services: formData.services,
+              coverageArea: formData.coverageArea,
+            },
+          });
+        } catch (e) {
+          console.warn("Admin notification failed:", e);
+        }
+
         onDone?.();
         onBackToLogin();
       }
