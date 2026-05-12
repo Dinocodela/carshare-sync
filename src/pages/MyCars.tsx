@@ -72,6 +72,8 @@ interface CarData {
   status: string;
   created_at: string;
   host_id: string | null;
+  license_plate?: string | null;
+  vin_number?: string | null;
   is_shared?: boolean;
 }
 
