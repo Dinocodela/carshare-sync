@@ -283,7 +283,10 @@ export function useClientAnalytics(
     const totalTrips = earnings.length;
     const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;
     
-    const activeDays = getActiveRentalDays(earnings, getAnalyticsDateRange(selectedYear, selectedMonth));
+    const activeRange = customRange
+      ? buildCustomDateRange(customRange.start, customRange.end)
+      : getAnalyticsDateRange(selectedYear, selectedMonth);
+    const activeDays = getActiveRentalDays(earnings, activeRange);
 
     // Calculate claims summary
     const totalClaims = claims.length;
