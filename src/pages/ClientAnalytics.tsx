@@ -77,7 +77,8 @@ export default function ClientAnalytics() {
     loading: perCarLoading, error: perCarError, refetch: refetchPerCar,
     setSelectedYear: setPerCarSelectedYear,
     setSelectedMonth: setPerCarSelectedMonth,
-  } = usePerCarAnalytics(selectedCarId, selectedYear, selectedMonth);
+    setCustomRange: setPerCarCustomRange,
+  } = usePerCarAnalytics(selectedCarId, selectedYear, selectedMonth, customRange);
 
   const handleRefresh = () => { refetch(); refetchPerCar(); };
 
