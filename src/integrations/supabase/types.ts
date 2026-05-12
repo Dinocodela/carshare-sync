@@ -868,9 +868,7 @@ export type Database = {
           earning_period_start: string
           earning_type: string
           gross_earnings: number | null
-          guest_email: string | null
           guest_name: string | null
-          guest_phone: string | null
           host_id: string
           host_profit_percentage: number | null
           id: string
@@ -894,9 +892,7 @@ export type Database = {
           earning_period_start: string
           earning_type?: string
           gross_earnings?: number | null
-          guest_email?: string | null
           guest_name?: string | null
-          guest_phone?: string | null
           host_id: string
           host_profit_percentage?: number | null
           id?: string
@@ -920,9 +916,7 @@ export type Database = {
           earning_period_start?: string
           earning_type?: string
           gross_earnings?: number | null
-          guest_email?: string | null
           guest_name?: string | null
-          guest_phone?: string | null
           host_id?: string
           host_profit_percentage?: number | null
           id?: string
@@ -940,6 +934,38 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      host_earnings_guest_contact: {
+        Row: {
+          created_at: string
+          earning_id: string
+          guest_email: string | null
+          guest_phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          earning_id: string
+          guest_email?: string | null
+          guest_phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          earning_id?: string
+          guest_email?: string | null
+          guest_phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "host_earnings_guest_contact_earning_id_fkey"
+            columns: ["earning_id"]
+            isOneToOne: true
+            referencedRelation: "host_earnings"
             referencedColumns: ["id"]
           },
         ]
@@ -1871,6 +1897,22 @@ export type Database = {
           model: string
           status: string
           year: number
+        }[]
+      }
+      get_public_host_profiles: {
+        Args: never
+        Returns: {
+          bio: string
+          company_name: string
+          first_name: string
+          id: string
+          last_name: string
+          location: string
+          rating: number
+          services: string[]
+          turo_profile_url: string
+          turo_reviews_count: number
+          user_id: string
         }[]
       }
       get_safe_car_info: {
