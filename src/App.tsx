@@ -232,6 +232,7 @@ const App = () => (
                       path="/client-fixed-expenses"
                       element={<ClientFixedExpenses />}
                     />
+                    <Route path="/audit-log" element={<AuditLog />} />
 
                     <Route element={<RequireRole />}>
                       <Route
