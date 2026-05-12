@@ -1451,6 +1451,8 @@ export default function HostCarManagement() {
 
         if (error) throw error;
 
+        await upsertGuestContact(editingEarning.id);
+
         toast({
           title: "Earning updated successfully",
           description: "Your earning has been updated.",
