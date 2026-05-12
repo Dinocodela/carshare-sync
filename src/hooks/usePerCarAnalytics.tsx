@@ -291,7 +291,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
   useEffect(() => {
     fetchAllData();
-  }, [user, selectedYear, selectedMonth]);
+  }, [user, selectedYear, selectedMonth, customRange]);
 
   const refetch = () => {
     fetchAllData();
@@ -311,5 +311,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
     selectedMonth,
     setSelectedMonth,
     availableYears,
+    customRange,
+    setCustomRange,
   };
 }
