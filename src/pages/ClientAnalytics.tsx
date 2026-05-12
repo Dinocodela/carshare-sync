@@ -54,10 +54,12 @@ export default function ClientAnalytics() {
     earnings, expenses, claims, carsMap, summary,
     loading, error, refetch,
     selectedYear, setSelectedYear, selectedMonth, setSelectedMonth, availableYears,
+    customRange, setCustomRange,
   } = useClientAnalytics();
   const [selectedCarId, setSelectedCarId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState("portfolio");
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
+  const [rangePickerValue, setRangePickerValue] = useState<DateRange | undefined>(undefined);
   const [selectedCarForManagement, setSelectedCarForManagement] = useState<{
     id: string; year: number; make: string; model: string; status: string;
   } | null>(null);
