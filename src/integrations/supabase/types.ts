@@ -784,6 +784,39 @@ export type Database = {
         }
         Relationships: []
       }
+      host_audit_log: {
+        Row: {
+          action: string
+          car_id: string | null
+          changes: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          host_id: string
+          id: string
+        }
+        Insert: {
+          action: string
+          car_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          host_id: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          car_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          host_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       host_claims: {
         Row: {
           accident_description: string | null
