@@ -318,11 +318,11 @@ export function useClientAnalytics(
     };
 
     fetchData();
-  }, [user, selectedYear, selectedMonth, fetchClientAnalytics]);
+  }, [user, selectedYear, selectedMonth, customRange, fetchClientAnalytics]);
 
   useEffect(() => {
     calculateSummary();
-  }, [earnings, expenses, claims, carsMap, fixedExpenses, selectedYear, selectedMonth]);
+  }, [earnings, expenses, claims, carsMap, fixedExpenses, selectedYear, selectedMonth, customRange]);
 
   const refetch = useCallback(() => {
     fetchClientAnalytics();
