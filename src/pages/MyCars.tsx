@@ -80,9 +80,31 @@ interface CarData {
 export default function MyCars() {
   const navigate = useNavigate();
   const mounted = useMounted();
-  const { cars, loading } = useCars();
+  const { cars, loading, refetch } = useCars();
+  const { toast } = useToast();
   const [shareCarId, setShareCarId] = useState<string | null>(null);
   const [manageAccessCarId, setManageAccessCarId] = useState<string | null>(null);
+  const [unhostCarId, setUnhostCarId] = useState<string | null>(null);
+  const [unhosting, setUnhosting] = useState(false);
+
+  const handleUnhost = async () => {
+    if (!unhostCarId) return;
+    setUnhosting(true);
+    try {
+      const { error } = await supabase
+        .from("cars")
+        .update({ status: "available", host_id: null })
+        .eq("id", unhostCarId);
+      if (error) throw error;
+      toast({ title: "Removed from hosting", description: "The car is now marked available." });
+      setUnhostCarId(null);
+      refetch();
+    } catch (err: any) {
+      toast({ title: "Failed to remove", description: err.message ?? "Try again.", variant: "destructive" });
+    } finally {
+      setUnhosting(false);
+    }
+  };
 
   const fadeIn = (idx: number) =>
     ({
