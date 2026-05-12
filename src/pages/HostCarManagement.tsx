@@ -1143,7 +1143,26 @@ export default function HostCarManagement() {
 
       if (error) throw error;
 
-      setEarnings(data || []);
+      // Merge guest contact info from private table
+      const earningIds = (data || []).map((e: any) => e.id);
+      let contactMap: Record<string, { guest_email?: string | null; guest_phone?: string | null }> = {};
+      if (earningIds.length > 0) {
+        const { data: contacts } = await (supabase as any)
+          .from("host_earnings_guest_contact")
+          .select("earning_id, guest_email, guest_phone")
+          .in("earning_id", earningIds);
+        (contacts || []).forEach((c: any) => {
+          contactMap[c.earning_id] = { guest_email: c.guest_email, guest_phone: c.guest_phone };
+        });
+      }
+
+      setEarnings(
+        (data || []).map((e: any) => ({
+          ...e,
+          guest_email: contactMap[e.id]?.guest_email ?? null,
+          guest_phone: contactMap[e.id]?.guest_phone ?? null,
+        }))
+      );
     } catch (error) {
       console.error("Error fetching earnings:", error);
     } finally {
@@ -1384,8 +1403,6 @@ export default function HostCarManagement() {
         car_id: values.car_id,
         trip_id: values.trip_id,
         guest_name: values.guest_name,
-        guest_phone: values.guest_phone || null,
-        guest_email: values.guest_email || null,
         earning_type: values.earning_type,
         amount: grossEarnings,
         gross_earnings: grossEarnings,
@@ -1400,6 +1417,27 @@ export default function HostCarManagement() {
         date_paid: values.date_paid || null,
       };
 
+      const guestContact = {
+        guest_email: values.guest_email || null,
+        guest_phone: values.guest_phone || null,
+      };
+
+      const upsertGuestContact = async (earningId: string) => {
+        if (!guestContact.guest_email && !guestContact.guest_phone) {
+          await (supabase as any)
+            .from("host_earnings_guest_contact")
+            .delete()
+            .eq("earning_id", earningId);
+          return;
+        }
+        await (supabase as any)
+          .from("host_earnings_guest_contact")
+          .upsert(
+            { earning_id: earningId, ...guestContact },
+            { onConflict: "earning_id" }
+          );
+      };
+
       if (editingEarning) {
         const wasPaidBefore = editingEarning.payment_status === "paid";
 
@@ -1412,6 +1450,8 @@ export default function HostCarManagement() {
           .maybeSingle();
 
         if (error) throw error;
+
+        await upsertGuestContact(editingEarning.id);
 
         toast({
           title: "Earning updated successfully",
@@ -1452,6 +1492,8 @@ export default function HostCarManagement() {
           .maybeSingle();
 
         if (error) throw error;
+
+        if (inserted?.id) await upsertGuestContact(inserted.id);
 
         toast({
           title: "Earning recorded successfully",

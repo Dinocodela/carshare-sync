@@ -165,8 +165,6 @@ Deno.serve(async (req) => {
       data.host_profit_percentage = hPct;
 
       if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
-      if (payload.guest_phone !== undefined) data.guest_phone = payload.guest_phone || null;
-      if (payload.guest_email !== undefined) data.guest_email = payload.guest_email || null;
       if (payload.trip_idd !== undefined) data.trip_idd = payload.trip_idd || null;
       if (payload.earning_type !== undefined) data.earning_type = payload.earning_type;
       if (payload.payment_source !== undefined) data.payment_source = payload.payment_source;
@@ -229,6 +227,29 @@ Deno.serve(async (req) => {
       console.error("Database error:", error.message);
       return new Response(JSON.stringify({ error: error.message }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Upsert guest contact info into private table
+    if (data?.id && (payload.guest_email !== undefined || payload.guest_phone !== undefined)) {
+      const hasContact = (payload.guest_email && payload.guest_email.length > 0)
+        || (payload.guest_phone && payload.guest_phone.length > 0);
+      if (hasContact) {
+        await supabase
+          .from("host_earnings_guest_contact")
+          .upsert(
+            {
+              earning_id: data.id,
+              guest_email: payload.guest_email || null,
+              guest_phone: payload.guest_phone || null,
+            },
+            { onConflict: "earning_id" }
+          );
+      } else {
+        await supabase
+          .from("host_earnings_guest_contact")
+          .delete()
+          .eq("earning_id", data.id);
+      }
     }
 
     return new Response(
