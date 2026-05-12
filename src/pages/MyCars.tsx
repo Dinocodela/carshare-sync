@@ -498,6 +498,15 @@ export default function MyCars() {
         onOpenChange={(open) => setManageAccessCarId(open ? manageAccessCarId : null)}
       />
 
+      <CarBookingHistoryModal
+        car={
+          bookingsCarId
+            ? (cars.find((c) => c.id === bookingsCarId) as any) ?? null
+            : null
+        }
+        open={!!bookingsCarId}
+        onOpenChange={(o) => !o && setBookingsCarId(null)}
+      />
       <AlertDialog open={!!unhostCarId} onOpenChange={(o) => !o && setUnhostCarId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
