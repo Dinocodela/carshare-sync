@@ -229,6 +229,29 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Upsert guest contact info into private table
+    if (data?.id && (payload.guest_email !== undefined || payload.guest_phone !== undefined)) {
+      const hasContact = (payload.guest_email && payload.guest_email.length > 0)
+        || (payload.guest_phone && payload.guest_phone.length > 0);
+      if (hasContact) {
+        await supabase
+          .from("host_earnings_guest_contact")
+          .upsert(
+            {
+              earning_id: data.id,
+              guest_email: payload.guest_email || null,
+              guest_phone: payload.guest_phone || null,
+            },
+            { onConflict: "earning_id" }
+          );
+      } else {
+        await supabase
+          .from("host_earnings_guest_contact")
+          .delete()
+          .eq("earning_id", data.id);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, earning: data, action }),
       { status: action === "created" ? 201 : 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
