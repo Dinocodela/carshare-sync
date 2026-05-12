@@ -165,8 +165,6 @@ Deno.serve(async (req) => {
       data.host_profit_percentage = hPct;
 
       if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
-      if (payload.guest_phone !== undefined) data.guest_phone = payload.guest_phone || null;
-      if (payload.guest_email !== undefined) data.guest_email = payload.guest_email || null;
       if (payload.trip_idd !== undefined) data.trip_idd = payload.trip_idd || null;
       if (payload.earning_type !== undefined) data.earning_type = payload.earning_type;
       if (payload.payment_source !== undefined) data.payment_source = payload.payment_source;
