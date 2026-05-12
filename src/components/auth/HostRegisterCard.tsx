@@ -78,9 +78,25 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
         });
       } else {
         toast({
-          title: "Registration successful!",
-          description: "Please verify your email.",
+          title: "Application submitted!",
+          description: "Please verify your email. An admin will review your account shortly.",
         });
+
+        try {
+          await supabase.functions.invoke("notify-admin-new-host", {
+            body: {
+              hostName: formData.adminName,
+              hostEmail: formData.email,
+              hostPhone: formData.phone,
+              companyName: formData.companyName,
+              services: formData.services,
+              coverageArea: formData.coverageArea,
+            },
+          });
+        } catch (e) {
+          console.warn("Admin notification failed:", e);
+        }
+
         onDone?.();
         onBackToLogin();
       }
