@@ -342,5 +342,7 @@ export function useClientAnalytics(
     selectedMonth,
     setSelectedMonth,
     availableYears,
+    customRange,
+    setCustomRange,
   };
 }
