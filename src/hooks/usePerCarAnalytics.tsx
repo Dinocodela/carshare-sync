@@ -194,7 +194,9 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
       const totalTrips = carEarnings.length;
       const averagePerTrip = totalTrips > 0 ? netEarningsFromTrips / totalTrips : 0;
       
-      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
       const activeDays = getActiveRentalDays(carEarnings, dateRange);
       const periodDays = getPeriodDayCount(dateRange, carEarnings);
       const utilizationRate = periodDays > 0 ? Math.min(100, (activeDays / periodDays) * 100) : 0;
