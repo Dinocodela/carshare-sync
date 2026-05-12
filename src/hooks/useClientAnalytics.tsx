@@ -79,6 +79,11 @@ export interface AnalyticsSummary {
   approvedClaimsAmount: number;
 }
 
+export interface CustomDateRange {
+  start: Date;
+  end: Date;
+}
+
 export function useClientAnalytics(
   initialYear: number | null = new Date().getFullYear(),
   initialMonth: number | null = new Date().getMonth() + 1,
@@ -87,6 +92,7 @@ export function useClientAnalytics(
   const { expenses: fixedExpenses, getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth);
+  const [customRange, setCustomRange] = useState<CustomDateRange | null>(null);
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
