@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useClientCarExpenses } from './useClientCarExpenses';
-import { getActiveRentalDays, getAnalyticsDateRange } from '@/lib/analyticsDateRanges';
+import { getActiveRentalDays, getAnalyticsDateRange, buildCustomDateRange } from '@/lib/analyticsDateRanges';
 
 
 
