@@ -23,7 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw, BarChart3, Car, Calendar, Shield, TrendingUp } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
+import { RefreshCw, BarChart3, Car, Calendar, Shield, TrendingUp, CalendarRange, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
@@ -49,10 +54,12 @@ export default function ClientAnalytics() {
     earnings, expenses, claims, carsMap, summary,
     loading, error, refetch,
     selectedYear, setSelectedYear, selectedMonth, setSelectedMonth, availableYears,
+    customRange, setCustomRange,
   } = useClientAnalytics();
   const [selectedCarId, setSelectedCarId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState("portfolio");
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
+  const [rangePickerValue, setRangePickerValue] = useState<DateRange | undefined>(undefined);
   const [selectedCarForManagement, setSelectedCarForManagement] = useState<{
     id: string; year: number; make: string; model: string; status: string;
   } | null>(null);
@@ -70,7 +77,8 @@ export default function ClientAnalytics() {
     loading: perCarLoading, error: perCarError, refetch: refetchPerCar,
     setSelectedYear: setPerCarSelectedYear,
     setSelectedMonth: setPerCarSelectedMonth,
-  } = usePerCarAnalytics(selectedCarId, selectedYear, selectedMonth);
+    setCustomRange: setPerCarCustomRange,
+  } = usePerCarAnalytics(selectedCarId, selectedYear, selectedMonth, customRange);
 
   const handleRefresh = () => { refetch(); refetchPerCar(); };
 
@@ -151,8 +159,16 @@ export default function ClientAnalytics() {
               {/* Quick toggle: This Month vs All Months */}
               <div className="flex items-center gap-1 pt-1 bg-white/10 rounded-lg p-1 w-fit">
                 {(() => {
-                  const isMonthView = selectedYear !== null && selectedMonth !== null;
+                  const isMonthView = !customRange && selectedYear !== null && selectedMonth !== null;
+                  const clearRange = () => {
+                    if (customRange) {
+                      setRangePickerValue(undefined);
+                      setCustomRange(null);
+                      setPerCarCustomRange(null);
+                    }
+                  };
                   const setMonthView = () => {
+                    clearRange();
                     const now = new Date();
                     const y = now.getFullYear();
                     const m = now.getMonth() + 1;
@@ -162,6 +178,7 @@ export default function ClientAnalytics() {
                     setPerCarSelectedMonth(m);
                   };
                   const setYearView = () => {
+                    clearRange();
                     const y = selectedYear ?? new Date().getFullYear();
                     setSelectedYear(y);
                     setPerCarSelectedYear(y);
@@ -207,6 +224,7 @@ export default function ClientAnalytics() {
                 </div>
                 <Select
                   value={selectedYear?.toString() ?? "all"}
+                  disabled={!!customRange}
                   onValueChange={(value) => {
                     const year = value === "all" ? null : parseInt(value);
                     setSelectedYear(year);
@@ -217,7 +235,7 @@ export default function ClientAnalytics() {
                     }
                   }}
                 >
-                  <SelectTrigger className="w-[100px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9">
+                  <SelectTrigger className="w-[100px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9 disabled:opacity-50">
                     <Calendar className="mr-1.5 h-3.5 w-3.5" />
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
@@ -230,7 +248,7 @@ export default function ClientAnalytics() {
                 </Select>
                 <Select
                   value={selectedMonth?.toString() ?? "all"}
-                  disabled={selectedYear === null}
+                  disabled={selectedYear === null || !!customRange}
                   onValueChange={(value) => {
                     const month = value === "all" ? null : parseInt(value);
                     setSelectedMonth(month);
@@ -248,6 +266,57 @@ export default function ClientAnalytics() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "h-9 shrink-0 bg-white/10 hover:bg-white/20 text-primary-foreground border border-white/20 px-2.5 text-xs gap-1.5",
+                        customRange && "bg-white text-primary hover:bg-white/90"
+                      )}
+                    >
+                      <CalendarRange className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">
+                        {customRange
+                          ? `${format(customRange.start, "MMM d")} – ${format(customRange.end, "MMM d, yyyy")}`
+                          : "Custom range"}
+                      </span>
+                      {customRange && (
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRangePickerValue(undefined);
+                            setCustomRange(null);
+                            setPerCarCustomRange(null);
+                          }}
+                          className="ml-1 inline-flex items-center justify-center rounded hover:bg-black/10 p-0.5"
+                          aria-label="Clear custom range"
+                        >
+                          <X className="h-3 w-3" />
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <CalendarPicker
+                      mode="range"
+                      numberOfMonths={2}
+                      selected={rangePickerValue}
+                      onSelect={(range) => {
+                        setRangePickerValue(range);
+                        if (range?.from && range?.to) {
+                          const next = { start: range.from, end: range.to };
+                          setCustomRange(next);
+                          setPerCarCustomRange(next);
+                        }
+                      }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
                 <Button
                   onClick={handleRefresh}
                   variant="ghost"

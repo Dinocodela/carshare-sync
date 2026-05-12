@@ -3,7 +3,8 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ClientEarning, ClientExpense, ClientClaim } from './useClientAnalytics';
 import { useClientCarExpenses } from './useClientCarExpenses';
-import { getActiveRentalDays, getAnalyticsDateRange, getPeriodDayCount } from '@/lib/analyticsDateRanges';
+import { getActiveRentalDays, getAnalyticsDateRange, getPeriodDayCount, buildCustomDateRange } from '@/lib/analyticsDateRanges';
+import type { CustomDateRange } from './useClientAnalytics';
 
 export interface CarPerformance {
   car_id: string;
@@ -40,11 +41,12 @@ export interface CarAnalyticsData {
 const currentYear = new Date().getFullYear();
 const availableYears = Array.from({ length: new Date().getFullYear() - 2021 }, (_, i) => 2022 + i);
 
-export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear, initialMonth: number | null = new Date().getMonth() + 1) {
+export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear, initialMonth: number | null = new Date().getMonth() + 1, initialCustomRange: CustomDateRange | null = null) {
   const { user } = useAuth();
   const { getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth);
+  const [customRange, setCustomRange] = useState<CustomDateRange | null>(initialCustomRange);
   const [cars, setCars] = useState<any[]>([]);
   const [allData, setAllData] = useState<{
     earnings: ClientEarning[];
@@ -100,7 +102,9 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
       const carIds = allCars.map(car => car.id);
 
-      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
 
       // Get all analytics data with year filtering
       let earningsQuery = supabase
@@ -190,7 +194,9 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
       const totalTrips = carEarnings.length;
       const averagePerTrip = totalTrips > 0 ? netEarningsFromTrips / totalTrips : 0;
       
-      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
       const activeDays = getActiveRentalDays(carEarnings, dateRange);
       const periodDays = getPeriodDayCount(dateRange, carEarnings);
       const utilizationRate = periodDays > 0 ? Math.min(100, (activeDays / periodDays) * 100) : 0;
@@ -265,7 +271,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
         breakEvenTrips
       };
     });
-  }, [cars, allData, getFixedCostsForPeriod, selectedYear, selectedMonth]);
+  }, [cars, allData, getFixedCostsForPeriod, selectedYear, selectedMonth, customRange]);
 
   // Filter data for selected car
   const selectedCarData = useMemo((): CarAnalyticsData | null => {
@@ -285,7 +291,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
   useEffect(() => {
     fetchAllData();
-  }, [user, selectedYear, selectedMonth]);
+  }, [user, selectedYear, selectedMonth, customRange]);
 
   const refetch = () => {
     fetchAllData();
@@ -305,5 +311,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
     selectedMonth,
     setSelectedMonth,
     availableYears,
+    customRange,
+    setCustomRange,
   };
 }

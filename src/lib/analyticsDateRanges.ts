@@ -24,6 +24,21 @@ export const getAnalyticsDateRange = (year: number | null, month: number | null)
   };
 };
 
+const pad = (n: number) => String(n).padStart(2, "0");
+const formatLocalDate = (d: Date) =>
+  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+export const buildCustomDateRange = (start: Date, end: Date): AnalyticsDateRange => {
+  const s = formatLocalDate(start);
+  const e = formatLocalDate(end);
+  return {
+    timestampStart: `${s}T00:00:00`,
+    timestampEnd: `${e}T23:59:59`,
+    dateStart: s,
+    dateEnd: e,
+  };
+};
+
 const startOfUtcDay = (date: Date) =>
   new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 

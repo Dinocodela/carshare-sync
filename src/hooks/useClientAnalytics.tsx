@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useClientCarExpenses } from './useClientCarExpenses';
-import { getActiveRentalDays, getAnalyticsDateRange } from '@/lib/analyticsDateRanges';
+import { getActiveRentalDays, getAnalyticsDateRange, buildCustomDateRange } from '@/lib/analyticsDateRanges';
 
 
 
@@ -79,6 +79,11 @@ export interface AnalyticsSummary {
   approvedClaimsAmount: number;
 }
 
+export interface CustomDateRange {
+  start: Date;
+  end: Date;
+}
+
 export function useClientAnalytics(
   initialYear: number | null = new Date().getFullYear(),
   initialMonth: number | null = new Date().getMonth() + 1,
@@ -87,6 +92,7 @@ export function useClientAnalytics(
   const { expenses: fixedExpenses, getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth);
+  const [customRange, setCustomRange] = useState<CustomDateRange | null>(null);
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
@@ -193,7 +199,9 @@ export function useClientAnalytics(
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      const dateRange = getAnalyticsDateRange(selectedYear, selectedMonth);
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
 
       if (dateRange) {
         earningsQuery = earningsQuery
@@ -243,7 +251,7 @@ export function useClientAnalytics(
       console.error('Error fetching client analytics:', err);
       setError('Failed to load analytics data');
     }
-  }, [user, selectedYear, selectedMonth]);
+  }, [user, selectedYear, selectedMonth, customRange]);
 
   const calculateSummary = () => {
     const totalEarnings = earnings.reduce((sum, earning) => {
@@ -275,7 +283,10 @@ export function useClientAnalytics(
     const totalTrips = earnings.length;
     const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;
     
-    const activeDays = getActiveRentalDays(earnings, getAnalyticsDateRange(selectedYear, selectedMonth));
+    const activeRange = customRange
+      ? buildCustomDateRange(customRange.start, customRange.end)
+      : getAnalyticsDateRange(selectedYear, selectedMonth);
+    const activeDays = getActiveRentalDays(earnings, activeRange);
 
     // Calculate claims summary
     const totalClaims = claims.length;
@@ -307,11 +318,11 @@ export function useClientAnalytics(
     };
 
     fetchData();
-  }, [user, selectedYear, selectedMonth, fetchClientAnalytics]);
+  }, [user, selectedYear, selectedMonth, customRange, fetchClientAnalytics]);
 
   useEffect(() => {
     calculateSummary();
-  }, [earnings, expenses, claims, carsMap, fixedExpenses, selectedYear, selectedMonth]);
+  }, [earnings, expenses, claims, carsMap, fixedExpenses, selectedYear, selectedMonth, customRange]);
 
   const refetch = useCallback(() => {
     fetchClientAnalytics();
@@ -331,5 +342,7 @@ export function useClientAnalytics(
     selectedMonth,
     setSelectedMonth,
     availableYears,
+    customRange,
+    setCustomRange,
   };
 }
