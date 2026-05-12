@@ -40,7 +40,7 @@ export interface CarAnalyticsData {
 const currentYear = new Date().getFullYear();
 const availableYears = Array.from({ length: new Date().getFullYear() - 2021 }, (_, i) => 2022 + i);
 
-export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear, initialMonth: number | null = null) {
+export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear, initialMonth: number | null = new Date().getMonth() + 1) {
   const { user } = useAuth();
   const { getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
