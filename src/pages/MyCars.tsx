@@ -372,6 +372,17 @@ export default function MyCars() {
                             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/view:translate-x-0.5 transition-transform" />
                           </button>
 
+                          {/* Booking history */}
+                          <button
+                            onClick={() => setBookingsCarId(car.id)}
+                            className="w-full flex items-center justify-between rounded-xl bg-muted/50 hover:bg-muted px-4 py-3 transition-colors group/hist"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <History className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground">View Bookings</span>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/hist:translate-x-0.5 transition-transform" />
+                          </button>
                           {/* Contextual CTA */}
                           {!car.is_shared && (
                             <>
