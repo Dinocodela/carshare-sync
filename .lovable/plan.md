@@ -1,68 +1,41 @@
-# Floating AI Analytics Assistant Bubble
+# Per-Car Booking History on `/my-cars`
 
-Replace the inline AI Analytics Assistant card with a floating bubble pinned to the bottom-right corner of the analytics page. Tapping the bubble opens a chat panel. The "Saved chats" sidebar box is replaced with a compact "History" link that opens a small popover/drawer, freeing up horizontal space and making everything mobile-friendly.
+Add a way for clients to click a car card and see every booking/trip that car has had, with earnings, expenses, and payment status — all without leaving `/my-cars`.
 
-## What changes for the user
+## User flow
 
-- A round chat bubble with a sparkle/bot icon sits in the bottom-right corner of the Client Analytics page.
-- Tapping the bubble opens the assistant:
-  - On desktop: a floating chat panel anchored bottom-right (~400px wide, ~600px tall, with max-height respecting viewport).
-  - On mobile: a full-height bottom sheet that slides up and fills the screen, with a clear close button.
-- "Saved chats" is no longer a permanent side column. Instead, a small "History" link/button in the panel header opens a popover (desktop) or sheet (mobile) listing prior conversations, with tap-to-open and delete actions.
-- A "New chat" action and the period/car context chip remain visible in the header, but compactly.
-- The bubble shows a subtle pulse on first load and can be dismissed (panel closes) without losing the conversation.
+1. On `/my-cars`, each car card gets a new **"View bookings"** action (button on the card, plus the whole card image becomes clickable as a secondary entry point).
+2. Clicking opens a **slide-over modal** ("Booking History — 2021 Tesla Model 3") that lists every trip for that car, newest first.
+3. The modal stays scoped to the selected car. Closing it returns the user exactly where they were on the page (no scroll reset).
 
-## Layout
+## Modal contents
 
-```text
-Desktop (panel open)                Mobile (sheet open)
-+-----------------------------+      +-----------------------+
-| Sparkle  AI Assistant   x   |      | AI Assistant      x  |
-| Context: Apr 2026 · Portfolio|     | Context chip         |
-| [History]  [+ New]          |      | [History] [+ New]    |
-|-----------------------------|      |-----------------------|
-| messages...                 |      | messages...          |
-|                             |      |                       |
-|                             |      |                       |
-|-----------------------------|      |-----------------------|
-| suggestion chips            |      | suggestion chips     |
-| [textarea]            [send]|      | [textarea]    [send] |
-+-----------------------------+      +-----------------------+
-              (bubble hidden while open)
-```
+**Header**
+- Car name, plate, location.
+- Summary chips for the visible list: total trips, total gross, total net (dynamic = gross − matched trip expenses), total paid, total pending.
+- A simple time filter: `All time` (default) · `This year` · `This month` · `Custom range`.
 
-## Technical changes
+**Trip list** — one row per `host_earnings` record for that car:
+- Guest name + trip dates (`earning_period_start → earning_period_end`, parsed with the `T00:00:00` rule).
+- Gross earnings, matched trip expenses, and the client's net share (computed dynamically — never read `net_amount`).
+- Payment status badge (`Paid` / `Pending`) and `date_paid` when present.
+- Trip ID and payment source (Turo, etc.).
+- Row expands to show the breakdown of matched expenses (toll, delivery, carwash, EV charge, plus any `host_expenses` rows tied by `trip_id`).
 
-**`src/components/analytics/AnalyticsAssistant.tsx`** — major refactor:
-- Wrap the component in a controlled `open` state. Render two pieces:
-  1. A floating bubble button (`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 h-14 w-14 rounded-full shadow-lg`) shown when closed.
-  2. The chat panel shown when open.
-- Use `useIsMobile()` from `src/hooks/use-mobile.tsx` to switch container:
-  - Mobile: `Sheet` from `@/components/ui/sheet` with `side="bottom"`, full height (`h-[92vh]`), rounded top.
-  - Desktop: a `fixed bottom-20 right-4 sm:right-6 z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-6rem)]` card with the existing styling.
-- Replace the left "Saved chats" `<aside>` column with a header "History" button. Clicking opens:
-  - Desktop: `Popover` (`@/components/ui/popover`) anchored to the button, containing the existing scrollable list (max-h ~320px, w-72).
-  - Mobile: a nested `Sheet` from the right (or a simple inline collapsible above the messages) — pick `Sheet side="right"` to stay consistent.
-- Make message bubbles, suggestion chips, textarea, and send button stack cleanly on small widths: chips wrap, textarea uses `flex-1 min-w-0`, send button stays `shrink-0`. Reduce padding to `p-3 sm:p-4`.
-- Keep all existing logic intact: `loadConversations`, `loadConversation`, `deleteConversation`, `sendMessage`, persistence to the edge function, error handling helper, welcome message, suggested questions.
-- Continue receiving `selectedYear`, `selectedMonth`, `selectedCarId`, `selectedCarName` props so the bubble adapts to current dashboard context.
+**Empty state**
+- Friendly message when the car has no bookings yet ("No bookings recorded for this car yet").
 
-**`src/pages/ClientAnalytics.tsx`** — render once, not three times:
-- Remove the three inline `<AnalyticsAssistant />` placements inside the tab contents (lines 237, 265, 301).
-- Render a single `<AnalyticsAssistant />` once at the page level (just before `</PageContainer>` close, or directly inside `DashboardLayout`) so the floating bubble is always available regardless of active tab.
-- Pass the currently selected year/month, plus `selectedCarId`/`selectedCarName` derived from the active tab/car selector (use the per-car values when on the per-car tab, otherwise leave the car props null for portfolio context).
+## Technical notes
 
-**No backend changes** — the edge function (`supabase/functions/analytics-assistant`) and the `analytics_assistant_conversations` / `analytics_assistant_messages` tables are unchanged.
+- New component: `src/components/cars/CarBookingHistoryModal.tsx` using the existing `Sheet` (slide-over) primitive for desktop and full-screen on mobile.
+- New hook: `src/hooks/useCarBookings.tsx` — fetches `host_earnings` and `host_expenses` for a single `car_id`, joined client-side by `trip_id`. RLS already lets clients read both tables for cars they own (`Clients can view earnings for their cars`, `Hosts and clients can view expenses for their cars`), so no migrations or policy changes are needed.
+- Net profit math reuses the existing helper in `src/lib/expenseMatching.ts` to stay consistent with the dashboard and analytics.
+- `MyCars.tsx` adds local state `bookingsCarId: string | null`, a "View bookings" button on each card, and renders `<CarBookingHistoryModal carId={bookingsCarId} onClose={...} />` once at the page level.
+- No changes to the existing share / manage access / unhost flows.
+- Date formatting follows the project standard (append `T00:00:00` before passing to `Date`).
 
-## Accessibility & polish
+## Out of scope (can follow up later)
 
-- Bubble button has `aria-label="Open AI Analytics Assistant"`.
-- Panel/sheet has a visible close button and closes on Escape.
-- Focus moves to the textarea when the panel opens (reuse the existing `inputRef.current?.focus()`).
-- Bubble hidden while panel/sheet is open to avoid overlap.
-- Respect safe areas on mobile (`pb-[env(safe-area-inset-bottom)]` on the bubble and sheet footer).
-
-## Out of scope
-
-- No changes to suggested questions, AI prompt, or saved-chat data model.
-- No changes to other pages; the assistant remains exclusive to Client Analytics.
+- Editing trips from this modal (already handled in the analytics flow).
+- Exporting the booking list to CSV/PDF.
+- Per-trip claim linking.

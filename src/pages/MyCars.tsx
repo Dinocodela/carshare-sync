@@ -15,6 +15,7 @@ import {
   Hash,
   CreditCard,
   XCircle,
+  History,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -40,6 +41,7 @@ import { ShareCarDialog } from "@/components/cars/ShareCarDialog";
 import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
 import { CompleteReturnButton } from "@/components/cars/CompleteReturnButton";
+import { CarBookingHistoryModal } from "@/components/cars/CarBookingHistoryModal";
 
 /* ── helpers ── */
 function useMounted() {
@@ -87,7 +89,7 @@ export default function MyCars() {
   const [unhostCarId, setUnhostCarId] = useState<string | null>(null);
   const [unhosting, setUnhosting] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "hosted" | "available">("all");
-
+  const [bookingsCarId, setBookingsCarId] = useState<string | null>(null);
   const handleUnhost = async () => {
     if (!unhostCarId) return;
     setUnhosting(true);
@@ -370,6 +372,17 @@ export default function MyCars() {
                             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/view:translate-x-0.5 transition-transform" />
                           </button>
 
+                          {/* Booking history */}
+                          <button
+                            onClick={() => setBookingsCarId(car.id)}
+                            className="w-full flex items-center justify-between rounded-xl bg-muted/50 hover:bg-muted px-4 py-3 transition-colors group/hist"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <History className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground">View Bookings</span>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/hist:translate-x-0.5 transition-transform" />
+                          </button>
                           {/* Contextual CTA */}
                           {!car.is_shared && (
                             <>
@@ -485,6 +498,15 @@ export default function MyCars() {
         onOpenChange={(open) => setManageAccessCarId(open ? manageAccessCarId : null)}
       />
 
+      <CarBookingHistoryModal
+        car={
+          bookingsCarId
+            ? (cars.find((c) => c.id === bookingsCarId) as any) ?? null
+            : null
+        }
+        open={!!bookingsCarId}
+        onOpenChange={(o) => !o && setBookingsCarId(null)}
+      />
       <AlertDialog open={!!unhostCarId} onOpenChange={(o) => !o && setUnhostCarId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
