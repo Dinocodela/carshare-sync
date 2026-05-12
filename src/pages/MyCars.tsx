@@ -86,6 +86,7 @@ export default function MyCars() {
   const [manageAccessCarId, setManageAccessCarId] = useState<string | null>(null);
   const [unhostCarId, setUnhostCarId] = useState<string | null>(null);
   const [unhosting, setUnhosting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "hosted" | "available">("all");
 
   const handleUnhost = async () => {
     if (!unhostCarId) return;
