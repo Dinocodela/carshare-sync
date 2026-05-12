@@ -10,6 +10,7 @@ import { CarSelector } from "@/components/analytics/CarSelector";
 import { CarPerformanceCard } from "@/components/analytics/CarPerformanceCard";
 import { CarComparisonTable } from "@/components/analytics/CarComparisonTable";
 import { AnalyticsAssistant } from "@/components/analytics/AnalyticsAssistant";
+import { BestMonthWidget } from "@/components/analytics/BestMonthWidget";
 import { CarManagementDialog } from "@/components/cars/CarManagementDialog";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { usePerCarAnalytics } from "@/hooks/usePerCarAnalytics";
@@ -357,6 +358,9 @@ export default function ClientAnalytics() {
               <TabsContent value="per-car" className="space-y-5 pt-4">
                 {selectedCarId && selectedCarPerformance ? (
                   <>
+                    <div style={fadeIn(3)} className={EDGE}>
+                      <BestMonthWidget carId={selectedCarId} carName={selectedAssistantCarName} />
+                    </div>
                     <div style={fadeIn(3)} className={EDGE}>
                       <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
                     </div>
