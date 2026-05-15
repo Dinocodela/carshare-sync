@@ -27,6 +27,14 @@ project_id = "texsltzecmvqprdjxtnh"
   port = 54323
 
 [functions]
+  [functions.admin-list-pending-accounts]
+    verify_jwt = false
+  [functions.admin-approve-account]
+    verify_jwt = false
+  [functions.admin-reject-account]
+    verify_jwt = false
+  [functions.notify-admin-new-host]
+    verify_jwt = false
   [functions.analytics-assistant]
     verify_jwt = true
   [functions.assign-host]
