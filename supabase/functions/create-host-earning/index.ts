@@ -136,6 +136,21 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Verify the caller is the assigned host of this car before allowing earnings inserts/updates.
+    const { data: carRow, error: carErr } = await supabase
+      .from("cars")
+      .select("host_id")
+      .eq("id", payload.car_id)
+      .maybeSingle();
+    if (carErr || !carRow) {
+      return new Response(JSON.stringify({ error: "Car not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (carRow.host_id !== user.id) {
+      return new Response(JSON.stringify({ error: "You are not the assigned host for this car" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     // Resolve dynamic split (only used when percentages are NOT explicitly provided)
     const dynamicSplit = await resolveProfitSplit(supabase, payload.car_id);
 
