@@ -1,67 +1,51 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, jsonResponse, requireAuth } from "../_shared/require-auth.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return jsonResponse({ error: "Method not allowed. Use POST." }, 405);
 
-  if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Method not allowed. Use POST." }),
-      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
+  const authResult = await requireAuth(req);
+  if ("error" in authResult) return authResult.error;
+  const { user, admin } = authResult;
 
   try {
     const body = await req.json();
     const tripValue = body.trip_value;
+    if (!tripValue) return jsonResponse({ error: "trip_value is required" }, 400);
 
-    if (!tripValue) {
-      return new Response(
-        JSON.stringify({ error: "trip_value is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Step 1: Fetch earnings
-    const earningsRes = await supabase
+    // Step 1: fetch earnings + car ownership info
+    const earningsRes = await admin
       .from("host_earnings")
-      .select("amount, commission, payment_status, payment_date, guest_name, gross_earnings, payment_source, trip_id, trip_idd, earning_period_end")
+      .select(
+        "amount, commission, payment_status, payment_date, guest_name, gross_earnings, payment_source, trip_id, trip_idd, earning_period_end, host_id, car_id, cars!inner(client_id, host_id)"
+      )
       .or(`trip_id.eq.${tripValue},trip_idd.eq.${tripValue}`);
 
     if (earningsRes.error) {
       console.error("Earnings query error:", earningsRes.error);
-      return new Response(
-        JSON.stringify({ error: earningsRes.error.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: earningsRes.error.message }, 500);
     }
 
     const earnings = earningsRes.data || [];
 
-    // Step 2: Collect all unique trip_ids from earnings to fetch their expenses
-    const tripIds = [...new Set(earnings.map((e) => e.trip_id).filter(Boolean))];
+    // Authorization: every returned earning must belong to the caller as host or car client.
+    const unauthorized = earnings.some((e: any) => {
+      const car = e.cars ?? {};
+      return !(e.host_id === user.id || car.host_id === user.id || car.client_id === user.id);
+    });
+    if (unauthorized) return jsonResponse({ error: "Forbidden" }, 403);
 
+    // Step 2: collect trip_ids and fetch their expenses
+    const tripIds = [...new Set(earnings.map((e) => e.trip_id).filter(Boolean))];
     let expenses: any[] = [];
     if (tripIds.length > 0) {
-      const expensesRes = await supabase
+      const expensesRes = await admin
         .from("host_expenses")
         .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
         .in("trip_id", tripIds);
-
       expenses = expensesRes.data || [];
     }
 
-    // Step 3: Build response with total_expenses and dynamic net_amount
     const getTripExpenses = (tripId: string | null): number => {
       if (!tripId) return 0;
       return expenses
@@ -78,7 +62,7 @@ Deno.serve(async (req) => {
         );
     };
 
-    const enriched = earnings.map((earning) => {
+    const enriched = earnings.map((earning: any) => {
       const totalExpenses = getTripExpenses(earning.trip_id);
       return {
         amount: earning.amount,
@@ -96,15 +80,9 @@ Deno.serve(async (req) => {
       };
     });
 
-    return new Response(
-      JSON.stringify({ data: enriched, count: enriched.length }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ data: enriched, count: enriched.length });
   } catch (err) {
     console.error("Unexpected error:", err);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ error: "Internal server error" }, 500);
   }
 });
