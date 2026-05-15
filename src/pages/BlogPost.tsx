@@ -138,7 +138,16 @@ export default function BlogPost() {
               prose-img:rounded-xl prose-img:shadow-md
               prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:my-8 prose-blockquote:not-italic
               [&_p+p]:mt-7 [&_h2+p]:mt-5 [&_h3+p]:mt-5 [&_ul_li::marker]:text-primary [&_ol_li::marker]:text-primary [&_ol_li::marker]:font-semibold"
-            dangerouslySetInnerHTML={{ __html: post.content.replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1') }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                post.content.replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1'),
+                {
+                  ALLOWED_TAGS: ['h2','h3','h4','p','ul','ol','li','strong','em','blockquote','a','img','br','code','pre','hr','span'],
+                  ALLOWED_ATTR: ['href','title','target','rel','src','alt','loading','class'],
+                  ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+                }
+              ),
+            }}
           />
 
           {/* Tags */}
