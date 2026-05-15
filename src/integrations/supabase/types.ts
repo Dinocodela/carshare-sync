@@ -1606,9 +1606,7 @@ export type Database = {
           created_at: string
           daily_rate: number
           end_date: string
-          guest_email: string | null
           guest_name: string
-          guest_phone: string | null
           host_id: string
           id: string
           notes: string | null
@@ -1623,9 +1621,7 @@ export type Database = {
           created_at?: string
           daily_rate?: number
           end_date: string
-          guest_email?: string | null
           guest_name: string
-          guest_phone?: string | null
           host_id: string
           id?: string
           notes?: string | null
@@ -1640,9 +1636,7 @@ export type Database = {
           created_at?: string
           daily_rate?: number
           end_date?: string
-          guest_email?: string | null
           guest_name?: string
-          guest_phone?: string | null
           host_id?: string
           id?: string
           notes?: string | null
