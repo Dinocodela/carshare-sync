@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Share2, Twitter } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import DOMPurify from "dompurify";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
