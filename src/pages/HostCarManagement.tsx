@@ -1551,10 +1551,14 @@ export default function HostCarManagement() {
       setTimeout(async () => {
         await Promise.all([fetchEarnings(true), fetchExpenses(true)]);
       }, 300);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error managing earning:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
+        error?.message ||
+        error?.error_description ||
+        error?.hint ||
+        error?.details ||
+        (typeof error === "string" ? error : "Unknown error occurred");
 
       toast({
         title: "Error",
