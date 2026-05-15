@@ -1,59 +1,51 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { Resend } from "npm:resend@2.0.0";
+import { corsHeaders, jsonResponse, requireAuth } from "../_shared/require-auth.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
 interface HostNotificationRequest {
   requestId: string;
-  hostId: string;
-  hostEmail?: string; // Deprecated: resolved server-side now
-  hostName: string;
-  clientName: string;
-  clientPhone?: string;
-  clientEmail?: string;
-  carDetails: string;
   message: string;
 }
 
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const authResult = await requireAuth(req);
+  if ("error" in authResult) return authResult.error;
+  const { user, admin } = authResult;
 
   try {
-    const { requestId, hostId, hostName, clientName, clientPhone, clientEmail, carDetails, message }: HostNotificationRequest = await req.json();
+    const { requestId, message }: HostNotificationRequest = await req.json();
+    if (!requestId) return jsonResponse({ error: "requestId is required" }, 400);
 
-    if (!hostId) {
-      throw new Error("hostId is required");
-    }
+    // Look up the request and verify the caller is the client who created it.
+    const { data: request, error: reqErr } = await admin
+      .from("requests")
+      .select("id, client_id, host_id, car_id")
+      .eq("id", requestId)
+      .maybeSingle();
+    if (reqErr || !request) return jsonResponse({ error: "Request not found" }, 404);
+    if (request.client_id !== user.id) return jsonResponse({ error: "Forbidden" }, 403);
 
-    // Resolve host email server-side using service role
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const [hostRes, clientRes, carRes] = await Promise.all([
+      admin.from("profiles").select("first_name, last_name, email").eq("user_id", request.host_id).maybeSingle(),
+      admin.from("profiles").select("first_name, last_name, email, phone").eq("user_id", request.client_id).maybeSingle(),
+      admin.from("cars").select("make, model, year").eq("id", request.car_id).maybeSingle(),
+    ]);
 
-    const { data: hostProfile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('email')
-      .eq('user_id', hostId)
-      .single();
+    const hostEmail = hostRes.data?.email;
+    if (!hostEmail) return jsonResponse({ error: "Host email unavailable" }, 400);
 
-    if (profileError || !hostProfile?.email) {
-      throw new Error("Could not resolve host email");
-    }
+    const hostName = hostRes.data?.first_name || "Host";
+    const clientName = `${clientRes.data?.first_name ?? ""} ${clientRes.data?.last_name ?? ""}`.trim() || "Client";
+    const clientPhone = clientRes.data?.phone;
+    const clientEmail = clientRes.data?.email;
+    const carDetails = carRes.data
+      ? `${carRes.data.year ?? ""} ${carRes.data.make ?? ""} ${carRes.data.model ?? ""}`.trim()
+      : "Vehicle";
 
-    const hostEmail = hostProfile.email;
-
-    console.log("Sending host notification email for request:", requestId);
+    const safeMessage = String(message ?? "").slice(0, 2000);
 
     const emailResponse = await resend.emails.send({
       from: "TESLYS Platform <support@dinocodela.com>",
@@ -61,105 +53,48 @@ const handler = async (req: Request): Promise<Response> => {
       subject: "New Car Hosting Request",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 16px;">
-            New Hosting Request
-          </h1>
-          
+          <h1 style="color:#2563eb;border-bottom:2px solid #e5e7eb;padding-bottom:16px;">New Hosting Request</h1>
           <p>Hi ${hostName},</p>
-          
           <p>You have received a new car hosting request from <strong>${clientName}</strong>.</p>
-          
-          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #374151;">Client Contact Information:</h3>
-            <div style="color: #374151; line-height: 1.6;">
-              <p style="margin: 8px 0;"><strong>Client:</strong> ${clientName}</p>
-              ${clientPhone ? `<p style="margin: 8px 0;"><strong>Phone:</strong> <a href="tel:${clientPhone}" style="color: #2563eb;">${clientPhone}</a></p>` : ''}
-              ${clientEmail ? `<p style="margin: 8px 0;"><strong>Email:</strong> <a href="mailto:${clientEmail}" style="color: #2563eb;">${clientEmail}</a></p>` : ''}
-            </div>
-            
-            <h3 style="margin-top: 20px; color: #374151;">Car Details:</h3>
-            <p style="margin: 8px 0;"><strong>Vehicle:</strong> ${carDetails}</p>
-            
-            <h3 style="color: #374151;">Client Message:</h3>
-            <p style="background-color: white; padding: 16px; border-radius: 6px; border-left: 4px solid #2563eb; margin: 0;">
-              ${message}
-            </p>
+          <div style="background:#f8fafc;padding:20px;border-radius:8px;margin:20px 0;">
+            <h3 style="margin-top:0;color:#374151;">Client Contact Information:</h3>
+            <p style="margin:8px 0;"><strong>Client:</strong> ${clientName}</p>
+            ${clientPhone ? `<p style="margin:8px 0;"><strong>Phone:</strong> <a href="tel:${clientPhone}">${clientPhone}</a></p>` : ""}
+            ${clientEmail ? `<p style="margin:8px 0;"><strong>Email:</strong> <a href="mailto:${clientEmail}">${clientEmail}</a></p>` : ""}
+            <h3 style="margin-top:20px;color:#374151;">Car Details:</h3>
+            <p style="margin:8px 0;"><strong>Vehicle:</strong> ${carDetails}</p>
+            <h3 style="color:#374151;">Client Message:</h3>
+            <p style="background:#fff;padding:16px;border-radius:6px;border-left:4px solid #2563eb;margin:0;">${safeMessage}</p>
           </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <p>Please log in to your dashboard to review and respond to this request.</p>
-            <a href="${Deno.env.get('APP_URL') || 'https://teslys.app'}/host-requests" 
-               style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-              Review Request
-            </a>
+          <div style="text-align:center;margin:30px 0;">
+            <a href="${Deno.env.get("APP_URL") || "https://teslys.app"}/host-requests" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Review Request</a>
           </div>
-          
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-          
-          <p style="color: #6b7280; font-size: 14px;">
-            Best regards,<br>
-            The TESLYS Platform Team
-          </p>
-          
-          <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
-            This is an automated notification. Please do not reply to this email.
-          </p>
         </div>
       `,
     });
 
     if (emailResponse.error) {
       console.error("Resend error in send-host-notification:", emailResponse.error);
-      return new Response(
-        JSON.stringify({ success: false, error: emailResponse.error }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
+      return jsonResponse({ success: false, error: emailResponse.error }, 500);
     }
 
-    console.log("Host notification email sent successfully:", emailResponse);
-
-    // Send push notification for new host request
     try {
-      const pushResponse = await supabaseAdmin.functions.invoke('push-send', {
+      await admin.functions.invoke("push-send", {
         body: {
-          targetUserId: hostId,
-          title: 'New Hosting Request!',
+          targetUserId: request.host_id,
+          title: "New Hosting Request!",
           body: `${clientName} wants to host their ${carDetails}`,
-          icon: '/favicon.ico',
-          url: '/dashboard'
-        }
+          icon: "/favicon.ico",
+          url: "/dashboard",
+        },
       });
-      
-      if (pushResponse.error) {
-        console.log("Push notification failed:", pushResponse.error);
-      } else {
-        console.log("Push notification sent successfully");
-      }
     } catch (pushError) {
       console.error("Push notification error:", pushError);
-      // Don't fail the whole request if push fails
     }
 
-    return new Response(JSON.stringify({ success: true, emailResponse }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
-    });
+    return jsonResponse({ success: true, emailResponse });
   } catch (error: any) {
-    console.error("Error in send-host-notification function:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    console.error("Error in send-host-notification:", error);
+    return jsonResponse({ error: error.message }, 500);
   }
-};
-
-serve(handler);
+});
