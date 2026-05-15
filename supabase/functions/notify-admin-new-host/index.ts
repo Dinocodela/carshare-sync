@@ -1,64 +1,41 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "npm:resend@2.0.0";
+import { corsHeaders, jsonResponse, requireAuth } from "../_shared/require-auth.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const authResult = await requireAuth(req);
+  if ("error" in authResult) return authResult.error;
+  const { user, admin } = authResult;
 
   try {
-    const {
-      hostName,
-      hostEmail,
-      hostPhone,
-      companyName,
-      services,
-      coverageArea,
-    } = await req.json();
+    // Resolve all host info server-side from the authenticated user's profile.
+    const { data: profile, error: profileErr } = await admin
+      .from("profiles")
+      .select("first_name, last_name, email, phone, role, company_name, services, location")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    if (!hostEmail || !hostName) {
-      return new Response(
-        JSON.stringify({ error: "hostName and hostEmail are required" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+    if (profileErr || !profile) return jsonResponse({ error: "Profile not found" }, 404);
+    if (profile.role !== "host") return jsonResponse({ error: "Forbidden" }, 403);
 
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    const hostName = `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || "New Host";
+    const hostEmail = profile.email ?? user.email ?? "";
+    const hostPhone = profile.phone ?? "";
+    const companyName = profile.company_name ?? "";
+    const services = Array.isArray(profile.services) ? profile.services.join(", ") : (profile.services ?? "");
+    const coverageArea = profile.location ?? "";
 
-    const { data: admins } = await supabaseAdmin
+    const { data: admins } = await admin
       .from("profiles")
       .select("email")
       .eq("is_super_admin", true)
       .not("email", "is", null);
 
-    const adminEmails = (admins ?? [])
-      .map((a) => a.email)
-      .filter(Boolean) as string[];
-
-    if (adminEmails.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "No admin emails found" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+    const adminEmails = (admins ?? []).map((a: any) => a.email).filter(Boolean) as string[];
+    if (adminEmails.length === 0) return jsonResponse({ error: "No admin emails found" }, 400);
 
     const appUrl = Deno.env.get("APP_URL") || "https://teslys.app";
 
@@ -68,9 +45,7 @@ serve(async (req) => {
       subject: `New Host Application: ${hostName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color:#7c3aed;border-bottom:2px solid #e5e7eb;padding-bottom:16px;">
-            🏠 New Host Application
-          </h1>
+          <h1 style="color:#7c3aed;border-bottom:2px solid #e5e7eb;padding-bottom:16px;">🏠 New Host Application</h1>
           <p>A new host has applied to join TESLYS and is awaiting your approval.</p>
           <div style="background:#f8fafc;padding:20px;border-radius:8px;margin:20px 0;">
             <p style="margin:8px 0;"><strong>Name:</strong> ${hostName}</p>
@@ -81,23 +56,15 @@ serve(async (req) => {
             ${coverageArea ? `<p style="margin:8px 0;"><strong>Coverage:</strong> ${coverageArea}</p>` : ""}
           </div>
           <div style="text-align:center;margin:30px 0;">
-            <a href="${appUrl}/admin/manage-accounts" style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">
-              Review Application
-            </a>
+            <a href="${appUrl}/admin/manage-accounts" style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Review Application</a>
           </div>
         </div>
       `,
     });
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse({ success: true });
   } catch (e: any) {
     console.error("notify-admin-new-host error:", e);
-    return new Response(JSON.stringify({ error: e?.message ?? String(e) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse({ error: e?.message ?? String(e) }, 500);
   }
 });

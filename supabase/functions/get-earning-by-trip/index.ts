@@ -1,60 +1,45 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, jsonResponse, requireAuth } from "../_shared/require-auth.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return jsonResponse({ error: "Method not allowed. Use POST." }, 405);
 
-  if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Method not allowed. Use POST." }),
-      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
+  const authResult = await requireAuth(req);
+  if ("error" in authResult) return authResult.error;
+  const { user, admin } = authResult;
 
   try {
     const body = await req.json();
     const tripId = body.trip_id;
+    if (!tripId) return jsonResponse({ error: "trip_id is required" }, 400);
 
-    if (!tripId) {
-      return new Response(
-        JSON.stringify({ error: "trip_id query parameter is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from("host_earnings")
-      .select("*")
+      .select("*, cars!inner(client_id, host_id)")
       .eq("trip_id", tripId)
       .maybeSingle();
 
     if (error) {
       console.error("Database error:", error);
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: error.message }, 500);
     }
 
-    return new Response(
-      JSON.stringify({ data }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    if (!data) return jsonResponse({ data: null });
+
+    // Authorization: caller must be the recording host, the assigned car host, or the car's client.
+    const car = (data as any).cars ?? {};
+    const isAuthorized =
+      data.host_id === user.id ||
+      car.host_id === user.id ||
+      car.client_id === user.id;
+
+    if (!isAuthorized) return jsonResponse({ error: "Forbidden" }, 403);
+
+    // Strip the joined car object from the response payload.
+    const { cars: _omit, ...earning } = data as any;
+    return jsonResponse({ data: earning });
   } catch (err) {
     console.error("Unexpected error:", err);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ error: "Internal server error" }, 500);
   }
 });

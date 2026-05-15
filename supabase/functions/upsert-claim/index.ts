@@ -103,6 +103,26 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Verify the caller is the assigned host of the car this claim is filed against.
+    const { data: carRow, error: carErr } = await supabase
+      .from("cars")
+      .select("host_id")
+      .eq("id", payload.car_id)
+      .maybeSingle();
+
+    if (carErr || !carRow) {
+      return new Response(
+        JSON.stringify({ error: "Car not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (carRow.host_id !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "You are not the assigned host for this car" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Check if claim with this incident_id already exists
     const { data: existingClaim, error: fetchError } = await supabase
       .from("host_claims")
