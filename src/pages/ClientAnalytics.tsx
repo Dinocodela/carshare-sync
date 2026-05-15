@@ -410,16 +410,12 @@ export default function ClientAnalytics() {
                 <div style={fadeIn(3)} className={EDGE}>
                   <SummaryCards summary={summary} loading={loading} hideNetProfit />
                 </div>
-                <div style={fadeIn(4)} className={EDGE}>
-                  <ClaimsSummary claims={claims} loading={loading} />
-                </div>
                 <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                   <EarningsChart earnings={earnings} expenses={expenses} selectedYear={selectedYear} />
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
                 <div style={fadeIn(6)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
                    <RecentTrips earnings={earnings} expenses={expenses} carsMap={carsMap} />
-                   <RecentClaims claims={claims} carsMap={carsMap} />
                 </div>
               </TabsContent>
 
@@ -433,16 +429,12 @@ export default function ClientAnalytics() {
                     <div style={fadeIn(3)} className={EDGE}>
                       <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
                     </div>
-                    <div style={fadeIn(4)} className={EDGE}>
-                      <ClaimsSummary claims={selectedCarData?.claims || []} loading={perCarLoading} />
-                    </div>
                     <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                       <EarningsChart earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} selectedYear={selectedYear} />
                       <ExpenseBreakdown expenses={selectedCarData?.expenses || []} />
                     </div>
-                    <div style={fadeIn(6)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                    <div style={fadeIn(6)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
                       <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} carsMap={carsMap} />
-                      <RecentClaims claims={selectedCarData?.claims || []} carsMap={carsMap} />
                     </div>
                   </>
                 ) : (
