@@ -1,0 +1,47 @@
+# Teslys
+
+> Teslys is a full-service Tesla car sharing platform that turns your Tesla into passive income. We handle rentals, cleaning, and 24/7 guest support so owners earn while they sleep.
+
+## Pages
+
+- [Home](/): Platform overview and registration.
+- [Get Started](/get-started): How to list your Tesla and start earning.
+- [How It Works](/how-it-works): Step-by-step explanation of the Teslys service.
+- [About](/about): Company background and mission.
+- [FAQ](/faq): Common questions about hosting, payouts, insurance, and management.
+- [Earnings Calculator](/earnings-calculator): Estimate monthly income for your Tesla model.
+- [How Much Can I Earn](/how-much-can-i-earn): Real earning data and projections.
+- [Military Program](/military): 85/15 split program for active-duty members.
+- [Turo Management](/turo-management): Comparison and migration guide for Turo hosts.
+- [Tesla Monthly Rental](/tesla-monthly-rental): Long-term Tesla rental information.
+- [Tesla Rental Cost](/tesla-rental-cost): Pricing benchmarks for Tesla rentals.
+- [Tesla Rental Near Me](/tesla-rental-near-me): Local Tesla rental availability.
+- [Tesla Rental Insurance](/tesla-rental-insurance): Insurance coverage details.
+- [Tesla Rental Statistics](/tesla-rental-statistics): Market data and trends.
+- [Blog](/blog): Tesla car sharing tips, passive income strategies, and industry news.
+- [Support](/support): Contact and help resources.
+- [Privacy Policy](/privacy): How Teslys handles user data.
+- [Terms of Use](/terms): Service terms and conditions.
+
+## City Pages
+
+- [Los Angeles](/tesla-car-sharing-los-angeles)
+- [Miami](/tesla-car-sharing-miami)
+- [San Francisco](/tesla-car-sharing-san-francisco)
+- [New York](/tesla-car-sharing-new-york)
+- [Austin](/tesla-car-sharing-austin)
+- [San Diego](/tesla-car-sharing-san-diego)
+- [Dallas](/tesla-car-sharing-dallas)
+- [Chicago](/tesla-car-sharing-chicago)
+- [Seattle](/tesla-car-sharing-seattle)
+- [Denver](/tesla-car-sharing-denver)
+- [Phoenix](/tesla-car-sharing-phoenix)
+- [Atlanta](/tesla-car-sharing-atlanta)
+- [Las Vegas](/tesla-car-sharing-las-vegas)
+- [Oklahoma City](/tesla-car-sharing-oklahoma-city)
+
+## Models
+
+- [Cybertruck Rental](/tesla-cybertruck-rental)
+- [Model X Rental](/tesla-model-x-rental)
+- [Model S Rental](/tesla-model-s-rental)

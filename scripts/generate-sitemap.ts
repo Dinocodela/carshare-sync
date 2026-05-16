@@ -26,6 +26,7 @@ const staticPages: SitemapEntry[] = [
   { loc: "/support", changefreq: "monthly", priority: "0.6" },
   { loc: "/privacy", changefreq: "monthly", priority: "0.5" },
   { loc: "/terms", changefreq: "monthly", priority: "0.5" },
+  { loc: "/sms-consent", changefreq: "monthly", priority: "0.3" },
 ];
 
 const intentPages: SitemapEntry[] = [
