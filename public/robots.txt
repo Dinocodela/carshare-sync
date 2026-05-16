@@ -1,27 +1,57 @@
 User-agent: *
 Allow: /
 
-# App-only routes (not for indexing)
+# Authenticated app routes
 Disallow: /dashboard
 Disallow: /settings
 Disallow: /my-cars
 Disallow: /add-car
+Disallow: /edit-car
 Disallow: /select-host
 Disallow: /host-requests
 Disallow: /host-analytics
-Disallow: /client-analytics
-Disallow: /client-fixed-expenses
 Disallow: /host-car-management
 Disallow: /hosting-details/
-Disallow: /cars/
+Disallow: /client-analytics
+Disallow: /client-fixed-expenses
 Disallow: /registered-clients
 Disallow: /bonzah-insurance
+Disallow: /cars/
+Disallow: /schedule-maintenance
+Disallow: /audit-log
+
+# Admin & gated flows
 Disallow: /admin/
 Disallow: /subscribe
 Disallow: /account-pending
-Disallow: /edit-car
-Disallow: /schedule-maintenance
+
+# Onboarding & auth flows (no SEO value)
 Disallow: /onboarding
+Disallow: /email-confirmed
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Prevent crawler waste on query strings (UTM, tracking, filters)
+Disallow: /*?*
+
+# Block AI scrapers that ignore content licensing
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
 
 Sitemap: https://teslys.app/sitemap.xml
 Sitemap: https://teslysapp.lovable.app/sitemap.xml
