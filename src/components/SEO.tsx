@@ -16,7 +16,7 @@ export function SEO({
   description,
   canonical,
   keywords,
-  ogImage = "/og-image.jpg",
+  ogImage = "https://teslys.app/icons/icon-512.webp",
   ogType = "website",
   twitterCard = "summary_large_image",
   noIndex = false,

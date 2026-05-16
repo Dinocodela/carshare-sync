@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
         title="Privacy Policy - Teslys Tesla Car Sharing Platform"
         description="Teslys privacy policy. Learn how we collect, use, and protect your personal information on our Tesla car sharing platform. Your data security is our priority."
         keywords="Teslys privacy policy, Tesla car sharing privacy, data protection, personal information security, car rental privacy"
-        canonical="https://teslys.app/privacy-policy"
+        canonical="https://teslys.app/privacy"
         ogType="article"
       />
       <div className="min-h-screen bg-background">
