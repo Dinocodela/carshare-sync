@@ -24,3 +24,4 @@ Disallow: /schedule-maintenance
 Disallow: /onboarding
 
 Sitemap: https://teslys.app/sitemap.xml
+Sitemap: https://teslysapp.lovable.app/sitemap.xml
