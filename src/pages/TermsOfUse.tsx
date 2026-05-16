@@ -9,7 +9,7 @@ export default function TermsOfUse() {
         title="Terms of Use - Teslys Tesla Car Sharing Platform"
         description="Teslys terms of use and service agreement. Review the terms and conditions for using our Tesla car sharing platform, including subscription details and acceptable use policy."
         keywords="Teslys terms of use, Tesla car sharing agreement, service terms, car rental terms, subscription terms and conditions"
-        canonical="https://teslys.app/terms-of-use"
+        canonical="https://teslys.app/terms"
         ogType="article"
       />
       <div className="min-h-screen bg-background">

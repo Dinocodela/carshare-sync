@@ -96,7 +96,7 @@ const Index = () => {
   return (
     <>
       <SEO
-        title="Teslys - Tesla Car Sharing Platform | Turn Your Tesla Into Passive Income"
+        title="Teslys — Turn Your Tesla Into Passive Income"
         description="Premium Tesla car sharing platform. We handle rentals, cleaning, and guest support so you can earn passive income from your Tesla. Join Teslys today."
         keywords="Tesla car sharing, Tesla passive income, rent out Tesla, Tesla rental management, Tesla Model 3 rental, Tesla Model Y income, car sharing platform"
         canonical="https://teslys.app/"
@@ -109,7 +109,7 @@ const Index = () => {
       <StructuredData type="localbusiness" />
 
       <RentATeslaLink />
-      <div className="min-h-screen pt-safe-top bg-gradient-hero overflow-y-auto">
+      <main className="min-h-screen pt-safe-top bg-gradient-hero overflow-y-auto">
         <div className="flex flex-col items-center p-4 pb-0">
           <div className="w-full max-w-xl">
 
@@ -345,7 +345,7 @@ const Index = () => {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 };

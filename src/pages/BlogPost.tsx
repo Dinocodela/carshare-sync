@@ -67,10 +67,20 @@ export default function BlogPost() {
       <SEO
         title={`${post.title} — Teslys Blog`}
         description={post.excerpt || post.title}
-        canonical={`https://teslys.com/blog/${post.slug}`}
+        canonical={`https://teslys.app/blog/${post.slug}`}
         ogImage={post.cover_image || undefined}
         ogType="article"
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        description: post.excerpt || undefined,
+        image: post.cover_image || undefined,
+        datePublished: post.published_at || undefined,
+        author: post.author_name ? { "@type": "Person", name: post.author_name } : undefined,
+        mainEntityOfPage: `https://teslys.app/blog/${post.slug}`,
+      }) }} />
 
       <div className="min-h-screen bg-background">
         {/* Header */}
