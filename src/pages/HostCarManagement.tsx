@@ -1570,12 +1570,18 @@ export default function HostCarManagement() {
       }, 300);
     } catch (error: any) {
       console.error("Error managing earning:", error);
+      const parts = [
+        error?.message,
+        error?.details,
+        error?.hint,
+        error?.code ? `(code: ${error.code})` : null,
+      ].filter(Boolean);
       const errorMessage =
-        error?.message ||
-        error?.error_description ||
-        error?.hint ||
-        error?.details ||
-        (typeof error === "string" ? error : "Unknown error occurred");
+        parts.length > 0
+          ? parts.join(" — ")
+          : typeof error === "string"
+          ? error
+          : "Unknown error occurred";
 
       toast({
         title: "Error",
