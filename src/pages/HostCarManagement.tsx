@@ -1484,6 +1484,23 @@ export default function HostCarManagement() {
           }
         }
       } else {
+        // Pre-check: trip_id must be unique across all earnings
+        if (values.trip_id) {
+          const { data: dup } = await supabase
+            .from("host_earnings")
+            .select("id, host_id, guest_name")
+            .eq("trip_id", values.trip_id)
+            .maybeSingle();
+          if (dup) {
+            const ownedByYou = dup.host_id === currentSession.user.id;
+            throw new Error(
+              ownedByYou
+                ? `An earning with Trip ID "${values.trip_id}" already exists (guest: ${dup.guest_name || "—"}). Edit that one instead of creating a duplicate.`
+                : `Trip ID "${values.trip_id}" is already used by another host. Please use a different Trip ID.`
+            );
+          }
+        }
+
         // Create new earning
         const { error, data: inserted } = await supabase
           .from("host_earnings")
@@ -1553,12 +1570,18 @@ export default function HostCarManagement() {
       }, 300);
     } catch (error: any) {
       console.error("Error managing earning:", error);
+      const parts = [
+        error?.message,
+        error?.details,
+        error?.hint,
+        error?.code ? `(code: ${error.code})` : null,
+      ].filter(Boolean);
       const errorMessage =
-        error?.message ||
-        error?.error_description ||
-        error?.hint ||
-        error?.details ||
-        (typeof error === "string" ? error : "Unknown error occurred");
+        parts.length > 0
+          ? parts.join(" — ")
+          : typeof error === "string"
+          ? error
+          : "Unknown error occurred";
 
       toast({
         title: "Error",
