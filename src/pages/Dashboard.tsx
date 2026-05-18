@@ -211,8 +211,43 @@ function useRecentActivity(
           });
         });
 
-        // Only backfill with cars/requests if we need more items
-        if (mapped.length < limit) {
+        // For clients, Recent Activity is strictly payouts received.
+        // If we still need more items for clients, backfill with older paid payouts
+        // (not cars added or hosting requests).
+        if (role === "client" && mapped.length < limit) {
+          const carIdsForBackfill = allCars.map((c) => c.id);
+          if (carIdsForBackfill.length) {
+            const existingIds = new Set(earns.map((e) => e.id));
+            const { data: olderPaid } = await supabase
+              .from("host_earnings")
+              .select(payoutFields)
+              .eq("payment_status", "paid")
+              .in("car_id", carIdsForBackfill)
+              .order("date_paid", { ascending: false, nullsFirst: false })
+              .limit(limit * 2);
+            (olderPaid || [])
+              .filter((e: any) => !existingIds.has(e.id))
+              .forEach((e: any) => {
+                const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
+                if (!ts) return;
+                const tripExp = getTripExpensesTotal(e.trip_id, activityExpenses);
+                const net = (e.amount || 0) - tripExp;
+                const payout = (net * (e.client_profit_percentage || 70)) / 100;
+                const carInfo = allCars.find((c: any) => c.id === e.car_id);
+                const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
+                const guest = e.guest_name ? ` from ${e.guest_name}` : "";
+                mapped.push({
+                  id: `earn_${e.id}`,
+                  ts,
+                  message: `Received $${Number(payout).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} payout${guest}${carLabel}`,
+                  icon: "💵",
+                });
+              });
+          }
+        }
+
+        // Hosts still get fleet + request activity as a backfill.
+        if (role === "host" && mapped.length < limit) {
           recentCars.forEach((c) =>
             mapped.push({
               id: `car_${c.id}`,
@@ -233,10 +268,7 @@ function useRecentActivity(
             mapped.push({
               id: `req_new_${r.id}`,
               ts: r.created_at,
-              message:
-                role === "host"
-                  ? "New hosting request received"
-                  : "Hosting request sent",
+              message: "New hosting request received",
               icon: "📩",
             });
             if (r.updated_at && r.updated_at !== r.created_at) {
@@ -249,10 +281,7 @@ function useRecentActivity(
               mapped.push({
                 id: `req_status_${r.id}`,
                 ts: r.updated_at,
-                message:
-                  role === "host"
-                    ? `You ${status} a hosting request`
-                    : `Your request was ${status}`,
+                message: `You ${status} a hosting request`,
                 icon: "✅",
               });
             }
