@@ -435,10 +435,12 @@ export default function Dashboard() {
       if (!user?.id || !profile) return;
       setTripsLoading(true);
       try {
+        const todayStr = new Date().toISOString().slice(0, 10);
         if (isHost) {
           const { data: rows } = await supabase
             .from("host_earnings")
             .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+            .lte("earning_period_end", todayStr)
             .order("earning_period_end", { ascending: false })
             .limit(5);
           if (!cancelled) setRecentTrips(rows || []);
@@ -449,6 +451,7 @@ export default function Dashboard() {
               .from("host_earnings")
               .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
               .in("car_id", carIds)
+              .lte("earning_period_end", todayStr)
               .order("earning_period_end", { ascending: false })
               .limit(5);
             if (!cancelled) setRecentTrips(rows || []);
