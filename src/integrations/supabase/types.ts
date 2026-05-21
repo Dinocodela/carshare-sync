@@ -909,6 +909,8 @@ export type Database = {
           payment_date: string | null
           payment_source: string | null
           payment_status: string
+          pickup_address: string | null
+          return_address: string | null
           trip_id: string | null
           trip_idd: string | null
           updated_at: string
@@ -933,6 +935,8 @@ export type Database = {
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
+          pickup_address?: string | null
+          return_address?: string | null
           trip_id?: string | null
           trip_idd?: string | null
           updated_at?: string
@@ -957,6 +961,8 @@ export type Database = {
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
+          pickup_address?: string | null
+          return_address?: string | null
           trip_id?: string | null
           trip_idd?: string | null
           updated_at?: string
