@@ -1068,10 +1068,12 @@ export default function HostCarManagement() {
   ];
 
   const distinctClaimTypes = useMemo(() => {
-    const fromData = claims.map((c) => c.claim_type).filter(Boolean);
+    const fromData = (claimsRpcTypes && claimsRpcTypes.length > 0)
+      ? claimsRpcTypes
+      : claims.map((c) => c.claim_type).filter(Boolean);
     const merged = [...new Set([...BASE_CLAIM_TYPES, ...fromData])];
     return merged.sort();
-  }, [claims]);
+  }, [claims, claimsRpcTypes]);
 
   // Count active filters
   const activeFiltersCount = Object.values(expenseFilters).filter(
