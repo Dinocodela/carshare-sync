@@ -1888,6 +1888,8 @@ export default function HostCarManagement() {
       host_profit_percentage: 30,
       payment_status: "pending",
       date_paid: "",
+      pickup_address: "",
+      return_address: "",
     });
     setEarningDialogOpen(true);
   };
