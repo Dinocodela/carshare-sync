@@ -3244,7 +3244,7 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  {filteredExpenses.map((expense) => (
+                  {paginatedExpenses.map((expense) => (
                     <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-3">
