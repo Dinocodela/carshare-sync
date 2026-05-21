@@ -13,30 +13,11 @@ const PAGE_SIZE = 10;
 
 type Filter = "all" | "upcoming" | "active" | "past";
 
-function filterTrips(trips: TripCardData[], filter: Filter): TripCardData[] {
-  if (filter === "all") return trips;
-  const now = new Date();
-  return trips.filter((t) => {
-    const start = new Date(
-      /^\d{4}-\d{2}-\d{2}$/.test(t.earning_period_start)
-        ? `${t.earning_period_start}T00:00:00`
-        : t.earning_period_start,
-    );
-    const end = new Date(
-      /^\d{4}-\d{2}-\d{2}$/.test(t.earning_period_end)
-        ? `${t.earning_period_end}T00:00:00`
-        : t.earning_period_end,
-    );
-    if (filter === "upcoming") return now < start;
-    if (filter === "active") return now >= start && now <= end;
-    return now > end;
-  });
-}
-
 export default function Trips() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [trips, setTrips] = useState<TripCardData[]>([]);
+  const [pageItems, setPageItems] = useState<TripCardData[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [filter, setFilter] = useState<Filter>("upcoming");
   const [page, setPage] = useState(1);
 
@@ -50,30 +31,52 @@ export default function Trips() {
     (async () => {
       setLoading(true);
 
-      // Fetch role
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
         .eq("user_id", user.id)
         .maybeSingle();
 
+      const nowIso = new Date().toISOString();
+
       let query = supabase
         .from("host_earnings")
         .select(
           "id, trip_id, guest_name, earning_period_start, earning_period_end, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)",
-        )
-        .order("earning_period_start", { ascending: true });
+          { count: "exact" },
+        );
 
       if (profile?.role === "host") {
         query = query.eq("host_id", user.id);
       }
-      // For clients, RLS already restricts to their cars' earnings.
 
-      const { data, error } = await query;
+      // Tab-aware server-side filtering + ordering
+      if (filter === "upcoming") {
+        query = query
+          .gt("earning_period_start", nowIso)
+          .order("earning_period_start", { ascending: true });
+      } else if (filter === "active") {
+        query = query
+          .lte("earning_period_start", nowIso)
+          .gte("earning_period_end", nowIso)
+          .order("earning_period_start", { ascending: true });
+      } else if (filter === "past") {
+        query = query
+          .lt("earning_period_end", nowIso)
+          .order("earning_period_end", { ascending: false });
+      } else {
+        query = query.order("earning_period_start", { ascending: true });
+      }
+
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      const { data, error, count } = await query.range(from, to);
+
       if (cancelled) return;
       if (error) {
         console.error("Failed to load trips:", error);
-        setTrips([]);
+        setPageItems([]);
+        setTotalCount(0);
       } else {
         const rows = data || [];
         const tripIds = Array.from(
@@ -116,20 +119,19 @@ export default function Trips() {
               }
             : null,
         }));
-        setTrips(mapped);
+        setPageItems(mapped);
+        setTotalCount(count || 0);
       }
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, filter, page]);
 
-  const filtered = filterTrips(trips, filter);
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageStart = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
   return (
     <DashboardLayout>
@@ -159,7 +161,7 @@ export default function Trips() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Loading trips…
               </div>
-            ) : filtered.length === 0 ? (
+            ) : totalCount === 0 ? (
               <div className="rounded-2xl border border-dashed py-12 text-center text-muted-foreground">
                 No trips to show.
               </div>
@@ -170,12 +172,12 @@ export default function Trips() {
                     <TripCard key={trip.id} trip={trip} />
                   ))}
                 </div>
-                {filtered.length > PAGE_SIZE && (
+                {totalCount > PAGE_SIZE && (
                   <div className="mt-6 flex items-center justify-between gap-2">
                     <p className="text-sm text-muted-foreground">
                       Showing {pageStart + 1}–
-                      {Math.min(pageStart + PAGE_SIZE, filtered.length)} of{" "}
-                      {filtered.length}
+                      {Math.min(pageStart + PAGE_SIZE, totalCount)} of{" "}
+                      {totalCount}
                     </p>
                     <div className="flex items-center gap-2">
                       <Button
