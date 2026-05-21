@@ -50,6 +50,8 @@ interface TripFull {
   earning_type: string | null;
   payment_status: string | null;
   payment_source: string | null;
+  pickup_address: string | null;
+  return_address: string | null;
   car: {
     make: string;
     model: string;
