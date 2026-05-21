@@ -2046,7 +2046,7 @@ export default function HostCarManagement() {
       if (error) throw error;
 
       // Refresh the claims data
-      fetchClaims();
+      fetchClaims(); fetchClaimsPageFromRPC();
 
       toast({
         title: "Status Updated",
