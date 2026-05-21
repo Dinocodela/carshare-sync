@@ -2,6 +2,7 @@ import {
   useState,
   useEffect,
   useMemo,
+  useCallback,
   forwardRef,
   type ComponentPropsWithoutRef,
 } from "react";
@@ -454,6 +455,13 @@ export default function HostCarManagement() {
   const [earningsPage, setEarningsPage] = useState(1);
   const [expensesPage, setExpensesPage] = useState(1);
   const [claimsPage, setClaimsPage] = useState(1);
+
+  // Server-side paginated earnings (RPC driven)
+  const [earningsPageRows, setEarningsPageRows] = useState<any[]>([]);
+  const [earningsPageRelatedExpenses, setEarningsPageRelatedExpenses] = useState<any[]>([]);
+  const [earningsTotalCount, setEarningsTotalCount] = useState(0);
+  const [earningsTotals, setEarningsTotals] = useState({ total_net: 0, pending_net: 0, this_month_net: 0 });
+  const [earningsListLoading, setEarningsListLoading] = useState(false);
 
   // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
   useEffect(() => {
@@ -986,7 +994,7 @@ export default function HostCarManagement() {
     () => filteredClaims.slice((claimsPage - 1) * PAGE_SIZE, claimsPage * PAGE_SIZE),
     [filteredClaims, claimsPage]
   );
-  const earningsPageCount = Math.max(1, Math.ceil(filteredEarnings.length / PAGE_SIZE));
+  const earningsPageCount = Math.max(1, Math.ceil(earningsTotalCount / PAGE_SIZE));
   const expensesPageCount = Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE));
   const claimsPageCount = Math.max(1, Math.ceil(filteredClaims.length / PAGE_SIZE));
 
@@ -1061,7 +1069,7 @@ export default function HostCarManagement() {
     if (user) {
       fetchHostedCars();
       fetchExpenses(true);
-      fetchEarnings();
+      fetchEarnings(); fetchEarningsPageFromRPC();
       fetchClaims();
     }
   }, [user]);
@@ -1239,8 +1247,66 @@ export default function HostCarManagement() {
     }
   };
 
+  const fetchEarningsPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (earningsFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      p_date_to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+      if (earningsFilters.dateRange === "today") {
+        p_date_from = today.toISOString();
+      } else if (earningsFilters.dateRange === "week") {
+        p_date_from = new Date(today.getTime() - 7 * 86400000).toISOString();
+      } else if (earningsFilters.dateRange === "month") {
+        const m = new Date(today);
+        m.setMonth(today.getMonth() - 1);
+        p_date_from = m.toISOString();
+      }
+    }
+    try {
+      setEarningsListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_earnings_page", {
+        p_car_id: earningsFilters.carId && earningsFilters.carId !== "all" ? earningsFilters.carId : null,
+        p_payment_source:
+          earningsFilters.paymentSource && earningsFilters.paymentSource !== "all"
+            ? earningsFilters.paymentSource
+            : null,
+        p_payment_status:
+          earningsFilters.paymentStatus && earningsFilters.paymentStatus !== "all"
+            ? earningsFilters.paymentStatus
+            : null,
+        p_date_from,
+        p_date_to,
+        p_trip_search: earningsFilters.tripSearch?.trim() || null,
+        p_limit: PAGE_SIZE,
+        p_offset: (earningsPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setEarningsPageRows(result.rows || []);
+      setEarningsPageRelatedExpenses(result.related_expenses || []);
+      setEarningsTotalCount(Number(result.total_count) || 0);
+      setEarningsTotals({
+        total_net: Number(result.total_net) || 0,
+        pending_net: Number(result.pending_net) || 0,
+        this_month_net: Number(result.this_month_net) || 0,
+      });
+    } catch (e) {
+      console.error("Error fetching earnings page:", e);
+    } finally {
+      setEarningsListLoading(false);
+    }
+  }, [user, earningsFilters, earningsPage]);
+
+  useEffect(() => {
+    if (user) fetchEarningsPageFromRPC();
+  }, [fetchEarningsPageFromRPC]);
+
   const fetchClaims = async () => {
     if (!user) return;
+
 
     try {
       const { data, error } = await (supabase as any)
@@ -1342,7 +1408,7 @@ export default function HostCarManagement() {
       setEditingExpense(null);
       expenseForm.reset();
       fetchExpenses();
-      fetchEarnings(); // Refresh earnings to sync guest names and trip data
+      fetchEarnings(); fetchEarningsPageFromRPC(); // Refresh earnings to sync guest names and trip data
     } catch (error) {
       console.error("Error managing expense:", error);
       const errorMessage =
@@ -1397,7 +1463,7 @@ export default function HostCarManagement() {
         description: "The earning has been removed.",
       });
 
-      fetchEarnings();
+      fetchEarnings(); fetchEarningsPageFromRPC();
     } catch (error) {
       console.error("Error deleting earning:", error);
       toast({
@@ -5132,7 +5198,7 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredEarnings.length} of {earnings.length}{" "}
+                          Showing {earningsPageRows.length} of {earningsTotalCount}{" "}
                           earnings
                         </p>
                         {activeEarningsFiltersCount > 0 && (
@@ -5148,7 +5214,7 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {earnings.length === 0 ? (
+              {earningsTotalCount === 0 && activeEarningsFiltersCount === 0 && !earningsListLoading ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <DollarSign className="h-7 w-7 text-primary" />
@@ -5156,7 +5222,7 @@ export default function HostCarManagement() {
                   <h3 className="text-base font-semibold text-foreground mb-1">No Earnings Recorded</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting earnings.</p>
                 </div>
-              ) : filteredEarnings.length === 0 ? (
+              ) : earningsTotalCount === 0 && !earningsListLoading ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -5169,44 +5235,26 @@ export default function HostCarManagement() {
                 <div className="space-y-4">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(() => {
-                      const getExpenseTotal = (expense: Expense) =>
-                        expense.total_expenses ??
-                        (expense.amount || 0) +
-                          (expense.delivery_cost || 0) +
-                          (expense.toll_cost || 0) +
-                          (expense.ev_charge_cost || 0) +
-                          (expense.carwash_cost || 0);
-
-                      const getNetForEarning = (e: any) => {
-                        const relExp = e.trip_id ? expenses.filter((ex) => ex.trip_id === e.trip_id) : [];
-                        const totalExp = relExp.reduce((sum, ex) => sum + getExpenseTotal(ex), 0);
-                        return (e.amount || 0) - totalExp;
-                      };
-                      const now = new Date();
-                      const currentMonth = now.getMonth();
-                      const currentYear = now.getFullYear();
-                      return [
-                        {
-                          label: "Total Earnings",
-                          value: `$${filteredEarnings.reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: TrendingUp,
-                          tooltip: "Sum of gross earnings minus trip expenses for all displayed earnings",
-                        },
-                        {
-                          label: "Pending Payments",
-                          value: `$${filteredEarnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: Clock,
-                          tooltip: "Sum of net earnings (gross − expenses) for trips with pending payment status",
-                        },
-                        {
-                          label: "This Month",
-                          value: `$${filteredEarnings.filter((e) => { const d = new Date(e.earning_period_start); return d.getMonth() === currentMonth && d.getFullYear() === currentYear; }).reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: CalendarLucide,
-                          tooltip: "Sum of net earnings (gross − expenses) for trips starting in the current calendar month",
-                        },
-                      ];
-                    })().map((item, i) => (
+                    {[
+                      {
+                        label: "Total Earnings",
+                        value: `$${earningsTotals.total_net.toFixed(2)}`,
+                        icon: TrendingUp,
+                        tooltip: "Sum of gross earnings minus trip expenses across all filtered earnings",
+                      },
+                      {
+                        label: "Pending Payments",
+                        value: `$${earningsTotals.pending_net.toFixed(2)}`,
+                        icon: Clock,
+                        tooltip: "Sum of net earnings (gross − expenses) for trips with pending payment status across all filtered earnings",
+                      },
+                      {
+                        label: "This Month",
+                        value: `$${earningsTotals.this_month_net.toFixed(2)}`,
+                        icon: CalendarLucide,
+                        tooltip: "Sum of net earnings (gross − expenses) for trips starting in the current calendar month",
+                      },
+                    ].map((item, i) => (
                       <div key={i} className="group rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 relative">
                         <div className="flex items-center justify-between">
                           <div>
@@ -5238,8 +5286,8 @@ export default function HostCarManagement() {
 
                   {/* Earnings List */}
                   <div className="grid gap-3">
-                    {paginatedEarnings.map((earning) => {
-                      const relatedExpenses = earning.trip_id ? expenses.filter((e) => e.trip_id === earning.trip_id) : [];
+                    {earningsPageRows.map((earning) => {
+                      const relatedExpenses = earning.trip_id ? earningsPageRelatedExpenses.filter((e: any) => e.trip_id === earning.trip_id) : [];
                       const totalExpenses = relatedExpenses.reduce(
                         (sum, e) =>
                           sum +
