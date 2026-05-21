@@ -3354,7 +3354,7 @@ export default function HostCarManagement() {
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-1">No Expenses Recorded</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting expenses.</p>
-                  <Button onClick={() => fetchExpenses(true); fetchExpensesPageFromRPC(); fetchExpensesPageFromRPC(); /*} size="sm" className="mt-4 rounded-xl">
+                  <Button onClick={() => { fetchExpenses(true); fetchExpensesPageFromRPC(); }} size="sm" className="mt-4 rounded-xl">
                     Refresh Expenses
                   </Button>
                 </div>
