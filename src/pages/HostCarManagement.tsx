@@ -1375,6 +1375,67 @@ export default function HostCarManagement() {
     if (user) fetchExpensesPageFromRPC();
   }, [fetchExpensesPageFromRPC]);
 
+  const fetchClaimsPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (claimsFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      p_date_to = fmt(today);
+      if (claimsFilters.dateRange === "today") {
+        p_date_from = fmt(today);
+      } else if (claimsFilters.dateRange === "week") {
+        p_date_from = fmt(new Date(today.getTime() - 7 * 86400000));
+      } else if (claimsFilters.dateRange === "month") {
+        p_date_from = fmt(new Date(today.getTime() - 30 * 86400000));
+      }
+    }
+    try {
+      setClaimsListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_claims_page", {
+        p_car_id:
+          claimsFilters.carId && claimsFilters.carId !== "all" ? claimsFilters.carId : null,
+        p_claim_status:
+          claimsFilters.claimStatus && claimsFilters.claimStatus !== "all"
+            ? claimsFilters.claimStatus
+            : null,
+        p_claim_type:
+          claimsFilters.claimType && claimsFilters.claimType !== "all"
+            ? claimsFilters.claimType
+            : null,
+        p_date_from,
+        p_date_to,
+        p_limit: PAGE_SIZE,
+        p_offset: (claimsPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setClaimsPageRows(result.rows || []);
+      setClaimsTotalCount(Number(result.total_count) || 0);
+      setClaimsAllCount(Number(result.all_count) || 0);
+      setClaimsTotals({
+        pending_count: Number(result.pending_count) || 0,
+        approved_count: Number(result.approved_count) || 0,
+        total_amount: Number(result.total_amount) || 0,
+        paid_amount: Number(result.paid_amount) || 0,
+      });
+      setClaimsRpcTypes(Array.isArray(result.claim_types) ? result.claim_types.filter(Boolean) : []);
+    } catch (e) {
+      console.error("Error fetching claims page:", e);
+    } finally {
+      setClaimsListLoading(false);
+    }
+  }, [user, claimsFilters, claimsPage]);
+
+  useEffect(() => {
+    if (user) fetchClaimsPageFromRPC();
+  }, [fetchClaimsPageFromRPC]);
+
+
+
 
   const fetchClaims = async () => {
     if (!user) return;
