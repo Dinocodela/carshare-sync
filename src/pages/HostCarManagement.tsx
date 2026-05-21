@@ -5286,8 +5286,8 @@ export default function HostCarManagement() {
 
                   {/* Earnings List */}
                   <div className="grid gap-3">
-                    {paginatedEarnings.map((earning) => {
-                      const relatedExpenses = earning.trip_id ? expenses.filter((e) => e.trip_id === earning.trip_id) : [];
+                    {earningsPageRows.map((earning) => {
+                      const relatedExpenses = earning.trip_id ? earningsPageRelatedExpenses.filter((e: any) => e.trip_id === earning.trip_id) : [];
                       const totalExpenses = relatedExpenses.reduce(
                         (sum, e) =>
                           sum +
