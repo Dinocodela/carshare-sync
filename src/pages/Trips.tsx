@@ -38,6 +38,11 @@ export default function Trips() {
   const [loading, setLoading] = useState(true);
   const [trips, setTrips] = useState<TripCardData[]>([]);
   const [filter, setFilter] = useState<Filter>("upcoming");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
 
   useEffect(() => {
     if (!user) return;
