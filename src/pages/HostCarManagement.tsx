@@ -6758,6 +6758,7 @@ export default function HostCarManagement() {
                       );
                     })}
                   </div>
+                  {renderPagination(claimsPage, claimsPageCount, setClaimsPage)}
                 </div>
               )}
             </TabsContent>
