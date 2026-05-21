@@ -164,11 +164,47 @@ export default function Trips() {
                 No trips to show.
               </div>
             ) : (
-              <div className="space-y-5">
-                {filtered.map((trip) => (
-                  <TripCard key={trip.id} trip={trip} />
-                ))}
-              </div>
+              <>
+                <div className="space-y-5">
+                  {pageItems.map((trip) => (
+                    <TripCard key={trip.id} trip={trip} />
+                  ))}
+                </div>
+                {filtered.length > PAGE_SIZE && (
+                  <div className="mt-6 flex items-center justify-between gap-2">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {pageStart + 1}–
+                      {Math.min(pageStart + PAGE_SIZE, filtered.length)} of{" "}
+                      {filtered.length}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setPage((p) => Math.min(totalPages, p + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
