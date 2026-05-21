@@ -104,6 +104,8 @@ export default function TripDetail() {
           earning_type: row.earning_type,
           payment_status: row.payment_status,
           payment_source: row.payment_source,
+          pickup_address: row.pickup_address,
+          return_address: row.return_address,
           car: row.cars
             ? {
                 make: row.cars.make,
