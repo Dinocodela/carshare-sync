@@ -1069,7 +1069,7 @@ export default function HostCarManagement() {
     if (user) {
       fetchHostedCars();
       fetchExpenses(true);
-      fetchEarnings();
+      fetchEarnings(); fetchEarningsPageFromRPC();
       fetchClaims();
     }
   }, [user]);
@@ -1408,7 +1408,7 @@ export default function HostCarManagement() {
       setEditingExpense(null);
       expenseForm.reset();
       fetchExpenses();
-      fetchEarnings(); // Refresh earnings to sync guest names and trip data
+      fetchEarnings(); fetchEarningsPageFromRPC(); // Refresh earnings to sync guest names and trip data
     } catch (error) {
       console.error("Error managing expense:", error);
       const errorMessage =
@@ -1463,7 +1463,7 @@ export default function HostCarManagement() {
         description: "The earning has been removed.",
       });
 
-      fetchEarnings();
+      fetchEarnings(); fetchEarningsPageFromRPC();
     } catch (error) {
       console.error("Error deleting earning:", error);
       toast({
