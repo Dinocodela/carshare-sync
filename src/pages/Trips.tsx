@@ -34,7 +34,7 @@ export default function Trips() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [trips, setTrips] = useState<TripCardData[]>([]);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("upcoming");
 
   useEffect(() => {
     if (!user) return;
@@ -112,10 +112,10 @@ export default function Trips() {
           className="mb-4"
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
             <TabsTrigger value="active">In progress</TabsTrigger>
             <TabsTrigger value="past">Past</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
           </TabsList>
           <TabsContent value={filter} className="mt-4">
             {loading ? (
