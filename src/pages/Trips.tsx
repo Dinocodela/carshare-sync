@@ -153,7 +153,7 @@ export default function Trips() {
             <TabsTrigger value="past">Past</TabsTrigger>
             <TabsTrigger value="all">All</TabsTrigger>
           </TabsList>
-          <TabsContent value={filter} className="mt-4">
+          <TabsContent value={filter} className="mt-4 pb-20">
             {loading ? (
               <div className="flex items-center justify-center py-12 text-muted-foreground">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
