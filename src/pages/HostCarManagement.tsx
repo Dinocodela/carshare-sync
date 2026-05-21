@@ -3325,7 +3325,7 @@ export default function HostCarManagement() {
                     {/* Results Summary */}
                     <div className="flex items-center justify-between pt-2 border-t">
                       <p className="text-sm text-muted-foreground">
-                        Showing {filteredExpenses.length} of {expenses.length}{" "}
+                        Showing {expensesPageRows.length} of {expensesTotalCount}{" "}
                         expenses
                       </p>
                       {activeFiltersCount > 0 && (
