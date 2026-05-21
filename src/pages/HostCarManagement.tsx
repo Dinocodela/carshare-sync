@@ -268,6 +268,8 @@ const earningSchema = z.object({
   host_profit_percentage: z.number().min(0).max(100).default(30),
   payment_status: z.string().min(1, "Payment status is required"),
   date_paid: z.string().min(1, "Date paid is required"),
+  pickup_address: z.string().optional(),
+  return_address: z.string().optional(),
 });
 
 const claimSchema = z.object({
