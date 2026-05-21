@@ -994,7 +994,7 @@ export default function HostCarManagement() {
     () => filteredClaims.slice((claimsPage - 1) * PAGE_SIZE, claimsPage * PAGE_SIZE),
     [filteredClaims, claimsPage]
   );
-  const earningsPageCount = Math.max(1, Math.ceil(filteredEarnings.length / PAGE_SIZE));
+  const earningsPageCount = Math.max(1, Math.ceil(earningsTotalCount / PAGE_SIZE));
   const expensesPageCount = Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE));
   const claimsPageCount = Math.max(1, Math.ceil(filteredClaims.length / PAGE_SIZE));
 
