@@ -1074,7 +1074,7 @@ export default function HostCarManagement() {
   useEffect(() => {
     if (user) {
       fetchHostedCars();
-      fetchExpenses(true);
+      fetchExpenses(true); fetchExpensesPageFromRPC(); fetchExpensesPageFromRPC(); /*;
       fetchEarnings(); fetchEarningsPageFromRPC();
       fetchClaims();
     }
@@ -1466,7 +1466,7 @@ export default function HostCarManagement() {
       setExpenseDialogOpen(false);
       setEditingExpense(null);
       expenseForm.reset();
-      fetchExpenses();
+      fetchExpenses(); fetchExpensesPageFromRPC();
       fetchEarnings(); fetchEarningsPageFromRPC(); // Refresh earnings to sync guest names and trip data
     } catch (error) {
       console.error("Error managing expense:", error);
@@ -1497,7 +1497,7 @@ export default function HostCarManagement() {
         description: "The expense has been removed.",
       });
 
-      fetchExpenses();
+      fetchExpenses(); fetchExpensesPageFromRPC();
     } catch (error) {
       console.error("Error deleting expense:", error);
       toast({
@@ -1760,7 +1760,7 @@ export default function HostCarManagement() {
 
       // Add a small delay and force refresh with loading states
       setTimeout(async () => {
-        await Promise.all([fetchEarnings(true), fetchExpenses(true)]);
+        await Promise.all([fetchEarnings(true), fetchExpenses(true); fetchExpensesPageFromRPC(); fetchExpensesPageFromRPC(); /*]);
       }, 300);
     } catch (error: any) {
       console.error("Error managing earning:", error);
@@ -3354,7 +3354,7 @@ export default function HostCarManagement() {
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-1">No Expenses Recorded</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting expenses.</p>
-                  <Button onClick={() => fetchExpenses(true)} size="sm" className="mt-4 rounded-xl">
+                  <Button onClick={() => fetchExpenses(true); fetchExpensesPageFromRPC(); fetchExpensesPageFromRPC(); /*} size="sm" className="mt-4 rounded-xl">
                     Refresh Expenses
                   </Button>
                 </div>
