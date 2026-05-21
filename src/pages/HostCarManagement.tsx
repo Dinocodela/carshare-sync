@@ -1246,7 +1246,63 @@ export default function HostCarManagement() {
     }
   };
 
-  const fetchClaims = async () => {
+  const fetchEarningsPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (earningsFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      p_date_to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+      if (earningsFilters.dateRange === "today") {
+        p_date_from = today.toISOString();
+      } else if (earningsFilters.dateRange === "week") {
+        p_date_from = new Date(today.getTime() - 7 * 86400000).toISOString();
+      } else if (earningsFilters.dateRange === "month") {
+        const m = new Date(today);
+        m.setMonth(today.getMonth() - 1);
+        p_date_from = m.toISOString();
+      }
+    }
+    try {
+      setEarningsListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_earnings_page", {
+        p_car_id: earningsFilters.carId && earningsFilters.carId !== "all" ? earningsFilters.carId : null,
+        p_payment_source:
+          earningsFilters.paymentSource && earningsFilters.paymentSource !== "all"
+            ? earningsFilters.paymentSource
+            : null,
+        p_payment_status:
+          earningsFilters.paymentStatus && earningsFilters.paymentStatus !== "all"
+            ? earningsFilters.paymentStatus
+            : null,
+        p_date_from,
+        p_date_to,
+        p_trip_search: earningsFilters.tripSearch?.trim() || null,
+        p_limit: PAGE_SIZE,
+        p_offset: (earningsPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setEarningsPageRows(result.rows || []);
+      setEarningsPageRelatedExpenses(result.related_expenses || []);
+      setEarningsTotalCount(Number(result.total_count) || 0);
+      setEarningsTotals({
+        total_net: Number(result.total_net) || 0,
+        pending_net: Number(result.pending_net) || 0,
+        this_month_net: Number(result.this_month_net) || 0,
+      });
+    } catch (e) {
+      console.error("Error fetching earnings page:", e);
+    } finally {
+      setEarningsListLoading(false);
+    }
+  }, [user, earningsFilters, earningsPage]);
+
+  useEffect(() => {
+    if (user) fetchEarningsPageFromRPC();
+  }, [fetchEarningsPageFromRPC]);
+
     if (!user) return;
 
     try {
