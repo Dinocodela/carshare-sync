@@ -67,12 +67,36 @@ export default function Trips() {
         console.error("Failed to load trips:", error);
         setTrips([]);
       } else {
-        const mapped: TripCardData[] = (data || []).map((row: any) => ({
+        const rows = data || [];
+        const tripIds = Array.from(
+          new Set(
+            rows
+              .map((r: any) => r.trip_id)
+              .filter((t: string | null): t is string => !!t),
+          ),
+        );
+        let deliveryTripIds = new Set<string>();
+        if (tripIds.length > 0) {
+          const { data: expenses } = await supabase
+            .from("host_expenses")
+            .select("trip_id, delivery_cost")
+            .in("trip_id", tripIds)
+            .gt("delivery_cost", 0);
+          deliveryTripIds = new Set(
+            (expenses || [])
+              .map((e: any) => e.trip_id)
+              .filter((t: string | null): t is string => !!t),
+          );
+        }
+
+        const mapped: TripCardData[] = rows.map((row: any) => ({
           id: row.id,
           trip_id: row.trip_id,
           guest_name: row.guest_name,
           earning_period_start: row.earning_period_start,
           earning_period_end: row.earning_period_end,
+          is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
+          delivery_address: null,
           car: row.cars
             ? {
                 make: row.cars.make,
