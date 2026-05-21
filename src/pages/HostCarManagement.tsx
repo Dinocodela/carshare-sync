@@ -463,6 +463,12 @@ export default function HostCarManagement() {
   const [earningsTotals, setEarningsTotals] = useState({ total_net: 0, pending_net: 0, this_month_net: 0 });
   const [earningsListLoading, setEarningsListLoading] = useState(false);
 
+  // Server-side paginated expenses (RPC driven)
+  const [expensesPageRows, setExpensesPageRows] = useState<any[]>([]);
+  const [expensesTotalCount, setExpensesTotalCount] = useState(0);
+  const [expensesTotals, setExpensesTotals] = useState({ total_amount: 0, total_this_month: 0 });
+  const [expensesListLoading, setExpensesListLoading] = useState(false);
+
   // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
   useEffect(() => {
     const anyOpen =
@@ -995,7 +1001,7 @@ export default function HostCarManagement() {
     [filteredClaims, claimsPage]
   );
   const earningsPageCount = Math.max(1, Math.ceil(earningsTotalCount / PAGE_SIZE));
-  const expensesPageCount = Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE));
+  const expensesPageCount = Math.max(1, Math.ceil(expensesTotalCount / PAGE_SIZE));
   const claimsPageCount = Math.max(1, Math.ceil(filteredClaims.length / PAGE_SIZE));
 
   const renderPagination = (page: number, pageCount: number, setPage: (n: number) => void) => {
@@ -1068,7 +1074,7 @@ export default function HostCarManagement() {
   useEffect(() => {
     if (user) {
       fetchHostedCars();
-      fetchExpenses(true);
+      fetchExpenses(true); fetchExpensesPageFromRPC();
       fetchEarnings(); fetchEarningsPageFromRPC();
       fetchClaims();
     }
@@ -1304,6 +1310,59 @@ export default function HostCarManagement() {
     if (user) fetchEarningsPageFromRPC();
   }, [fetchEarningsPageFromRPC]);
 
+  const fetchExpensesPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (expenseFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      p_date_to = fmt(today);
+      if (expenseFilters.dateRange === "today") {
+        p_date_from = fmt(today);
+      } else if (expenseFilters.dateRange === "week") {
+        p_date_from = fmt(new Date(today.getTime() - 7 * 86400000));
+      } else if (expenseFilters.dateRange === "month") {
+        p_date_from = fmt(new Date(today.getTime() - 30 * 86400000));
+      }
+    }
+    try {
+      setExpensesListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_expenses_page", {
+        p_car_id:
+          expenseFilters.carId && expenseFilters.carId !== "all" ? expenseFilters.carId : null,
+        p_payment_source:
+          expenseFilters.paymentSource && expenseFilters.paymentSource !== "all"
+            ? expenseFilters.paymentSource
+            : null,
+        p_date_from,
+        p_date_to,
+        p_trip_search: expenseFilters.tripSearch?.trim() || null,
+        p_limit: PAGE_SIZE,
+        p_offset: (expensesPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setExpensesPageRows(result.rows || []);
+      setExpensesTotalCount(Number(result.total_count) || 0);
+      setExpensesTotals({
+        total_amount: Number(result.total_amount) || 0,
+        total_this_month: Number(result.total_this_month) || 0,
+      });
+    } catch (e) {
+      console.error("Error fetching expenses page:", e);
+    } finally {
+      setExpensesListLoading(false);
+    }
+  }, [user, expenseFilters, expensesPage]);
+
+  useEffect(() => {
+    if (user) fetchExpensesPageFromRPC();
+  }, [fetchExpensesPageFromRPC]);
+
+
   const fetchClaims = async () => {
     if (!user) return;
 
@@ -1407,7 +1466,7 @@ export default function HostCarManagement() {
       setExpenseDialogOpen(false);
       setEditingExpense(null);
       expenseForm.reset();
-      fetchExpenses();
+      fetchExpenses(); fetchExpensesPageFromRPC();
       fetchEarnings(); fetchEarningsPageFromRPC(); // Refresh earnings to sync guest names and trip data
     } catch (error) {
       console.error("Error managing expense:", error);
@@ -1438,7 +1497,7 @@ export default function HostCarManagement() {
         description: "The expense has been removed.",
       });
 
-      fetchExpenses();
+      fetchExpenses(); fetchExpensesPageFromRPC();
     } catch (error) {
       console.error("Error deleting expense:", error);
       toast({
@@ -1701,7 +1760,7 @@ export default function HostCarManagement() {
 
       // Add a small delay and force refresh with loading states
       setTimeout(async () => {
-        await Promise.all([fetchEarnings(true), fetchExpenses(true)]);
+        await Promise.all([fetchEarnings(true), fetchExpenses(true), fetchExpensesPageFromRPC()]);
       }, 300);
     } catch (error: any) {
       console.error("Error managing earning:", error);
@@ -3266,7 +3325,7 @@ export default function HostCarManagement() {
                     {/* Results Summary */}
                     <div className="flex items-center justify-between pt-2 border-t">
                       <p className="text-sm text-muted-foreground">
-                        Showing {filteredExpenses.length} of {expenses.length}{" "}
+                        Showing {expensesPageRows.length} of {expensesTotalCount}{" "}
                         expenses
                       </p>
                       {activeFiltersCount > 0 && (
@@ -3281,25 +3340,25 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {expensesLoading ? (
+              {(expensesLoading || expensesListLoading) && expensesPageRows.length === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
                     <p className="text-sm text-muted-foreground">Loading expenses…</p>
                   </div>
                 </div>
-              ) : expenses.length === 0 ? (
+              ) : expensesTotalCount === 0 && activeFiltersCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <DollarSign className="h-7 w-7 text-primary" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-1">No Expenses Recorded</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting expenses.</p>
-                  <Button onClick={() => fetchExpenses(true)} size="sm" className="mt-4 rounded-xl">
+                  <Button onClick={() => { fetchExpenses(true); fetchExpensesPageFromRPC(); }} size="sm" className="mt-4 rounded-xl">
                     Refresh Expenses
                   </Button>
                 </div>
-              ) : filteredExpenses.length === 0 ? (
+              ) : expensesTotalCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -3310,7 +3369,7 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  {paginatedExpenses.map((expense) => (
+                  {expensesPageRows.map((expense) => (
                     <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-3">
