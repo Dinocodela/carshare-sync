@@ -1074,7 +1074,7 @@ export default function HostCarManagement() {
   useEffect(() => {
     if (user) {
       fetchHostedCars();
-      fetchExpenses(true); fetchExpensesPageFromRPC(); fetchExpensesPageFromRPC(); /*;
+      fetchExpenses(true); fetchExpensesPageFromRPC();
       fetchEarnings(); fetchEarningsPageFromRPC();
       fetchClaims();
     }
