@@ -6785,7 +6785,7 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {claims.length === 0 ? (
+              {claimsAllCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <AlertTriangle className="h-7 w-7 text-primary" />
@@ -6793,7 +6793,7 @@ export default function HostCarManagement() {
                   <h3 className="text-base font-semibold text-foreground mb-1">No Claims Filed</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">File claims for damages or incidents here.</p>
                 </div>
-              ) : filteredClaims.length === 0 ? (
+              ) : claimsTotalCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -6807,11 +6807,11 @@ export default function HostCarManagement() {
                   {/* Claims Summary */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                     {[
-                      { label: "Total Claims", value: claims.length.toString(), icon: FileText },
-                      { label: "Pending", value: claims.filter((c) => c.claim_status === "pending").length.toString(), icon: Clock },
-                      { label: "Approved", value: claims.filter((c) => c.claim_status === "approved").length.toString(), icon: CheckCircle },
-                      { label: "Total Amount", value: `$${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: DollarSign },
-                      { label: "Amount Paid", value: `$${claims.filter((c) => c.is_paid).reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: CheckCircle },
+                      { label: "Total Claims", value: claimsAllCount.toString(), icon: FileText },
+                      { label: "Pending", value: claimsTotals.pending_count.toString(), icon: Clock },
+                      { label: "Approved", value: claimsTotals.approved_count.toString(), icon: CheckCircle },
+                      { label: "Total Amount", value: `$${claimsTotals.total_amount.toFixed(2)}`, icon: DollarSign },
+                      { label: "Amount Paid", value: `$${claimsTotals.paid_amount.toFixed(2)}`, icon: CheckCircle },
                     ].map((item, i) => (
                       <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-3.5">
                         <div className="flex items-center gap-1.5 mb-1">
@@ -6825,7 +6825,7 @@ export default function HostCarManagement() {
 
                   {/* Claims List */}
                   <div className="grid gap-3">
-                    {paginatedClaims.map((claim) => {
+                    {claimsPageRows.map((claim: any) => {
                       const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
                         <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
