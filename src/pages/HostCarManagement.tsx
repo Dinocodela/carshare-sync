@@ -3355,6 +3355,7 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   ))}
+                  {renderPagination(expensesPage, expensesPageCount, setExpensesPage)}
                 </div>
               )}
             </TabsContent>
