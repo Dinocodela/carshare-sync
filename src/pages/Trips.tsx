@@ -6,7 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const PAGE_SIZE = 10;
 
 type Filter = "all" | "upcoming" | "active" | "past";
 
@@ -35,6 +38,11 @@ export default function Trips() {
   const [loading, setLoading] = useState(true);
   const [trips, setTrips] = useState<TripCardData[]>([]);
   const [filter, setFilter] = useState<Filter>("upcoming");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
 
   useEffect(() => {
     if (!user) return;
@@ -118,6 +126,10 @@ export default function Trips() {
   }, [user]);
 
   const filtered = filterTrips(trips, filter);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
   return (
     <DashboardLayout>
@@ -152,11 +164,47 @@ export default function Trips() {
                 No trips to show.
               </div>
             ) : (
-              <div className="space-y-5">
-                {filtered.map((trip) => (
-                  <TripCard key={trip.id} trip={trip} />
-                ))}
-              </div>
+              <>
+                <div className="space-y-5">
+                  {pageItems.map((trip) => (
+                    <TripCard key={trip.id} trip={trip} />
+                  ))}
+                </div>
+                {filtered.length > PAGE_SIZE && (
+                  <div className="mt-6 flex items-center justify-between gap-2">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {pageStart + 1}–
+                      {Math.min(pageStart + PAGE_SIZE, filtered.length)} of{" "}
+                      {filtered.length}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setPage((p) => Math.min(totalPages, p + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
