@@ -5214,7 +5214,7 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {earnings.length === 0 ? (
+              {earningsTotalCount === 0 && activeEarningsFiltersCount === 0 && !earningsListLoading ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <DollarSign className="h-7 w-7 text-primary" />
@@ -5222,7 +5222,7 @@ export default function HostCarManagement() {
                   <h3 className="text-base font-semibold text-foreground mb-1">No Earnings Recorded</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting earnings.</p>
                 </div>
-              ) : filteredEarnings.length === 0 ? (
+              ) : earningsTotalCount === 0 && !earningsListLoading ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
