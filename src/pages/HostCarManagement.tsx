@@ -463,6 +463,12 @@ export default function HostCarManagement() {
   const [earningsTotals, setEarningsTotals] = useState({ total_net: 0, pending_net: 0, this_month_net: 0 });
   const [earningsListLoading, setEarningsListLoading] = useState(false);
 
+  // Server-side paginated expenses (RPC driven)
+  const [expensesPageRows, setExpensesPageRows] = useState<any[]>([]);
+  const [expensesTotalCount, setExpensesTotalCount] = useState(0);
+  const [expensesTotals, setExpensesTotals] = useState({ total_amount: 0, total_this_month: 0 });
+  const [expensesListLoading, setExpensesListLoading] = useState(false);
+
   // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
   useEffect(() => {
     const anyOpen =
