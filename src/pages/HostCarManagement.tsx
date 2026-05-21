@@ -449,6 +449,12 @@ export default function HostCarManagement() {
   const [earningsFiltersOpen, setEarningsFiltersOpen] = useState(false);
   const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
 
+  // Pagination state
+  const PAGE_SIZE = 10;
+  const [earningsPage, setEarningsPage] = useState(1);
+  const [expensesPage, setExpensesPage] = useState(1);
+  const [claimsPage, setClaimsPage] = useState(1);
+
   // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
   useEffect(() => {
     const anyOpen =
