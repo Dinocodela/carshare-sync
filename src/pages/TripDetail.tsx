@@ -50,6 +50,8 @@ interface TripFull {
   earning_type: string | null;
   payment_status: string | null;
   payment_source: string | null;
+  pickup_address: string | null;
+  return_address: string | null;
   car: {
     make: string;
     model: string;
@@ -77,7 +79,7 @@ export default function TripDetail() {
       const { data, error } = await supabase
         .from("host_earnings")
         .select(
-          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
         )
         .eq("id", earningId)
         .maybeSingle();
@@ -102,6 +104,8 @@ export default function TripDetail() {
           earning_type: row.earning_type,
           payment_status: row.payment_status,
           payment_source: row.payment_source,
+          pickup_address: row.pickup_address,
+          return_address: row.return_address,
           car: row.cars
             ? {
                 make: row.cars.make,
@@ -219,6 +223,34 @@ export default function TripDetail() {
               <p className="text-base text-foreground">{trip.car.location}</p>
               <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
             </div>
+          </section>
+        )}
+
+        {/* Pickup / Return addresses */}
+        {(trip.pickup_address || trip.return_address) && (
+          <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {trip.pickup_address && (
+              <div className="rounded-2xl border bg-card p-5">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Pickup
+                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-base text-foreground">{trip.pickup_address}</p>
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+            {trip.return_address && (
+              <div className="rounded-2xl border bg-card p-5">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Return
+                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-base text-foreground">{trip.return_address}</p>
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+                </div>
+              </div>
+            )}
           </section>
         )}
 

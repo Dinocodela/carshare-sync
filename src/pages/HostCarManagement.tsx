@@ -190,6 +190,8 @@ interface Earning {
   payment_status: string;
   payment_date: string | null;
   date_paid?: string;
+  pickup_address?: string;
+  return_address?: string;
   created_at: string;
   updated_at: string;
 }
@@ -268,6 +270,8 @@ const earningSchema = z.object({
   host_profit_percentage: z.number().min(0).max(100).default(30),
   payment_status: z.string().min(1, "Payment status is required"),
   date_paid: z.string().min(1, "Date paid is required"),
+  pickup_address: z.string().optional(),
+  return_address: z.string().optional(),
 });
 
 const claimSchema = z.object({
@@ -592,6 +596,8 @@ export default function HostCarManagement() {
       client_profit_percentage: 70,
       host_profit_percentage: 30,
       payment_status: "pending",
+      pickup_address: "",
+      return_address: "",
     },
   });
 
@@ -1685,6 +1691,8 @@ export default function HostCarManagement() {
         earning_period_end: endDateTime,
         payment_status: values.payment_status,
         date_paid: values.date_paid || null,
+        pickup_address: values.pickup_address || null,
+        return_address: values.return_address || null,
       };
 
       const guestContact = {
@@ -1880,6 +1888,8 @@ export default function HostCarManagement() {
       host_profit_percentage: 30,
       payment_status: "pending",
       date_paid: "",
+      pickup_address: "",
+      return_address: "",
     });
     setEarningDialogOpen(true);
   };
@@ -1905,6 +1915,8 @@ export default function HostCarManagement() {
       host_profit_percentage: earning.host_profit_percentage || 30,
       payment_status: earning.payment_status,
       date_paid: earning.date_paid || "",
+      pickup_address: earning.pickup_address || "",
+      return_address: earning.return_address || "",
     });
     setEarningDialogOpen(true);
   };
@@ -3825,6 +3837,41 @@ export default function HostCarManagement() {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
+                                  name="pickup_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Pickup Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Pickup location" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="return_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Return Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Return location" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
                                   name="earning_type"
                                   render={({ field }) => (
                                     <FormItem>
@@ -4728,6 +4775,41 @@ export default function HostCarManagement() {
                                           type="email"
                                           {...field}
                                         />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
+                                  name="pickup_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Pickup Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Pickup location" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="return_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Return Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Return location" {...field} />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
