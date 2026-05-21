@@ -190,6 +190,8 @@ interface Earning {
   payment_status: string;
   payment_date: string | null;
   date_paid?: string;
+  pickup_address?: string;
+  return_address?: string;
   created_at: string;
   updated_at: string;
 }
