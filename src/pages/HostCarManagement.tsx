@@ -1303,7 +1303,9 @@ export default function HostCarManagement() {
     if (user) fetchEarningsPageFromRPC();
   }, [fetchEarningsPageFromRPC]);
 
+  const fetchClaims = async () => {
     if (!user) return;
+
 
     try {
       const { data, error } = await (supabase as any)
