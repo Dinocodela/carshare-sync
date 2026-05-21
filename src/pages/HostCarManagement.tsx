@@ -469,6 +469,19 @@ export default function HostCarManagement() {
   const [expensesTotals, setExpensesTotals] = useState({ total_amount: 0, total_this_month: 0 });
   const [expensesListLoading, setExpensesListLoading] = useState(false);
 
+  // Server-side paginated claims (RPC driven)
+  const [claimsPageRows, setClaimsPageRows] = useState<any[]>([]);
+  const [claimsTotalCount, setClaimsTotalCount] = useState(0);
+  const [claimsAllCount, setClaimsAllCount] = useState(0);
+  const [claimsTotals, setClaimsTotals] = useState({
+    pending_count: 0,
+    approved_count: 0,
+    total_amount: 0,
+    paid_amount: 0,
+  });
+  const [claimsRpcTypes, setClaimsRpcTypes] = useState<string[]>([]);
+  const [claimsListLoading, setClaimsListLoading] = useState(false);
+
   // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
   useEffect(() => {
     const anyOpen =
@@ -1002,7 +1015,7 @@ export default function HostCarManagement() {
   );
   const earningsPageCount = Math.max(1, Math.ceil(earningsTotalCount / PAGE_SIZE));
   const expensesPageCount = Math.max(1, Math.ceil(expensesTotalCount / PAGE_SIZE));
-  const claimsPageCount = Math.max(1, Math.ceil(filteredClaims.length / PAGE_SIZE));
+  const claimsPageCount = Math.max(1, Math.ceil(claimsTotalCount / PAGE_SIZE));
 
   const renderPagination = (page: number, pageCount: number, setPage: (n: number) => void) => {
     if (pageCount <= 1) return null;
@@ -1055,10 +1068,12 @@ export default function HostCarManagement() {
   ];
 
   const distinctClaimTypes = useMemo(() => {
-    const fromData = claims.map((c) => c.claim_type).filter(Boolean);
+    const fromData = (claimsRpcTypes && claimsRpcTypes.length > 0)
+      ? claimsRpcTypes
+      : claims.map((c) => c.claim_type).filter(Boolean);
     const merged = [...new Set([...BASE_CLAIM_TYPES, ...fromData])];
     return merged.sort();
-  }, [claims]);
+  }, [claims, claimsRpcTypes]);
 
   // Count active filters
   const activeFiltersCount = Object.values(expenseFilters).filter(
@@ -1076,7 +1091,7 @@ export default function HostCarManagement() {
       fetchHostedCars();
       fetchExpenses(true); fetchExpensesPageFromRPC();
       fetchEarnings(); fetchEarningsPageFromRPC();
-      fetchClaims();
+      fetchClaimsPageFromRPC();
     }
   }, [user]);
   const fetchHostedCars = async () => {
@@ -1361,6 +1376,67 @@ export default function HostCarManagement() {
   useEffect(() => {
     if (user) fetchExpensesPageFromRPC();
   }, [fetchExpensesPageFromRPC]);
+
+  const fetchClaimsPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (claimsFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      p_date_to = fmt(today);
+      if (claimsFilters.dateRange === "today") {
+        p_date_from = fmt(today);
+      } else if (claimsFilters.dateRange === "week") {
+        p_date_from = fmt(new Date(today.getTime() - 7 * 86400000));
+      } else if (claimsFilters.dateRange === "month") {
+        p_date_from = fmt(new Date(today.getTime() - 30 * 86400000));
+      }
+    }
+    try {
+      setClaimsListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_claims_page", {
+        p_car_id:
+          claimsFilters.carId && claimsFilters.carId !== "all" ? claimsFilters.carId : null,
+        p_claim_status:
+          claimsFilters.claimStatus && claimsFilters.claimStatus !== "all"
+            ? claimsFilters.claimStatus
+            : null,
+        p_claim_type:
+          claimsFilters.claimType && claimsFilters.claimType !== "all"
+            ? claimsFilters.claimType
+            : null,
+        p_date_from,
+        p_date_to,
+        p_limit: PAGE_SIZE,
+        p_offset: (claimsPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setClaimsPageRows(result.rows || []);
+      setClaimsTotalCount(Number(result.total_count) || 0);
+      setClaimsAllCount(Number(result.all_count) || 0);
+      setClaimsTotals({
+        pending_count: Number(result.pending_count) || 0,
+        approved_count: Number(result.approved_count) || 0,
+        total_amount: Number(result.total_amount) || 0,
+        paid_amount: Number(result.paid_amount) || 0,
+      });
+      setClaimsRpcTypes(Array.isArray(result.claim_types) ? result.claim_types.filter(Boolean) : []);
+    } catch (e) {
+      console.error("Error fetching claims page:", e);
+    } finally {
+      setClaimsListLoading(false);
+    }
+  }, [user, claimsFilters, claimsPage]);
+
+  useEffect(() => {
+    if (user) fetchClaimsPageFromRPC();
+  }, [fetchClaimsPageFromRPC]);
+
+
 
 
   const fetchClaims = async () => {
@@ -1882,7 +1958,7 @@ export default function HostCarManagement() {
       setClaimDialogOpen(false);
       setEditingClaim(null);
       claimForm.reset();
-      fetchClaims();
+      fetchClaimsPageFromRPC();
     } catch (error) {
       console.error("Error managing claim:", error);
       toast({
@@ -1970,7 +2046,7 @@ export default function HostCarManagement() {
       if (error) throw error;
 
       // Refresh the claims data
-      fetchClaims();
+      fetchClaimsPageFromRPC();
 
       toast({
         title: "Status Updated",
@@ -2078,7 +2154,7 @@ export default function HostCarManagement() {
                   { key: "active", label: "Active", count: activeHostedCars.length },
                   { key: "expenses", label: "Expenses", count: expenses.length },
                   { key: "earnings", label: "Earnings", count: earnings.length },
-                  { key: "claims", label: "Claims", count: claims.length },
+                  { key: "claims", label: "Claims", count: claimsAllCount || claims.length },
                 ].map(({ key, label, count }) => (
                   <TabsTrigger
                     key={key}
@@ -6693,7 +6769,7 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredClaims.length} of {claims.length}{" "}
+                          Showing {claimsPageRows.length} of {claimsTotalCount}{" "}
                           claims
                         </p>
                         {activeClaimsFiltersCount > 0 && (
@@ -6709,7 +6785,7 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {claims.length === 0 ? (
+              {claimsAllCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <AlertTriangle className="h-7 w-7 text-primary" />
@@ -6717,7 +6793,7 @@ export default function HostCarManagement() {
                   <h3 className="text-base font-semibold text-foreground mb-1">No Claims Filed</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">File claims for damages or incidents here.</p>
                 </div>
-              ) : filteredClaims.length === 0 ? (
+              ) : claimsTotalCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -6731,11 +6807,11 @@ export default function HostCarManagement() {
                   {/* Claims Summary */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                     {[
-                      { label: "Total Claims", value: claims.length.toString(), icon: FileText },
-                      { label: "Pending", value: claims.filter((c) => c.claim_status === "pending").length.toString(), icon: Clock },
-                      { label: "Approved", value: claims.filter((c) => c.claim_status === "approved").length.toString(), icon: CheckCircle },
-                      { label: "Total Amount", value: `$${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: DollarSign },
-                      { label: "Amount Paid", value: `$${claims.filter((c) => c.is_paid).reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: CheckCircle },
+                      { label: "Total Claims", value: claimsAllCount.toString(), icon: FileText },
+                      { label: "Pending", value: claimsTotals.pending_count.toString(), icon: Clock },
+                      { label: "Approved", value: claimsTotals.approved_count.toString(), icon: CheckCircle },
+                      { label: "Total Amount", value: `$${claimsTotals.total_amount.toFixed(2)}`, icon: DollarSign },
+                      { label: "Amount Paid", value: `$${claimsTotals.paid_amount.toFixed(2)}`, icon: CheckCircle },
                     ].map((item, i) => (
                       <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-3.5">
                         <div className="flex items-center gap-1.5 mb-1">
@@ -6749,7 +6825,7 @@ export default function HostCarManagement() {
 
                   {/* Claims List */}
                   <div className="grid gap-3">
-                    {paginatedClaims.map((claim) => {
+                    {claimsPageRows.map((claim: any) => {
                       const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
                         <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
