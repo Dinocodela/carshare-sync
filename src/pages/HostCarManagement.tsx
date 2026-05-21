@@ -449,6 +449,12 @@ export default function HostCarManagement() {
   const [earningsFiltersOpen, setEarningsFiltersOpen] = useState(false);
   const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
 
+  // Pagination state
+  const PAGE_SIZE = 10;
+  const [earningsPage, setEarningsPage] = useState(1);
+  const [expensesPage, setExpensesPage] = useState(1);
+  const [claimsPage, setClaimsPage] = useState(1);
+
   // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
   useEffect(() => {
     const anyOpen =
@@ -961,6 +967,69 @@ export default function HostCarManagement() {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
   }, [claims, claimsFilters]);
+
+  // Reset pagination when filtered lists change
+  useEffect(() => { setEarningsPage(1); }, [earningsFilters]);
+  useEffect(() => { setExpensesPage(1); }, [expenseFilters]);
+  useEffect(() => { setClaimsPage(1); }, [claimsFilters]);
+
+  // Paginated slices
+  const paginatedEarnings = useMemo(
+    () => filteredEarnings.slice((earningsPage - 1) * PAGE_SIZE, earningsPage * PAGE_SIZE),
+    [filteredEarnings, earningsPage]
+  );
+  const paginatedExpenses = useMemo(
+    () => filteredExpenses.slice((expensesPage - 1) * PAGE_SIZE, expensesPage * PAGE_SIZE),
+    [filteredExpenses, expensesPage]
+  );
+  const paginatedClaims = useMemo(
+    () => filteredClaims.slice((claimsPage - 1) * PAGE_SIZE, claimsPage * PAGE_SIZE),
+    [filteredClaims, claimsPage]
+  );
+  const earningsPageCount = Math.max(1, Math.ceil(filteredEarnings.length / PAGE_SIZE));
+  const expensesPageCount = Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE));
+  const claimsPageCount = Math.max(1, Math.ceil(filteredClaims.length / PAGE_SIZE));
+
+  const renderPagination = (page: number, pageCount: number, setPage: (n: number) => void) => {
+    if (pageCount <= 1) return null;
+    const pages: number[] = [];
+    const start = Math.max(1, page - 2);
+    const end = Math.min(pageCount, start + 4);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return (
+      <div className="flex items-center justify-center gap-1 pt-3">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 rounded-xl"
+          onClick={() => setPage(Math.max(1, page - 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </Button>
+        {pages.map((p) => (
+          <Button
+            key={p}
+            variant={p === page ? "default" : "outline"}
+            size="sm"
+            className="h-8 w-8 p-0 rounded-xl"
+            onClick={() => setPage(p)}
+          >
+            {p}
+          </Button>
+        ))}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 rounded-xl"
+          onClick={() => setPage(Math.min(pageCount, page + 1))}
+          disabled={page === pageCount}
+        >
+          Next
+        </Button>
+      </div>
+    );
+  };
 
   // Base claim types + any additional types from existing data
   const BASE_CLAIM_TYPES = [
@@ -3175,7 +3244,7 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  {filteredExpenses.map((expense) => (
+                  {paginatedExpenses.map((expense) => (
                     <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-3">
@@ -3286,6 +3355,7 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   ))}
+                  {renderPagination(expensesPage, expensesPageCount, setExpensesPage)}
                 </div>
               )}
             </TabsContent>
@@ -5168,7 +5238,7 @@ export default function HostCarManagement() {
 
                   {/* Earnings List */}
                   <div className="grid gap-3">
-                    {filteredEarnings.map((earning) => {
+                    {paginatedEarnings.map((earning) => {
                       const relatedExpenses = earning.trip_id ? expenses.filter((e) => e.trip_id === earning.trip_id) : [];
                       const totalExpenses = relatedExpenses.reduce(
                         (sum, e) =>
@@ -5308,6 +5378,7 @@ export default function HostCarManagement() {
                       );
                     })}
                   </div>
+                  {renderPagination(earningsPage, earningsPageCount, setEarningsPage)}
                 </div>
               )}
             </TabsContent>
@@ -6571,7 +6642,7 @@ export default function HostCarManagement() {
 
                   {/* Claims List */}
                   <div className="grid gap-3">
-                    {filteredClaims.map((claim) => {
+                    {paginatedClaims.map((claim) => {
                       const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
                         <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
@@ -6687,6 +6758,7 @@ export default function HostCarManagement() {
                       );
                     })}
                   </div>
+                  {renderPagination(claimsPage, claimsPageCount, setClaimsPage)}
                 </div>
               )}
             </TabsContent>
