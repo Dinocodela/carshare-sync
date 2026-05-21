@@ -226,6 +226,34 @@ export default function TripDetail() {
           </section>
         )}
 
+        {/* Pickup / Return addresses */}
+        {(trip.pickup_address || trip.return_address) && (
+          <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {trip.pickup_address && (
+              <div className="rounded-2xl border bg-card p-5">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Pickup
+                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-base text-foreground">{trip.pickup_address}</p>
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+            {trip.return_address && (
+              <div className="rounded-2xl border bg-card p-5">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Return
+                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-base text-foreground">{trip.return_address}</p>
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Status banner */}
         <section className="mb-6 rounded-2xl border bg-card p-5 text-sm text-foreground">
           {statusBanner(start, end)}
