@@ -45,6 +45,7 @@ import { SubscriptionProvider } from "./hooks/useSubscription";
 import RequireSubscribed from "./components/auth/RequireSubscribed";
 import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Unsubscribe from "./pages/Unsubscribe";
 import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
 import DeleteAccount from "./pages/DeleteAccount";
@@ -136,6 +137,7 @@ const App = () => (
               <Route path="/register/client" element={<RegisterClient />} />
               <Route path="/register/host" element={<RegisterHost />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/sms-consent" element={<SMSConsent />} />
               <Route path="/support" element={<Support />} />
