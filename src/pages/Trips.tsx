@@ -6,7 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const PAGE_SIZE = 10;
 
 type Filter = "all" | "upcoming" | "active" | "past";
 
