@@ -6642,7 +6642,7 @@ export default function HostCarManagement() {
 
                   {/* Claims List */}
                   <div className="grid gap-3">
-                    {filteredClaims.map((claim) => {
+                    {paginatedClaims.map((claim) => {
                       const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
                         <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
