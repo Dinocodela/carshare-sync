@@ -1926,6 +1926,19 @@ export type Database = {
           year: number
         }[]
       }
+      get_host_earnings_page: {
+        Args: {
+          p_car_id?: string
+          p_date_from?: string
+          p_date_to?: string
+          p_limit?: number
+          p_offset?: number
+          p_payment_source?: string
+          p_payment_status?: string
+          p_trip_search?: string
+        }
+        Returns: Json
+      }
       get_public_host_profiles: {
         Args: never
         Returns: {
