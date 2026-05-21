@@ -1091,7 +1091,7 @@ export default function HostCarManagement() {
       fetchHostedCars();
       fetchExpenses(true); fetchExpensesPageFromRPC();
       fetchEarnings(); fetchEarningsPageFromRPC();
-      fetchClaims(); fetchClaimsPageFromRPC();
+      fetchClaimsPageFromRPC();
     }
   }, [user]);
   const fetchHostedCars = async () => {
