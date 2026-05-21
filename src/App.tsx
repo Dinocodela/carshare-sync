@@ -85,6 +85,8 @@ import TeslaRentalCost from "./pages/TeslaRentalCost";
 import TeslaRentalNearMe from "./pages/TeslaRentalNearMe";
 import TeslaRentalInsurance from "./pages/TeslaRentalInsurance";
 import TeslaRentalStatistics from "./pages/TeslaRentalStatistics";
+import Trips from "./pages/Trips";
+import TripDetail from "./pages/TripDetail";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -198,6 +200,8 @@ const App = () => (
                   {/* Everything else requires subscription */}
                   <Route element={<RequireSubscribed />}>
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/trips" element={<Trips />} />
+                    <Route path="/trips/:earningId" element={<TripDetail />} />
                     <Route
                       path="/client-analytics"
                       element={<ClientAnalytics />}
