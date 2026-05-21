@@ -1015,7 +1015,7 @@ export default function HostCarManagement() {
   );
   const earningsPageCount = Math.max(1, Math.ceil(earningsTotalCount / PAGE_SIZE));
   const expensesPageCount = Math.max(1, Math.ceil(expensesTotalCount / PAGE_SIZE));
-  const claimsPageCount = Math.max(1, Math.ceil(filteredClaims.length / PAGE_SIZE));
+  const claimsPageCount = Math.max(1, Math.ceil(claimsTotalCount / PAGE_SIZE));
 
   const renderPagination = (page: number, pageCount: number, setPage: (n: number) => void) => {
     if (pageCount <= 1) return null;
