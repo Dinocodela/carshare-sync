@@ -1958,7 +1958,7 @@ export default function HostCarManagement() {
       setClaimDialogOpen(false);
       setEditingClaim(null);
       claimForm.reset();
-      fetchClaims(); fetchClaimsPageFromRPC();
+      fetchClaimsPageFromRPC();
     } catch (error) {
       console.error("Error managing claim:", error);
       toast({
@@ -2046,7 +2046,7 @@ export default function HostCarManagement() {
       if (error) throw error;
 
       // Refresh the claims data
-      fetchClaims(); fetchClaimsPageFromRPC();
+      fetchClaimsPageFromRPC();
 
       toast({
         title: "Status Updated",
