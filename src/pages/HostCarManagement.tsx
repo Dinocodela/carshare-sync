@@ -596,6 +596,8 @@ export default function HostCarManagement() {
       client_profit_percentage: 70,
       host_profit_percentage: 30,
       payment_status: "pending",
+      pickup_address: "",
+      return_address: "",
     },
   });
 
