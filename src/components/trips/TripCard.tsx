@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Car as CarIcon } from "lucide-react";
+import { Car as CarIcon, Clock, MapPin, Truck } from "lucide-react";
 
 export interface TripCardData {
   id: string;
@@ -7,6 +7,8 @@ export interface TripCardData {
   guest_name: string | null;
   earning_period_start: string;
   earning_period_end: string;
+  is_delivery?: boolean;
+  delivery_address?: string | null;
   car: {
     make: string;
     model: string;
@@ -94,10 +96,33 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <h3 className="mt-3 truncate text-xl font-bold text-foreground">
               {carTitle}
             </h3>
-            {trip.car?.location && (
-              <p className="mt-1 text-sm text-muted-foreground line-clamp-1">
-                {trip.car.location}
-              </p>
+            <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span>
+                {formatTime(start)} – {formatTime(end)}
+              </span>
+            </div>
+            {trip.is_delivery ? (
+              <div className="mt-2 flex items-start gap-1.5 rounded-md bg-accent/40 px-2 py-1.5 text-sm">
+                <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-primary">
+                    Delivery
+                  </div>
+                  {(trip.delivery_address || trip.car?.location) && (
+                    <div className="truncate text-foreground">
+                      {trip.delivery_address || trip.car?.location}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              trip.car?.location && (
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground line-clamp-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {trip.car.location}
+                </p>
+              )
             )}
             <div className="mt-3 flex items-center gap-2 text-sm">
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-medium uppercase text-muted-foreground">
