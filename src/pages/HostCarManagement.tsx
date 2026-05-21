@@ -1915,6 +1915,8 @@ export default function HostCarManagement() {
       host_profit_percentage: earning.host_profit_percentage || 30,
       payment_status: earning.payment_status,
       date_paid: earning.date_paid || "",
+      pickup_address: earning.pickup_address || "",
+      return_address: earning.return_address || "",
     });
     setEarningDialogOpen(true);
   };
