@@ -5198,7 +5198,7 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredEarnings.length} of {earnings.length}{" "}
+                          Showing {earningsPageRows.length} of {earningsTotalCount}{" "}
                           earnings
                         </p>
                         {activeEarningsFiltersCount > 0 && (
