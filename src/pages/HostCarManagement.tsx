@@ -5235,44 +5235,26 @@ export default function HostCarManagement() {
                 <div className="space-y-4">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(() => {
-                      const getExpenseTotal = (expense: Expense) =>
-                        expense.total_expenses ??
-                        (expense.amount || 0) +
-                          (expense.delivery_cost || 0) +
-                          (expense.toll_cost || 0) +
-                          (expense.ev_charge_cost || 0) +
-                          (expense.carwash_cost || 0);
-
-                      const getNetForEarning = (e: any) => {
-                        const relExp = e.trip_id ? expenses.filter((ex) => ex.trip_id === e.trip_id) : [];
-                        const totalExp = relExp.reduce((sum, ex) => sum + getExpenseTotal(ex), 0);
-                        return (e.amount || 0) - totalExp;
-                      };
-                      const now = new Date();
-                      const currentMonth = now.getMonth();
-                      const currentYear = now.getFullYear();
-                      return [
-                        {
-                          label: "Total Earnings",
-                          value: `$${filteredEarnings.reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: TrendingUp,
-                          tooltip: "Sum of gross earnings minus trip expenses for all displayed earnings",
-                        },
-                        {
-                          label: "Pending Payments",
-                          value: `$${filteredEarnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: Clock,
-                          tooltip: "Sum of net earnings (gross − expenses) for trips with pending payment status",
-                        },
-                        {
-                          label: "This Month",
-                          value: `$${filteredEarnings.filter((e) => { const d = new Date(e.earning_period_start); return d.getMonth() === currentMonth && d.getFullYear() === currentYear; }).reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: CalendarLucide,
-                          tooltip: "Sum of net earnings (gross − expenses) for trips starting in the current calendar month",
-                        },
-                      ];
-                    })().map((item, i) => (
+                    {[
+                      {
+                        label: "Total Earnings",
+                        value: `$${earningsTotals.total_net.toFixed(2)}`,
+                        icon: TrendingUp,
+                        tooltip: "Sum of gross earnings minus trip expenses across all filtered earnings",
+                      },
+                      {
+                        label: "Pending Payments",
+                        value: `$${earningsTotals.pending_net.toFixed(2)}`,
+                        icon: Clock,
+                        tooltip: "Sum of net earnings (gross − expenses) for trips with pending payment status across all filtered earnings",
+                      },
+                      {
+                        label: "This Month",
+                        value: `$${earningsTotals.this_month_net.toFixed(2)}`,
+                        icon: CalendarLucide,
+                        tooltip: "Sum of net earnings (gross − expenses) for trips starting in the current calendar month",
+                      },
+                    ].map((item, i) => (
                       <div key={i} className="group rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 relative">
                         <div className="flex items-center justify-between">
                           <div>
