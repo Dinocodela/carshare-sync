@@ -1310,6 +1310,59 @@ export default function HostCarManagement() {
     if (user) fetchEarningsPageFromRPC();
   }, [fetchEarningsPageFromRPC]);
 
+  const fetchExpensesPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (expenseFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      p_date_to = fmt(today);
+      if (expenseFilters.dateRange === "today") {
+        p_date_from = fmt(today);
+      } else if (expenseFilters.dateRange === "week") {
+        p_date_from = fmt(new Date(today.getTime() - 7 * 86400000));
+      } else if (expenseFilters.dateRange === "month") {
+        p_date_from = fmt(new Date(today.getTime() - 30 * 86400000));
+      }
+    }
+    try {
+      setExpensesListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_expenses_page", {
+        p_car_id:
+          expenseFilters.carId && expenseFilters.carId !== "all" ? expenseFilters.carId : null,
+        p_payment_source:
+          expenseFilters.paymentSource && expenseFilters.paymentSource !== "all"
+            ? expenseFilters.paymentSource
+            : null,
+        p_date_from,
+        p_date_to,
+        p_trip_search: expenseFilters.tripSearch?.trim() || null,
+        p_limit: PAGE_SIZE,
+        p_offset: (expensesPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setExpensesPageRows(result.rows || []);
+      setExpensesTotalCount(Number(result.total_count) || 0);
+      setExpensesTotals({
+        total_amount: Number(result.total_amount) || 0,
+        total_this_month: Number(result.total_this_month) || 0,
+      });
+    } catch (e) {
+      console.error("Error fetching expenses page:", e);
+    } finally {
+      setExpensesListLoading(false);
+    }
+  }, [user, expenseFilters, expensesPage]);
+
+  useEffect(() => {
+    if (user) fetchExpensesPageFromRPC();
+  }, [fetchExpensesPageFromRPC]);
+
+
   const fetchClaims = async () => {
     if (!user) return;
 
