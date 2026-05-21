@@ -968,6 +968,69 @@ export default function HostCarManagement() {
     );
   }, [claims, claimsFilters]);
 
+  // Reset pagination when filtered lists change
+  useEffect(() => { setEarningsPage(1); }, [earningsFilters]);
+  useEffect(() => { setExpensesPage(1); }, [expenseFilters]);
+  useEffect(() => { setClaimsPage(1); }, [claimsFilters]);
+
+  // Paginated slices
+  const paginatedEarnings = useMemo(
+    () => filteredEarnings.slice((earningsPage - 1) * PAGE_SIZE, earningsPage * PAGE_SIZE),
+    [filteredEarnings, earningsPage]
+  );
+  const paginatedExpenses = useMemo(
+    () => filteredExpenses.slice((expensesPage - 1) * PAGE_SIZE, expensesPage * PAGE_SIZE),
+    [filteredExpenses, expensesPage]
+  );
+  const paginatedClaims = useMemo(
+    () => filteredClaims.slice((claimsPage - 1) * PAGE_SIZE, claimsPage * PAGE_SIZE),
+    [filteredClaims, claimsPage]
+  );
+  const earningsPageCount = Math.max(1, Math.ceil(filteredEarnings.length / PAGE_SIZE));
+  const expensesPageCount = Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE));
+  const claimsPageCount = Math.max(1, Math.ceil(filteredClaims.length / PAGE_SIZE));
+
+  const renderPagination = (page: number, pageCount: number, setPage: (n: number) => void) => {
+    if (pageCount <= 1) return null;
+    const pages: number[] = [];
+    const start = Math.max(1, page - 2);
+    const end = Math.min(pageCount, start + 4);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return (
+      <div className="flex items-center justify-center gap-1 pt-3">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 rounded-xl"
+          onClick={() => setPage(Math.max(1, page - 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </Button>
+        {pages.map((p) => (
+          <Button
+            key={p}
+            variant={p === page ? "default" : "outline"}
+            size="sm"
+            className="h-8 w-8 p-0 rounded-xl"
+            onClick={() => setPage(p)}
+          >
+            {p}
+          </Button>
+        ))}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 rounded-xl"
+          onClick={() => setPage(Math.min(pageCount, page + 1))}
+          disabled={page === pageCount}
+        >
+          Next
+        </Button>
+      </div>
+    );
+  };
+
   // Base claim types + any additional types from existing data
   const BASE_CLAIM_TYPES = [
     "Accident body damage",
