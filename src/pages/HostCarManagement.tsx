@@ -6769,7 +6769,7 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredClaims.length} of {claims.length}{" "}
+                          Showing {claimsPageRows.length} of {claimsTotalCount}{" "}
                           claims
                         </p>
                         {activeClaimsFiltersCount > 0 && (
