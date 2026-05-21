@@ -1958,7 +1958,7 @@ export default function HostCarManagement() {
       setClaimDialogOpen(false);
       setEditingClaim(null);
       claimForm.reset();
-      fetchClaims();
+      fetchClaims(); fetchClaimsPageFromRPC();
     } catch (error) {
       console.error("Error managing claim:", error);
       toast({
