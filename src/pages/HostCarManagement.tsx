@@ -1691,6 +1691,8 @@ export default function HostCarManagement() {
         earning_period_end: endDateTime,
         payment_status: values.payment_status,
         date_paid: values.date_paid || null,
+        pickup_address: values.pickup_address || null,
+        return_address: values.return_address || null,
       };
 
       const guestContact = {
