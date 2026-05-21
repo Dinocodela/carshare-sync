@@ -2154,7 +2154,7 @@ export default function HostCarManagement() {
                   { key: "active", label: "Active", count: activeHostedCars.length },
                   { key: "expenses", label: "Expenses", count: expenses.length },
                   { key: "earnings", label: "Earnings", count: earnings.length },
-                  { key: "claims", label: "Claims", count: claims.length },
+                  { key: "claims", label: "Claims", count: claimsAllCount || claims.length },
                 ].map(({ key, label, count }) => (
                   <TabsTrigger
                     key={key}
