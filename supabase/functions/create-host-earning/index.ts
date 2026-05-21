@@ -21,6 +21,8 @@ interface EarningPayload {
   payment_status?: string;
   date_paid?: string;
   earning_type?: string;
+  pickup_address?: string;
+  return_address?: string;
 }
 
 /**
