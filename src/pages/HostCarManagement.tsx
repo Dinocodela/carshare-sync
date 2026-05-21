@@ -3340,14 +3340,14 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {expensesLoading ? (
+              {(expensesLoading || expensesListLoading) && expensesPageRows.length === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
                     <p className="text-sm text-muted-foreground">Loading expenses…</p>
                   </div>
                 </div>
-              ) : expenses.length === 0 ? (
+              ) : expensesTotalCount === 0 && activeFiltersCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <DollarSign className="h-7 w-7 text-primary" />
@@ -3358,7 +3358,7 @@ export default function HostCarManagement() {
                     Refresh Expenses
                   </Button>
                 </div>
-              ) : filteredExpenses.length === 0 ? (
+              ) : expensesTotalCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -3369,7 +3369,7 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  {paginatedExpenses.map((expense) => (
+                  {expensesPageRows.map((expense) => (
                     <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-3">
