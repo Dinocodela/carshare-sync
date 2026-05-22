@@ -144,7 +144,7 @@ export default function TripDetail() {
   if (!trip) {
     return (
       <DashboardLayout>
-      <PageContainer className="pb-24 md:pb-8">
+      <PageContainer className="pb-40 md:pb-8">
           <div className="py-12 text-center">
             <p className="mb-4 text-muted-foreground">Trip not found.</p>
             <Link to="/trips" className="text-primary underline">
