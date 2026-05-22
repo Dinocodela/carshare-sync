@@ -166,7 +166,7 @@ export default function TripDetail() {
   return (
     <DashboardLayout>
       <SEO title={`Booked trip · ${trip.guest_name || "Guest"} | Teslys`} description="Trip details" />
-      <PageContainer>
+      <PageContainer className="pb-40 md:pb-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
           <Link
