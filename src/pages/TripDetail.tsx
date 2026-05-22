@@ -144,7 +144,7 @@ export default function TripDetail() {
   if (!trip) {
     return (
       <DashboardLayout>
-      <PageContainer className="pb-24 md:pb-8">
+      <PageContainer className="pb-40 md:pb-8">
           <div className="py-12 text-center">
             <p className="mb-4 text-muted-foreground">Trip not found.</p>
             <Link to="/trips" className="text-primary underline">
@@ -166,7 +166,7 @@ export default function TripDetail() {
   return (
     <DashboardLayout>
       <SEO title={`Booked trip · ${trip.guest_name || "Guest"} | Teslys`} description="Trip details" />
-      <PageContainer>
+      <PageContainer className="pb-40 md:pb-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
           <Link
