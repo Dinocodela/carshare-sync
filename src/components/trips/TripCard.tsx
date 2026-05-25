@@ -25,6 +25,10 @@ function parseDate(s: string): Date {
   return new Date(s);
 }
 
+// Timestamps from host_earnings come from Turo/Eon as the trip's local
+// pickup/return wall-clock time, but are stored as UTC (e.g. 07:00:00+00
+// means a 7:00 AM pickup). Render in UTC so the viewer's browser timezone
+// doesn't shift the displayed time.
 function formatDateHeader(d: Date): string {
   return d
     .toLocaleDateString("en-US", {
@@ -32,6 +36,7 @@ function formatDateHeader(d: Date): string {
       month: "long",
       day: "numeric",
       year: "numeric",
+      timeZone: "UTC",
     })
     .toUpperCase();
 }
@@ -40,6 +45,7 @@ function formatTime(d: Date): string {
   return d.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
+    timeZone: "UTC",
   });
 }
 
