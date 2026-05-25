@@ -160,10 +160,21 @@ export function OnboardingFlow() {
         )}
       </div>
 
+      <WhatsAppBubble />
+
       <style>{`
         @keyframes progressFill {
           from { transform: scaleX(0); }
           to { transform: scaleX(1); }
+        }
+        @keyframes bounceIn {
+          0% { opacity: 0; transform: scale(0.3) translateY(20px); }
+          50% { opacity: 1; transform: scale(1.05) translateY(-5px); }
+          70% { transform: scale(0.95) translateY(0); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-bounce-in {
+          animation: bounceIn 0.6s ease-out 1.2s both;
         }
       `}</style>
     </div>
