@@ -53,7 +53,7 @@ function getStatus(start: Date, end: Date) {
   const now = new Date();
   if (now < start) {
     return {
-      label: `Starts ${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+      label: `Starts ${start.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`,
       tone: "upcoming" as const,
     };
   }
@@ -61,7 +61,7 @@ function getStatus(start: Date, end: Date) {
     return { label: `Ending at ${formatTime(end)}`, tone: "active" as const };
   }
   return {
-    label: `Ended ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+    label: `Ended ${end.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`,
     tone: "past" as const,
   };
 }
