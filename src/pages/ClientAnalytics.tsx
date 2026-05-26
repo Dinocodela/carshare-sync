@@ -9,6 +9,8 @@ import { RecentClaims } from "@/components/analytics/RecentClaims";
 import { CarSelector } from "@/components/analytics/CarSelector";
 import { CarPerformanceCard } from "@/components/analytics/CarPerformanceCard";
 import { CarComparisonTable } from "@/components/analytics/CarComparisonTable";
+import { AnalyticsAssistant } from "@/components/analytics/AnalyticsAssistant";
+import { BestMonthWidget } from "@/components/analytics/BestMonthWidget";
 import { CarManagementDialog } from "@/components/cars/CarManagementDialog";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { usePerCarAnalytics } from "@/hooks/usePerCarAnalytics";
@@ -21,21 +23,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw, BarChart3, Car, Calendar, Shield, TrendingUp } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
+import { RefreshCw, BarChart3, Car, Calendar, Shield, TrendingUp, CalendarRange, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 export default function ClientAnalytics() {
   const {
     earnings, expenses, claims, carsMap, summary,
     loading, error, refetch,
-    selectedYear, setSelectedYear, availableYears,
+    selectedYear, setSelectedYear, selectedMonth, setSelectedMonth, availableYears,
+    customRange, setCustomRange,
   } = useClientAnalytics();
   const [selectedCarId, setSelectedCarId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState("portfolio");
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
+  const [rangePickerValue, setRangePickerValue] = useState<DateRange | undefined>(undefined);
   const [selectedCarForManagement, setSelectedCarForManagement] = useState<{
     id: string; year: number; make: string; model: string; status: string;
   } | null>(null);
@@ -52,14 +76,9 @@ export default function ClientAnalytics() {
     cars, carPerformanceData, selectedCarData, selectedCarPerformance,
     loading: perCarLoading, error: perCarError, refetch: refetchPerCar,
     setSelectedYear: setPerCarSelectedYear,
-  } = usePerCarAnalytics(selectedCarId, selectedYear);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      if (!loading && !perCarLoading) { refetch(); refetchPerCar(); }
-    }, 30_000);
-    return () => clearInterval(t);
-  }, [loading, perCarLoading, refetch, refetchPerCar]);
+    setSelectedMonth: setPerCarSelectedMonth,
+    setCustomRange: setPerCarCustomRange,
+  } = usePerCarAnalytics(selectedCarId, selectedYear, selectedMonth, customRange);
 
   const handleRefresh = () => { refetch(); refetchPerCar(); };
 
@@ -104,6 +123,10 @@ export default function ClientAnalytics() {
   }
 
   const EDGE = "w-full max-w-full overflow-hidden";
+  const selectedAssistantCar = selectedCarId ? cars.find((car: any) => car.id === selectedCarId) : null;
+  const selectedAssistantCarName = selectedAssistantCar
+    ? `${selectedAssistantCar.year} ${selectedAssistantCar.make} ${selectedAssistantCar.model}`
+    : null;
 
   return (
     <DashboardLayout>
@@ -133,6 +156,62 @@ export default function ClientAnalytics() {
                 Real-time tracking · Verified data · Insured vehicles
               </p>
 
+              {/* Quick toggle: This Month vs All Months */}
+              <div className="flex items-center gap-1 pt-1 bg-white/10 rounded-lg p-1 w-fit">
+                {(() => {
+                  const isMonthView = !customRange && selectedYear !== null && selectedMonth !== null;
+                  const clearRange = () => {
+                    if (customRange) {
+                      setRangePickerValue(undefined);
+                      setCustomRange(null);
+                      setPerCarCustomRange(null);
+                    }
+                  };
+                  const setMonthView = () => {
+                    clearRange();
+                    const now = new Date();
+                    const y = now.getFullYear();
+                    const m = now.getMonth() + 1;
+                    setSelectedYear(y);
+                    setPerCarSelectedYear(y);
+                    setSelectedMonth(m);
+                    setPerCarSelectedMonth(m);
+                  };
+                  const setYearView = () => {
+                    clearRange();
+                    const y = selectedYear ?? new Date().getFullYear();
+                    setSelectedYear(y);
+                    setPerCarSelectedYear(y);
+                    setSelectedMonth(null);
+                    setPerCarSelectedMonth(null);
+                  };
+                  return (
+                    <>
+                      <button
+                        onClick={setMonthView}
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                          isMonthView
+                            ? "bg-white text-primary"
+                            : "text-primary-foreground/80 hover:bg-white/10"
+                        }`}
+                      >
+                        This Month
+                      </button>
+                      <button
+                        onClick={setYearView}
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                          !isMonthView
+                            ? "bg-white text-primary"
+                            : "text-primary-foreground/80 hover:bg-white/10"
+                        }`}
+                      >
+                        All Months
+                      </button>
+                    </>
+                  );
+                })()}
+              </div>
+
               {/* Controls */}
               <div className="flex items-center gap-2 pt-1">
                 <div className="flex-1 min-w-0">
@@ -145,13 +224,18 @@ export default function ClientAnalytics() {
                 </div>
                 <Select
                   value={selectedYear?.toString() ?? "all"}
+                  disabled={!!customRange}
                   onValueChange={(value) => {
                     const year = value === "all" ? null : parseInt(value);
                     setSelectedYear(year);
                     setPerCarSelectedYear(year);
+                    if (year === null) {
+                      setSelectedMonth(null);
+                      setPerCarSelectedMonth(null);
+                    }
                   }}
                 >
-                  <SelectTrigger className="w-[100px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9">
+                  <SelectTrigger className="w-[100px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9 disabled:opacity-50">
                     <Calendar className="mr-1.5 h-3.5 w-3.5" />
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
@@ -162,6 +246,77 @@ export default function ClientAnalytics() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Select
+                  value={selectedMonth?.toString() ?? "all"}
+                  disabled={selectedYear === null || !!customRange}
+                  onValueChange={(value) => {
+                    const month = value === "all" ? null : parseInt(value);
+                    setSelectedMonth(month);
+                    setPerCarSelectedMonth(month);
+                  }}
+                >
+                  <SelectTrigger className="w-[116px] shrink-0 bg-white/10 border-white/20 text-primary-foreground text-xs h-9 disabled:opacity-50">
+                    <Calendar className="mr-1.5 h-3.5 w-3.5" />
+                    <SelectValue placeholder="Month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Months</SelectItem>
+                    {MONTHS.map((month, index) => (
+                      <SelectItem key={month} value={(index + 1).toString()}>{month}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "h-9 shrink-0 bg-white/10 hover:bg-white/20 text-primary-foreground border border-white/20 px-2.5 text-xs gap-1.5",
+                        customRange && "bg-white text-primary hover:bg-white/90"
+                      )}
+                    >
+                      <CalendarRange className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">
+                        {customRange
+                          ? `${format(customRange.start, "MMM d")} – ${format(customRange.end, "MMM d, yyyy")}`
+                          : "Custom range"}
+                      </span>
+                      {customRange && (
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRangePickerValue(undefined);
+                            setCustomRange(null);
+                            setPerCarCustomRange(null);
+                          }}
+                          className="ml-1 inline-flex items-center justify-center rounded hover:bg-black/10 p-0.5"
+                          aria-label="Clear custom range"
+                        >
+                          <X className="h-3 w-3" />
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <CalendarPicker
+                      mode="range"
+                      numberOfMonths={2}
+                      selected={rangePickerValue}
+                      onSelect={(range) => {
+                        setRangePickerValue(range);
+                        if (range?.from && range?.to) {
+                          const next = { start: range.from, end: range.to };
+                          setCustomRange(next);
+                          setPerCarCustomRange(next);
+                        }
+                      }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
                 <Button
                   onClick={handleRefresh}
                   variant="ghost"
@@ -175,8 +330,65 @@ export default function ClientAnalytics() {
             </div>
           </div>
 
+          {/* ─── Net Profit Summary ─── */}
+          {(() => {
+            const np = summary.netProfit ?? 0;
+            const positive = np >= 0;
+            const isMonthView = selectedYear !== null && selectedMonth !== null;
+            const periodLabel = isMonthView
+              ? `${MONTHS[(selectedMonth as number) - 1]} ${selectedYear}`
+              : selectedYear !== null
+              ? `${selectedYear}`
+              : "all time";
+            const formatted = `${np < 0 ? "-" : ""}$${Math.abs(np).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+            const headline = positive
+              ? np === 0
+                ? `You're just getting started in ${periodLabel}`
+                : `Nice work — you're in the green for ${periodLabel}`
+              : `Heads up — you're running a loss in ${periodLabel}`;
+            const subline = positive
+              ? np === 0
+                ? "No earnings yet for this period. Once trips come in, your profit will show here."
+                : "Keep it rolling. Your fleet is producing real income."
+              : "Expenses are outpacing earnings right now. Review your trip costs to find quick wins.";
+            return (
+              <div
+                style={fadeIn(1)}
+                className={`rounded-2xl border p-4 sm:p-5 ${
+                  positive
+                    ? "border-emerald-500/20 bg-emerald-500/5"
+                    : "border-amber-500/20 bg-amber-500/5"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
+                      positive ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"
+                    }`}
+                  >
+                    <TrendingUp className={`w-5 h-5 ${positive ? "" : "rotate-180"}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Net profit · {periodLabel}
+                    </p>
+                    <p
+                      className={`text-2xl sm:text-3xl font-bold mt-0.5 ${
+                        positive ? "text-emerald-600" : "text-amber-700"
+                      }`}
+                    >
+                      {formatted}
+                    </p>
+                    <p className="text-sm font-semibold text-foreground mt-1">{headline}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{subline}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* ─── Tabs ─── */}
-          <div style={fadeIn(1)}>
+          <div style={fadeIn(2)}>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-1 bg-muted/50 backdrop-blur-sm rounded-xl p-1">
                 <TabsTrigger value="portfolio" className="min-w-max whitespace-nowrap px-3 py-2 rounded-lg text-xs font-medium data-[state=active]:bg-card data-[state=active]:shadow-sm">
@@ -195,19 +407,15 @@ export default function ClientAnalytics() {
 
               {/* Portfolio */}
               <TabsContent value="portfolio" className="space-y-5 pt-4">
-                <div style={fadeIn(2)} className={EDGE}>
+                <div style={fadeIn(3)} className={EDGE}>
                   <SummaryCards summary={summary} loading={loading} hideNetProfit />
                 </div>
-                <div style={fadeIn(3)} className={EDGE}>
-                  <ClaimsSummary claims={claims} loading={loading} />
-                </div>
-                <div style={fadeIn(4)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                   <EarningsChart earnings={earnings} expenses={expenses} selectedYear={selectedYear} />
                   <ExpenseBreakdown expenses={expenses} />
                 </div>
-                <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
+                <div style={fadeIn(6)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
                    <RecentTrips earnings={earnings} expenses={expenses} carsMap={carsMap} />
-                   <RecentClaims claims={claims} carsMap={carsMap} />
                 </div>
               </TabsContent>
 
@@ -215,19 +423,18 @@ export default function ClientAnalytics() {
               <TabsContent value="per-car" className="space-y-5 pt-4">
                 {selectedCarId && selectedCarPerformance ? (
                   <>
-                    <div style={fadeIn(2)} className={EDGE}>
-                      <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
+                    <div style={fadeIn(3)} className={EDGE}>
+                      <BestMonthWidget carId={selectedCarId} carName={selectedAssistantCarName} />
                     </div>
                     <div style={fadeIn(3)} className={EDGE}>
-                      <ClaimsSummary claims={selectedCarData?.claims || []} loading={perCarLoading} />
+                      <PerCarSummaryCards performance={selectedCarPerformance} loading={perCarLoading} />
                     </div>
-                    <div style={fadeIn(4)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                    <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
                       <EarningsChart earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} selectedYear={selectedYear} />
                       <ExpenseBreakdown expenses={selectedCarData?.expenses || []} />
                     </div>
-                    <div style={fadeIn(5)} className={`grid gap-5 lg:grid-cols-2 ${EDGE}`}>
+                    <div style={fadeIn(6)} className={`grid gap-5 lg:grid-cols-1 ${EDGE}`}>
                       <RecentTrips earnings={selectedCarData?.earnings || []} expenses={selectedCarData?.expenses || []} carsMap={carsMap} />
-                      <RecentClaims claims={selectedCarData?.claims || []} carsMap={carsMap} />
                     </div>
                   </>
                 ) : (
@@ -269,6 +476,13 @@ export default function ClientAnalytics() {
             onCarUpdated={handleCarUpdated}
           />
         )}
+
+        <AnalyticsAssistant
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          selectedCarId={selectedCarId ?? null}
+          selectedCarName={selectedAssistantCarName}
+        />
       </PageContainer>
     </DashboardLayout>
   );

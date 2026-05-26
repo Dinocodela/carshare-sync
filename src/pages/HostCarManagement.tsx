@@ -2,6 +2,7 @@ import {
   useState,
   useEffect,
   useMemo,
+  useCallback,
   forwardRef,
   type ComponentPropsWithoutRef,
 } from "react";
@@ -189,6 +190,8 @@ interface Earning {
   payment_status: string;
   payment_date: string | null;
   date_paid?: string;
+  pickup_address?: string;
+  return_address?: string;
   created_at: string;
   updated_at: string;
 }
@@ -267,6 +270,8 @@ const earningSchema = z.object({
   host_profit_percentage: z.number().min(0).max(100).default(30),
   payment_status: z.string().min(1, "Payment status is required"),
   date_paid: z.string().min(1, "Date paid is required"),
+  pickup_address: z.string().optional(),
+  return_address: z.string().optional(),
 });
 
 const claimSchema = z.object({
@@ -449,6 +454,38 @@ export default function HostCarManagement() {
   const [earningsFiltersOpen, setEarningsFiltersOpen] = useState(false);
   const [claimsFiltersOpen, setClaimsFiltersOpen] = useState(false);
 
+  // Pagination state
+  const PAGE_SIZE = 10;
+  const [earningsPage, setEarningsPage] = useState(1);
+  const [expensesPage, setExpensesPage] = useState(1);
+  const [claimsPage, setClaimsPage] = useState(1);
+
+  // Server-side paginated earnings (RPC driven)
+  const [earningsPageRows, setEarningsPageRows] = useState<any[]>([]);
+  const [earningsPageRelatedExpenses, setEarningsPageRelatedExpenses] = useState<any[]>([]);
+  const [earningsTotalCount, setEarningsTotalCount] = useState(0);
+  const [earningsTotals, setEarningsTotals] = useState({ total_net: 0, pending_net: 0, this_month_net: 0 });
+  const [earningsListLoading, setEarningsListLoading] = useState(false);
+
+  // Server-side paginated expenses (RPC driven)
+  const [expensesPageRows, setExpensesPageRows] = useState<any[]>([]);
+  const [expensesTotalCount, setExpensesTotalCount] = useState(0);
+  const [expensesTotals, setExpensesTotals] = useState({ total_amount: 0, total_this_month: 0 });
+  const [expensesListLoading, setExpensesListLoading] = useState(false);
+
+  // Server-side paginated claims (RPC driven)
+  const [claimsPageRows, setClaimsPageRows] = useState<any[]>([]);
+  const [claimsTotalCount, setClaimsTotalCount] = useState(0);
+  const [claimsAllCount, setClaimsAllCount] = useState(0);
+  const [claimsTotals, setClaimsTotals] = useState({
+    pending_count: 0,
+    approved_count: 0,
+    total_amount: 0,
+    paid_amount: 0,
+  });
+  const [claimsRpcTypes, setClaimsRpcTypes] = useState<string[]>([]);
+  const [claimsListLoading, setClaimsListLoading] = useState(false);
+
   // Fix Radix UI bug: pointer-events:none stuck on body after dialog closes
   useEffect(() => {
     const anyOpen =
@@ -559,6 +596,8 @@ export default function HostCarManagement() {
       client_profit_percentage: 70,
       host_profit_percentage: 30,
       payment_status: "pending",
+      pickup_address: "",
+      return_address: "",
     },
   });
 
@@ -962,6 +1001,69 @@ export default function HostCarManagement() {
     );
   }, [claims, claimsFilters]);
 
+  // Reset pagination when filtered lists change
+  useEffect(() => { setEarningsPage(1); }, [earningsFilters]);
+  useEffect(() => { setExpensesPage(1); }, [expenseFilters]);
+  useEffect(() => { setClaimsPage(1); }, [claimsFilters]);
+
+  // Paginated slices
+  const paginatedEarnings = useMemo(
+    () => filteredEarnings.slice((earningsPage - 1) * PAGE_SIZE, earningsPage * PAGE_SIZE),
+    [filteredEarnings, earningsPage]
+  );
+  const paginatedExpenses = useMemo(
+    () => filteredExpenses.slice((expensesPage - 1) * PAGE_SIZE, expensesPage * PAGE_SIZE),
+    [filteredExpenses, expensesPage]
+  );
+  const paginatedClaims = useMemo(
+    () => filteredClaims.slice((claimsPage - 1) * PAGE_SIZE, claimsPage * PAGE_SIZE),
+    [filteredClaims, claimsPage]
+  );
+  const earningsPageCount = Math.max(1, Math.ceil(earningsTotalCount / PAGE_SIZE));
+  const expensesPageCount = Math.max(1, Math.ceil(expensesTotalCount / PAGE_SIZE));
+  const claimsPageCount = Math.max(1, Math.ceil(claimsTotalCount / PAGE_SIZE));
+
+  const renderPagination = (page: number, pageCount: number, setPage: (n: number) => void) => {
+    if (pageCount <= 1) return null;
+    const pages: number[] = [];
+    const start = Math.max(1, page - 2);
+    const end = Math.min(pageCount, start + 4);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return (
+      <div className="flex items-center justify-center gap-1 pt-3">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 rounded-xl"
+          onClick={() => setPage(Math.max(1, page - 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </Button>
+        {pages.map((p) => (
+          <Button
+            key={p}
+            variant={p === page ? "default" : "outline"}
+            size="sm"
+            className="h-8 w-8 p-0 rounded-xl"
+            onClick={() => setPage(p)}
+          >
+            {p}
+          </Button>
+        ))}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 rounded-xl"
+          onClick={() => setPage(Math.min(pageCount, page + 1))}
+          disabled={page === pageCount}
+        >
+          Next
+        </Button>
+      </div>
+    );
+  };
+
   // Base claim types + any additional types from existing data
   const BASE_CLAIM_TYPES = [
     "Accident body damage",
@@ -972,10 +1074,12 @@ export default function HostCarManagement() {
   ];
 
   const distinctClaimTypes = useMemo(() => {
-    const fromData = claims.map((c) => c.claim_type).filter(Boolean);
+    const fromData = (claimsRpcTypes && claimsRpcTypes.length > 0)
+      ? claimsRpcTypes
+      : claims.map((c) => c.claim_type).filter(Boolean);
     const merged = [...new Set([...BASE_CLAIM_TYPES, ...fromData])];
     return merged.sort();
-  }, [claims]);
+  }, [claims, claimsRpcTypes]);
 
   // Count active filters
   const activeFiltersCount = Object.values(expenseFilters).filter(
@@ -991,9 +1095,9 @@ export default function HostCarManagement() {
   useEffect(() => {
     if (user) {
       fetchHostedCars();
-      fetchExpenses(true);
-      fetchEarnings();
-      fetchClaims();
+      fetchExpenses(true); fetchExpensesPageFromRPC();
+      fetchEarnings(); fetchEarningsPageFromRPC();
+      fetchClaimsPageFromRPC();
     }
   }, [user]);
   const fetchHostedCars = async () => {
@@ -1143,7 +1247,26 @@ export default function HostCarManagement() {
 
       if (error) throw error;
 
-      setEarnings(data || []);
+      // Merge guest contact info from private table
+      const earningIds = (data || []).map((e: any) => e.id);
+      let contactMap: Record<string, { guest_email?: string | null; guest_phone?: string | null }> = {};
+      if (earningIds.length > 0) {
+        const { data: contacts } = await (supabase as any)
+          .from("host_earnings_guest_contact")
+          .select("earning_id, guest_email, guest_phone")
+          .in("earning_id", earningIds);
+        (contacts || []).forEach((c: any) => {
+          contactMap[c.earning_id] = { guest_email: c.guest_email, guest_phone: c.guest_phone };
+        });
+      }
+
+      setEarnings(
+        (data || []).map((e: any) => ({
+          ...e,
+          guest_email: contactMap[e.id]?.guest_email ?? null,
+          guest_phone: contactMap[e.id]?.guest_phone ?? null,
+        }))
+      );
     } catch (error) {
       console.error("Error fetching earnings:", error);
     } finally {
@@ -1151,8 +1274,180 @@ export default function HostCarManagement() {
     }
   };
 
+  const fetchEarningsPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (earningsFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      p_date_to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+      if (earningsFilters.dateRange === "today") {
+        p_date_from = today.toISOString();
+      } else if (earningsFilters.dateRange === "week") {
+        p_date_from = new Date(today.getTime() - 7 * 86400000).toISOString();
+      } else if (earningsFilters.dateRange === "month") {
+        const m = new Date(today);
+        m.setMonth(today.getMonth() - 1);
+        p_date_from = m.toISOString();
+      }
+    }
+    try {
+      setEarningsListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_earnings_page", {
+        p_car_id: earningsFilters.carId && earningsFilters.carId !== "all" ? earningsFilters.carId : null,
+        p_payment_source:
+          earningsFilters.paymentSource && earningsFilters.paymentSource !== "all"
+            ? earningsFilters.paymentSource
+            : null,
+        p_payment_status:
+          earningsFilters.paymentStatus && earningsFilters.paymentStatus !== "all"
+            ? earningsFilters.paymentStatus
+            : null,
+        p_date_from,
+        p_date_to,
+        p_trip_search: earningsFilters.tripSearch?.trim() || null,
+        p_limit: PAGE_SIZE,
+        p_offset: (earningsPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setEarningsPageRows(result.rows || []);
+      setEarningsPageRelatedExpenses(result.related_expenses || []);
+      setEarningsTotalCount(Number(result.total_count) || 0);
+      setEarningsTotals({
+        total_net: Number(result.total_net) || 0,
+        pending_net: Number(result.pending_net) || 0,
+        this_month_net: Number(result.this_month_net) || 0,
+      });
+    } catch (e) {
+      console.error("Error fetching earnings page:", e);
+    } finally {
+      setEarningsListLoading(false);
+    }
+  }, [user, earningsFilters, earningsPage]);
+
+  useEffect(() => {
+    if (user) fetchEarningsPageFromRPC();
+  }, [fetchEarningsPageFromRPC]);
+
+  const fetchExpensesPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (expenseFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      p_date_to = fmt(today);
+      if (expenseFilters.dateRange === "today") {
+        p_date_from = fmt(today);
+      } else if (expenseFilters.dateRange === "week") {
+        p_date_from = fmt(new Date(today.getTime() - 7 * 86400000));
+      } else if (expenseFilters.dateRange === "month") {
+        p_date_from = fmt(new Date(today.getTime() - 30 * 86400000));
+      }
+    }
+    try {
+      setExpensesListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_expenses_page", {
+        p_car_id:
+          expenseFilters.carId && expenseFilters.carId !== "all" ? expenseFilters.carId : null,
+        p_payment_source:
+          expenseFilters.paymentSource && expenseFilters.paymentSource !== "all"
+            ? expenseFilters.paymentSource
+            : null,
+        p_date_from,
+        p_date_to,
+        p_trip_search: expenseFilters.tripSearch?.trim() || null,
+        p_limit: PAGE_SIZE,
+        p_offset: (expensesPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setExpensesPageRows(result.rows || []);
+      setExpensesTotalCount(Number(result.total_count) || 0);
+      setExpensesTotals({
+        total_amount: Number(result.total_amount) || 0,
+        total_this_month: Number(result.total_this_month) || 0,
+      });
+    } catch (e) {
+      console.error("Error fetching expenses page:", e);
+    } finally {
+      setExpensesListLoading(false);
+    }
+  }, [user, expenseFilters, expensesPage]);
+
+  useEffect(() => {
+    if (user) fetchExpensesPageFromRPC();
+  }, [fetchExpensesPageFromRPC]);
+
+  const fetchClaimsPageFromRPC = useCallback(async () => {
+    if (!user) return;
+    let p_date_from: string | null = null;
+    let p_date_to: string | null = null;
+    if (claimsFilters.dateRange !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      p_date_to = fmt(today);
+      if (claimsFilters.dateRange === "today") {
+        p_date_from = fmt(today);
+      } else if (claimsFilters.dateRange === "week") {
+        p_date_from = fmt(new Date(today.getTime() - 7 * 86400000));
+      } else if (claimsFilters.dateRange === "month") {
+        p_date_from = fmt(new Date(today.getTime() - 30 * 86400000));
+      }
+    }
+    try {
+      setClaimsListLoading(true);
+      const { data, error } = await (supabase as any).rpc("get_host_claims_page", {
+        p_car_id:
+          claimsFilters.carId && claimsFilters.carId !== "all" ? claimsFilters.carId : null,
+        p_claim_status:
+          claimsFilters.claimStatus && claimsFilters.claimStatus !== "all"
+            ? claimsFilters.claimStatus
+            : null,
+        p_claim_type:
+          claimsFilters.claimType && claimsFilters.claimType !== "all"
+            ? claimsFilters.claimType
+            : null,
+        p_date_from,
+        p_date_to,
+        p_limit: PAGE_SIZE,
+        p_offset: (claimsPage - 1) * PAGE_SIZE,
+      });
+      if (error) throw error;
+      const result: any = data || {};
+      setClaimsPageRows(result.rows || []);
+      setClaimsTotalCount(Number(result.total_count) || 0);
+      setClaimsAllCount(Number(result.all_count) || 0);
+      setClaimsTotals({
+        pending_count: Number(result.pending_count) || 0,
+        approved_count: Number(result.approved_count) || 0,
+        total_amount: Number(result.total_amount) || 0,
+        paid_amount: Number(result.paid_amount) || 0,
+      });
+      setClaimsRpcTypes(Array.isArray(result.claim_types) ? result.claim_types.filter(Boolean) : []);
+    } catch (e) {
+      console.error("Error fetching claims page:", e);
+    } finally {
+      setClaimsListLoading(false);
+    }
+  }, [user, claimsFilters, claimsPage]);
+
+  useEffect(() => {
+    if (user) fetchClaimsPageFromRPC();
+  }, [fetchClaimsPageFromRPC]);
+
+
+
+
   const fetchClaims = async () => {
     if (!user) return;
+
 
     try {
       const { data, error } = await (supabase as any)
@@ -1253,8 +1548,8 @@ export default function HostCarManagement() {
       setExpenseDialogOpen(false);
       setEditingExpense(null);
       expenseForm.reset();
-      fetchExpenses();
-      fetchEarnings(); // Refresh earnings to sync guest names and trip data
+      fetchExpenses(); fetchExpensesPageFromRPC();
+      fetchEarnings(); fetchEarningsPageFromRPC(); // Refresh earnings to sync guest names and trip data
     } catch (error) {
       console.error("Error managing expense:", error);
       const errorMessage =
@@ -1284,7 +1579,7 @@ export default function HostCarManagement() {
         description: "The expense has been removed.",
       });
 
-      fetchExpenses();
+      fetchExpenses(); fetchExpensesPageFromRPC();
     } catch (error) {
       console.error("Error deleting expense:", error);
       toast({
@@ -1309,7 +1604,7 @@ export default function HostCarManagement() {
         description: "The earning has been removed.",
       });
 
-      fetchEarnings();
+      fetchEarnings(); fetchEarningsPageFromRPC();
     } catch (error) {
       console.error("Error deleting earning:", error);
       toast({
@@ -1384,8 +1679,6 @@ export default function HostCarManagement() {
         car_id: values.car_id,
         trip_id: values.trip_id,
         guest_name: values.guest_name,
-        guest_phone: values.guest_phone || null,
-        guest_email: values.guest_email || null,
         earning_type: values.earning_type,
         amount: grossEarnings,
         gross_earnings: grossEarnings,
@@ -1398,6 +1691,29 @@ export default function HostCarManagement() {
         earning_period_end: endDateTime,
         payment_status: values.payment_status,
         date_paid: values.date_paid || null,
+        pickup_address: values.pickup_address || null,
+        return_address: values.return_address || null,
+      };
+
+      const guestContact = {
+        guest_email: values.guest_email || null,
+        guest_phone: values.guest_phone || null,
+      };
+
+      const upsertGuestContact = async (earningId: string) => {
+        if (!guestContact.guest_email && !guestContact.guest_phone) {
+          await (supabase as any)
+            .from("host_earnings_guest_contact")
+            .delete()
+            .eq("earning_id", earningId);
+          return;
+        }
+        await (supabase as any)
+          .from("host_earnings_guest_contact")
+          .upsert(
+            { earning_id: earningId, ...guestContact },
+            { onConflict: "earning_id" }
+          );
       };
 
       if (editingEarning) {
@@ -1412,6 +1728,8 @@ export default function HostCarManagement() {
           .maybeSingle();
 
         if (error) throw error;
+
+        await upsertGuestContact(editingEarning.id);
 
         toast({
           title: "Earning updated successfully",
@@ -1444,6 +1762,23 @@ export default function HostCarManagement() {
           }
         }
       } else {
+        // Pre-check: trip_id must be unique across all earnings
+        if (values.trip_id) {
+          const { data: dup } = await supabase
+            .from("host_earnings")
+            .select("id, host_id, guest_name")
+            .eq("trip_id", values.trip_id)
+            .maybeSingle();
+          if (dup) {
+            const ownedByYou = dup.host_id === currentSession.user.id;
+            throw new Error(
+              ownedByYou
+                ? `An earning with Trip ID "${values.trip_id}" already exists (guest: ${dup.guest_name || "—"}). Edit that one instead of creating a duplicate.`
+                : `Trip ID "${values.trip_id}" is already used by another host. Please use a different Trip ID.`
+            );
+          }
+        }
+
         // Create new earning
         const { error, data: inserted } = await supabase
           .from("host_earnings")
@@ -1452,6 +1787,8 @@ export default function HostCarManagement() {
           .maybeSingle();
 
         if (error) throw error;
+
+        if (inserted?.id) await upsertGuestContact(inserted.id);
 
         toast({
           title: "Earning recorded successfully",
@@ -1507,12 +1844,22 @@ export default function HostCarManagement() {
 
       // Add a small delay and force refresh with loading states
       setTimeout(async () => {
-        await Promise.all([fetchEarnings(true), fetchExpenses(true)]);
+        await Promise.all([fetchEarnings(true), fetchExpenses(true), fetchExpensesPageFromRPC()]);
       }, 300);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error managing earning:", error);
+      const parts = [
+        error?.message,
+        error?.details,
+        error?.hint,
+        error?.code ? `(code: ${error.code})` : null,
+      ].filter(Boolean);
       const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
+        parts.length > 0
+          ? parts.join(" — ")
+          : typeof error === "string"
+          ? error
+          : "Unknown error occurred";
 
       toast({
         title: "Error",
@@ -1541,6 +1888,8 @@ export default function HostCarManagement() {
       host_profit_percentage: 30,
       payment_status: "pending",
       date_paid: "",
+      pickup_address: "",
+      return_address: "",
     });
     setEarningDialogOpen(true);
   };
@@ -1566,6 +1915,8 @@ export default function HostCarManagement() {
       host_profit_percentage: earning.host_profit_percentage || 30,
       payment_status: earning.payment_status,
       date_paid: earning.date_paid || "",
+      pickup_address: earning.pickup_address || "",
+      return_address: earning.return_address || "",
     });
     setEarningDialogOpen(true);
   };
@@ -1619,7 +1970,7 @@ export default function HostCarManagement() {
       setClaimDialogOpen(false);
       setEditingClaim(null);
       claimForm.reset();
-      fetchClaims();
+      fetchClaimsPageFromRPC();
     } catch (error) {
       console.error("Error managing claim:", error);
       toast({
@@ -1707,7 +2058,7 @@ export default function HostCarManagement() {
       if (error) throw error;
 
       // Refresh the claims data
-      fetchClaims();
+      fetchClaimsPageFromRPC();
 
       toast({
         title: "Status Updated",
@@ -1815,7 +2166,7 @@ export default function HostCarManagement() {
                   { key: "active", label: "Active", count: activeHostedCars.length },
                   { key: "expenses", label: "Expenses", count: expenses.length },
                   { key: "earnings", label: "Earnings", count: earnings.length },
-                  { key: "claims", label: "Claims", count: claims.length },
+                  { key: "claims", label: "Claims", count: claimsAllCount || claims.length },
                 ].map(({ key, label, count }) => (
                   <TabsTrigger
                     key={key}
@@ -3062,7 +3413,7 @@ export default function HostCarManagement() {
                     {/* Results Summary */}
                     <div className="flex items-center justify-between pt-2 border-t">
                       <p className="text-sm text-muted-foreground">
-                        Showing {filteredExpenses.length} of {expenses.length}{" "}
+                        Showing {expensesPageRows.length} of {expensesTotalCount}{" "}
                         expenses
                       </p>
                       {activeFiltersCount > 0 && (
@@ -3077,25 +3428,25 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {expensesLoading ? (
+              {(expensesLoading || expensesListLoading) && expensesPageRows.length === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
                     <p className="text-sm text-muted-foreground">Loading expenses…</p>
                   </div>
                 </div>
-              ) : expenses.length === 0 ? (
+              ) : expensesTotalCount === 0 && activeFiltersCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <DollarSign className="h-7 w-7 text-primary" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-1">No Expenses Recorded</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting expenses.</p>
-                  <Button onClick={() => fetchExpenses(true)} size="sm" className="mt-4 rounded-xl">
+                  <Button onClick={() => { fetchExpenses(true); fetchExpensesPageFromRPC(); }} size="sm" className="mt-4 rounded-xl">
                     Refresh Expenses
                   </Button>
                 </div>
-              ) : filteredExpenses.length === 0 ? (
+              ) : expensesTotalCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -3106,7 +3457,7 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  {filteredExpenses.map((expense) => (
+                  {expensesPageRows.map((expense) => (
                     <div key={expense.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-3">
@@ -3217,6 +3568,7 @@ export default function HostCarManagement() {
                       </div>
                     </div>
                   ))}
+                  {renderPagination(expensesPage, expensesPageCount, setExpensesPage)}
                 </div>
               )}
             </TabsContent>
@@ -3475,6 +3827,41 @@ export default function HostCarManagement() {
                                           type="email"
                                           {...field}
                                         />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
+                                  name="pickup_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Pickup Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Pickup location" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="return_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Return Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Return location" {...field} />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -4398,6 +4785,41 @@ export default function HostCarManagement() {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
+                                  name="pickup_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Pickup Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Pickup location" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="return_address"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="flex items-center gap-2">
+                                        <MapPin className="h-3 w-3" />
+                                        Return Address
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="Return location" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
                                   name="earning_type"
                                   render={({ field }) => (
                                     <FormItem>
@@ -4993,7 +5415,7 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredEarnings.length} of {earnings.length}{" "}
+                          Showing {earningsPageRows.length} of {earningsTotalCount}{" "}
                           earnings
                         </p>
                         {activeEarningsFiltersCount > 0 && (
@@ -5009,7 +5431,7 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {earnings.length === 0 ? (
+              {earningsTotalCount === 0 && activeEarningsFiltersCount === 0 && !earningsListLoading ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <DollarSign className="h-7 w-7 text-primary" />
@@ -5017,7 +5439,7 @@ export default function HostCarManagement() {
                   <h3 className="text-base font-semibold text-foreground mb-1">No Earnings Recorded</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">Start tracking your hosting earnings.</p>
                 </div>
-              ) : filteredEarnings.length === 0 ? (
+              ) : earningsTotalCount === 0 && !earningsListLoading ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -5030,44 +5452,26 @@ export default function HostCarManagement() {
                 <div className="space-y-4">
                   {/* Summary Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(() => {
-                      const getExpenseTotal = (expense: Expense) =>
-                        expense.total_expenses ??
-                        (expense.amount || 0) +
-                          (expense.delivery_cost || 0) +
-                          (expense.toll_cost || 0) +
-                          (expense.ev_charge_cost || 0) +
-                          (expense.carwash_cost || 0);
-
-                      const getNetForEarning = (e: any) => {
-                        const relExp = e.trip_id ? expenses.filter((ex) => ex.trip_id === e.trip_id) : [];
-                        const totalExp = relExp.reduce((sum, ex) => sum + getExpenseTotal(ex), 0);
-                        return (e.amount || 0) - totalExp;
-                      };
-                      const now = new Date();
-                      const currentMonth = now.getMonth();
-                      const currentYear = now.getFullYear();
-                      return [
-                        {
-                          label: "Total Earnings",
-                          value: `$${filteredEarnings.reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: TrendingUp,
-                          tooltip: "Sum of gross earnings minus trip expenses for all displayed earnings",
-                        },
-                        {
-                          label: "Pending Payments",
-                          value: `$${filteredEarnings.filter((e) => e.payment_status === "pending").reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: Clock,
-                          tooltip: "Sum of net earnings (gross − expenses) for trips with pending payment status",
-                        },
-                        {
-                          label: "This Month",
-                          value: `$${filteredEarnings.filter((e) => { const d = new Date(e.earning_period_start); return d.getMonth() === currentMonth && d.getFullYear() === currentYear; }).reduce((sum, e) => sum + getNetForEarning(e), 0).toFixed(2)}`,
-                          icon: CalendarLucide,
-                          tooltip: "Sum of net earnings (gross − expenses) for trips starting in the current calendar month",
-                        },
-                      ];
-                    })().map((item, i) => (
+                    {[
+                      {
+                        label: "Total Earnings",
+                        value: `$${earningsTotals.total_net.toFixed(2)}`,
+                        icon: TrendingUp,
+                        tooltip: "Sum of gross earnings minus trip expenses across all filtered earnings",
+                      },
+                      {
+                        label: "Pending Payments",
+                        value: `$${earningsTotals.pending_net.toFixed(2)}`,
+                        icon: Clock,
+                        tooltip: "Sum of net earnings (gross − expenses) for trips with pending payment status across all filtered earnings",
+                      },
+                      {
+                        label: "This Month",
+                        value: `$${earningsTotals.this_month_net.toFixed(2)}`,
+                        icon: CalendarLucide,
+                        tooltip: "Sum of net earnings (gross − expenses) for trips starting in the current calendar month",
+                      },
+                    ].map((item, i) => (
                       <div key={i} className="group rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 relative">
                         <div className="flex items-center justify-between">
                           <div>
@@ -5099,8 +5503,8 @@ export default function HostCarManagement() {
 
                   {/* Earnings List */}
                   <div className="grid gap-3">
-                    {filteredEarnings.map((earning) => {
-                      const relatedExpenses = earning.trip_id ? expenses.filter((e) => e.trip_id === earning.trip_id) : [];
+                    {earningsPageRows.map((earning) => {
+                      const relatedExpenses = earning.trip_id ? earningsPageRelatedExpenses.filter((e: any) => e.trip_id === earning.trip_id) : [];
                       const totalExpenses = relatedExpenses.reduce(
                         (sum, e) =>
                           sum +
@@ -5239,6 +5643,7 @@ export default function HostCarManagement() {
                       );
                     })}
                   </div>
+                  {renderPagination(earningsPage, earningsPageCount, setEarningsPage)}
                 </div>
               )}
             </TabsContent>
@@ -6446,7 +6851,7 @@ export default function HostCarManagement() {
                       {/* Results Summary */}
                       <div className="flex items-center justify-between pt-2 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {filteredClaims.length} of {claims.length}{" "}
+                          Showing {claimsPageRows.length} of {claimsTotalCount}{" "}
                           claims
                         </p>
                         {activeClaimsFiltersCount > 0 && (
@@ -6462,7 +6867,7 @@ export default function HostCarManagement() {
                 </div>
               )}
 
-              {claims.length === 0 ? (
+              {claimsAllCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <AlertTriangle className="h-7 w-7 text-primary" />
@@ -6470,7 +6875,7 @@ export default function HostCarManagement() {
                   <h3 className="text-base font-semibold text-foreground mb-1">No Claims Filed</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto">File claims for damages or incidents here.</p>
                 </div>
-              ) : filteredClaims.length === 0 ? (
+              ) : claimsTotalCount === 0 ? (
                 <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-10 text-center">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Filter className="h-7 w-7 text-primary" />
@@ -6484,11 +6889,11 @@ export default function HostCarManagement() {
                   {/* Claims Summary */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                     {[
-                      { label: "Total Claims", value: claims.length.toString(), icon: FileText },
-                      { label: "Pending", value: claims.filter((c) => c.claim_status === "pending").length.toString(), icon: Clock },
-                      { label: "Approved", value: claims.filter((c) => c.claim_status === "approved").length.toString(), icon: CheckCircle },
-                      { label: "Total Amount", value: `$${claims.reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: DollarSign },
-                      { label: "Amount Paid", value: `$${claims.filter((c) => c.is_paid).reduce((sum, c) => sum + (c.claim_amount || 0), 0).toFixed(2)}`, icon: CheckCircle },
+                      { label: "Total Claims", value: claimsAllCount.toString(), icon: FileText },
+                      { label: "Pending", value: claimsTotals.pending_count.toString(), icon: Clock },
+                      { label: "Approved", value: claimsTotals.approved_count.toString(), icon: CheckCircle },
+                      { label: "Total Amount", value: `$${claimsTotals.total_amount.toFixed(2)}`, icon: DollarSign },
+                      { label: "Amount Paid", value: `$${claimsTotals.paid_amount.toFixed(2)}`, icon: CheckCircle },
                     ].map((item, i) => (
                       <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-3.5">
                         <div className="flex items-center gap-1.5 mb-1">
@@ -6502,7 +6907,7 @@ export default function HostCarManagement() {
 
                   {/* Claims List */}
                   <div className="grid gap-3">
-                    {filteredClaims.map((claim) => {
+                    {claimsPageRows.map((claim: any) => {
                       const claimCar = cars.find((car) => car.id === claim.car_id);
                       return (
                         <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
@@ -6618,6 +7023,7 @@ export default function HostCarManagement() {
                       );
                     })}
                   </div>
+                  {renderPagination(claimsPage, claimsPageCount, setClaimsPage)}
                 </div>
               )}
             </TabsContent>

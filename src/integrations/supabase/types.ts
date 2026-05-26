@@ -41,6 +41,77 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_assistant_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          selected_car_id: string | null
+          selected_car_name: string | null
+          selected_month: number | null
+          selected_year: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          selected_car_id?: string | null
+          selected_car_name?: string | null
+          selected_month?: number | null
+          selected_year?: number | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          selected_car_id?: string | null
+          selected_car_name?: string | null
+          selected_month?: number | null
+          selected_year?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      analytics_assistant_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_assistant_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_assistant_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_name: string
@@ -713,6 +784,39 @@ export type Database = {
         }
         Relationships: []
       }
+      host_audit_log: {
+        Row: {
+          action: string
+          car_id: string | null
+          changes: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          host_id: string
+          id: string
+        }
+        Insert: {
+          action: string
+          car_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          host_id: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          car_id?: string | null
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          host_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       host_claims: {
         Row: {
           accident_description: string | null
@@ -797,9 +901,7 @@ export type Database = {
           earning_period_start: string
           earning_type: string
           gross_earnings: number | null
-          guest_email: string | null
           guest_name: string | null
-          guest_phone: string | null
           host_id: string
           host_profit_percentage: number | null
           id: string
@@ -807,6 +909,8 @@ export type Database = {
           payment_date: string | null
           payment_source: string | null
           payment_status: string
+          pickup_address: string | null
+          return_address: string | null
           trip_id: string | null
           trip_idd: string | null
           updated_at: string
@@ -823,9 +927,7 @@ export type Database = {
           earning_period_start: string
           earning_type?: string
           gross_earnings?: number | null
-          guest_email?: string | null
           guest_name?: string | null
-          guest_phone?: string | null
           host_id: string
           host_profit_percentage?: number | null
           id?: string
@@ -833,6 +935,8 @@ export type Database = {
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
+          pickup_address?: string | null
+          return_address?: string | null
           trip_id?: string | null
           trip_idd?: string | null
           updated_at?: string
@@ -849,9 +953,7 @@ export type Database = {
           earning_period_start?: string
           earning_type?: string
           gross_earnings?: number | null
-          guest_email?: string | null
           guest_name?: string | null
-          guest_phone?: string | null
           host_id?: string
           host_profit_percentage?: number | null
           id?: string
@@ -859,6 +961,8 @@ export type Database = {
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
+          pickup_address?: string | null
+          return_address?: string | null
           trip_id?: string | null
           trip_idd?: string | null
           updated_at?: string
@@ -869,6 +973,38 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      host_earnings_guest_contact: {
+        Row: {
+          created_at: string
+          earning_id: string
+          guest_email: string | null
+          guest_phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          earning_id: string
+          guest_email?: string | null
+          guest_phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          earning_id?: string
+          guest_email?: string | null
+          guest_phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "host_earnings_guest_contact_earning_id_fkey"
+            columns: ["earning_id"]
+            isOneToOne: true
+            referencedRelation: "host_earnings"
             referencedColumns: ["id"]
           },
         ]
@@ -1476,9 +1612,7 @@ export type Database = {
           created_at: string
           daily_rate: number
           end_date: string
-          guest_email: string | null
           guest_name: string
-          guest_phone: string | null
           host_id: string
           id: string
           notes: string | null
@@ -1493,9 +1627,7 @@ export type Database = {
           created_at?: string
           daily_rate?: number
           end_date: string
-          guest_email?: string | null
           guest_name: string
-          guest_phone?: string | null
           host_id: string
           id?: string
           notes?: string | null
@@ -1510,9 +1642,7 @@ export type Database = {
           created_at?: string
           daily_rate?: number
           end_date?: string
-          guest_email?: string | null
           guest_name?: string
-          guest_phone?: string | null
           host_id?: string
           id?: string
           notes?: string | null
@@ -1762,6 +1892,18 @@ export type Database = {
           phone: string
         }[]
       }
+      get_host_claims_page: {
+        Args: {
+          p_car_id?: string
+          p_claim_status?: string
+          p_claim_type?: string
+          p_date_from?: string
+          p_date_to?: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: Json
+      }
       get_host_contact_for_client: {
         Args: { p_car_id: string; p_client_id: string }
         Returns: {
@@ -1800,6 +1942,47 @@ export type Database = {
           model: string
           status: string
           year: number
+        }[]
+      }
+      get_host_earnings_page: {
+        Args: {
+          p_car_id?: string
+          p_date_from?: string
+          p_date_to?: string
+          p_limit?: number
+          p_offset?: number
+          p_payment_source?: string
+          p_payment_status?: string
+          p_trip_search?: string
+        }
+        Returns: Json
+      }
+      get_host_expenses_page: {
+        Args: {
+          p_car_id?: string
+          p_date_from?: string
+          p_date_to?: string
+          p_limit?: number
+          p_offset?: number
+          p_payment_source?: string
+          p_trip_search?: string
+        }
+        Returns: Json
+      }
+      get_public_host_profiles: {
+        Args: never
+        Returns: {
+          bio: string
+          company_name: string
+          first_name: string
+          id: string
+          last_name: string
+          location: string
+          rating: number
+          services: string[]
+          turo_profile_url: string
+          turo_reviews_count: number
+          user_id: string
         }[]
       }
       get_safe_car_info: {

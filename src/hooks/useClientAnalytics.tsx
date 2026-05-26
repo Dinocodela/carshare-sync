@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useClientCarExpenses } from './useClientCarExpenses';
+import { getActiveRentalDays, getAnalyticsDateRange, buildCustomDateRange } from '@/lib/analyticsDateRanges';
 
 
 
@@ -67,6 +69,8 @@ export interface AnalyticsSummary {
   totalEarnings: number;
   totalExpenses: number;
   netProfit: number;
+  totalFixedCosts: number;
+  trueNetProfit: number;
   activeDays: number;
   totalTrips: number;
   averagePerTrip: number;
@@ -75,9 +79,20 @@ export interface AnalyticsSummary {
   approvedClaimsAmount: number;
 }
 
-export function useClientAnalytics(initialYear: number | null = new Date().getFullYear()) {
+export interface CustomDateRange {
+  start: Date;
+  end: Date;
+}
+
+export function useClientAnalytics(
+  initialYear: number | null = new Date().getFullYear(),
+  initialMonth: number | null = new Date().getMonth() + 1,
+) {
   const { user } = useAuth();
+  const { expenses: fixedExpenses, getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth);
+  const [customRange, setCustomRange] = useState<CustomDateRange | null>(null);
   const [earnings, setEarnings] = useState<ClientEarning[]>([]);
   const [expenses, setExpenses] = useState<ClientExpense[]>([]);
   const [claims, setClaims] = useState<ClientClaim[]>([]);
@@ -86,6 +101,8 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     totalEarnings: 0,
     totalExpenses: 0,
     netProfit: 0,
+    totalFixedCosts: 0,
+    trueNetProfit: 0,
     activeDays: 0,
     totalTrips: 0,
     averagePerTrip: 0,
@@ -145,6 +162,19 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         setExpenses([]);
         setClaims([]);
         setCarsMap({});
+        setSummary({
+          totalEarnings: 0,
+          totalExpenses: 0,
+          netProfit: 0,
+          totalFixedCosts: 0,
+          trueNetProfit: 0,
+          activeDays: 0,
+          totalTrips: 0,
+          averagePerTrip: 0,
+          totalClaims: 0,
+          pendingClaims: 0,
+          approvedClaimsAmount: 0,
+        });
         return;
       }
 
@@ -169,12 +199,14 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      if (selectedYear !== null) {
-        const yearStart = `${selectedYear}-01-01T00:00:00`;
-        const yearEnd = `${selectedYear}-12-31T23:59:59`;
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
+
+      if (dateRange) {
         earningsQuery = earningsQuery
-          .gte('earning_period_start', yearStart)
-          .lte('earning_period_start', yearEnd);
+          .lte('earning_period_start', dateRange.timestampEnd)
+          .gte('earning_period_end', dateRange.timestampStart);
       }
 
       const { data: earningsData, error: earningsError } = await earningsQuery;
@@ -188,12 +220,10 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      if (selectedYear !== null) {
-        const yearStart = `${selectedYear}-01-01`;
-        const yearEnd = `${selectedYear}-12-31`;
+      if (dateRange) {
         expensesQuery = expensesQuery
-          .gte('expense_date', yearStart)
-          .lte('expense_date', yearEnd);
+          .gte('expense_date', dateRange.dateStart)
+          .lte('expense_date', dateRange.dateEnd);
       }
 
       const { data: expensesData, error: expensesError } = await expensesQuery;
@@ -207,12 +237,10 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
-      if (selectedYear !== null) {
-        const yearStart = `${selectedYear}-01-01`;
-        const yearEnd = `${selectedYear}-12-31`;
+      if (dateRange) {
         claimsQuery = claimsQuery
-          .gte('incident_date', yearStart)
-          .lte('incident_date', yearEnd);
+          .gte('incident_date', dateRange.dateStart)
+          .lte('incident_date', dateRange.dateEnd);
       }
 
       const { data: claimsData, error: claimsError } = await claimsQuery;
@@ -223,7 +251,7 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       console.error('Error fetching client analytics:', err);
       setError('Failed to load analytics data');
     }
-  }, [user, selectedYear]);
+  }, [user, selectedYear, selectedMonth, customRange]);
 
   const calculateSummary = () => {
     const totalEarnings = earnings.reduce((sum, earning) => {
@@ -246,16 +274,19 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       return sum + expenseTotal;
     }, 0);
     const netProfit = totalEarnings - totalExpenses;
+    const accessibleCarIds = Object.keys(carsMap);
+    const totalFixedCosts = accessibleCarIds.reduce(
+      (sum, carId) => sum + getFixedCostsForPeriod(carId, selectedYear, selectedMonth),
+      0
+    );
+    const trueNetProfit = totalEarnings - totalFixedCosts;
     const totalTrips = earnings.length;
     const averagePerTrip = totalTrips > 0 ? totalEarnings / totalTrips : 0;
     
-    // Calculate active days (unique earning dates)
-    const uniqueDates = new Set(
-      earnings
-        .filter(e => e.earning_period_start)
-        .map(e => e.earning_period_start.split('T')[0])
-    );
-    const activeDays = uniqueDates.size;
+    const activeRange = customRange
+      ? buildCustomDateRange(customRange.start, customRange.end)
+      : getAnalyticsDateRange(selectedYear, selectedMonth);
+    const activeDays = getActiveRentalDays(earnings, activeRange);
 
     // Calculate claims summary
     const totalClaims = claims.length;
@@ -268,6 +299,8 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
       totalEarnings,
       totalExpenses,
       netProfit,
+      totalFixedCosts,
+      trueNetProfit,
       activeDays,
       totalTrips,
       averagePerTrip,
@@ -285,11 +318,11 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     };
 
     fetchData();
-  }, [user, selectedYear, fetchClientAnalytics]);
+  }, [user, selectedYear, selectedMonth, customRange, fetchClientAnalytics]);
 
   useEffect(() => {
     calculateSummary();
-  }, [earnings, expenses, claims]);
+  }, [earnings, expenses, claims, carsMap, fixedExpenses, selectedYear, selectedMonth, customRange]);
 
   const refetch = useCallback(() => {
     fetchClientAnalytics();
@@ -306,6 +339,10 @@ export function useClientAnalytics(initialYear: number | null = new Date().getFu
     refetch,
     selectedYear,
     setSelectedYear,
+    selectedMonth,
+    setSelectedMonth,
     availableYears,
+    customRange,
+    setCustomRange,
   };
 }

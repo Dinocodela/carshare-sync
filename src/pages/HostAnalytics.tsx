@@ -28,6 +28,8 @@ const transformSummaryForDisplay = (hostSummary: any) => ({
   totalEarnings: hostSummary.totalEarnings,
   totalExpenses: hostSummary.totalExpenses,
   netProfit: hostSummary.netProfit,
+  totalFixedCosts: 0,
+  trueNetProfit: hostSummary.netProfit,
   totalTrips: hostSummary.totalTrips,
   activeDays: hostSummary.activeHostingDays,
   totalClaims: hostSummary.totalClaims,
@@ -84,11 +86,6 @@ export default function HostAnalytics() {
     const t = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(t);
   }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => { if (!loading) refetch(); }, 30000);
-    return () => clearInterval(interval);
-  }, [loading, refetch]);
 
   const handleYearChange = (value: string) => {
     setSelectedYear(value === "all" ? null : parseInt(value, 10));

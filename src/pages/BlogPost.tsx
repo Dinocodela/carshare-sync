@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Share2, Twitter } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import DOMPurify from "dompurify";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -66,10 +67,20 @@ export default function BlogPost() {
       <SEO
         title={`${post.title} — Teslys Blog`}
         description={post.excerpt || post.title}
-        canonical={`https://teslys.com/blog/${post.slug}`}
+        canonical={`https://teslys.app/blog/${post.slug}`}
         ogImage={post.cover_image || undefined}
         ogType="article"
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        description: post.excerpt || undefined,
+        image: post.cover_image || undefined,
+        datePublished: post.published_at || undefined,
+        author: post.author_name ? { "@type": "Person", name: post.author_name } : undefined,
+        mainEntityOfPage: `https://teslys.app/blog/${post.slug}`,
+      }) }} />
 
       <div className="min-h-screen bg-background">
         {/* Header */}
@@ -137,7 +148,16 @@ export default function BlogPost() {
               prose-img:rounded-xl prose-img:shadow-md
               prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-lg prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:my-8 prose-blockquote:not-italic
               [&_p+p]:mt-7 [&_h2+p]:mt-5 [&_h3+p]:mt-5 [&_ul_li::marker]:text-primary [&_ol_li::marker]:text-primary [&_ol_li::marker]:font-semibold"
-            dangerouslySetInnerHTML={{ __html: post.content.replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1') }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                post.content.replace(/(<h[23][^>]*>)\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '$1'),
+                {
+                  ALLOWED_TAGS: ['h2','h3','h4','p','ul','ol','li','strong','em','blockquote','a','img','br','code','pre','hr','span'],
+                  ALLOWED_ATTR: ['href','title','target','rel','src','alt','loading','class'],
+                  ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+                }
+              ),
+            }}
           />
 
           {/* Tags */}

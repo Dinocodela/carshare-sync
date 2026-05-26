@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen, Route as RouteIcon } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,6 +55,11 @@ export function AppSidebar() {
       return [
         ...baseItems,
         {
+          title: "Trips",
+          url: "/trips",
+          icon: RouteIcon,
+        },
+        {
           title: "Analytics",
           url: "/client-analytics",
           icon: BarChart3,
@@ -83,6 +88,11 @@ export function AppSidebar() {
     } else if (userRole === 'host') {
       return [
         ...baseItems,
+        {
+          title: "Trips",
+          url: "/trips",
+          icon: RouteIcon,
+        },
         {
           title: "Analytics",
           url: "/host-analytics",

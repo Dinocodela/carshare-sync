@@ -1,0 +1,3 @@
+INSERT INTO public.host_expenses (id, host_id, car_id, trip_id, guest_name, expense_type, expense_date, amount, ev_charge_cost, carwash_cost, delivery_cost, toll_cost, created_at, updated_at)
+VALUES ('93127c3d-f3d9-431f-a2a9-0f782e3993a4', '1bee30cc-abe2-484a-9a8a-f9199977a3ce', '68b19c94-7778-4255-b444-bc4efe343719', '49929644-6', 'Matthew Watson', 'general', '2026-03-08', 4488.23, 0, 0, 0, 0, '2026-04-14T05:39:50.038384+00:00', now())
+ON CONFLICT (id) DO NOTHING;

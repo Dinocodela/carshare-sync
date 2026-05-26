@@ -3,6 +3,8 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ClientEarning, ClientExpense, ClientClaim } from './useClientAnalytics';
 import { useClientCarExpenses } from './useClientCarExpenses';
+import { getActiveRentalDays, getAnalyticsDateRange, getPeriodDayCount, buildCustomDateRange } from '@/lib/analyticsDateRanges';
+import type { CustomDateRange } from './useClientAnalytics';
 
 export interface CarPerformance {
   car_id: string;
@@ -39,10 +41,12 @@ export interface CarAnalyticsData {
 const currentYear = new Date().getFullYear();
 const availableYears = Array.from({ length: new Date().getFullYear() - 2021 }, (_, i) => 2022 + i);
 
-export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear) {
+export function usePerCarAnalytics(selectedCarId?: string, initialYear: number | null = currentYear, initialMonth: number | null = new Date().getMonth() + 1, initialCustomRange: CustomDateRange | null = null) {
   const { user } = useAuth();
-  const { getMonthlyFixedCosts } = useClientCarExpenses();
+  const { getFixedCostsForPeriod } = useClientCarExpenses();
   const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth);
+  const [customRange, setCustomRange] = useState<CustomDateRange | null>(initialCustomRange);
   const [cars, setCars] = useState<any[]>([]);
   const [allData, setAllData] = useState<{
     earnings: ClientEarning[];
@@ -98,9 +102,9 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
       const carIds = allCars.map(car => car.id);
 
-      // Build year filter dates
-      const yearStart = selectedYear ? `${selectedYear}-01-01` : null;
-      const yearEnd = selectedYear ? `${selectedYear}-12-31T23:59:59` : null;
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
 
       // Get all analytics data with year filtering
       let earningsQuery = supabase
@@ -121,11 +125,10 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
         .in('car_id', carIds)
         .order('incident_date', { ascending: false });
 
-      // Apply year filter if selected
-      if (yearStart && yearEnd) {
-        earningsQuery = earningsQuery.gte('earning_period_start', yearStart).lte('earning_period_start', yearEnd);
-        expensesQuery = expensesQuery.gte('expense_date', yearStart).lte('expense_date', yearEnd);
-        claimsQuery = claimsQuery.gte('incident_date', yearStart).lte('incident_date', yearEnd);
+      if (dateRange) {
+        earningsQuery = earningsQuery.lte('earning_period_start', dateRange.timestampEnd).gte('earning_period_end', dateRange.timestampStart);
+        expensesQuery = expensesQuery.gte('expense_date', dateRange.dateStart).lte('expense_date', dateRange.dateEnd);
+        claimsQuery = claimsQuery.gte('incident_date', dateRange.dateStart).lte('incident_date', dateRange.dateEnd);
       }
 
       const [earningsResult, expensesResult, claimsResult] = await Promise.all([
@@ -179,8 +182,8 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
                (e.carwash_cost || 0) + (e.ev_charge_cost || 0);
       }, 0);
       
-      // Get monthly fixed costs for this car
-      const monthlyFixedCosts = getMonthlyFixedCosts(car.id);
+      // Get fixed costs for this car in the selected period
+      const monthlyFixedCosts = getFixedCostsForPeriod(car.id, selectedYear, selectedMonth);
       
       // True Net Profit = Net Earnings From Trips - Monthly Fixed Costs
       const trueNetProfit = netEarningsFromTrips - monthlyFixedCosts;
@@ -191,24 +194,12 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
       const totalTrips = carEarnings.length;
       const averagePerTrip = totalTrips > 0 ? netEarningsFromTrips / totalTrips : 0;
       
-      // Calculate active days
-      const uniqueDates = new Set(
-        carEarnings
-          .filter(e => e.earning_period_start)
-          .map(e => e.earning_period_start.split('T')[0])
-      );
-      const activeDays = uniqueDates.size;
-      
-      // Calculate utilization rate (active days in last 30 days)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const recentEarnings = carEarnings.filter(e => 
-        new Date(e.earning_period_start) >= thirtyDaysAgo
-      );
-      const recentActiveDays = new Set(
-        recentEarnings.map(e => e.earning_period_start.split('T')[0])
-      ).size;
-      const utilizationRate = (recentActiveDays / 30) * 100;
+      const dateRange = customRange
+        ? buildCustomDateRange(customRange.start, customRange.end)
+        : getAnalyticsDateRange(selectedYear, selectedMonth);
+      const activeDays = getActiveRentalDays(carEarnings, dateRange);
+      const periodDays = getPeriodDayCount(dateRange, carEarnings);
+      const utilizationRate = periodDays > 0 ? Math.min(100, (activeDays / periodDays) * 100) : 0;
 
       const totalClaims = carClaims.length;
       const claimsAmount = carClaims.reduce((sum, c) => 
@@ -227,11 +218,11 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
       // Calculate break-even trips needed to cover monthly fixed costs
       const breakEvenTrips = averagePerTrip > 0 ? Math.ceil(monthlyFixedCosts / averagePerTrip) : 0;
 
-      // Calculate risk score based on claims and profitability (now using true net profit)
-      const claimsRisk = Math.min((totalClaims * 20), 50); // Max 50 points for claims
-      const profitabilityRisk = trueNetProfit < 0 ? 30 : Math.max(0, 30 - profitMargin); // Up to 30 points
-      const utilizationRisk = Math.max(0, 20 - utilizationRate * 0.2); // Up to 20 points
-      const riskScore = Math.min(100, claimsRisk + profitabilityRisk + utilizationRisk);
+      const claimsRisk = Math.min(35, totalClaims * 12 + Math.min(15, claimsAmount / 500));
+      const trueProfitRisk = trueNetProfit < 0 ? Math.min(30, Math.abs(trueNetProfit) / 50) : 0;
+      const marginRisk = profitMargin < 0 ? 20 : Math.max(0, 15 - profitMargin * 0.5);
+      const utilizationRisk = Math.max(0, 20 - utilizationRate * 0.2);
+      const riskScore = Math.min(100, claimsRisk + trueProfitRisk + marginRisk + utilizationRisk);
 
       // Generate recommendation (now considering fixed costs)
       let recommendation: CarPerformance['recommendation'] = 'keep_active';
@@ -239,19 +230,19 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
       if (riskScore > 70 || trueNetProfit < -500) {
         recommendation = 'return';
-        recommendationReason = 'High risk and significant losses including fixed costs. Consider returning this vehicle.';
+        recommendationReason = 'High risk or significant losses after fixed costs. Consider replacing or returning this vehicle.';
       } else if (riskScore > 50 || (profitMargin < 10 && utilizationRate < 30)) {
         recommendation = 'monitor';
-        recommendationReason = 'Moderate risk or low performance. Monitor closely and consider improvements.';
+        recommendationReason = 'Moderate risk from claims, utilization, or true net profit. Monitor closely.';
       } else if (utilizationRate < 50 && trueNetProfit > 0) {
         recommendation = 'optimize';
-        recommendationReason = 'Good profitability but low utilization. Optimize pricing or availability.';
+        recommendationReason = 'Positive true net profit, but utilization is below the selected period average target.';
       } else if (trueNetProfit < 0 && breakEvenTrips > totalTrips) {
         recommendation = 'monitor';
-        recommendationReason = `Not covering fixed costs. Need ${breakEvenTrips} trips/month to break even.`;
+        recommendationReason = `Good activity may still be losing money after fixed costs. Needs about ${breakEvenTrips} trips to break even.`;
       } else {
         recommendation = 'keep_active';
-        recommendationReason = 'Good performance. Continue current strategy.';
+        recommendationReason = 'Strong utilization and positive true net profit. Continue current strategy.';
       }
 
       return {
@@ -280,7 +271,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
         breakEvenTrips
       };
     });
-  }, [cars, allData]);
+  }, [cars, allData, getFixedCostsForPeriod, selectedYear, selectedMonth, customRange]);
 
   // Filter data for selected car
   const selectedCarData = useMemo((): CarAnalyticsData | null => {
@@ -300,7 +291,7 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
 
   useEffect(() => {
     fetchAllData();
-  }, [user, selectedYear]);
+  }, [user, selectedYear, selectedMonth, customRange]);
 
   const refetch = () => {
     fetchAllData();
@@ -317,6 +308,10 @@ export function usePerCarAnalytics(selectedCarId?: string, initialYear: number |
     refetch,
     selectedYear,
     setSelectedYear,
+    selectedMonth,
+    setSelectedMonth,
     availableYears,
+    customRange,
+    setCustomRange,
   };
 }

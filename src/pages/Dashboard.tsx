@@ -211,52 +211,62 @@ function useRecentActivity(
           });
         });
 
-        // Only backfill with cars/requests if we need more items
+        // Recent Activity is strictly payouts received (for both clients and hosts).
+        // If we still need more items, backfill with older paid payouts.
         if (mapped.length < limit) {
-          recentCars.forEach((c) =>
-            mapped.push({
-              id: `car_${c.id}`,
-              ts: c.created_at,
-              message: `${c.make} ${c.model} added to your fleet`,
-              icon: "🚗",
-            })
-          );
+          const existingIds = new Set(earns.map((e: any) => e.id));
+          let olderQuery = supabase
+            .from("host_earnings")
+            .select(payoutFields)
+            .eq("payment_status", "paid")
+            .order("date_paid", { ascending: false, nullsFirst: false })
+            .limit(limit * 2);
 
-          const { data: reqs } = await supabase
-            .from("requests")
-            .select("id, status, created_at, updated_at, client_id, host_id")
-            .or(`client_id.eq.${userId},host_id.eq.${userId}`)
-            .order("created_at", { ascending: false })
-            .limit(limit);
-
-          (reqs || []).forEach((r) => {
-            mapped.push({
-              id: `req_new_${r.id}`,
-              ts: r.created_at,
-              message:
-                role === "host"
-                  ? "New hosting request received"
-                  : "Hosting request sent",
-              icon: "📩",
-            });
-            if (r.updated_at && r.updated_at !== r.created_at) {
-              const status =
-                r.status === "accepted"
-                  ? "accepted"
-                  : r.status === "rejected"
-                  ? "rejected"
-                  : r.status;
-              mapped.push({
-                id: `req_status_${r.id}`,
-                ts: r.updated_at,
-                message:
-                  role === "host"
-                    ? `You ${status} a hosting request`
-                    : `Your request was ${status}`,
-                icon: "✅",
-              });
+          if (role === "host") {
+            olderQuery = olderQuery.eq("host_id", userId);
+          } else {
+            const carIdsForBackfill = allCars.map((c) => c.id);
+            if (!carIdsForBackfill.length) {
+              olderQuery = null as any;
+            } else {
+              olderQuery = olderQuery.in("car_id", carIdsForBackfill);
             }
-          });
+          }
+
+          if (olderQuery) {
+            // Fetch expenses for host too, for accurate client-share calc (clients only need it)
+            if (role === "host" && activityExpenses.length === 0 && allCarIds.length) {
+              const { data: expData } = await supabase
+                .from("host_expenses")
+                .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
+                .in("car_id", allCarIds);
+              activityExpenses = expData || [];
+            }
+            const { data: olderPaid } = await olderQuery;
+            (olderPaid || [])
+              .filter((e: any) => !existingIds.has(e.id))
+              .forEach((e: any) => {
+                const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
+                if (!ts) return;
+                let payout: number;
+                if (role === "host") {
+                  payout = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
+                } else {
+                  const tripExp = getTripExpensesTotal(e.trip_id, activityExpenses);
+                  const net = (e.amount || 0) - tripExp;
+                  payout = (net * (e.client_profit_percentage || 70)) / 100;
+                }
+                const carInfo = allCars.find((c: any) => c.id === e.car_id);
+                const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
+                const guest = e.guest_name ? ` from ${e.guest_name}` : "";
+                mapped.push({
+                  id: `earn_${e.id}`,
+                  ts,
+                  message: `Received $${Number(payout).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} payout${guest}${carLabel}`,
+                  icon: "💵",
+                });
+              });
+          }
         }
 
         mapped.sort((a, b) => (a.ts > b.ts ? -1 : 1));
@@ -425,10 +435,12 @@ export default function Dashboard() {
       if (!user?.id || !profile) return;
       setTripsLoading(true);
       try {
+        const todayStr = new Date().toISOString().slice(0, 10);
         if (isHost) {
           const { data: rows } = await supabase
             .from("host_earnings")
             .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+            .lte("earning_period_end", todayStr)
             .order("earning_period_end", { ascending: false })
             .limit(5);
           if (!cancelled) setRecentTrips(rows || []);
@@ -439,6 +451,7 @@ export default function Dashboard() {
               .from("host_earnings")
               .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
               .in("car_id", carIds)
+              .lte("earning_period_end", todayStr)
               .order("earning_period_end", { ascending: false })
               .limit(5);
             if (!cancelled) setRecentTrips(rows || []);

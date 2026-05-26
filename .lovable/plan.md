@@ -1,50 +1,72 @@
+# Trips Tab + Trip Detail Page
 
-## Problem
+## Goal
+Add a new **Trips** section (for both hosts and clients) that lists trips as cards in the style of the attached mock, sorted **ascending by trip date**. Tapping a card opens a **Trip Detail** page showing all available info (no prices, no rating, no messages/help tabs — replace "Contact guest" with the guest's email/phone if we have it).
 
-User is viewing the preview at desktop viewport (1357px wide) and sees Testimonials + SiteFooter. The current code in `Index.tsx` already hides these on native (`{!isNative && (...)}`), but:
+## Data source
+Trips = rows in `host_earnings`. Each row already has:
+- `car_id` → join `cars` for make/model/year/license_plate/images
+- `earning_period_start` / `earning_period_end` (trip start/end)
+- `guest_name`, `trip_id`
+- `host_id` (filter for hosts)
+- For clients: filter by `cars.client_id = user.id`
+- Guest contact (email/phone): join `host_earnings_guest_contact` on `earning_id`
 
-1. On the **web preview**, `isNative` is `false`, so testimonials + footer still render. The user wants the landing page to feel like a "web app" not a marketing website — so these should go on web too.
-2. The user is also worried they'll appear in the wrapped Capacitor app. Since `isNative` is correctly `true` inside Capacitor, the conditional already hides them there — but removing them entirely makes this guaranteed.
+No new tables or migrations needed.
 
-## Decision
+## Pages & routes
 
-Remove the Testimonials block AND the SiteFooter from `Index.tsx` entirely (web + native). The Testimonials and Footer components themselves stay in the codebase — they're still rendered on other marketing/SEO pages (city pages, model pages, blog, etc.), so SEO value is preserved across the site.
+1. **`/trips`** — Trips list (works for both hosts and clients; query branches by role)
+2. **`/trips/:earningId`** — Trip detail page
 
-Also remove the `AppStoreBadges` block on the landing page for the same "web app, not website" reason — keep the page focused on the auth card.
+Both gated by `RequireAuth` + `RequireApproved` + `RequireSubscribed` (same as Dashboard).
 
-## Changes
+## Navigation
+Bottom nav currently has 5 items (max per memory). Replace the **Hosted** item (host) and the **Add** item is kept; for clients replace **Add**? — to avoid breaking, the plan is: add a **Trips** entry that **replaces the Analytics item** in the bottom nav for both roles, and keep Analytics reachable from the Dashboard. If you'd rather keep Analytics in the nav, tell me which item to drop.
 
-**File: `src/pages/Index.tsx`**
+Also add a "View all trips" link from the Dashboard.
 
-Remove the entire trailing block:
-```tsx
-{/* Web-only: App Store badges */}
-{!isNative && (
-  <div className="mt-4 mb-4">
-    <AppStoreBadges heading="Available on mobile" size="small" />
-  </div>
-)}
-...
-{/* Web-only: Testimonials + Footer */}
-{!isNative && (
-  <>
-    <div className="w-full py-8 mt-4">
-      <Testimonials />
-    </div>
-    <SiteFooter />
-  </>
-)}
-```
+## Trips list UI (matches attached mock)
 
-Also remove the now-unused imports: `AppStoreBadges`, `Testimonials`, `SiteFooter`.
+Card layout (dark, rounded, per trip):
+- Top date header (e.g., `THURSDAY, MAY 21, 2026`) — grouped/displayed per card
+- Status pill: "Ending at HH:MM" if trip is in progress, "Starts MMM D" if upcoming, "Ended MMM D" if past
+- Car: `{year} {make} {model}` + license plate badge + car thumbnail (from `cars.images[0]`)
+- Address: `cars.location` (general area only — using same masking as elsewhere)
+- Guest: avatar placeholder + `guest_name` + `#trip_id`
 
-Keep:
-- Earnings Calculator CTA
-- Trust Indicators (Fully Insured / Top Rated / Trusted Hosts)
-- `ReadReviewsLink` (native only, as is)
+**Sort:** ascending by `earning_period_start`.
+Optional filter tabs at top: **Upcoming / In progress / Past** (default: all).
 
-## Result
+## Trip Detail UI (`/trips/:earningId`)
 
-- Web landing page: clean auth-focused "web app" feel — auth card, trust indicators, calculator CTA. No long marketing scroll.
-- Native app: identical to web minus the AppStore badges (already hidden), plus the compact Read Reviews link.
-- SEO: unaffected — Testimonials and SiteFooter still render on `/blog`, `/how-it-works`, all city/model SEO pages, etc.
+Following the screenshots, **Details only** (no Messages/Help tabs):
+- Header: car thumbnail + "Booked trip" + guest name + back button
+- Date row: `Start → End` with times
+- **Location**: `cars.location`
+- Status banner: "This trip ends in Xh Ym" / "Starts in …" / "Ended on …"
+- **Your guest** card: avatar + `guest_name` + `trip_id` + **email/phone** (from `host_earnings_guest_contact`) instead of "Contact guest" button. If no contact on file, show "No contact info on file."
+- **Trip info**: `trip_id`, `earning_type`, `payment_status`, `payment_source` (whatever is non-null)
+- **About the car**: `{year} {make} {model}`, `license_plate`, `color`, `mileage` (if available)
+- No prices, no rating, no mileage caps, no driver's license/photos sections (we don't have that data)
+
+Detail page is a placeholder to expand later — you mentioned "we'll develop that soon."
+
+## Files to add
+- `src/pages/Trips.tsx` — list page
+- `src/pages/TripDetail.tsx` — detail page
+- `src/components/trips/TripCard.tsx` — card component
+- Register both routes in `src/App.tsx`
+- Update `src/components/layout/BottomNavBar.tsx` to include the Trips nav item
+
+## Technical notes
+- Dates: append `T00:00:00` before `new Date(...)` (project rule).
+- No price fields displayed anywhere.
+- Role determined via `profiles.role`; query branches:
+  - Host: `host_earnings` where `host_id = user.id`
+  - Client: `host_earnings` joined to `cars` where `cars.client_id = user.id`
+- Guest contact join is a single optional row from `host_earnings_guest_contact`.
+
+## Out of scope
+- Messages, Help, prices, ratings, driver's license, trip photos, mileage caps, cancellation policy (we don't store these).
+- Editing trips from this page (existing flows already handle that).

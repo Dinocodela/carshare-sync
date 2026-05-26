@@ -12,6 +12,10 @@ import {
   MapPin,
   Calendar,
   ChevronRight,
+  Hash,
+  CreditCard,
+  XCircle,
+  History,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -19,12 +23,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useCars } from "@/hooks/useCars";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { ShareCarDialog } from "@/components/cars/ShareCarDialog";
 import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
 import { CompleteReturnButton } from "@/components/cars/CompleteReturnButton";
+import { CarBookingHistoryModal } from "@/components/cars/CarBookingHistoryModal";
 
 /* ── helpers ── */
 function useMounted() {
@@ -57,15 +74,54 @@ interface CarData {
   status: string;
   created_at: string;
   host_id: string | null;
+  license_plate?: string | null;
+  vin_number?: string | null;
   is_shared?: boolean;
 }
 
 export default function MyCars() {
   const navigate = useNavigate();
   const mounted = useMounted();
-  const { cars, loading } = useCars();
+  const { cars, loading, refetch } = useCars();
+  const { toast } = useToast();
   const [shareCarId, setShareCarId] = useState<string | null>(null);
   const [manageAccessCarId, setManageAccessCarId] = useState<string | null>(null);
+  const [unhostCarId, setUnhostCarId] = useState<string | null>(null);
+  const [unhosting, setUnhosting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "hosted" | "available">("all");
+  const [bookingsCarId, setBookingsCarId] = useState<string | null>(null);
+  const handleUnhost = async () => {
+    if (!unhostCarId) return;
+    // Capture scroll position before any DOM/state churn
+    const scrollY = window.scrollY;
+    const restoreScroll = () => {
+      // Restore across multiple frames to beat dialog-close + re-render reflows
+      const target = scrollY;
+      window.scrollTo({ top: target, behavior: "auto" });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: target, behavior: "auto" });
+        requestAnimationFrame(() => window.scrollTo({ top: target, behavior: "auto" }));
+      });
+      setTimeout(() => window.scrollTo({ top: target, behavior: "auto" }), 120);
+      setTimeout(() => window.scrollTo({ top: target, behavior: "auto" }), 350);
+    };
+    setUnhosting(true);
+    try {
+      const { error } = await supabase
+        .from("cars")
+        .update({ status: "available", host_id: null })
+        .eq("id", unhostCarId);
+      if (error) throw error;
+      toast({ title: "Removed from hosting", description: "The car is now marked available." });
+      setUnhostCarId(null);
+      refetch();
+      restoreScroll();
+    } catch (err: any) {
+      toast({ title: "Failed to remove", description: err.message ?? "Try again.", variant: "destructive" });
+    } finally {
+      setUnhosting(false);
+    }
+  };
 
   const fadeIn = (idx: number) =>
     ({
@@ -77,6 +133,12 @@ export default function MyCars() {
   const totalCars = cars.length;
   const hostedCars = cars.filter((c: CarData) => c.status === "hosted").length;
   const availableCars = cars.filter((c: CarData) => c.status === "available").length;
+  const filteredCars =
+    statusFilter === "all"
+      ? cars
+      : statusFilter === "hosted"
+      ? cars.filter((c: CarData) => c.status === "hosted")
+      : cars.filter((c: CarData) => c.status === "available");
 
   if (loading) {
     return (
@@ -129,22 +191,30 @@ export default function MyCars() {
           {/* ─── Stat Pills ─── */}
           <div style={fadeIn(1)} className="grid grid-cols-3 gap-3">
             {[
-              { label: "Total", value: totalCars, accent: "bg-primary/10 text-primary", icon: CarIcon },
-              { label: "Hosted", value: hostedCars, accent: "bg-emerald-50 text-emerald-600", icon: Shield },
-              { label: "Available", value: availableCars, accent: "bg-amber-50 text-amber-600", icon: Plus },
-            ].map((stat, i) => (
-              <div
-                key={stat.label}
-                style={fadeIn(i + 2)}
-                className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/60 p-4 text-left"
-              >
-                <div className={`w-9 h-9 rounded-xl ${stat.accent} flex items-center justify-center mb-3`}>
-                  <stat.icon className="w-[18px] h-[18px]" />
-                </div>
-                <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
-                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{stat.label}</p>
-              </div>
-            ))}
+              { key: "all" as const, label: "Total", value: totalCars, accent: "bg-primary/10 text-primary", icon: CarIcon },
+              { key: "hosted" as const, label: "Hosted", value: hostedCars, accent: "bg-emerald-50 text-emerald-600", icon: Shield },
+              { key: "available" as const, label: "Available", value: availableCars, accent: "bg-amber-50 text-amber-600", icon: Plus },
+            ].map((stat, i) => {
+              const isActive = statusFilter === stat.key;
+              return (
+                <button
+                  key={stat.label}
+                  type="button"
+                  onClick={() => setStatusFilter(stat.key)}
+                  style={fadeIn(i + 2)}
+                  aria-pressed={isActive}
+                  className={`rounded-2xl bg-card/80 backdrop-blur-sm border p-4 text-left transition-all hover:border-primary/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                    isActive ? "border-primary ring-2 ring-primary/20" : "border-border/60"
+                  }`}
+                >
+                  <div className={`w-9 h-9 rounded-xl ${stat.accent} flex items-center justify-center mb-3`}>
+                    <stat.icon className="w-[18px] h-[18px]" />
+                  </div>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{stat.value}</p>
+                  <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{stat.label}</p>
+                </button>
+              );
+            })}
           </div>
 
           {/* ─── Empty state ─── */}
@@ -169,13 +239,39 @@ export default function MyCars() {
             <>
               {/* ─── Section title ─── */}
               <div style={fadeIn(5)} className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-semibold text-foreground">Your Vehicles</h2>
-                <span className="text-xs text-muted-foreground">{totalCars} total</span>
+                <h2 className="text-sm font-semibold text-foreground">
+                  {statusFilter === "all"
+                    ? "Your Vehicles"
+                    : statusFilter === "hosted"
+                    ? "Hosted Vehicles"
+                    : "Available Vehicles"}
+                </h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    {filteredCars.length} {statusFilter === "all" ? "total" : "shown"}
+                  </span>
+                  {statusFilter !== "all" && (
+                    <button
+                      type="button"
+                      onClick={() => setStatusFilter("all")}
+                      className="text-xs text-primary font-medium hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* ─── Car Cards ─── */}
               <div className="space-y-4">
-                {cars.map((car: CarData, idx: number) => {
+                {filteredCars.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-border/80 bg-card/40 p-8 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No {statusFilter} vehicles right now.
+                    </p>
+                  </div>
+                ) : null}
+                {filteredCars.map((car: CarData, idx: number) => {
                   const cfg = STATUS_CFG[car.status] ?? { label: car.status, desc: "", color: "bg-muted-foreground" };
 
                   return (
@@ -247,7 +343,7 @@ export default function MyCars() {
                         </div>
 
                         {/* Meta row */}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {car.location}
@@ -257,6 +353,24 @@ export default function MyCars() {
                             {new Date(car.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                           </span>
                         </div>
+
+                        {/* Identifiers */}
+                        {(car.license_plate || car.vin_number) && !car.is_shared && (
+                          <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                            {car.license_plate && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                                <CreditCard className="w-3 h-3 text-muted-foreground" />
+                                {car.license_plate}
+                              </span>
+                            )}
+                            {car.vin_number && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                                <Hash className="w-3 h-3 text-muted-foreground" />
+                                {car.vin_number}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                         {/* Actions */}
                         <div className="pt-1 space-y-2">
@@ -272,6 +386,17 @@ export default function MyCars() {
                             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/view:translate-x-0.5 transition-transform" />
                           </button>
 
+                          {/* Booking history */}
+                          <button
+                            onClick={() => setBookingsCarId(car.id)}
+                            className="w-full flex items-center justify-between rounded-xl bg-muted/50 hover:bg-muted px-4 py-3 transition-colors group/hist"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <History className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground">View Bookings</span>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/hist:translate-x-0.5 transition-transform" />
+                          </button>
                           {/* Contextual CTA */}
                           {!car.is_shared && (
                             <>
@@ -296,15 +421,37 @@ export default function MyCars() {
                                 </Button>
                               )}
                               {car.status === "hosted" && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full rounded-xl h-11 gap-2"
+                                    onClick={() => navigate(`/hosting-details/${car.id}`)}
+                                    disabled={!car.host_id}
+                                  >
+                                    <ArrowUpRight className="w-4 h-4" />
+                                    View Host Contact
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => setUnhostCarId(car.id)}
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                    Remove from Hosting
+                                  </Button>
+                                </>
+                              )}
+                              {car.status === "pending" && car.host_id && (
                                 <Button
-                                  variant="outline"
+                                  variant="ghost"
                                   size="sm"
-                                  className="w-full rounded-xl h-11 gap-2"
-                                  onClick={() => navigate(`/hosting-details/${car.id}`)}
-                                  disabled={!car.host_id}
+                                  className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  onClick={() => setUnhostCarId(car.id)}
                                 >
-                                  <ArrowUpRight className="w-4 h-4" />
-                                  View Host Contact
+                                  <XCircle className="w-4 h-4" />
+                                  Cancel & Remove from Hosting
                                 </Button>
                               )}
                               {car.status === "ready_for_return" && (() => {
@@ -364,6 +511,39 @@ export default function MyCars() {
         open={!!manageAccessCarId}
         onOpenChange={(open) => setManageAccessCarId(open ? manageAccessCarId : null)}
       />
+
+      <CarBookingHistoryModal
+        car={
+          bookingsCarId
+            ? (cars.find((c) => c.id === bookingsCarId) as any) ?? null
+            : null
+        }
+        open={!!bookingsCarId}
+        onOpenChange={(o) => !o && setBookingsCarId(null)}
+      />
+      <AlertDialog open={!!unhostCarId} onOpenChange={(o) => !o && setUnhostCarId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this car from hosting?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The car will be marked as available and unassigned from its current host. Use this if you've sold the car or no longer want it hosted. You can request hosting again later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={unhosting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleUnhost();
+              }}
+              disabled={unhosting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {unhosting ? "Removing..." : "Remove from Hosting"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }

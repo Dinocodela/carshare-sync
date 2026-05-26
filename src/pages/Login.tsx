@@ -38,7 +38,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4 relative">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-hero p-4 relative">
       <RentATeslaLink />
       <div className="w-full max-w-sm">
         {/* Logo */}
@@ -145,7 +145,7 @@ const Login = () => {
           ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

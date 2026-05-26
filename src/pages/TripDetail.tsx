@@ -1,0 +1,373 @@
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { SEO } from "@/components/SEO";
+import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft, Car as CarIcon, Loader2, MapPin } from "lucide-react";
+
+function parseDate(s: string): Date {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00`);
+  return new Date(s);
+}
+
+function formatDayShort(d: Date) {
+  return d.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatTime(d: Date) {
+  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
+
+function statusBanner(start: Date, end: Date): string {
+  const now = new Date();
+  if (now < start) {
+    const diffMs = start.getTime() - now.getTime();
+    const hours = Math.floor(diffMs / 3600000);
+    return hours < 48
+      ? `This trip starts in ${hours} hours.`
+      : `Starts on ${start.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.`;
+  }
+  if (now >= start && now <= end) {
+    const diffMs = end.getTime() - now.getTime();
+    const hours = Math.floor(diffMs / 3600000);
+    const minutes = Math.floor((diffMs % 3600000) / 60000);
+    return `This trip ends in ${hours} hours ${minutes} minutes.`;
+  }
+  return `Ended on ${end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.`;
+}
+
+interface TripFull {
+  id: string;
+  trip_id: string | null;
+  guest_name: string | null;
+  earning_period_start: string;
+  earning_period_end: string;
+  earning_type: string | null;
+  payment_status: string | null;
+  payment_source: string | null;
+  pickup_address: string | null;
+  return_address: string | null;
+  car: {
+    make: string;
+    model: string;
+    year: number;
+    color: string | null;
+    mileage: number | null;
+    license_plate: string | null;
+    location: string | null;
+    images: string[] | null;
+  } | null;
+  guest_email: string | null;
+  guest_phone: string | null;
+}
+
+export default function TripDetail() {
+  const { earningId } = useParams<{ earningId: string }>();
+  const [loading, setLoading] = useState(true);
+  const [trip, setTrip] = useState<TripFull | null>(null);
+
+  useEffect(() => {
+    if (!earningId) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("host_earnings")
+        .select(
+          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+        )
+        .eq("id", earningId)
+        .maybeSingle();
+
+      const { data: contact } = await supabase
+        .from("host_earnings_guest_contact")
+        .select("guest_email, guest_phone")
+        .eq("earning_id", earningId)
+        .maybeSingle();
+
+      if (cancelled) return;
+      if (error || !data) {
+        setTrip(null);
+      } else {
+        const row: any = data;
+        setTrip({
+          id: row.id,
+          trip_id: row.trip_id,
+          guest_name: row.guest_name,
+          earning_period_start: row.earning_period_start,
+          earning_period_end: row.earning_period_end,
+          earning_type: row.earning_type,
+          payment_status: row.payment_status,
+          payment_source: row.payment_source,
+          pickup_address: row.pickup_address,
+          return_address: row.return_address,
+          car: row.cars
+            ? {
+                make: row.cars.make,
+                model: row.cars.model,
+                year: row.cars.year,
+                color: row.cars.color,
+                mileage: row.cars.mileage,
+                license_plate: row.cars.license_plate,
+                location: row.cars.location,
+                images: row.cars.images,
+              }
+            : null,
+          guest_email: contact?.guest_email ?? null,
+          guest_phone: contact?.guest_phone ?? null,
+        });
+      }
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [earningId]);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <PageContainer>
+          <div className="flex items-center justify-center py-16 text-muted-foreground">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading trip…
+          </div>
+        </PageContainer>
+      </DashboardLayout>
+    );
+  }
+
+  if (!trip) {
+    return (
+      <DashboardLayout>
+      <PageContainer className="pb-40 md:pb-8">
+          <div className="py-12 text-center">
+            <p className="mb-4 text-muted-foreground">Trip not found.</p>
+            <Link to="/trips" className="text-primary underline">
+              Back to trips
+            </Link>
+          </div>
+        </PageContainer>
+      </DashboardLayout>
+    );
+  }
+
+  const start = parseDate(trip.earning_period_start);
+  const end = parseDate(trip.earning_period_end);
+  const carTitle = trip.car
+    ? `${trip.car.year} ${trip.car.make} ${trip.car.model}`
+    : "Vehicle";
+  const carImage = trip.car?.images?.[0];
+
+  return (
+    <DashboardLayout>
+      <SEO title={`Booked trip · ${trip.guest_name || "Guest"} | Teslys`} description="Trip details" />
+      <PageContainer className="pb-40 md:pb-8">
+        {/* Header */}
+        <div className="mb-6 flex items-center gap-3">
+          <Link
+            to="/trips"
+            className="rounded-full p-2 text-foreground hover:bg-accent"
+            aria-label="Back to trips"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div className="h-12 w-12 overflow-hidden rounded-lg bg-muted">
+            {carImage ? (
+              <img src={carImage} alt={carTitle} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                <CarIcon className="h-5 w-5" />
+              </div>
+            )}
+          </div>
+          <div>
+            <h1 className="text-xl font-bold leading-tight">Booked trip</h1>
+            <p className="text-sm text-muted-foreground">{trip.guest_name || "Guest"}</p>
+          </div>
+        </div>
+
+        {/* Tabs (Details only) */}
+        <div className="mb-6 border-b">
+          <div className="inline-flex items-center gap-1 border-b-2 border-primary px-3 py-2 text-sm font-semibold uppercase tracking-wide text-primary">
+            Details
+          </div>
+        </div>
+
+        {/* Date range */}
+        <section className="mb-6 rounded-2xl border bg-card p-5">
+          <div className="flex items-center justify-around text-center">
+            <div>
+              <p className="text-lg font-bold">{formatDayShort(start)}</p>
+              <p className="text-sm text-muted-foreground">{formatTime(start)}</p>
+            </div>
+            <div className="text-muted-foreground">→</div>
+            <div>
+              <p className="text-lg font-bold">{formatDayShort(end)}</p>
+              <p className="text-sm text-muted-foreground">{formatTime(end)}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Location */}
+        {trip.car?.location && (
+          <section className="mb-6 rounded-2xl border bg-card p-5">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Location
+            </p>
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-base text-foreground">{trip.car.location}</p>
+              <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+            </div>
+          </section>
+        )}
+
+        {/* Pickup / Return addresses */}
+        {(trip.pickup_address || trip.return_address) && (
+          <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {trip.pickup_address && (
+              <div className="rounded-2xl border bg-card p-5">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Pickup
+                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-base text-foreground">{trip.pickup_address}</p>
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+            {trip.return_address && (
+              <div className="rounded-2xl border bg-card p-5">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Return
+                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-base text-foreground">{trip.return_address}</p>
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Status banner */}
+        <section className="mb-6 rounded-2xl border bg-card p-5 text-sm text-foreground">
+          {statusBanner(start, end)}
+        </section>
+
+        {/* Guest */}
+        <section className="mb-6">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Your guest
+          </p>
+          <p className="mb-3 text-sm text-muted-foreground">
+            This is the primary driver and they must be present for pickup and drop-off.
+          </p>
+          <div className="rounded-2xl border bg-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-lg font-bold uppercase text-muted-foreground">
+                {(trip.guest_name || "?").charAt(0)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-foreground">
+                  {trip.guest_name || "Unknown guest"}
+                </p>
+                {trip.trip_id && (
+                  <p className="text-sm text-muted-foreground">Trip #{trip.trip_id}</p>
+                )}
+              </div>
+            </div>
+            <div className="mt-4 space-y-1 text-sm">
+              {trip.guest_email ? (
+                <a
+                  href={`mailto:${trip.guest_email}`}
+                  className="block text-primary hover:underline"
+                >
+                  {trip.guest_email}
+                </a>
+              ) : null}
+              {trip.guest_phone ? (
+                <a
+                  href={`tel:${trip.guest_phone}`}
+                  className="block text-primary hover:underline"
+                >
+                  {trip.guest_phone}
+                </a>
+              ) : null}
+              {!trip.guest_email && !trip.guest_phone && (
+                <p className="text-muted-foreground">No contact info on file.</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Trip info */}
+        <section className="mb-6 rounded-2xl border bg-card p-5">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Trip info
+          </p>
+          <dl className="space-y-2 text-sm">
+            {trip.trip_id && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Trip ID</dt>
+                <dd className="font-medium">#{trip.trip_id}</dd>
+              </div>
+            )}
+            {trip.earning_type && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Type</dt>
+                <dd className="font-medium capitalize">{trip.earning_type}</dd>
+              </div>
+            )}
+            {trip.payment_source && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Source</dt>
+                <dd className="font-medium">{trip.payment_source}</dd>
+              </div>
+            )}
+            {trip.payment_status && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Status</dt>
+                <dd className="font-medium capitalize">{trip.payment_status}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
+
+        {/* About the car */}
+        {trip.car && (
+          <section className="mb-6 rounded-2xl border bg-card p-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              About the car
+            </p>
+            <p className="text-base font-semibold text-foreground">{carTitle}</p>
+            <dl className="mt-3 space-y-2 text-sm">
+              {trip.car.license_plate && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">License plate</dt>
+                  <dd className="font-medium">{trip.car.license_plate}</dd>
+                </div>
+              )}
+              {trip.car.color && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Color</dt>
+                  <dd className="font-medium">{trip.car.color}</dd>
+                </div>
+              )}
+              {trip.car.mileage != null && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Mileage</dt>
+                  <dd className="font-medium">{trip.car.mileage.toLocaleString()} mi</dd>
+                </div>
+              )}
+            </dl>
+          </section>
+        )}
+      </PageContainer>
+    </DashboardLayout>
+  );
+}

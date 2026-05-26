@@ -21,6 +21,8 @@ interface EarningPayload {
   payment_status?: string;
   date_paid?: string;
   earning_type?: string;
+  pickup_address?: string;
+  return_address?: string;
 }
 
 /**
@@ -136,6 +138,21 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Verify the caller is the assigned host of this car before allowing earnings inserts/updates.
+    const { data: carRow, error: carErr } = await supabase
+      .from("cars")
+      .select("host_id")
+      .eq("id", payload.car_id)
+      .maybeSingle();
+    if (carErr || !carRow) {
+      return new Response(JSON.stringify({ error: "Car not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (carRow.host_id !== user.id) {
+      return new Response(JSON.stringify({ error: "You are not the assigned host for this car" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     // Resolve dynamic split (only used when percentages are NOT explicitly provided)
     const dynamicSplit = await resolveProfitSplit(supabase, payload.car_id);
 
@@ -165,8 +182,8 @@ Deno.serve(async (req) => {
       data.host_profit_percentage = hPct;
 
       if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
-      if (payload.guest_phone !== undefined) data.guest_phone = payload.guest_phone || null;
-      if (payload.guest_email !== undefined) data.guest_email = payload.guest_email || null;
+      if (payload.pickup_address !== undefined) data.pickup_address = payload.pickup_address || null;
+      if (payload.return_address !== undefined) data.return_address = payload.return_address || null;
       if (payload.trip_idd !== undefined) data.trip_idd = payload.trip_idd || null;
       if (payload.earning_type !== undefined) data.earning_type = payload.earning_type;
       if (payload.payment_source !== undefined) data.payment_source = payload.payment_source;
@@ -229,6 +246,29 @@ Deno.serve(async (req) => {
       console.error("Database error:", error.message);
       return new Response(JSON.stringify({ error: error.message }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Upsert guest contact info into private table
+    if (data?.id && (payload.guest_email !== undefined || payload.guest_phone !== undefined)) {
+      const hasContact = (payload.guest_email && payload.guest_email.length > 0)
+        || (payload.guest_phone && payload.guest_phone.length > 0);
+      if (hasContact) {
+        await supabase
+          .from("host_earnings_guest_contact")
+          .upsert(
+            {
+              earning_id: data.id,
+              guest_email: payload.guest_email || null,
+              guest_phone: payload.guest_phone || null,
+            },
+            { onConflict: "earning_id" }
+          );
+      } else {
+        await supabase
+          .from("host_earnings_guest_contact")
+          .delete()
+          .eq("earning_id", data.id);
+      }
     }
 
     return new Response(

@@ -29,6 +29,7 @@ import RegisteredClients from "./pages/RegisteredClients";
 import NotFound from "./pages/NotFound";
 import ClientAnalytics from "./pages/ClientAnalytics";
 import ClientFixedExpenses from "./pages/ClientFixedExpenses";
+import AuditLog from "./pages/AuditLog";
 import HostAnalytics from "./pages/HostAnalytics";
 import ScheduleMaintenance from "./pages/ScheduleMaintenance";
 import Settings from "./pages/Settings";
@@ -44,6 +45,7 @@ import { SubscriptionProvider } from "./hooks/useSubscription";
 import RequireSubscribed from "./components/auth/RequireSubscribed";
 import SubscribeOverlay from "./pages/SubscribeOverlay";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Unsubscribe from "./pages/Unsubscribe";
 import TermsOfUse from "./pages/TermsOfUse";
 import FAQ from "./pages/FAQ";
 import DeleteAccount from "./pages/DeleteAccount";
@@ -84,6 +86,8 @@ import TeslaRentalCost from "./pages/TeslaRentalCost";
 import TeslaRentalNearMe from "./pages/TeslaRentalNearMe";
 import TeslaRentalInsurance from "./pages/TeslaRentalInsurance";
 import TeslaRentalStatistics from "./pages/TeslaRentalStatistics";
+import Trips from "./pages/Trips";
+import TripDetail from "./pages/TripDetail";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -133,6 +137,7 @@ const App = () => (
               <Route path="/register/client" element={<RegisterClient />} />
               <Route path="/register/host" element={<RegisterHost />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/sms-consent" element={<SMSConsent />} />
               <Route path="/support" element={<Support />} />
@@ -197,6 +202,8 @@ const App = () => (
                   {/* Everything else requires subscription */}
                   <Route element={<RequireSubscribed />}>
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/trips" element={<Trips />} />
+                    <Route path="/trips/:earningId" element={<TripDetail />} />
                     <Route
                       path="/client-analytics"
                       element={<ClientAnalytics />}
@@ -232,6 +239,7 @@ const App = () => (
                       path="/client-fixed-expenses"
                       element={<ClientFixedExpenses />}
                     />
+                    <Route path="/audit-log" element={<AuditLog />} />
 
                     <Route element={<RequireRole />}>
                       <Route

@@ -102,13 +102,9 @@ export default function SelectHost() {
 
       setCar(carData);
 
-      // Fetch all approved host profiles, ordered by rating
-      const { data: hostData, error: hostError } = await supabase
-        .from("profiles")
-        .select("id, user_id, first_name, last_name, company_name, location, bio, services, rating, turo_reviews_count, turo_profile_url")
-        .eq("role", "host")
-        .eq("account_status", "approved")
-        .order("rating", { ascending: false, nullsFirst: false });
+      // Fetch approved host profiles via safe RPC (no sensitive fields exposed)
+      const { data: hostData, error: hostError } = await (supabase as any)
+        .rpc("get_public_host_profiles");
 
       if (hostError) {
         console.error("Error fetching hosts:", hostError);
