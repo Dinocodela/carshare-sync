@@ -16,11 +16,12 @@ function formatDayShort(d: Date) {
     weekday: "short",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   });
 }
 
 function formatTime(d: Date) {
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
 }
 
 function statusBanner(start: Date, end: Date): string {
