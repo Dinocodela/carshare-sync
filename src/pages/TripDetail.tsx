@@ -31,7 +31,7 @@ function statusBanner(start: Date, end: Date): string {
     const hours = Math.floor(diffMs / 3600000);
     return hours < 48
       ? `This trip starts in ${hours} hours.`
-      : `Starts on ${start.toLocaleDateString("en-US", { month: "long", day: "numeric" })}.`;
+      : `Starts on ${start.toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" })}.`;
   }
   if (now >= start && now <= end) {
     const diffMs = end.getTime() - now.getTime();
@@ -39,7 +39,7 @@ function statusBanner(start: Date, end: Date): string {
     const minutes = Math.floor((diffMs % 3600000) / 60000);
     return `This trip ends in ${hours} hours ${minutes} minutes.`;
   }
-  return `Ended on ${end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.`;
+  return `Ended on ${end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}.`;
 }
 
 interface TripFull {
