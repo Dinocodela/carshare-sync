@@ -97,6 +97,22 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
           console.warn("Admin notification failed:", e);
         }
 
+        try {
+          await supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "host-application-received",
+              recipientEmail: formData.email,
+              idempotencyKey: `host-application-${formData.email.toLowerCase()}`,
+              templateData: {
+                name: formData.adminName,
+                companyName: formData.companyName,
+              },
+            },
+          });
+        } catch (e) {
+          console.warn("Applicant confirmation email failed:", e);
+        }
+
         onDone?.();
         onBackToLogin();
       }
