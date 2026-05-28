@@ -271,9 +271,6 @@ const App = () => (
             </Routes>
             </WorkspaceProvider>
           </BrowserRouter>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
         </TooltipProvider>
       </SubscriptionProvider>
     </AuthProvider>
