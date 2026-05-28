@@ -88,6 +88,12 @@ import TeslaRentalInsurance from "./pages/TeslaRentalInsurance";
 import TeslaRentalStatistics from "./pages/TeslaRentalStatistics";
 import Trips from "./pages/Trips";
 import TripDetail from "./pages/TripDetail";
+import { WorkspaceProvider } from "@/hooks/useWorkspace";
+import WelcomeClient from "./pages/welcome/WelcomeClient";
+import WelcomeHost from "./pages/welcome/WelcomeHost";
+import WelcomeInvestor from "./pages/welcome/WelcomeInvestor";
+import InvestorDashboard from "./pages/investor/InvestorDashboard";
+import InvestorMarketplace from "./pages/investor/InvestorMarketplace";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -126,6 +132,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <WorkspaceProvider>
             <AuthCallbackHandler />
             <PushNavHandler />
             <ScrollReset />
@@ -241,6 +248,15 @@ const App = () => (
                     />
                     <Route path="/audit-log" element={<AuditLog />} />
 
+                    {/* Workspace landing pages */}
+                    <Route path="/welcome/client" element={<WelcomeClient />} />
+                    <Route path="/welcome/host" element={<WelcomeHost />} />
+                    <Route path="/welcome/investor" element={<WelcomeInvestor />} />
+
+                    {/* Investor workspace */}
+                    <Route path="/investor" element={<InvestorDashboard />} />
+                    <Route path="/investor/marketplace" element={<InvestorMarketplace />} />
+
                     <Route element={<RequireRole />}>
                       <Route
                         path="/admin/manage-accounts"
@@ -251,6 +267,10 @@ const App = () => (
                 </Route>
               </Route>
 
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            </WorkspaceProvider>
+          </BrowserRouter>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
