@@ -1346,6 +1346,7 @@ export type Database = {
       profiles: {
         Row: {
           account_status: string
+          active_workspace: Database["public"]["Enums"]["workspace_role"]
           bio: string | null
           company_name: string | null
           created_at: string
@@ -1358,6 +1359,7 @@ export type Database = {
           id: string
           is_subscribed: boolean
           is_super_admin: boolean
+          landing_seen: Json
           last_login_at: string | null
           last_name: string | null
           location: string | null
@@ -1388,6 +1390,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          active_workspace?: Database["public"]["Enums"]["workspace_role"]
           bio?: string | null
           company_name?: string | null
           created_at?: string
@@ -1400,6 +1403,7 @@ export type Database = {
           id?: string
           is_subscribed?: boolean
           is_super_admin?: boolean
+          landing_seen?: Json
           last_login_at?: string | null
           last_name?: string | null
           location?: string | null
@@ -1430,6 +1434,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          active_workspace?: Database["public"]["Enums"]["workspace_role"]
           bio?: string | null
           company_name?: string | null
           created_at?: string
@@ -1442,6 +1447,7 @@ export type Database = {
           id?: string
           is_subscribed?: boolean
           is_super_admin?: boolean
+          landing_seen?: Json
           last_login_at?: string | null
           last_name?: string | null
           location?: string | null
@@ -1699,6 +1705,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_roles: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          status: Database["public"]["Enums"]["workspace_role_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          status?: Database["public"]["Enums"]["workspace_role_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          status?: Database["public"]["Enums"]["workspace_role_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       welcome_email_queue: {
         Row: {
@@ -2013,6 +2049,13 @@ export type Database = {
           partial_vin: string
         }[]
       }
+      has_workspace_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["workspace_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_super: { Args: { uid: string }; Returns: boolean }
       reject_hosting_request: { Args: { p_request_id: string }; Returns: Json }
       update_user_profile:
@@ -2061,7 +2104,8 @@ export type Database = {
           }
     }
     Enums: {
-      [_ in never]: never
+      workspace_role: "client" | "host" | "investor"
+      workspace_role_status: "active" | "pending" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2188,6 +2232,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      workspace_role: ["client", "host", "investor"],
+      workspace_role_status: ["active", "pending", "suspended"],
+    },
   },
 } as const
