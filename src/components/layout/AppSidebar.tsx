@@ -1,4 +1,5 @@
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen, Route as RouteIcon, TrendingUp, ShoppingBag } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen, Route as RouteIcon, TrendingUp, ShoppingBag, DollarSign } from 'lucide-react';
+
 import { NavLink } from 'react-router-dom';
 import {
   Sidebar,
@@ -52,10 +53,12 @@ export function AppSidebar() {
       return [
         { title: "Portfolio", url: "/investor", icon: TrendingUp },
         { title: "Marketplace", url: "/investor/marketplace", icon: ShoppingBag },
+        { title: "Payouts", url: "/investor/payouts", icon: DollarSign },
+        { title: "Payout Settings", url: "/investor/payout-settings", icon: Settings },
         { title: "Blog", url: "/blog", icon: BookOpen },
-        { title: "Settings", url: "/settings", icon: Settings },
       ];
     }
+
 
     return baseItems;
   };

@@ -1113,6 +1113,332 @@ export type Database = {
         }
         Relationships: []
       }
+      investment_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          investment_id: string
+          method: Database["public"]["Enums"]["investment_payout_method"] | null
+          notes: string | null
+          paid_date: string | null
+          payout_month: number
+          reference: string | null
+          scheduled_date: string
+          status: Database["public"]["Enums"]["investment_payout_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          investment_id: string
+          method?:
+            | Database["public"]["Enums"]["investment_payout_method"]
+            | null
+          notes?: string | null
+          paid_date?: string | null
+          payout_month: number
+          reference?: string | null
+          scheduled_date: string
+          status?: Database["public"]["Enums"]["investment_payout_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          investment_id?: string
+          method?:
+            | Database["public"]["Enums"]["investment_payout_method"]
+            | null
+          notes?: string | null
+          paid_date?: string | null
+          payout_month?: number
+          reference?: string | null
+          scheduled_date?: string
+          status?: Database["public"]["Enums"]["investment_payout_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investment_payouts_investment_id_fkey"
+            columns: ["investment_id"]
+            isOneToOne: false
+            referencedRelation: "investments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investment_resales: {
+        Row: {
+          created_at: string
+          id: string
+          investment_id: string
+          investor_upside_amount: number
+          method: Database["public"]["Enums"]["investment_payout_method"] | null
+          notes: string | null
+          paid_date: string | null
+          payout_status: Database["public"]["Enums"]["investment_payout_status"]
+          reference: string | null
+          resale_date: string
+          resale_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          investment_id: string
+          investor_upside_amount?: number
+          method?:
+            | Database["public"]["Enums"]["investment_payout_method"]
+            | null
+          notes?: string | null
+          paid_date?: string | null
+          payout_status?: Database["public"]["Enums"]["investment_payout_status"]
+          reference?: string | null
+          resale_date: string
+          resale_price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          investment_id?: string
+          investor_upside_amount?: number
+          method?:
+            | Database["public"]["Enums"]["investment_payout_method"]
+            | null
+          notes?: string | null
+          paid_date?: string | null
+          payout_status?: Database["public"]["Enums"]["investment_payout_status"]
+          reference?: string | null
+          resale_date?: string
+          resale_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investment_resales_investment_id_fkey"
+            columns: ["investment_id"]
+            isOneToOne: false
+            referencedRelation: "investments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investments: {
+        Row: {
+          amount: number
+          cancelled_at: string | null
+          created_at: string
+          end_date: string | null
+          funded_at: string | null
+          id: string
+          investor_id: string
+          monthly_return: number
+          months_completed: number
+          notes: string | null
+          payment_method:
+            | Database["public"]["Enums"]["investment_payout_method"]
+            | null
+          payment_reference: string | null
+          requested_at: string
+          resale_upside_pct: number
+          start_date: string | null
+          status: Database["public"]["Enums"]["investment_status"]
+          term_months: number
+          total_returns_paid: number
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          amount?: number
+          cancelled_at?: string | null
+          created_at?: string
+          end_date?: string | null
+          funded_at?: string | null
+          id?: string
+          investor_id: string
+          monthly_return?: number
+          months_completed?: number
+          notes?: string | null
+          payment_method?:
+            | Database["public"]["Enums"]["investment_payout_method"]
+            | null
+          payment_reference?: string | null
+          requested_at?: string
+          resale_upside_pct?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["investment_status"]
+          term_months?: number
+          total_returns_paid?: number
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          amount?: number
+          cancelled_at?: string | null
+          created_at?: string
+          end_date?: string | null
+          funded_at?: string | null
+          id?: string
+          investor_id?: string
+          monthly_return?: number
+          months_completed?: number
+          notes?: string | null
+          payment_method?:
+            | Database["public"]["Enums"]["investment_payout_method"]
+            | null
+          payment_reference?: string | null
+          requested_at?: string
+          resale_upside_pct?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["investment_status"]
+          term_months?: number
+          total_returns_paid?: number
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investments_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "investor_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investor_payout_settings: {
+        Row: {
+          account_holder_name: string | null
+          account_last4: string | null
+          bank_name: string | null
+          check_mailing_address: string | null
+          created_at: string
+          id: string
+          investor_id: string
+          notes: string | null
+          preferred_method: Database["public"]["Enums"]["investor_payout_method"]
+          routing_last4: string | null
+          tax_address: string | null
+          tax_full_name: string | null
+          tax_id_last4: string | null
+          updated_at: string
+          zelle_handle: string | null
+        }
+        Insert: {
+          account_holder_name?: string | null
+          account_last4?: string | null
+          bank_name?: string | null
+          check_mailing_address?: string | null
+          created_at?: string
+          id?: string
+          investor_id: string
+          notes?: string | null
+          preferred_method?: Database["public"]["Enums"]["investor_payout_method"]
+          routing_last4?: string | null
+          tax_address?: string | null
+          tax_full_name?: string | null
+          tax_id_last4?: string | null
+          updated_at?: string
+          zelle_handle?: string | null
+        }
+        Update: {
+          account_holder_name?: string | null
+          account_last4?: string | null
+          bank_name?: string | null
+          check_mailing_address?: string | null
+          created_at?: string
+          id?: string
+          investor_id?: string
+          notes?: string | null
+          preferred_method?: Database["public"]["Enums"]["investor_payout_method"]
+          routing_last4?: string | null
+          tax_address?: string | null
+          tax_full_name?: string | null
+          tax_id_last4?: string | null
+          updated_at?: string
+          zelle_handle?: string | null
+        }
+        Relationships: []
+      }
+      investor_vehicles: {
+        Row: {
+          available_at: string
+          color: string | null
+          condition: string | null
+          created_at: string
+          description: string | null
+          estimated_resale_value: number | null
+          highlights: string[]
+          id: string
+          investment_amount: number
+          location: string | null
+          make: string
+          mileage: number | null
+          model: string
+          monthly_return: number
+          photos: string[]
+          purchase_price: number
+          resale_upside_pct: number
+          status: Database["public"]["Enums"]["investor_vehicle_status"]
+          term_months: number
+          updated_at: string
+          vin: string | null
+          year: number
+        }
+        Insert: {
+          available_at?: string
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_resale_value?: number | null
+          highlights?: string[]
+          id?: string
+          investment_amount?: number
+          location?: string | null
+          make?: string
+          mileage?: number | null
+          model: string
+          monthly_return?: number
+          photos?: string[]
+          purchase_price?: number
+          resale_upside_pct?: number
+          status?: Database["public"]["Enums"]["investor_vehicle_status"]
+          term_months?: number
+          updated_at?: string
+          vin?: string | null
+          year: number
+        }
+        Update: {
+          available_at?: string
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_resale_value?: number | null
+          highlights?: string[]
+          id?: string
+          investment_amount?: number
+          location?: string | null
+          make?: string
+          mileage?: number | null
+          model?: string
+          monthly_return?: number
+          photos?: string[]
+          purchase_price?: number
+          resale_upside_pct?: number
+          status?: Database["public"]["Enums"]["investor_vehicle_status"]
+          term_months?: number
+          updated_at?: string
+          vin?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
       maintenance_schedules: {
         Row: {
           actual_cost: number | null
@@ -2104,6 +2430,22 @@ export type Database = {
           }
     }
     Enums: {
+      investment_payout_method: "ach" | "wire" | "check" | "zelle" | "other"
+      investment_payout_status: "pending" | "scheduled" | "paid" | "skipped"
+      investment_status:
+        | "pending"
+        | "active"
+        | "completed"
+        | "sold"
+        | "cancelled"
+      investor_payout_method: "ach" | "wire" | "check" | "zelle"
+      investor_vehicle_status:
+        | "draft"
+        | "available"
+        | "funded"
+        | "active"
+        | "sold"
+        | "retired"
       workspace_role: "client" | "host" | "investor"
       workspace_role_status: "active" | "pending" | "suspended"
     }
@@ -2233,6 +2575,24 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      investment_payout_method: ["ach", "wire", "check", "zelle", "other"],
+      investment_payout_status: ["pending", "scheduled", "paid", "skipped"],
+      investment_status: [
+        "pending",
+        "active",
+        "completed",
+        "sold",
+        "cancelled",
+      ],
+      investor_payout_method: ["ach", "wire", "check", "zelle"],
+      investor_vehicle_status: [
+        "draft",
+        "available",
+        "funded",
+        "active",
+        "sold",
+        "retired",
+      ],
       workspace_role: ["client", "host", "investor"],
       workspace_role_status: ["active", "pending", "suspended"],
     },
