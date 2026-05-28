@@ -136,7 +136,8 @@ function InvestmentsTab() {
           payout_month: i + 1,
           amount: inv.monthly_return,
           scheduled_date: d.toISOString().slice(0, 10),
-          status: "scheduled",
+          status: "scheduled" as const,
+
         };
       });
       const { error: poErr } = await supabase
