@@ -261,12 +261,16 @@ const App = () => (
                     {/* Investor workspace */}
                     <Route path="/investor" element={<InvestorDashboard />} />
                     <Route path="/investor/marketplace" element={<InvestorMarketplace />} />
+                    <Route path="/investor/marketplace/:id" element={<InvestorVehicleDetail />} />
+                    <Route path="/investor/payouts" element={<InvestorPayouts />} />
+                    <Route path="/investor/payout-settings" element={<InvestorPayoutSettings />} />
 
                     <Route element={<RequireRole />}>
                       <Route
                         path="/admin/manage-accounts"
                         element={<AdminManageAccounts />}
                       />
+                      <Route path="/admin/investments" element={<AdminInvestments />} />
                     </Route>
                   </Route>
                 </Route>
