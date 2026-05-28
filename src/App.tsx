@@ -93,6 +93,11 @@ import WelcomeHost from "./pages/welcome/WelcomeHost";
 import WelcomeInvestor from "./pages/welcome/WelcomeInvestor";
 import InvestorDashboard from "./pages/investor/InvestorDashboard";
 import InvestorMarketplace from "./pages/investor/InvestorMarketplace";
+import InvestorVehicleDetail from "./pages/investor/InvestorVehicleDetail";
+import InvestorPayouts from "./pages/investor/InvestorPayouts";
+import InvestorPayoutSettings from "./pages/investor/InvestorPayoutSettings";
+import AdminInvestments from "./pages/admin/AdminInvestments";
+
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
