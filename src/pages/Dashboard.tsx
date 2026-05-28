@@ -718,6 +718,24 @@ export default function Dashboard() {
             </div>
           )}
 
+          {isAdmin && (
+            <div style={fadeIn(7)} className="rounded-2xl bg-card border border-border/60 overflow-hidden">
+              <button
+                onClick={() => navigate("/admin/investments")}
+                className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <TrendingUp className="w-[18px] h-[18px] text-primary" />
+                  </div>
+                  <span className="font-semibold text-sm">Investor Management</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+          )}
+
+
           {/* ─── Recent Trips ─── */}
           <Collapsible open={tripsOpen} onOpenChange={setTripsOpen}>
             <div style={fadeIn(7)} className="space-y-3">
