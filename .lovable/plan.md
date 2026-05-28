@@ -1,72 +1,121 @@
-# Trips Tab + Trip Detail Page
 
-## Goal
-Add a new **Trips** section (for both hosts and clients) that lists trips as cards in the style of the attached mock, sorted **ascending by trip date**. Tapping a card opens a **Trip Detail** page showing all available info (no prices, no rating, no messages/help tabs — replace "Contact guest" with the guest's email/phone if we have it).
+# Unified Account + Investor Portal
 
-## Data source
-Trips = rows in `host_earnings`. Each row already has:
-- `car_id` → join `cars` for make/model/year/license_plate/images
-- `earning_period_start` / `earning_period_end` (trip start/end)
-- `guest_name`, `trip_id`
-- `host_id` (filter for hosts)
-- For clients: filter by `cars.client_id = user.id`
-- Guest contact (email/phone): join `host_earnings_guest_contact` on `earning_id`
+Two coordinated phases. Phase 1 restructures auth so every login can switch between Client, Host, and Investor workspaces. Phase 2 builds out the Investor Portal end-to-end.
 
-No new tables or migrations needed.
+---
 
-## Pages & routes
+## Phase 1 — Unified login & role switcher
 
-1. **`/trips`** — Trips list (works for both hosts and clients; query branches by role)
-2. **`/trips/:earningId`** — Trip detail page
+### Behavior
 
-Both gated by `RequireAuth` + `RequireApproved` + `RequireSubscribed` (same as Dashboard).
+- One signup form. No more "Register as Client" vs "Register as Host" split.
+- Every user is auto-granted **all three capabilities**: client, host, investor.
+- After login, a Turo-style **workspace switcher** lives in the header showing the active workspace. Switching swaps nav, routes, and dashboard.
+- The first time a user enters a workspace (or any time from the switcher), they land on a **role landing page** explaining what that workspace is for and what they can do — then a "Continue to dashboard" CTA.
+- Host workspace still requires admin approval before it unlocks data entry — landing page shows "pending approval" state instead of CTA when not yet approved. (Confirm if you'd rather skip approval entirely now that everyone is a host by default.)
 
-## Navigation
-Bottom nav currently has 5 items (max per memory). Replace the **Hosted** item (host) and the **Add** item is kept; for clients replace **Add**? — to avoid breaking, the plan is: add a **Trips** entry that **replaces the Analytics item** in the bottom nav for both roles, and keep Analytics reachable from the Dashboard. If you'd rather keep Analytics in the nav, tell me which item to drop.
+### Data model
 
-Also add a "View all trips" link from the Dashboard.
+- New table `user_roles` (`user_id`, `role` enum: `client | host | investor`, `status` enum: `active | pending | suspended`, `activated_at`). Roles live here, not on `profiles`. Backfill: insert `client` + `host` + `investor` rows for every existing user; preserve current `account_status` on the host row.
+- New `active_workspace` column on `profiles` (default `client`) so we remember the last-used workspace per device/login.
+- Keep `profiles.role` for now but deprecate reads; security-definer `has_role(uid, role)` helper used in all new RLS.
+- New `landing_seen` jsonb on `profiles` to track which role landing pages a user has dismissed.
 
-## Trips list UI (matches attached mock)
+### UI changes
 
-Card layout (dark, rounded, per trip):
-- Top date header (e.g., `THURSDAY, MAY 21, 2026`) — grouped/displayed per card
-- Status pill: "Ending at HH:MM" if trip is in progress, "Starts MMM D" if upcoming, "Ended MMM D" if past
-- Car: `{year} {make} {model}` + license plate badge + car thumbnail (from `cars.images[0]`)
-- Address: `cars.location` (general area only — using same masking as elsewhere)
-- Guest: avatar placeholder + `guest_name` + `#trip_id`
+- Delete `RegisterClient` / `RegisterHost` split — single `/register` page.
+- New `WorkspaceSwitcher` component in the top nav (avatar dropdown style, Turo-like): shows current workspace + lets user pick another. Persists choice in `profiles.active_workspace`.
+- New `WorkspaceProvider` context wraps the app and exposes `activeWorkspace` + `switchWorkspace()`. All `RequireRole` guards read from this context.
+- Three new landing pages: `/welcome/client`, `/welcome/host`, `/welcome/investor`. Shown on first entry into a workspace and always reachable from the switcher.
+- Routes reshuffled under workspace prefixes: `/client/*`, `/host/*`, `/investor/*`. Old routes 301 inside the app to the new ones to preserve bookmarks.
 
-**Sort:** ascending by `earning_period_start`.
-Optional filter tabs at top: **Upcoming / In progress / Past** (default: all).
+### Migration of existing accounts
 
-## Trip Detail UI (`/trips/:earningId`)
+- One-time SQL migration grants every existing user the three roles.
+- Existing host approval state migrated onto the host role row.
+- Default `active_workspace` set from current `profiles.role`.
 
-Following the screenshots, **Details only** (no Messages/Help tabs):
-- Header: car thumbnail + "Booked trip" + guest name + back button
-- Date row: `Start → End` with times
-- **Location**: `cars.location`
-- Status banner: "This trip ends in Xh Ym" / "Starts in …" / "Ended on …"
-- **Your guest** card: avatar + `guest_name` + `trip_id` + **email/phone** (from `host_earnings_guest_contact`) instead of "Contact guest" button. If no contact on file, show "No contact info on file."
-- **Trip info**: `trip_id`, `earning_type`, `payment_status`, `payment_source` (whatever is non-null)
-- **About the car**: `{year} {make} {model}`, `license_plate`, `color`, `mileage` (if available)
-- No prices, no rating, no mileage caps, no driver's license/photos sections (we don't have that data)
+---
 
-Detail page is a placeholder to expand later — you mentioned "we'll develop that soon."
+## Phase 2 — Investor Portal
 
-## Files to add
-- `src/pages/Trips.tsx` — list page
-- `src/pages/TripDetail.tsx` — detail page
-- `src/components/trips/TripCard.tsx` — card component
-- Register both routes in `src/App.tsx`
-- Update `src/components/layout/BottomNavBar.tsx` to include the Trips nav item
+Built against the spec in your PDF.
+
+### Database
+
+New tables (all RLS'd, investors see only their own rows; super_admin sees all):
+
+- `investor_vehicles` — pool of vehicles available for investment (make, model, year, vin, mileage, condition, location, status, purchase_price, estimated_resale_value, photos[]).
+- `investments` — `investor_id`, `vehicle_id`, `amount` (default 50000), `monthly_return` (default 1000), `start_date`, `end_date` (start + 50 months), `months_completed`, `total_returns_paid`, `resale_upside_pct` (default 50), `status` (pending/active/completed/sold), `stripe_payment_intent_id`.
+- `investment_payouts` — `investment_id`, `payout_month`, `amount`, `payout_date`, `method`, `status`.
+- `investment_resales` — `investment_id`, `resale_date`, `resale_price`, `investor_upside_amount`, `payout_status`.
+- `investor_payout_settings` — bank/check info per investor, tax info for 1099.
+
+### Payments
+
+- Enable Lovable's built-in Stripe payments (no key needed from you).
+- One-time payment per vehicle ($50K). Fees absorbed — we add the Stripe fee on top in the charge.
+- Edge function `create-investment-checkout` creates the Stripe Checkout Session.
+- Edge function `stripe-webhook` listens for `payment_intent.succeeded` and flips investment status pending → active, sets `start_date = now()`.
+
+### Investor screens
+
+1. `/investor` dashboard: totals (invested, returns to date, projected remaining), active vehicle count, performance line chart.
+2. `/investor/marketplace`: browseable vehicle cards with terms ($50K → $1K × 50 + 50% resale upside), availability badges, "Invest" CTA.
+3. `/investor/checkout`: cart summary, billing address, Stripe Checkout redirect.
+4. `/investor/portfolio`: list of owned investments with thumbnail, progress (months elapsed / 50), returns received, est. resale.
+5. `/investor/vehicles/:id`: vehicle detail — photos, timeline progress bar, monthly payout history table, maintenance feed, utilization stats, resale projection.
+6. `/investor/payouts`: payout history table, download receipts (PDF), payout settings, tax docs (1099 placeholder for now).
+7. `/investor/settings`: payout method, tax info, notifications.
+
+### Admin (super_admin) screens
+
+Under existing admin area, new "Investors" section:
+
+- Investors list — search/filter, view detail, send message, export CSV.
+- Vehicles pool — add/edit/retire, assign to investor, mark sold + record resale (auto-creates `investment_resales` row + payout).
+- Payout runs — monthly batch UI to mark payouts paid, with optional Stripe transfer hook later.
+- Financial overview — capital raised, returns paid, outstanding obligations.
+
+### Automation
+
+- Daily pg_cron job: for each `active` investment past its next payout date, insert a `pending` row into `investment_payouts`. Admin marks paid (or future automated bank rail).
+- Resend transactional emails: investment confirmation, monthly payout notice, resale payout notice, tax doc ready.
+
+### Out of scope for v1 (flag for later)
+
+- Auto-reinvest, secondary market (investor-to-investor transfers), multi-currency, referral program, native mobile app.
+
+---
 
 ## Technical notes
-- Dates: append `T00:00:00` before `new Date(...)` (project rule).
-- No price fields displayed anywhere.
-- Role determined via `profiles.role`; query branches:
-  - Host: `host_earnings` where `host_id = user.id`
-  - Client: `host_earnings` joined to `cars` where `cars.client_id = user.id`
-- Guest contact join is a single optional row from `host_earnings_guest_contact`.
 
-## Out of scope
-- Messages, Help, prices, ratings, driver's license, trip photos, mileage caps, cancellation policy (we don't store these).
-- Editing trips from this page (existing flows already handle that).
+```text
+auth.users
+  └── profiles (active_workspace, landing_seen)
+        └── user_roles (client|host|investor, status)
+              └── investments → investment_payouts → investment_resales
+                                investor_vehicles
+                                investor_payout_settings
+```
+
+- All new RLS uses `has_role(auth.uid(), 'investor')` etc. — never the old `profiles.role`.
+- Workspace switching is purely a client-side context change; auth/JWT does not change. Server-side authorization always re-checks `user_roles`.
+- Stripe is the new seamless Lovable integration, not BYOK.
+- Existing host subscription gating (RevenueCat) stays untouched on the host workspace.
+
+---
+
+## Suggested build order
+
+1. Migration: `user_roles` table, backfill, helpers, RLS updates.
+2. `WorkspaceProvider` + header switcher + landing pages.
+3. Collapse signup into one form; delete role-specific register pages.
+4. Phase 2: investor tables + RLS + admin pool management.
+5. Stripe enable + checkout + webhook.
+6. Investor dashboard / portfolio / vehicle detail.
+7. Payouts (cron + UI) + emails.
+8. Admin investor management + financial overview.
+
+Confirm and I'll start with Phase 1.
