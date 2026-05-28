@@ -1,4 +1,5 @@
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen, Route as RouteIcon, TrendingUp, ShoppingBag } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen, Route as RouteIcon, TrendingUp, ShoppingBag, DollarSign } from 'lucide-react';
+
 import { NavLink } from 'react-router-dom';
 import {
   Sidebar,
