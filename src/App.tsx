@@ -12,8 +12,7 @@ import {
   afSetCustomerUserId,
   afLogEvent,
 } from "@/analytics/appsflyer";
-import RegisterClient from "./pages/RegisterClient";
-import RegisterHost from "./pages/RegisterHost";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AddCar from "./pages/AddCar";
 import SelectHost from "./pages/SelectHost";
