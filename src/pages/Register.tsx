@@ -11,7 +11,7 @@ import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthInd
 import { ArrowRight, ChevronLeft, User, Mail, Phone, Lock } from "lucide-react";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
 
-const RegisterClient = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -48,6 +48,7 @@ const RegisterClient = () => {
     }
     setLoading(true);
     try {
+      // One account, all three workspaces auto-granted by the handle_new_user trigger.
       const { error } = await signUp(formData.email, formData.password, "client", {
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -56,7 +57,7 @@ const RegisterClient = () => {
       if (error) {
         toast({ variant: "destructive", title: "Registration failed", description: error.message });
       } else {
-        toast({ title: "Registration successful!", description: "Please check your email to verify your account." });
+        toast({ title: "Welcome to Teslys!", description: "Check your email to verify your account." });
         navigate("/");
       }
     } catch (error) {
@@ -102,10 +103,12 @@ const RegisterClient = () => {
             </button>
             <h2 className="text-lg font-bold text-foreground">
               Create your{" "}
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Client</span>{" "}
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Teslys</span>{" "}
               account
             </h2>
-            <p className="text-xs text-muted-foreground mt-1">Join thousands of Tesla owners earning passive income</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              One login. Rent as a client, manage as a host, invest as an investor — switch anytime.
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="px-5 pb-5 space-y-3.5">
@@ -178,4 +181,4 @@ const RegisterClient = () => {
   );
 };
 
-export default RegisterClient;
+export default Register;

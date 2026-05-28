@@ -12,8 +12,7 @@ import {
   afSetCustomerUserId,
   afLogEvent,
 } from "@/analytics/appsflyer";
-import RegisterClient from "./pages/RegisterClient";
-import RegisterHost from "./pages/RegisterHost";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AddCar from "./pages/AddCar";
 import SelectHost from "./pages/SelectHost";
@@ -141,8 +140,9 @@ const App = () => (
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<Index />} />
-              <Route path="/register/client" element={<RegisterClient />} />
-              <Route path="/register/host" element={<RegisterHost />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/register/client" element={<Register />} />
+              <Route path="/register/host" element={<Register />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/terms" element={<TermsOfUse />} />
