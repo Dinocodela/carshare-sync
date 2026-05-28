@@ -140,10 +140,10 @@ const App = () => (
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<Index />} />
-              <Route path="/register/client" element={<RegisterClient />} />
               <Route path="/register" element={<Register />} />
               <Route path="/register/client" element={<Register />} />
               <Route path="/register/host" element={<Register />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/sms-consent" element={<SMSConsent />} />
