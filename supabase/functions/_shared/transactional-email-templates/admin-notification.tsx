@@ -67,14 +67,12 @@ export const AdminNotificationEmail = ({
                 {services ? <Text style={row}><strong>Services:</strong> {services}</Text> : null}
                 {coverage ? <Text style={row}><strong>Coverage:</strong> {coverage}</Text> : null}
               </Section>
-
-              </Section>
               <Section style={btnWrap}>
-                <Button style={button} href={reviewUrl}>Review {isHost ? 'Application' : 'Account'} →</Button>
+                <Button style={button} href={reviewUrl}>{ctaLabel} →</Button>
               </Section>
               <Hr style={divider} />
               <Text style={footer}>
-                Reach out to the {isHost ? 'host' : 'client'} promptly to convert this lead.
+                Reach out to the {isInquiry ? 'investor' : isHost ? 'host' : 'client'} promptly to convert this lead.
               </Text>
             </Section>
             <Text style={legal}>
