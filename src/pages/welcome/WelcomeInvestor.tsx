@@ -283,6 +283,62 @@ export default function WelcomeInvestor() {
         </div>
       </section>
 
+      {/* How it works flow diagram */}
+      <section className="py-16 md:py-24 px-4 bg-muted/40">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">How It Works</h2>
+          <p className="text-muted-foreground text-center mb-12">
+            One investment, two ways to earn.
+          </p>
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
+            {/* Investor */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary text-primary">
+                <User className="h-9 w-9" />
+              </div>
+              <span className="text-sm font-bold uppercase tracking-wide">Investor</span>
+            </div>
+
+            <ArrowRight className="hidden lg:block h-6 w-6 text-muted-foreground shrink-0" />
+
+            {/* Investment */}
+            <div className="rounded-lg border-2 border-primary/40 bg-card px-5 py-3 text-center">
+              <div className="text-xl font-bold text-primary">$50,000</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">Investment</div>
+            </div>
+
+            <ArrowRight className="hidden lg:block h-6 w-6 text-muted-foreground shrink-0" />
+
+            {/* Vehicle */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-success text-success">
+                <Car className="h-9 w-9" />
+              </div>
+              <span className="text-sm font-bold uppercase tracking-wide">Tesla Vehicle</span>
+            </div>
+
+            <ArrowRight className="hidden lg:block h-6 w-6 text-muted-foreground shrink-0" />
+
+            {/* Returns */}
+            <div className="flex flex-col gap-4">
+              <div className="rounded-lg border-2 border-warning/50 bg-warning/10 px-5 py-3 text-center">
+                <div className="text-lg font-bold text-warning-foreground">$1,000</div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Per Month Cash Return
+                </div>
+              </div>
+              <div className="rounded-lg border-2 border-primary/40 bg-primary/10 px-5 py-3 text-center">
+                <div className="text-lg font-bold text-primary">50%</div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Of Resale Value At Exit
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
       {/* ROI Calculator */}
       <section className="py-16 md:py-24 px-4 bg-muted/40">
         <div className="max-w-5xl mx-auto">
