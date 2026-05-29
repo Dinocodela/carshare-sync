@@ -7,6 +7,7 @@ import {
   CalendarClock,
   Receipt,
   ArrowRight,
+  ArrowLeft,
   Star,
   Clock,
   AlertCircle,
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/accordion";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import heroImg from "@/assets/investor-hero.jpg";
+
 
 
 const MONTHLY_RETURN = 1000;
