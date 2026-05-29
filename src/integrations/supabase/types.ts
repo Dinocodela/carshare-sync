@@ -1310,6 +1310,39 @@ export type Database = {
           },
         ]
       }
+      investor_inquiries: {
+        Row: {
+          amount: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       investor_payout_settings: {
         Row: {
           account_holder_name: string | null
