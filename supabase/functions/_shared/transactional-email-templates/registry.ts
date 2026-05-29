@@ -14,4 +14,5 @@ export interface TemplateEntry {
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'admin-notification': adminNotificationTemplate,
   'host-application-received': hostApplicationReceivedTemplate,
+  'investor-inquiry-received': investorInquiryReceivedTemplate,
 }
