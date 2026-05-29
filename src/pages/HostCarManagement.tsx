@@ -6947,15 +6947,16 @@ export default function HostCarManagement() {
 
                                 {/* Details */}
                                 <div className="ml-10 space-y-1.5">
-                                  {claim.guest_name && (
+                                  {displayGuestName && (
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                       <User className="w-3 h-3" />
-                                      <span>{claim.guest_name}</span>
+                                      <span>{displayGuestName}</span>
                                       {claim.payment_source && (
                                         <span className="text-muted-foreground/60">• {claim.payment_source}</span>
                                       )}
                                     </div>
                                   )}
+
                                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <CalendarLucide className="w-3 h-3" />
                                     <span>Incident: {new Date(claim.incident_date).toLocaleDateString()}</span>
