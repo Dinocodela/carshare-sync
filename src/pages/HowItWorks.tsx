@@ -257,7 +257,6 @@ export default function HowItWorks() {
             <Link to="/"><Logo className="h-6 opacity-80" /></Link>
             <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
               <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
-              <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
               <Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
               <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
               <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
