@@ -6,13 +6,15 @@ import {
 } from 'npm:@react-email/components@0.0.22'
 
 export interface AdminNotificationProps {
-  kind?: 'client' | 'host'
+  kind?: 'client' | 'host' | 'inquiry'
   name?: string
   email?: string
   phone?: string
   company?: string
   services?: string
   coverage?: string
+  amount?: string
+  message?: string
   reviewUrl?: string
 }
 
@@ -24,13 +26,23 @@ export const AdminNotificationEmail = ({
   company = '',
   services = '',
   coverage = '',
+  amount = '',
+  message = '',
   reviewUrl = 'https://teslys.app/admin/manage-accounts',
 }: AdminNotificationProps) => {
   const isHost = kind === 'host'
-  const title = isHost ? 'New Host Application' : 'New Client Registration'
-  const subtitle = isHost
-    ? 'A new host has applied to join TESLYS and is awaiting your approval.'
-    : 'A new client has just registered on the TESLYS platform.'
+  const isInquiry = kind === 'inquiry'
+  const title = isInquiry
+    ? 'New Investor Inquiry'
+    : isHost
+      ? 'New Host Application'
+      : 'New Client Registration'
+  const subtitle = isInquiry
+    ? 'A new investor has submitted an inquiry through the TESLYS investor page.'
+    : isHost
+      ? 'A new host has applied to join TESLYS and is awaiting your approval.'
+      : 'A new client has just registered on the TESLYS platform.'
+  const ctaLabel = isInquiry ? 'View Inquiries' : isHost ? 'Review Application' : 'Review Account'
   return (
     <Html lang="en" dir="ltr">
       <Head />
@@ -50,15 +62,17 @@ export const AdminNotificationEmail = ({
                 {company ? <Text style={row}><strong>Company:</strong> {company}</Text> : null}
                 {email ? <Text style={row}><strong>Email:</strong> <Link href={`mailto:${email}`} style={link}>{email}</Link></Text> : null}
                 {phone ? <Text style={row}><strong>Phone:</strong> <Link href={`tel:${phone}`} style={link}>{phone}</Link></Text> : null}
+                {amount ? <Text style={row}><strong>Interested amount:</strong> {amount}</Text> : null}
+                {message ? <Text style={row}><strong>Message:</strong> {message}</Text> : null}
                 {services ? <Text style={row}><strong>Services:</strong> {services}</Text> : null}
                 {coverage ? <Text style={row}><strong>Coverage:</strong> {coverage}</Text> : null}
               </Section>
               <Section style={btnWrap}>
-                <Button style={button} href={reviewUrl}>Review {isHost ? 'Application' : 'Account'} →</Button>
+                <Button style={button} href={reviewUrl}>{ctaLabel} →</Button>
               </Section>
               <Hr style={divider} />
               <Text style={footer}>
-                Reach out to the {isHost ? 'host' : 'client'} promptly to convert this lead.
+                Reach out to the {isInquiry ? 'investor' : isHost ? 'host' : 'client'} promptly to convert this lead.
               </Text>
             </Section>
             <Text style={legal}>
@@ -78,7 +92,7 @@ import type { TemplateEntry } from './registry.ts'
 export const template = {
   component: AdminNotificationEmail,
   subject: (data: AdminNotificationProps) =>
-    `${data?.kind === 'host' ? 'New Host Application' : 'New Client Registration'}: ${data?.name ?? 'New user'}`,
+    `${data?.kind === 'inquiry' ? 'New Investor Inquiry' : data?.kind === 'host' ? 'New Host Application' : 'New Client Registration'}: ${data?.name ?? 'New user'}`,
   displayName: 'Admin: New account notification',
   previewData: { kind: 'client', name: 'Jane Doe', email: 'jane@example.com', phone: '+15555550100' },
 } satisfies TemplateEntry

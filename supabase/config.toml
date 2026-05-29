@@ -81,6 +81,8 @@ project_id = "texsltzecmvqprdjxtnh"
     verify_jwt = false
   [functions.notify-admin-new-host]
     verify_jwt = true
+  [functions.submit-investor-inquiry]
+    verify_jwt = false
 
 [storage]
   enabled = true
