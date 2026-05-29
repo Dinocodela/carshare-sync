@@ -120,22 +120,61 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify the host exists and is an approved host
+    // Verify the host exists and is an approved host.
+    // A user qualifies as a host if EITHER:
+    //   (a) their profile role is "host" and account is approved, OR
+    //   (b) they have an active "host" role in the multi-role user_roles table.
     const { data: hostProfile, error: hostError } = await supabase
       .from("profiles")
       .select("user_id, first_name, last_name, role, account_status")
       .eq("user_id", payload.host_id)
-      .eq("role", "host")
-      .eq("account_status", "approved")
-      .single();
+      .maybeSingle();
 
-    if (hostError || !hostProfile) {
-      console.error("Host lookup error:", hostError?.message);
+    if (hostError) {
+      console.error("Host profile lookup error:", hostError.message);
       return new Response(
-        JSON.stringify({ error: "Host not found or not approved" }),
+        JSON.stringify({ error: "Failed to look up host" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!hostProfile) {
+      return new Response(
+        JSON.stringify({ error: "Host not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const isProfileHost =
+      hostProfile.role === "host" && hostProfile.account_status === "approved";
+
+    let isWorkspaceHost = false;
+    if (!isProfileHost) {
+      const { data: hostRole, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role, status")
+        .eq("user_id", payload.host_id)
+        .eq("role", "host")
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (roleError) {
+        console.error("Host role lookup error:", roleError.message);
+        return new Response(
+          JSON.stringify({ error: "Failed to look up host role" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      isWorkspaceHost = !!hostRole;
+    }
+
+    if (!isProfileHost && !isWorkspaceHost) {
+      return new Response(
+        JSON.stringify({ error: "This user is not an approved host" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
 
     // Create a hosting request record for audit trail
     const { data: requestData, error: requestError } = await supabase
