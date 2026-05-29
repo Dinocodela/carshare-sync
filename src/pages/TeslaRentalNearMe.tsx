@@ -273,7 +273,6 @@ export default function TeslaRentalNearMe() {
           <Link to="/earnings-calculator" className="hover:text-foreground">Earnings Calculator</Link>
           <Link to="/tesla-cybertruck-rental" className="hover:text-foreground">Cybertruck Rental</Link>
           <Link to="/tesla-model-x-rental" className="hover:text-foreground">Model X Rental</Link>
-          <Link to="/blog" className="hover:text-foreground">Blog</Link>
           <Link to="/faq" className="hover:text-foreground">FAQ</Link>
           <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
           <Link to="/terms" className="hover:text-foreground">Terms</Link>

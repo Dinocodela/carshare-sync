@@ -262,7 +262,6 @@ export default function TeslaRentalInsurance() {
           <Link to="/tesla-rental-near-me" className="hover:text-foreground">Tesla Rental Near Me</Link>
           <Link to="/tesla-rental-cost" className="hover:text-foreground">Tesla Rental Cost</Link>
           <Link to="/tesla-monthly-rental" className="hover:text-foreground">Monthly Rental</Link>
-          <Link to="/blog" className="hover:text-foreground">Blog</Link>
           <Link to="/faq" className="hover:text-foreground">FAQ</Link>
           <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
           <Link to="/terms" className="hover:text-foreground">Terms</Link>

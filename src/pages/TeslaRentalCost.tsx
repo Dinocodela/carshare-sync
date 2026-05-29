@@ -158,7 +158,6 @@ export default function TeslaRentalCost() {
           <Link to="/how-it-works" className="hover:text-foreground">How It Works</Link>
           <Link to="/tesla-monthly-rental" className="hover:text-foreground">Monthly Rentals</Link>
           <Link to="/earnings-calculator" className="hover:text-foreground">Earnings Calculator</Link>
-          <Link to="/blog" className="hover:text-foreground">Blog</Link>
           <Link to="/faq" className="hover:text-foreground">FAQ</Link>
           <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
           <Link to="/terms" className="hover:text-foreground">Terms</Link>
