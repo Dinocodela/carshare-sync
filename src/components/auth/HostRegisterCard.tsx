@@ -351,12 +351,13 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
           disabled={loading}
         >
           {loading ? (
-            "Creating account..."
+            "Submitting application..."
           ) : (
             <span className="inline-flex items-center gap-2">
-              Create Host Account <ArrowRight className="w-4 h-4" />
+              Submit Application <ArrowRight className="w-4 h-4" />
             </span>
           )}
+
         </Button>
 
         <p className="text-center text-xs text-muted-foreground pt-1">
