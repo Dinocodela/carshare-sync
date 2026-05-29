@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Zap,
@@ -8,11 +8,19 @@ import {
   Receipt,
   ArrowRight,
   Star,
+  Clock,
+  AlertCircle,
+  User,
+  Car,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
 import {
   Accordion,
   AccordionContent,
@@ -21,6 +29,7 @@ import {
 } from "@/components/ui/accordion";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import heroImg from "@/assets/investor-hero.jpg";
+
 
 const MONTHLY_RETURN = 1000;
 const TERM_MONTHS = 50;
