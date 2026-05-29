@@ -129,6 +129,30 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [user, landingSeen, navigate]
   );
 
+  const markLandingSeen = useCallback(
+    async (role: WorkspaceRole) => {
+      if (!user) return;
+      const next = { ...landingSeen, [role]: true };
+      setLandingSeen(next);
+      await supabase.from("profiles").update({ landing_seen: next }).eq("user_id", user.id);
+    },
+    [user, landingSeen]
+  );
+
+  return (
+    <WorkspaceContext.Provider
+      value={{
+        activeWorkspace,
+        availableRoles,
+        landingSeen,
+        loading,
+        switchWorkspace,
+        markLandingSeen,
+        hasRole,
+        isRoleActive,
+      }}
+    >
+
       {children}
     </WorkspaceContext.Provider>
   );
