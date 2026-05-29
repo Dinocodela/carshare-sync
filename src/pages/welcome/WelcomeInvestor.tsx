@@ -233,6 +233,32 @@ export default function WelcomeInvestor() {
         </div>
       </section>
 
+      {/* Slots-left countdown banner */}
+      <section className="px-4 py-6 bg-muted/40 border-y">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-navy text-navy-foreground">
+              <span className="text-xl font-bold leading-none">10</span>
+            </div>
+            <div>
+              <div className="font-bold text-primary uppercase tracking-wide text-sm">
+                Only 10 Slots Left
+              </div>
+              <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" /> This round closes in:
+              </div>
+              <div className="text-2xl font-bold tabular-nums">
+                {pad(cd.hours)}:{pad(cd.minutes)}:{pad(cd.seconds)}
+              </div>
+            </div>
+          </div>
+          <Button size="lg" onClick={scrollToForm}>
+            Reserve Your Spot
+          </Button>
+        </div>
+      </section>
+
+
       {/* The Deal */}
       <section ref={dealRef} className="py-16 md:py-24 px-4">
         <div className="max-w-5xl mx-auto text-center">
