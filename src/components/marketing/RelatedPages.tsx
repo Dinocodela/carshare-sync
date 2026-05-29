@@ -22,7 +22,6 @@ const defaultLinks: RelatedLink[] = [
   { to: "/tesla-cybertruck-rental", label: "Cybertruck Rental" },
   { to: "/tesla-model-x-rental", label: "Model X Rental" },
   { to: "/tesla-model-s-rental", label: "Model S Rental" },
-  { to: "/blog", label: "Blog" },
   { to: "/faq", label: "FAQ" },
 ];
 

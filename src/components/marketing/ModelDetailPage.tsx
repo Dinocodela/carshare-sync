@@ -231,7 +231,6 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
           <Link to="/" className="hover:text-foreground">Home</Link>
           <Link to="/how-it-works" className="hover:text-foreground">How It Works</Link>
           <Link to="/earnings-calculator" className="hover:text-foreground">Earnings Calculator</Link>
-          <Link to="/blog" className="hover:text-foreground">Blog</Link>
           <Link to="/faq" className="hover:text-foreground">FAQ</Link>
           <Link to="/support" className="hover:text-foreground">Support</Link>
           <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
