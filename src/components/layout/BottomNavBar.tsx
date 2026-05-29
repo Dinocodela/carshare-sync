@@ -7,7 +7,6 @@ import {
   Settings,
   Plus,
   ShieldAlert,
-  BookOpen,
   Route as RouteIcon,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,7 +63,6 @@ export function BottomNavBar() {
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Trips", url: "/trips", icon: RouteIcon },
       { title: "Add", url: "/add-car", icon: Plus, kind: "add" },
-      { title: "Blog", url: "/blog", icon: BookOpen },
       { title: "Settings", url: "/settings", icon: Settings },
     ],
     []
@@ -75,7 +73,6 @@ export function BottomNavBar() {
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Trips", url: "/trips", icon: RouteIcon },
       { title: "Hosted", url: "/host-car-management#active", icon: Car },
-      { title: "Blog", url: "/blog", icon: BookOpen },
       { title: "Settings", url: "/settings", icon: Settings },
     ],
     []

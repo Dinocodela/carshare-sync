@@ -1,4 +1,4 @@
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, BookOpen, Route as RouteIcon, TrendingUp, ShoppingBag, DollarSign } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Route as RouteIcon, TrendingUp, ShoppingBag, DollarSign } from 'lucide-react';
 
 import { NavLink } from 'react-router-dom';
 import {
@@ -31,7 +31,6 @@ export function AppSidebar() {
         { title: "Analytics", url: "/client-analytics", icon: BarChart3 },
         { title: "My Cars", url: "/my-cars", icon: Car },
         { title: "Add Car", url: "/add-car", icon: Plus },
-        { title: "Blog", url: "/blog", icon: BookOpen },
         { title: "Settings", url: "/settings", icon: Settings },
       ];
     }
@@ -44,7 +43,6 @@ export function AppSidebar() {
         { title: "Hosted Cars", url: "/host-car-management", icon: Car },
         { title: "Clients", url: "/registered-clients", icon: Users },
         { title: "Claims", url: "/host-car-management#claims", icon: Shield },
-        { title: "Blog", url: "/blog", icon: BookOpen },
         { title: "Settings", url: "/settings", icon: Settings },
       ];
     }
@@ -55,7 +53,6 @@ export function AppSidebar() {
         { title: "Marketplace", url: "/investor/marketplace", icon: ShoppingBag },
         { title: "Payouts", url: "/investor/payouts", icon: DollarSign },
         { title: "Payout Settings", url: "/investor/payout-settings", icon: Settings },
-        { title: "Blog", url: "/blog", icon: BookOpen },
       ];
     }
 
