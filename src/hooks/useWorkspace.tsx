@@ -92,29 +92,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         .update({ active_workspace: role })
         .eq("user_id", user.id);
 
-      const seen = landingSeen[role];
-      if (!seen) {
-        navigate(`/welcome/${role}`);
-      } else {
-        navigate(ROLE_HOME[role]);
-      }
-    },
-    [user, landingSeen, navigate]
-  );
-
-  const markLandingSeen = useCallback(
-    async (role: WorkspaceRole) => {
-      if (!user) return;
-      const next = { ...landingSeen, [role]: true };
-  const switchWorkspace = useCallback(
-    async (role: WorkspaceRole) => {
-      if (!user) return;
-      setActiveWorkspace(role);
-      await supabase
-        .from("profiles")
-        .update({ active_workspace: role })
-        .eq("user_id", user.id);
-
       // Clients and hosts go straight to their workspace — no landing page.
       // Only the investor workspace shows a marketing landing page on first visit.
       if (role === "investor") {
@@ -138,6 +115,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     },
     [user, landingSeen]
   );
+
 
   return (
     <WorkspaceContext.Provider
