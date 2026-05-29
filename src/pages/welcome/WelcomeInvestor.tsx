@@ -113,6 +113,8 @@ const FAQS = [
 
 const currency = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+export default function WelcomeInvestor() {
   const navigate = useNavigate();
   const { markLandingSeen, availableRoles, switchWorkspace } = useWorkspace();
   const dealRef = useRef<HTMLDivElement>(null);
@@ -121,8 +123,6 @@ const currency = (n: number) =>
     switchWorkspace("client");
   };
 
-  const { markLandingSeen, availableRoles } = useWorkspace();
-  const dealRef = useRef<HTMLDivElement>(null);
 
   const row = availableRoles.find((r) => r.role === "investor");
   const pending = row?.status === "pending";
