@@ -157,7 +157,7 @@ export default function WelcomeInvestor() {
   const formRef = useRef<HTMLDivElement>(null);
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  const submitInquiry = (e: React.FormEvent) => {
+  const submitInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim() || !form.amount.trim()) {
       toast({
@@ -168,14 +168,36 @@ export default function WelcomeInvestor() {
       return;
     }
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const { error } = await supabase.functions.invoke("submit-investor-inquiry", {
+        body: {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim() || null,
+          amount: form.amount.trim(),
+          message: form.message.trim() || null,
+          userId: auth?.user?.id ?? null,
+        },
+      });
+      if (error) throw error;
       setForm({ name: "", email: "", phone: "", amount: "", message: "" });
       toast({
         title: "Inquiry submitted",
-        description: "We'll review your inquiry and contact you within 24 hours.",
+        description:
+          "Thanks! Check your email for a confirmation — we'll review your inquiry and contact you within 24 hours.",
       });
-    }, 600);
+    } catch (err) {
+      console.error("Failed to submit investor inquiry:", err);
+      toast({
+        title: "Something went wrong",
+        description:
+          "We couldn't submit your inquiry. Please try again or email support@teslys.com.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
 
