@@ -251,9 +251,7 @@ const App = () => (
                     />
                     <Route path="/audit-log" element={<AuditLog />} />
 
-                    {/* Workspace landing pages */}
-                    <Route path="/welcome/client" element={<WelcomeClient />} />
-                    <Route path="/welcome/host" element={<WelcomeHost />} />
+                    {/* Investor landing page (clients & hosts go straight to their app) */}
                     <Route path="/welcome/investor" element={<WelcomeInvestor />} />
 
                     {/* Investor workspace */}
