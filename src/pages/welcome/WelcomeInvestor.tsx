@@ -123,6 +123,55 @@ export default function WelcomeInvestor() {
   const [resale, setResale] = useState(28000);
   const [vehicles, setVehicles] = useState(1);
 
+  // Countdown to end of current round
+  const deadline = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    d.setHours(23, 59, 59, 999);
+    return d.getTime();
+  }, []);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const remaining = Math.max(0, deadline - now);
+  const cd = {
+    hours: Math.floor(remaining / 3_600_000),
+    minutes: Math.floor((remaining % 3_600_000) / 60_000),
+    seconds: Math.floor((remaining % 60_000) / 1000),
+  };
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  // Inquiry form
+  const [form, setForm] = useState({ name: "", email: "", phone: "", amount: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
+  const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth" });
+
+  const submitInquiry = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim() || !form.amount.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in your name, email, and interested investment amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setForm({ name: "", email: "", phone: "", amount: "", message: "" });
+      toast({
+        title: "Inquiry submitted",
+        description: "We'll review your inquiry and contact you within 24 hours.",
+      });
+    }, 600);
+  };
+
+
+
   const calc = useMemo(() => {
     const monthlyTotal = MONTHLY_RETURN * TERM_MONTHS; // 50,000
     const resaleShare = resale * 0.5;
