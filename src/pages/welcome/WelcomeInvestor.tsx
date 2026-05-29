@@ -7,6 +7,7 @@ import {
   CalendarClock,
   Receipt,
   ArrowRight,
+  ArrowLeft,
   Star,
   Clock,
   AlertCircle,
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/accordion";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import heroImg from "@/assets/investor-hero.jpg";
+
 
 
 const MONTHLY_RETURN = 1000;
@@ -111,9 +113,14 @@ const FAQS = [
 
 const currency = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-
-export default function WelcomeInvestor() {
   const navigate = useNavigate();
+  const { markLandingSeen, availableRoles, switchWorkspace } = useWorkspace();
+  const dealRef = useRef<HTMLDivElement>(null);
+
+  const goBackToApp = () => {
+    switchWorkspace("client");
+  };
+
   const { markLandingSeen, availableRoles } = useWorkspace();
   const dealRef = useRef<HTMLDivElement>(null);
 
@@ -197,6 +204,20 @@ export default function WelcomeInvestor() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Top bar with back navigation */}
+      <div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+          <Button variant="ghost" size="sm" onClick={goBackToApp} className="gap-2">
+            <ArrowLeft className="h-4 w-4" /> Back to app
+          </Button>
+          {!pending && (
+            <Button size="sm" onClick={goToMarketplace} className="gap-2">
+              Investor dashboard <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+
       {/* Hero */}
       <section className="relative overflow-hidden">
         <img
