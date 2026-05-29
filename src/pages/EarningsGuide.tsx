@@ -250,7 +250,6 @@ export default function EarningsGuide() {
                 <Link to="/how-it-works" className="hover:text-foreground transition-colors">How It Works</Link>
                 <Link to="/earnings-calculator" className="hover:text-foreground transition-colors">Earnings Calculator</Link>
                 <Link to="/turo-management" className="hover:text-foreground transition-colors">Turo Management</Link>
-                <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
                 <Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
                 <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
                 <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
