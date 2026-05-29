@@ -6909,6 +6909,12 @@ export default function HostCarManagement() {
                   <div className="grid gap-3">
                     {claimsPageRows.map((claim: any) => {
                       const claimCar = cars.find((car) => car.id === claim.car_id);
+                      // Prefer the guest name from the matching trip (earning) by trip_id
+                      const tripGuestName = claim.trip_id
+                        ? earnings.find((e) => e.trip_id === claim.trip_id)?.guest_name
+                        : undefined;
+                      const displayGuestName = tripGuestName || claim.guest_name;
+
                       return (
                         <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                           <div className="p-4">
