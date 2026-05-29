@@ -88,8 +88,6 @@ import TeslaRentalStatistics from "./pages/TeslaRentalStatistics";
 import Trips from "./pages/Trips";
 import TripDetail from "./pages/TripDetail";
 import { WorkspaceProvider } from "@/hooks/useWorkspace";
-import WelcomeClient from "./pages/welcome/WelcomeClient";
-import WelcomeHost from "./pages/welcome/WelcomeHost";
 import WelcomeInvestor from "./pages/welcome/WelcomeInvestor";
 import InvestorDashboard from "./pages/investor/InvestorDashboard";
 import InvestorMarketplace from "./pages/investor/InvestorMarketplace";
