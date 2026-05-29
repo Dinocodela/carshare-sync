@@ -92,7 +92,7 @@ import type { TemplateEntry } from './registry.ts'
 export const template = {
   component: AdminNotificationEmail,
   subject: (data: AdminNotificationProps) =>
-    `${data?.kind === 'host' ? 'New Host Application' : 'New Client Registration'}: ${data?.name ?? 'New user'}`,
+    `${data?.kind === 'inquiry' ? 'New Investor Inquiry' : data?.kind === 'host' ? 'New Host Application' : 'New Client Registration'}: ${data?.name ?? 'New user'}`,
   displayName: 'Admin: New account notification',
   previewData: { kind: 'client', name: 'Jane Doe', email: 'jane@example.com', phone: '+15555550100' },
 } satisfies TemplateEntry
