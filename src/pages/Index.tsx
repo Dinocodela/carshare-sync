@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/logo";
-import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, MapPin, Phone, Calculator } from "lucide-react";
+import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, Calculator, Briefcase, TrendingUp } from "lucide-react";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
@@ -19,7 +19,6 @@ import { RentATeslaLink } from "@/components/RentATeslaLink";
 import { ReadReviewsLink } from "@/components/ReadReviewsLink";
 import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 
-type Role = "client" | "host";
 type Panel = "login" | "register-client" | "register-host";
 
 const Index = () => {
@@ -27,7 +26,6 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const [role, setRole] = useState<Role>("client");
   const [panel, setPanel] = useState<Panel>("login");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -145,52 +143,9 @@ const Index = () => {
                   transform: visible ? "translateY(0)" : "translateY(15px)",
                 }}
               >
-                Streamline your car management and hosting services with our comprehensive platform
+                List your Tesla and earn passive income — we handle the rest. One login for your cars, hosting, and investments.
               </p>
             </div>
-
-            {/* Role Switcher */}
-            <div
-              className="mx-auto mb-3 w-full max-w-sm transition-all duration-500 delay-[400ms] ease-out"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(10px)",
-              }}
-            >
-              <div className="grid grid-cols-2 rounded-xl bg-card/60 backdrop-blur border border-border/50 overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => { setRole("client"); setPanel("login"); }}
-                  className={`py-2.5 text-sm font-semibold transition-all duration-300 ${
-                    role === "client"
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card"
-                  }`}
-                >
-                  Client
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setRole("host"); setPanel("login"); }}
-                  className={`py-2.5 text-sm font-semibold transition-all duration-300 ${
-                    role === "host"
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card"
-                  }`}
-                >
-                  Host
-                </button>
-              </div>
-            </div>
-
-            {/* Role description */}
-            <p
-              className="text-center text-xs text-muted-foreground mb-5 px-4 leading-relaxed transition-all duration-300"
-            >
-              {role === "client"
-                ? "Create an account, list your car, and select the car hosting professional that meets your expectations to manage your car"
-                : "Sign up to start receiving requests from car owners looking for professionals like you to manage their vehicles"}
-            </p>
 
             {/* Login / Register Panel */}
             <div
@@ -205,13 +160,11 @@ const Index = () => {
                   <h2 className="text-lg font-bold text-foreground mb-1">
                     Sign in to{" "}
                     <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      {role === "client" ? "Client Dashboard" : "Host Dashboard"}
+                      your account
                     </span>
                   </h2>
                   <p className="text-xs text-muted-foreground mb-5">
-                    {role === "client"
-                      ? "Track your vehicles, earnings, and manage your fleet"
-                      : "View requests, manage listings, and grow your hosting business"}
+                    Track your vehicles, earnings, and manage your Teslas in one place
                   </p>
 
                   <form onSubmit={onSubmit} className="space-y-4">
@@ -282,11 +235,9 @@ const Index = () => {
                       <button
                         type="button"
                         className="text-primary font-medium hover:underline"
-                        onClick={() =>
-                          setPanel(role === "client" ? "register-client" : "register-host")
-                        }
+                        onClick={() => setPanel("register-client")}
                       >
-                        Register as {role === "client" ? "Client" : "Host"}
+                        Create an account
                       </button>
                     </div>
                   </form>
@@ -301,6 +252,52 @@ const Index = () => {
                 <HostRegisterCard onBackToLogin={() => setPanel("login")} />
               )}
             </div>
+
+            {/* Become a host (Turo-style application banner) */}
+            {panel === "login" && (
+              <button
+                type="button"
+                onClick={() => setPanel("register-host")}
+                className="mt-4 w-full text-left rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-4 hover:border-primary/40 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Briefcase className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">Become a host</span>
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        Apply
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Manage Tesla fleets for owners. Approved by our team.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                </div>
+              </button>
+            )}
+
+            {/* Investor link */}
+            {panel === "login" && (
+              <Link
+                to="/welcome/investor"
+                className="mt-3 w-full flex items-center gap-3 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm p-4 hover:border-primary/40 transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-semibold text-foreground">Invest in our fleet</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Earn returns by investing in Tesla fleet vehicles.
+                  </p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+              </Link>
+            )}
 
             {/* Earnings Calculator CTA */}
             <div className="mt-6 mb-2 text-center">
