@@ -487,7 +487,107 @@ export default function WelcomeInvestor() {
         </div>
       </section>
 
+      {/* Inquiry form */}
+      <section ref={formRef} className="py-16 md:py-24 px-4 bg-muted/40">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">Request Your Investment</h2>
+            <p className="text-muted-foreground">
+              Tell us what you're interested in and our team will follow up within 24 hours.
+            </p>
+          </div>
+          <Card>
+            <CardContent className="p-6 md:p-8">
+              <form onSubmit={submitInquiry} className="space-y-6">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">
+                      Full Name <span className="text-primary">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      placeholder="John Doe"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      maxLength={100}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">
+                      Email Address <span className="text-primary">*</span>
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      maxLength={255}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      placeholder="(555) 123-4567"
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      maxLength={30}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">
+                      Interested Investment Amount <span className="text-primary">*</span>
+                    </Label>
+                    <Input
+                      id="amount"
+                      placeholder="e.g., $50,000 (1 vehicle) or $250,000 (5)"
+                      value={form.amount}
+                      onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                      maxLength={100}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Additional Questions or Comments</Label>
+                  <Textarea
+                    id="message"
+                    placeholder="Tell us about your investment experience, timeline, or any questions..."
+                    value={form.message}
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    maxLength={1000}
+                    rows={4}
+                  />
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                  <Button type="submit" size="lg" disabled={submitting}>
+                    {submitting ? "Submitting..." : "Submit Inquiry"}
+                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    We'll review your inquiry and contact you within 24 hours.
+                  </p>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card className="mt-8 border-primary/20 bg-primary/5">
+            <CardContent className="p-6 flex gap-3">
+              <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold mb-1">Limited Time Offer</h3>
+                <p className="text-sm text-muted-foreground">
+                  This investment round is limited to 10 vehicles. Once they're gone, you'll need
+                  to wait for the next round. Don't miss out.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Final CTA */}
+
       <section className="py-16 md:py-24 px-4 bg-navy text-navy-foreground">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">Ready to Invest?</h2>
