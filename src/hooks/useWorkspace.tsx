@@ -92,12 +92,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         .update({ active_workspace: role })
         .eq("user_id", user.id);
 
-      const seen = landingSeen[role];
-      if (!seen) {
-        navigate(`/welcome/${role}`);
-      } else {
-        navigate(ROLE_HOME[role]);
+      // Clients and hosts go straight to their workspace — no landing page.
+      // Only the investor workspace shows a marketing landing page on first visit.
+      if (role === "investor") {
+        const seen = landingSeen[role];
+        if (!seen) {
+          navigate(`/welcome/${role}`);
+          return;
+        }
       }
+      navigate(ROLE_HOME[role]);
     },
     [user, landingSeen, navigate]
   );
@@ -112,6 +116,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [user, landingSeen]
   );
 
+
   return (
     <WorkspaceContext.Provider
       value={{
@@ -125,6 +130,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         isRoleActive,
       }}
     >
+
       {children}
     </WorkspaceContext.Provider>
   );
