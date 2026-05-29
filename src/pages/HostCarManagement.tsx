@@ -6909,6 +6909,12 @@ export default function HostCarManagement() {
                   <div className="grid gap-3">
                     {claimsPageRows.map((claim: any) => {
                       const claimCar = cars.find((car) => car.id === claim.car_id);
+                      // Prefer the guest name from the matching trip (earning) by trip_id
+                      const tripGuestName = claim.trip_id
+                        ? earnings.find((e) => e.trip_id === claim.trip_id)?.guest_name
+                        : undefined;
+                      const displayGuestName = tripGuestName || claim.guest_name;
+
                       return (
                         <div key={claim.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
                           <div className="p-4">
@@ -6941,15 +6947,16 @@ export default function HostCarManagement() {
 
                                 {/* Details */}
                                 <div className="ml-10 space-y-1.5">
-                                  {claim.guest_name && (
+                                  {displayGuestName && (
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                       <User className="w-3 h-3" />
-                                      <span>{claim.guest_name}</span>
+                                      <span>{displayGuestName}</span>
                                       {claim.payment_source && (
                                         <span className="text-muted-foreground/60">• {claim.payment_source}</span>
                                       )}
                                     </div>
                                   )}
+
                                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <CalendarLucide className="w-3 h-3" />
                                     <span>Incident: {new Date(claim.incident_date).toLocaleDateString()}</span>
