@@ -156,15 +156,15 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
           Back to sign in
         </button>
         <h2 className="text-lg font-bold text-foreground">
-          Create your{" "}
+          Apply to become a{" "}
           <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Host
-          </span>{" "}
-          account
+          </span>
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Start managing vehicles and earning with Teslys
+          Tell us about your business. Our team reviews every application before approval.
         </p>
+
       </div>
 
       {/* Form */}
@@ -351,12 +351,13 @@ export default function HostRegisterCard({ onDone, onBackToLogin }: Props) {
           disabled={loading}
         >
           {loading ? (
-            "Creating account..."
+            "Submitting application..."
           ) : (
             <span className="inline-flex items-center gap-2">
-              Create Host Account <ArrowRight className="w-4 h-4" />
+              Submit Application <ArrowRight className="w-4 h-4" />
             </span>
           )}
+
         </Button>
 
         <p className="text-center text-xs text-muted-foreground pt-1">
