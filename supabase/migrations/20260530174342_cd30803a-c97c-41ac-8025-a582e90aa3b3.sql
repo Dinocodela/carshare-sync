@@ -1,0 +1,1 @@
+DELETE FROM public.host_claims WHERE payment_source = 'Turo';
