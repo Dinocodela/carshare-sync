@@ -5527,6 +5527,15 @@ export default function HostCarManagement() {
                       const netProfit = earning.amount - totalExpenses;
                       const clientProfit = (netProfit * (earning.client_profit_percentage || 70)) / 100;
                       const hostProfit = (netProfit * (earning.host_profit_percentage || 30)) / 100;
+                      const tripDays = Math.max(
+                        1,
+                        Math.round(
+                          (new Date(earning.earning_period_end).getTime() -
+                            new Date(earning.earning_period_start).getTime()) /
+                            86400000
+                        )
+                      );
+
 
                       return (
                         <div key={earning.id} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden transition-all duration-200 hover:border-primary/20 hover:shadow-sm">
