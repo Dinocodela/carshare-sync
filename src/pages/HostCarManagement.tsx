@@ -1913,8 +1913,11 @@ export default function HostCarManagement() {
         earning.earning_period_end.split("T")[1]?.slice(0, 5) || "",
       client_profit_percentage: earning.client_profit_percentage || 70,
       host_profit_percentage: earning.host_profit_percentage || 30,
-      payment_status: earning.payment_status,
-      date_paid: earning.date_paid || "",
+      // Default to "paid" with today's date when opening edit, since this dialog
+      // is most often used to mark an earning as paid. Existing paid records keep
+      // their original payment date.
+      payment_status: "paid",
+      date_paid: earning.date_paid || new Date().toLocaleDateString("en-CA"),
       pickup_address: earning.pickup_address || "",
       return_address: earning.return_address || "",
     });
