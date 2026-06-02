@@ -5608,7 +5608,9 @@ export default function HostCarManagement() {
                                   <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
                                     <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Host ({earning.host_profit_percentage || 30}%)</span>
                                     <span className="text-xs font-semibold tabular-nums">${hostProfit.toFixed(2)}</span>
+                                  </div>
                                   <div className="rounded-lg border border-border/40 bg-background/50 px-2.5 py-1.5">
+
                                     <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Days</span>
                                     <span className="text-xs font-semibold tabular-nums">{tripDays} {tripDays === 1 ? "day" : "days"}</span>
                                   </div>
