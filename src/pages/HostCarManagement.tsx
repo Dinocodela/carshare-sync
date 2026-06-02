@@ -1844,7 +1844,12 @@ export default function HostCarManagement() {
 
       // Add a small delay and force refresh with loading states
       setTimeout(async () => {
-        await Promise.all([fetchEarnings(true), fetchExpenses(true), fetchExpensesPageFromRPC()]);
+        await Promise.all([
+          fetchEarnings(true),
+          fetchEarningsPageFromRPC(),
+          fetchExpenses(true),
+          fetchExpensesPageFromRPC(),
+        ]);
       }, 300);
     } catch (error: any) {
       console.error("Error managing earning:", error);
