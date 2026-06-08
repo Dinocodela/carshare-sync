@@ -46,29 +46,45 @@ Deno.serve(async (req) => {
       expenses = expensesRes.data || [];
     }
 
-    const getTripExpenses = (tripId: string | null): number => {
-      if (!tripId) return 0;
-      return expenses
-        .filter((exp) => exp.trip_id === tripId)
-        .reduce(
-          (sum, exp) =>
-            sum +
-            (exp.amount || 0) +
-            (exp.toll_cost || 0) +
-            (exp.delivery_cost || 0) +
-            (exp.carwash_cost || 0) +
-            (exp.ev_charge_cost || 0),
-          0
-        );
+    const getTripExpenseBreakdown = (tripId: string | null) => {
+      const breakdown = {
+        ev_charge_cost: 0,
+        toll_cost: 0,
+        delivery_cost: 0,
+        carwash_cost: 0,
+        other_expenses: 0,
+        total_expenses: 0,
+      };
+      if (!tripId) return breakdown;
+      for (const exp of expenses.filter((e) => e.trip_id === tripId)) {
+        breakdown.ev_charge_cost += exp.ev_charge_cost || 0;
+        breakdown.toll_cost += exp.toll_cost || 0;
+        breakdown.delivery_cost += exp.delivery_cost || 0;
+        breakdown.carwash_cost += exp.carwash_cost || 0;
+        // "Other expenses" = base expense amount not attributed to a specific category
+        breakdown.other_expenses += exp.amount || 0;
+      }
+      breakdown.total_expenses =
+        breakdown.ev_charge_cost +
+        breakdown.toll_cost +
+        breakdown.delivery_cost +
+        breakdown.carwash_cost +
+        breakdown.other_expenses;
+      return breakdown;
     };
 
     const enriched = earnings.map((earning: any) => {
-      const totalExpenses = getTripExpenses(earning.trip_id);
+      const exp = getTripExpenseBreakdown(earning.trip_id);
       return {
         amount: earning.amount,
         commission: earning.commission,
-        net_amount: (earning.amount || 0) - totalExpenses,
-        total_expenses: totalExpenses,
+        net_amount: (earning.amount || 0) - exp.total_expenses,
+        total_expenses: exp.total_expenses,
+        ev_charge_cost: exp.ev_charge_cost,
+        toll_cost: exp.toll_cost,
+        delivery_cost: exp.delivery_cost,
+        carwash_cost: exp.carwash_cost,
+        other_expenses: exp.other_expenses,
         payment_status: earning.payment_status,
         payment_date: earning.payment_date,
         guest_name: earning.guest_name,
