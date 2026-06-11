@@ -1,28 +1,40 @@
 import { useEffect, useMemo, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   BarChart3,
   Car,
   Settings,
   Plus,
-  ShieldAlert,
   Route as RouteIcon,
+  MoreHorizontal,
+  Users,
+  Shield,
+  Receipt,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 type Role = "client" | "host";
 interface NavItem {
   title: string;
   url: string;
   icon: React.ComponentType<{ className?: string }>;
-  kind?: "add" | "default";
+  kind?: "add" | "more" | "default";
 }
 
 export function BottomNavBar() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   // ✅ Seed from user metadata to avoid initial flash
   const metaRole = (user?.user_metadata?.role as Role | undefined) ?? null;
@@ -37,11 +49,9 @@ export function BottomNavBar() {
         setLoadingRole(false);
         return;
       }
-      // If we already have a reliable role from metadata, don’t flash/fetch immediately
       if (metaRole) {
         setLoadingRole(false);
       }
-      // Always confirm from DB (in case role changed), but don’t show fallback with Add meanwhile
       const { data } = await supabase
         .from("profiles")
         .select("role")
@@ -55,15 +65,22 @@ export function BottomNavBar() {
     return () => {
       cancelled = true;
     };
-    // include metaRole so if metadata changes we re-evaluate loading state
   }, [user?.id, metaRole]);
+
+  const moreItem: NavItem = {
+    title: "More",
+    url: "#more",
+    icon: MoreHorizontal,
+    kind: "more",
+  };
 
   const clientItems: NavItem[] = useMemo(
     () => [
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Trips", url: "/trips", icon: RouteIcon },
       { title: "Add", url: "/add-car", icon: Plus, kind: "add" },
-      { title: "Settings", url: "/settings", icon: Settings },
+      { title: "Analytics", url: "/client-analytics", icon: BarChart3 },
+      moreItem,
     ],
     []
   );
@@ -73,18 +90,38 @@ export function BottomNavBar() {
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Trips", url: "/trips", icon: RouteIcon },
       { title: "Hosted", url: "/host-car-management#active", icon: Car },
+      { title: "Analytics", url: "/host-analytics", icon: BarChart3 },
+      moreItem,
+    ],
+    []
+  );
+
+  // Secondary items shown in the "More" drawer
+  const clientMoreItems: NavItem[] = useMemo(
+    () => [
+      { title: "My Cars", url: "/my-cars", icon: Car },
+      { title: "Fixed Expenses", url: "/client-fixed-expenses", icon: Receipt },
       { title: "Settings", url: "/settings", icon: Settings },
     ],
     []
   );
 
-  // Minimal neutral placeholder (no “Add”) while confirming role
+  const hostMoreItems: NavItem[] = useMemo(
+    () => [
+      { title: "Hosted Cars", url: "/host-car-management", icon: Car },
+      { title: "Clients", url: "/registered-clients", icon: Users },
+      { title: "Claims", url: "/host-car-management#claims", icon: Shield },
+      { title: "Settings", url: "/settings", icon: Settings },
+    ],
+    []
+  );
+
   const loadingItems: NavItem[] = useMemo(
     () => [
       { title: "Dashboard", url: "/dashboard", icon: Home },
-      { title: "Analytics", url: "/client-analytics", icon: BarChart3 },
-      { title: "My Cars", url: "/my-cars", icon: Car },
+      { title: "Trips", url: "/trips", icon: RouteIcon },
       { title: "Settings", url: "/settings", icon: Settings },
+      moreItem,
     ],
     []
   );
@@ -111,6 +148,24 @@ export function BottomNavBar() {
       {items.map((item) => {
         const active = isActive(item);
         const Icon = item.icon;
+
+        if (item.kind === "more") {
+          return (
+            <li key={item.title} className="min-w-0">
+              <button
+                type="button"
+                onClick={() => setMoreOpen(true)}
+                aria-label={item.title}
+                className={`${linkBase} ${
+                  moreOpen ? "text-primary font-medium" : "text-muted-foreground"
+                }`}
+              >
+                <Icon className={iconBase} />
+                <span className="leading-none truncate">{item.title}</span>
+              </button>
+            </li>
+          );
+        }
 
         if (item.kind === "add") {
           return (
@@ -156,26 +211,62 @@ export function BottomNavBar() {
     </ul>
   );
 
+  const moreItems =
+    role === "host" ? hostMoreItems : role === "client" ? clientMoreItems : clientMoreItems;
+
+  const handleMoreNavigate = (url: string) => {
+    setMoreOpen(false);
+    navigate(url);
+  };
+
   return (
-    <nav
-      className="
-        fixed bottom-0 inset-x-0 z-50 md:hidden
-        border-t
-		pb-safe-bottom
-        backdrop-blur-md bg-background/70 supports-[backdrop-filter]:bg-background/60
-        shadow-[0_-6px_16px_rgba(0,0,0,0.05)]
-      "
-      aria-label="Bottom navigation"
-    >
-      {
-        loadingRole
-          ? renderItems(loadingItems) // ← no Add while loading/confirming
+    <>
+      <nav
+        className="
+          fixed bottom-0 inset-x-0 z-50 md:hidden
+          border-t
+          pb-safe-bottom
+          backdrop-blur-md bg-background/70 supports-[backdrop-filter]:bg-background/60
+          shadow-[0_-6px_16px_rgba(0,0,0,0.05)]
+        "
+        aria-label="Bottom navigation"
+      >
+        {loadingRole
+          ? renderItems(loadingItems)
           : role === "client"
           ? renderItems(clientItems)
           : role === "host"
           ? renderItems(hostItems)
-          : renderItems(loadingItems) /* unknown role fallback without Add */
-      }
-    </nav>
+          : renderItems(loadingItems)}
+      </nav>
+
+      <Drawer open={moreOpen} onOpenChange={setMoreOpen}>
+        <DrawerContent className="md:hidden">
+          <DrawerHeader className="text-left">
+            <DrawerTitle>More</DrawerTitle>
+          </DrawerHeader>
+          <ul className="px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            {moreItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.title}>
+                  <button
+                    type="button"
+                    onClick={() => handleMoreNavigate(item.url)}
+                    className="flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-left transition-colors hover:bg-muted active:bg-muted"
+                  >
+                    <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
+                    <span className="flex-1 text-base font-medium">
+                      {item.title}
+                    </span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }
