@@ -29,6 +29,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useWorkspace } from "@/hooks/useWorkspace";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/investor-hero.jpg";
 
@@ -117,11 +118,16 @@ const currency = (n: number) =>
 
 export default function WelcomeInvestor() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { markLandingSeen, availableRoles, switchWorkspace } = useWorkspace();
   const dealRef = useRef<HTMLDivElement>(null);
 
   const goBackToApp = () => {
-    switchWorkspace("client");
+    if (user) {
+      switchWorkspace("client");
+    } else {
+      navigate("/");
+    }
   };
 
 
@@ -219,6 +225,10 @@ export default function WelcomeInvestor() {
   }, [resale, vehicles]);
 
   const goToMarketplace = async () => {
+    if (!user) {
+      scrollToForm();
+      return;
+    }
     await markLandingSeen("investor");
     navigate("/investor/marketplace");
   };
