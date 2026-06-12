@@ -18,7 +18,7 @@ export default function Trips() {
   const [loading, setLoading] = useState(true);
   const [pageItems, setPageItems] = useState<TripCardData[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [filter, setFilter] = useState<Filter>("upcoming");
+  const [filter, setFilter] = useState<Filter>("active");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
