@@ -34,7 +34,7 @@ const META: Record<
 
 const ORDER: WorkspaceRole[] = ["host", "client", "investor"];
 
-export function WorkspaceSwitcher() {
+export function WorkspaceSwitcher({ onSwitch }: { onSwitch?: () => void } = {}) {
   const { activeWorkspace, availableRoles, switchWorkspace, loading } = useWorkspace();
 
   if (loading || availableRoles.length === 0) return null;
@@ -43,7 +43,7 @@ export function WorkspaceSwitcher() {
   const ActiveIcon = active.Icon;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
