@@ -225,6 +225,10 @@ export default function WelcomeInvestor() {
   }, [resale, vehicles]);
 
   const goToMarketplace = async () => {
+    if (!user) {
+      scrollToForm();
+      return;
+    }
     await markLandingSeen("investor");
     navigate("/investor/marketplace");
   };
