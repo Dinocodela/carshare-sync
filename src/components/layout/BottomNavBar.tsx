@@ -54,7 +54,7 @@ export function BottomNavBar() {
     let cancelled = false;
     (async () => {
       if (!user) {
-        setRole(null);
+        setProfileRole(null);
         setLoadingRole(false);
         return;
       }
@@ -68,7 +68,7 @@ export function BottomNavBar() {
         .maybeSingle();
 
       if (cancelled) return;
-      if (data?.role === "client" || data?.role === "host") setRole(data.role);
+      if (data?.role === "client" || data?.role === "host") setProfileRole(data.role);
       setLoadingRole(false);
     })();
     return () => {
