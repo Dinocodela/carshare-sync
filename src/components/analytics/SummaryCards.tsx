@@ -9,11 +9,10 @@ import {
   Receipt,
 } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { AnalyticsSummary } from "@/hooks/useClientAnalytics";
 
 interface SummaryCardsProps {
@@ -158,40 +157,30 @@ export function SummaryCards({
 
             <div className="relative">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                    {card.title}
-                  </span>
-                  {tooltipText && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button type="button" className="text-muted-foreground/60 hover:text-foreground">
-                            <Info className="h-3 w-3" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs text-xs">{tooltipText}</TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                  {card.title}
+                </span>
+                {tooltipText ? (
+                  <Popover>
+                    <PopoverTrigger asChild>
                       <button
                         type="button"
                         aria-label={`How ${card.title} is calculated`}
-                        className={`relative w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+                        className={`relative w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
                       >
                         <card.icon className="w-4 h-4" />
                         <Info className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-card text-muted-foreground shadow-sm" />
                       </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[260px] text-xs leading-relaxed">
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-[260px] text-xs leading-relaxed">
                       {tooltipText}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                    </PopoverContent>
+                  </Popover>
+                ) : (
+                  <div className={`w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center`}>
+                    <card.icon className="w-4 h-4" />
+                  </div>
+                )}
               </div>
               <p className={`text-xl font-bold tracking-tight ${(card as any).valueClass || "text-foreground"}`}>
                 {card.value}

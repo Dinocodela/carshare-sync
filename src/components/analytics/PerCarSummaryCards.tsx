@@ -11,11 +11,10 @@ import {
 } from "lucide-react";
 import { CarPerformance } from "@/hooks/usePerCarAnalytics";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface PerCarSummaryCardsProps {
   performance: CarPerformance;
@@ -136,23 +135,21 @@ export function PerCarSummaryCards({ performance, loading }: PerCarSummaryCardsP
               <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                 {card.title}
               </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label={`How ${card.title} is calculated`}
-                      className={`relative w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
-                    >
-                      <card.icon className="w-4 h-4" />
-                      <Info className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-card text-muted-foreground shadow-sm" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[260px] text-xs leading-relaxed">
-                    {card.tooltip}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label={`How ${card.title} is calculated`}
+                    className={`relative w-8 h-8 rounded-xl ${card.accent} flex items-center justify-center transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+                  >
+                    <card.icon className="w-4 h-4" />
+                    <Info className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-card text-muted-foreground shadow-sm" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="max-w-[260px] text-xs leading-relaxed">
+                  {card.tooltip}
+                </PopoverContent>
+              </Popover>
             </div>
             <p className={`text-xl font-bold tracking-tight ${card.valueClass || "text-foreground"}`}>
               {card.value}
