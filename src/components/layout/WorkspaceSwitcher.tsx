@@ -32,7 +32,7 @@ const META: Record<
   },
 };
 
-const ORDER: WorkspaceRole[] = ["client", "host", "investor"];
+const ORDER: WorkspaceRole[] = ["host", "client", "investor"];
 
 export function WorkspaceSwitcher() {
   const { activeWorkspace, availableRoles, switchWorkspace, loading } = useWorkspace();
