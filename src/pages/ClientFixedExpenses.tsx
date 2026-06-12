@@ -173,8 +173,8 @@ export default function ClientFixedExpenses() {
             </div>
           )}
 
-          {/* Quick Setup */}
-          {carsWithExpenses.length < clientCars.length && (
+          {/* Quick Setup (only when showing all vehicles) */}
+          {showAll && cars.some(car => getMonthlyFixedCosts(car.id) === 0) && (
             <div style={fadeIn(5)} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5 space-y-4">
               <div className="flex items-center gap-2.5">
                 <div className="rounded-lg bg-primary/10 p-2">
