@@ -164,12 +164,39 @@ export default function ClientFixedExpenses() {
             </Select>
           </div>
 
+          {/* Selected Vehicle Details */}
+          {selectedCar && (
+            <div style={fadeIn(4)} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Car className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold tracking-tight">{carNickname(selectedCar)}</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedCar.year} {selectedCar.make} {selectedCar.model}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-background/50 border border-border/40 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">License Plate</p>
+                  <p className="text-sm font-semibold">{(selectedCar as any).license_plate || '—'}</p>
+                </div>
+                <div className="rounded-xl bg-background/50 border border-border/40 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">VIN</p>
+                  <p className="text-sm font-semibold break-all">{(selectedCar as any).vin_number || '—'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Expenses List */}
           {selectedCar && (
-            <div style={fadeIn(4)}>
+            <div style={fadeIn(5)}>
               <FixedExpensesList
                 carId={selectedCar.id}
-                carName={`${selectedCar.year} ${selectedCar.make} ${selectedCar.model}`}
+                carName={carNickname(selectedCar)}
                 readOnly={Boolean((selectedCar as any).is_shared)}
               />
             </div>
