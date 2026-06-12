@@ -41,6 +41,8 @@ export default function ClientFixedExpenses() {
   const activeCars = cars.filter(car => getMonthlyFixedCosts(car.id) > 0);
   const clientCars = showAll ? cars : activeCars;
 
+  const carNickname = (car: any) => car?.nickname || `${car?.year} ${car?.make} ${car?.model}`;
+
   const selectedCar = clientCars.find(car => car.id === selectedCarId);
 
   if (!selectedCarId && clientCars.length > 0 && !carsLoading) {
