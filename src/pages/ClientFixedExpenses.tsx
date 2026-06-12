@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FixedExpensesList } from '@/components/expenses/FixedExpensesList';
 import { useCars } from '@/hooks/useCars';
@@ -21,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ClientFixedExpenses() {
   const [selectedCarId, setSelectedCarId] = useState<string>('');
+  const [showAll, setShowAll] = useState(false);
   const { cars, loading: carsLoading } = useCars();
   const { getMonthlyFixedCosts, expenses, loading: expensesLoading } = useClientCarExpenses();
   const navigate = useNavigate();
@@ -34,7 +37,9 @@ export default function ClientFixedExpenses() {
     transition: `all 500ms cubic-bezier(0.23,1,0.32,1) ${idx * 80}ms`,
   });
 
-  const clientCars = cars;
+  // Active fleet = vehicles that have fixed expenses configured
+  const activeCars = cars.filter(car => getMonthlyFixedCosts(car.id) > 0);
+  const clientCars = showAll ? cars : activeCars;
 
   const selectedCar = clientCars.find(car => car.id === selectedCarId);
 
@@ -43,8 +48,13 @@ export default function ClientFixedExpenses() {
     setSelectedCarId(carWithExpenses?.id || clientCars[0].id);
   }
 
-  const totalMonthlyFixed = clientCars.reduce((total, car) => total + getMonthlyFixedCosts(car.id), 0);
-  const carsWithExpenses = clientCars.filter(car => getMonthlyFixedCosts(car.id) > 0);
+  // If the current selection is no longer visible (e.g. toggled off "show all"), reset it
+  if (selectedCarId && clientCars.length > 0 && !clientCars.some(car => car.id === selectedCarId)) {
+    setSelectedCarId(clientCars[0].id);
+  }
+
+  const totalMonthlyFixed = activeCars.reduce((total, car) => total + getMonthlyFixedCosts(car.id), 0);
+  const carsWithExpenses = activeCars;
 
   return (
     <DashboardLayout>
@@ -90,20 +100,20 @@ export default function ClientFixedExpenses() {
                 icon: DollarSign,
                 label: "Total Monthly",
                 value: `$${totalMonthlyFixed.toFixed(2)}`,
-                sub: `Across ${clientCars.length} vehicle${clientCars.length !== 1 ? 's' : ''}`,
+                sub: `Across ${activeCars.length} active vehicle${activeCars.length !== 1 ? 's' : ''}`,
                 color: "text-green-600",
               },
               {
                 icon: Car,
-                label: "With Expenses",
-                value: String(carsWithExpenses.length),
-                sub: `${clientCars.length - carsWithExpenses.length} need setup`,
+                label: "Active Fleet",
+                value: String(activeCars.length),
+                sub: "With fixed expenses",
                 color: "text-primary",
               },
               {
                 icon: BarChart3,
                 label: "Avg per Car",
-                value: `$${clientCars.length > 0 ? (totalMonthlyFixed / clientCars.length).toFixed(2) : '0.00'}`,
+                value: `$${activeCars.length > 0 ? (totalMonthlyFixed / activeCars.length).toFixed(2) : '0.00'}`,
                 sub: "Monthly average",
                 color: "text-blue-600",
               },
@@ -121,11 +131,19 @@ export default function ClientFixedExpenses() {
 
           {/* Car Selector */}
           <div style={fadeIn(3)} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Car className="h-4 w-4 text-primary" />
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Car className="h-4 w-4 text-primary" />
+                </div>
+                <h2 className="text-base font-semibold tracking-tight">Select Vehicle</h2>
               </div>
-              <h2 className="text-base font-semibold tracking-tight">Select Vehicle</h2>
+              <div className="flex items-center gap-2">
+                <Switch id="show-all" checked={showAll} onCheckedChange={setShowAll} />
+                <Label htmlFor="show-all" className="text-xs text-muted-foreground cursor-pointer">
+                  Show all vehicles
+                </Label>
+              </div>
             </div>
             <Select value={selectedCarId} onValueChange={setSelectedCarId}>
               <SelectTrigger className="w-full rounded-xl bg-background/50">
@@ -155,8 +173,8 @@ export default function ClientFixedExpenses() {
             </div>
           )}
 
-          {/* Quick Setup */}
-          {carsWithExpenses.length < clientCars.length && (
+          {/* Quick Setup (only when showing all vehicles) */}
+          {showAll && cars.some(car => getMonthlyFixedCosts(car.id) === 0) && (
             <div style={fadeIn(5)} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5 space-y-4">
               <div className="flex items-center gap-2.5">
                 <div className="rounded-lg bg-primary/10 p-2">
@@ -168,7 +186,7 @@ export default function ClientFixedExpenses() {
                 The following vehicles don't have fixed expenses configured yet:
               </p>
               <div className="space-y-2">
-                {clientCars
+                {cars
                   .filter(car => getMonthlyFixedCosts(car.id) === 0)
                   .map((car) => (
                     <div key={car.id} className="flex items-center justify-between rounded-xl bg-background/50 border border-border/40 px-4 py-3">
