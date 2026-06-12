@@ -192,8 +192,12 @@ const App = () => (
               <Route path="/tesla-rental-insurance" element={<TeslaRentalInsurance />} />
               <Route path="/tesla-rental-statistics" element={<TeslaRentalStatistics />} />
 
+              {/* Investor landing page — public so prospects can view without an account */}
+              <Route path="/welcome/investor" element={<WelcomeInvestor />} />
+
               {/* Programmatic Model + City Pages */}
               <Route path="/:slug" element={<ModelCityPage />} />
+
 
               {/* Authenticated */}
               <Route element={<RequireAuth />}>
