@@ -212,6 +212,7 @@ export type Database = {
           make: string
           mileage: number | null
           model: string
+          nickname: string | null
           status: string
           updated_at: string
           vin_number: string | null
@@ -230,6 +231,7 @@ export type Database = {
           make: string
           mileage?: number | null
           model: string
+          nickname?: string | null
           status?: string
           updated_at?: string
           vin_number?: string | null
@@ -248,6 +250,7 @@ export type Database = {
           make?: string
           mileage?: number | null
           model?: string
+          nickname?: string | null
           status?: string
           updated_at?: string
           vin_number?: string | null
