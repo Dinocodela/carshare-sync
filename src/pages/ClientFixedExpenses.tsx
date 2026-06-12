@@ -186,7 +186,7 @@ export default function ClientFixedExpenses() {
                 The following vehicles don't have fixed expenses configured yet:
               </p>
               <div className="space-y-2">
-                {clientCars
+                {cars
                   .filter(car => getMonthlyFixedCosts(car.id) === 0)
                   .map((car) => (
                     <div key={car.id} className="flex items-center justify-between rounded-xl bg-background/50 border border-border/40 px-4 py-3">
