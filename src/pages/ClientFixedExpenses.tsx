@@ -154,9 +154,9 @@ export default function ClientFixedExpenses() {
               <SelectContent>
                 {clientCars.map((car) => (
                   <SelectItem key={car.id} value={car.id}>
-                    {car.year} {car.make} {car.model}
+                    <span className="font-medium">{carNickname(car)}</span>
                     <span className="ml-2 text-xs text-muted-foreground">
-                      (${getMonthlyFixedCosts(car.id).toFixed(2)}/mo)
+                      {(car as any).license_plate || '—'} · ${getMonthlyFixedCosts(car.id).toFixed(2)}/mo
                     </span>
                   </SelectItem>
                 ))}
