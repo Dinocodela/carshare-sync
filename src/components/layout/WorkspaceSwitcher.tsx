@@ -73,7 +73,12 @@ export function WorkspaceSwitcher({ onSwitch }: { onSwitch?: () => void } = {}) 
           return (
             <DropdownMenuItem
               key={role}
-              onClick={() => !isActive && switchWorkspace(role)}
+              onClick={() => {
+                if (!isActive) {
+                  switchWorkspace(role);
+                  onSwitch?.();
+                }
+              }}
               className="gap-3 py-2 cursor-pointer"
             >
               <Icon className="h-4 w-4 shrink-0 mt-0.5" />
