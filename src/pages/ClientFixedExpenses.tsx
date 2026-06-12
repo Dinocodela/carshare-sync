@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ClientFixedExpenses() {
   const [selectedCarId, setSelectedCarId] = useState<string>('');
+  const [showAll, setShowAll] = useState(false);
   const { cars, loading: carsLoading } = useCars();
   const { getMonthlyFixedCosts, expenses, loading: expensesLoading } = useClientCarExpenses();
   const navigate = useNavigate();
@@ -36,7 +37,9 @@ export default function ClientFixedExpenses() {
     transition: `all 500ms cubic-bezier(0.23,1,0.32,1) ${idx * 80}ms`,
   });
 
-  const clientCars = cars;
+  // Active fleet = vehicles that have fixed expenses configured
+  const activeCars = cars.filter(car => getMonthlyFixedCosts(car.id) > 0);
+  const clientCars = showAll ? cars : activeCars;
 
   const selectedCar = clientCars.find(car => car.id === selectedCarId);
 
@@ -45,8 +48,13 @@ export default function ClientFixedExpenses() {
     setSelectedCarId(carWithExpenses?.id || clientCars[0].id);
   }
 
-  const totalMonthlyFixed = clientCars.reduce((total, car) => total + getMonthlyFixedCosts(car.id), 0);
-  const carsWithExpenses = clientCars.filter(car => getMonthlyFixedCosts(car.id) > 0);
+  // If the current selection is no longer visible (e.g. toggled off "show all"), reset it
+  if (selectedCarId && clientCars.length > 0 && !clientCars.some(car => car.id === selectedCarId)) {
+    setSelectedCarId(clientCars[0].id);
+  }
+
+  const totalMonthlyFixed = activeCars.reduce((total, car) => total + getMonthlyFixedCosts(car.id), 0);
+  const carsWithExpenses = activeCars;
 
   return (
     <DashboardLayout>
