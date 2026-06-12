@@ -41,6 +41,8 @@ export default function ClientFixedExpenses() {
   const activeCars = cars.filter(car => getMonthlyFixedCosts(car.id) > 0);
   const clientCars = showAll ? cars : activeCars;
 
+  const carNickname = (car: any) => car?.nickname || `${car?.year} ${car?.make} ${car?.model}`;
+
   const selectedCar = clientCars.find(car => car.id === selectedCarId);
 
   if (!selectedCarId && clientCars.length > 0 && !carsLoading) {
@@ -152,9 +154,9 @@ export default function ClientFixedExpenses() {
               <SelectContent>
                 {clientCars.map((car) => (
                   <SelectItem key={car.id} value={car.id}>
-                    {car.year} {car.make} {car.model}
+                    <span className="font-medium">{carNickname(car)}</span>
                     <span className="ml-2 text-xs text-muted-foreground">
-                      (${getMonthlyFixedCosts(car.id).toFixed(2)}/mo)
+                      {(car as any).license_plate || '—'} · ${getMonthlyFixedCosts(car.id).toFixed(2)}/mo
                     </span>
                   </SelectItem>
                 ))}
@@ -162,12 +164,39 @@ export default function ClientFixedExpenses() {
             </Select>
           </div>
 
+          {/* Selected Vehicle Details */}
+          {selectedCar && (
+            <div style={fadeIn(4)} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Car className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold tracking-tight">{carNickname(selectedCar)}</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedCar.year} {selectedCar.make} {selectedCar.model}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-background/50 border border-border/40 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">License Plate</p>
+                  <p className="text-sm font-semibold">{(selectedCar as any).license_plate || '—'}</p>
+                </div>
+                <div className="rounded-xl bg-background/50 border border-border/40 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">VIN</p>
+                  <p className="text-sm font-semibold break-all">{(selectedCar as any).vin_number || '—'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Expenses List */}
           {selectedCar && (
-            <div style={fadeIn(4)}>
+            <div style={fadeIn(5)}>
               <FixedExpensesList
                 carId={selectedCar.id}
-                carName={`${selectedCar.year} ${selectedCar.make} ${selectedCar.model}`}
+                carName={carNickname(selectedCar)}
                 readOnly={Boolean((selectedCar as any).is_shared)}
               />
             </div>
@@ -191,7 +220,10 @@ export default function ClientFixedExpenses() {
                   .map((car) => (
                     <div key={car.id} className="flex items-center justify-between rounded-xl bg-background/50 border border-border/40 px-4 py-3">
                       <span className="text-sm font-medium">
-                        {car.year} {car.make} {car.model}
+                        {carNickname(car)}
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {(car as any).license_plate || '—'}
+                        </span>
                       </span>
                       <Button size="sm" className="rounded-xl" onClick={() => setSelectedCarId(car.id)}>
                         Add Expenses
