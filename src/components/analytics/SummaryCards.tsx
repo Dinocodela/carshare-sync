@@ -9,11 +9,10 @@ import {
   Receipt,
 } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { AnalyticsSummary } from "@/hooks/useClientAnalytics";
 
 interface SummaryCardsProps {
