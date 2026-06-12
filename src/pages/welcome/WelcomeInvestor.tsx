@@ -117,11 +117,16 @@ const currency = (n: number) =>
 
 export default function WelcomeInvestor() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { markLandingSeen, availableRoles, switchWorkspace } = useWorkspace();
   const dealRef = useRef<HTMLDivElement>(null);
 
   const goBackToApp = () => {
-    switchWorkspace("client");
+    if (user) {
+      switchWorkspace("client");
+    } else {
+      navigate("/");
+    }
   };
 
 
