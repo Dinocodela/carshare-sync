@@ -255,8 +255,8 @@ export function BottomNavBar() {
           <DrawerHeader className="text-left">
             <DrawerTitle>More</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-2" onClick={() => setMoreOpen(false)}>
-            <WorkspaceSwitcher />
+          <div className="px-4 pb-2">
+            <WorkspaceSwitcher onSwitch={() => setMoreOpen(false)} />
           </div>
           <ul className="px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
             {moreItems.map((item) => {
