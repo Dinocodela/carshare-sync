@@ -11,11 +11,10 @@ import {
 } from "lucide-react";
 import { CarPerformance } from "@/hooks/usePerCarAnalytics";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface PerCarSummaryCardsProps {
   performance: CarPerformance;
