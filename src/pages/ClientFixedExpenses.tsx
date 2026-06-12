@@ -220,7 +220,10 @@ export default function ClientFixedExpenses() {
                   .map((car) => (
                     <div key={car.id} className="flex items-center justify-between rounded-xl bg-background/50 border border-border/40 px-4 py-3">
                       <span className="text-sm font-medium">
-                        {car.year} {car.make} {car.model}
+                        {carNickname(car)}
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {(car as any).license_plate || '—'}
+                        </span>
                       </span>
                       <Button size="sm" className="rounded-xl" onClick={() => setSelectedCarId(car.id)}>
                         Add Expenses
