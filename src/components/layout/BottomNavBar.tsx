@@ -21,6 +21,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { WorkspaceSwitcher } from "@/components/layout/WorkspaceSwitcher";
 
 type Role = "client" | "host";
 interface NavItem {
