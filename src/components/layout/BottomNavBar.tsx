@@ -21,6 +21,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { WorkspaceSwitcher } from "@/components/layout/WorkspaceSwitcher";
 
 type Role = "client" | "host";
 interface NavItem {
@@ -245,6 +246,9 @@ export function BottomNavBar() {
           <DrawerHeader className="text-left">
             <DrawerTitle>More</DrawerTitle>
           </DrawerHeader>
+          <div className="px-4 pb-2" onClick={() => setMoreOpen(false)}>
+            <WorkspaceSwitcher />
+          </div>
           <ul className="px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
             {moreItems.map((item) => {
               const Icon = item.icon;
