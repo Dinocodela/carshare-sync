@@ -443,7 +443,7 @@ export default function Dashboard() {
             .lte("earning_period_end", todayStr)
             .order("earning_period_end", { ascending: false })
             .limit(5);
-          if (!cancelled) setRecentTrips(rows || []);
+          if (!cancelled) setRecentTrips((rows || []).slice().reverse());
         } else {
           const carIds = (clientData?.cars || []).map((c: any) => c.id);
           if (carIds.length) {
@@ -454,7 +454,7 @@ export default function Dashboard() {
               .lte("earning_period_end", todayStr)
               .order("earning_period_end", { ascending: false })
               .limit(5);
-            if (!cancelled) setRecentTrips(rows || []);
+            if (!cancelled) setRecentTrips((rows || []).slice().reverse());
           } else {
             if (!cancelled) setRecentTrips([]);
           }
