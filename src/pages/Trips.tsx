@@ -59,7 +59,7 @@ export default function Trips() {
         query = query
           .lte("earning_period_start", nowIso)
           .gte("earning_period_end", nowIso)
-          .order("earning_period_start", { ascending: true });
+          .order("earning_period_end", { ascending: true });
       } else if (filter === "past") {
         query = query
           .lt("earning_period_end", nowIso)
