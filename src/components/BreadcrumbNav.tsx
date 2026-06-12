@@ -91,7 +91,7 @@ export function BreadcrumbNav() {
   return (
     <>
       <StructuredData type="breadcrumblist" data={breadcrumbListData} />
-      <Breadcrumb className="mb-4">
+      <Breadcrumb className="mb-4 hidden md:block">
         <BreadcrumbList>
           {breadcrumbs.map((crumb, index) => {
             const isLast = index === breadcrumbs.length - 1;
