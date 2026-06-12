@@ -131,11 +131,19 @@ export default function ClientFixedExpenses() {
 
           {/* Car Selector */}
           <div style={fadeIn(3)} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Car className="h-4 w-4 text-primary" />
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Car className="h-4 w-4 text-primary" />
+                </div>
+                <h2 className="text-base font-semibold tracking-tight">Select Vehicle</h2>
               </div>
-              <h2 className="text-base font-semibold tracking-tight">Select Vehicle</h2>
+              <div className="flex items-center gap-2">
+                <Switch id="show-all" checked={showAll} onCheckedChange={setShowAll} />
+                <Label htmlFor="show-all" className="text-xs text-muted-foreground cursor-pointer">
+                  Show all vehicles
+                </Label>
+              </div>
             </div>
             <Select value={selectedCarId} onValueChange={setSelectedCarId}>
               <SelectTrigger className="w-full rounded-xl bg-background/50">
