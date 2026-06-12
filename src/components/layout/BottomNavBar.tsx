@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import {
   Drawer,
   DrawerContent,
@@ -35,18 +36,26 @@ export function BottomNavBar() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { activeWorkspace, availableRoles } = useWorkspace();
   const [moreOpen, setMoreOpen] = useState(false);
 
   // ✅ Seed from user metadata to avoid initial flash
   const metaRole = (user?.user_metadata?.role as Role | undefined) ?? null;
-  const [role, setRole] = useState<Role | null>(metaRole);
+  const [profileRole, setProfileRole] = useState<Role | null>(metaRole);
   const [loadingRole, setLoadingRole] = useState<boolean>(!metaRole && !!user);
+
+  // The bottom nav follows the active workspace when the user has that role.
+  // Investor (or any non client/host workspace) falls back to the profile role.
+  const role: Role | null =
+    activeWorkspace === "host" || activeWorkspace === "client"
+      ? activeWorkspace
+      : profileRole;
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       if (!user) {
-        setRole(null);
+        setProfileRole(null);
         setLoadingRole(false);
         return;
       }
@@ -60,7 +69,7 @@ export function BottomNavBar() {
         .maybeSingle();
 
       if (cancelled) return;
-      if (data?.role === "client" || data?.role === "host") setRole(data.role);
+      if (data?.role === "client" || data?.role === "host") setProfileRole(data.role);
       setLoadingRole(false);
     })();
     return () => {
