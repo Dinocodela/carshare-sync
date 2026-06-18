@@ -478,9 +478,10 @@ export default function HostCarManagement() {
   const [claimsTotalCount, setClaimsTotalCount] = useState(0);
   const [claimsAllCount, setClaimsAllCount] = useState(0);
   const [claimsTotals, setClaimsTotals] = useState({
-    pending_count: 0,
     approved_count: 0,
+    paid_count: 0,
     total_amount: 0,
+    approved_amount: 0,
     paid_amount: 0,
   });
   const [claimsRpcTypes, setClaimsRpcTypes] = useState<string[]>([]);
