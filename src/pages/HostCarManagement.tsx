@@ -954,9 +954,15 @@ export default function HostCarManagement() {
 
     // Filter by claim status
     if (claimsFilters.claimStatus && claimsFilters.claimStatus !== "all") {
-      filtered = filtered.filter(
-        (claim) => claim.claim_status === claimsFilters.claimStatus
-      );
+      filtered = filtered.filter((claim) => {
+        if (claimsFilters.claimStatus === "paid") {
+          return claim.is_paid || claim.claim_status === "paid";
+        }
+        if (claimsFilters.claimStatus === "approved") {
+          return claim.claim_status === "approved" && !claim.is_paid;
+        }
+        return claim.claim_status === claimsFilters.claimStatus;
+      });
     }
 
     // Filter by claim type
