@@ -6923,8 +6923,8 @@ export default function HostCarManagement() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                     {[
                       { label: "Total Claims", value: claimsAllCount.toString(), icon: FileText },
-                      { label: "Pending", value: claimsTotals.pending_count.toString(), icon: Clock },
                       { label: "Approved", value: claimsTotals.approved_count.toString(), icon: CheckCircle },
+                      { label: "Approved Amount", value: `$${claimsTotals.approved_amount.toFixed(2)}`, icon: DollarSign },
                       { label: "Total Amount", value: `$${claimsTotals.total_amount.toFixed(2)}`, icon: DollarSign },
                       { label: "Amount Paid", value: `$${claimsTotals.paid_amount.toFixed(2)}`, icon: CheckCircle },
                     ].map((item, i) => (
