@@ -35,6 +35,7 @@ import {
   User,
   Info,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
