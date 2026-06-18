@@ -1432,9 +1432,10 @@ export default function HostCarManagement() {
       setClaimsTotalCount(Number(result.total_count) || 0);
       setClaimsAllCount(Number(result.all_count) || 0);
       setClaimsTotals({
-        pending_count: Number(result.pending_count) || 0,
         approved_count: Number(result.approved_count) || 0,
+        paid_count: Number(result.paid_count) || 0,
         total_amount: Number(result.total_amount) || 0,
+        approved_amount: Number(result.approved_amount) || 0,
         paid_amount: Number(result.paid_amount) || 0,
       });
       setClaimsRpcTypes(Array.isArray(result.claim_types) ? result.claim_types.filter(Boolean) : []);
