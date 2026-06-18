@@ -485,6 +485,7 @@ export default function HostCarManagement() {
     approved_amount: 0,
     paid_amount: 0,
   });
+  const [totalAmountInclusive, setTotalAmountInclusive] = useState(true);
   const [claimsRpcTypes, setClaimsRpcTypes] = useState<string[]>([]);
   const [claimsListLoading, setClaimsListLoading] = useState(false);
 
