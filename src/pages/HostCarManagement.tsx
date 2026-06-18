@@ -478,9 +478,10 @@ export default function HostCarManagement() {
   const [claimsTotalCount, setClaimsTotalCount] = useState(0);
   const [claimsAllCount, setClaimsAllCount] = useState(0);
   const [claimsTotals, setClaimsTotals] = useState({
-    pending_count: 0,
     approved_count: 0,
+    paid_count: 0,
     total_amount: 0,
+    approved_amount: 0,
     paid_amount: 0,
   });
   const [claimsRpcTypes, setClaimsRpcTypes] = useState<string[]>([]);
@@ -1431,9 +1432,10 @@ export default function HostCarManagement() {
       setClaimsTotalCount(Number(result.total_count) || 0);
       setClaimsAllCount(Number(result.all_count) || 0);
       setClaimsTotals({
-        pending_count: Number(result.pending_count) || 0,
         approved_count: Number(result.approved_count) || 0,
+        paid_count: Number(result.paid_count) || 0,
         total_amount: Number(result.total_amount) || 0,
+        approved_amount: Number(result.approved_amount) || 0,
         paid_amount: Number(result.paid_amount) || 0,
       });
       setClaimsRpcTypes(Array.isArray(result.claim_types) ? result.claim_types.filter(Boolean) : []);
@@ -6921,8 +6923,8 @@ export default function HostCarManagement() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                     {[
                       { label: "Total Claims", value: claimsAllCount.toString(), icon: FileText },
-                      { label: "Pending", value: claimsTotals.pending_count.toString(), icon: Clock },
                       { label: "Approved", value: claimsTotals.approved_count.toString(), icon: CheckCircle },
+                      { label: "Approved Amount", value: `$${claimsTotals.approved_amount.toFixed(2)}`, icon: DollarSign },
                       { label: "Total Amount", value: `$${claimsTotals.total_amount.toFixed(2)}`, icon: DollarSign },
                       { label: "Amount Paid", value: `$${claimsTotals.paid_amount.toFixed(2)}`, icon: CheckCircle },
                     ].map((item, i) => (
