@@ -6234,6 +6234,7 @@ export default function HostCarManagement() {
                                   Approved
                                 </SelectItem>
                                 <SelectItem value="rejected">Rejected</SelectItem>
+                                <SelectItem value="paid">Paid</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -6812,6 +6813,7 @@ export default function HostCarManagement() {
                               <SelectItem value="pending">Pending</SelectItem>
                               <SelectItem value="approved">Approved</SelectItem>
                               <SelectItem value="rejected">Rejected</SelectItem>
+                              <SelectItem value="paid">Paid</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
