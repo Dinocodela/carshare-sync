@@ -6921,13 +6921,31 @@ export default function HostCarManagement() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Total Amount toggle */}
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="total-amount-toggle"
+                      checked={totalAmountInclusive}
+                      onCheckedChange={setTotalAmountInclusive}
+                    />
+                    <label htmlFor="total-amount-toggle" className="text-xs text-muted-foreground cursor-pointer select-none">
+                      {totalAmountInclusive ? "Total Amount includes rejected claims" : "Total Amount = Approved + Paid only"}
+                    </label>
+                  </div>
+
                   {/* Claims Summary */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                     {[
                       { label: "Total Claims", value: claimsAllCount.toString(), icon: FileText },
                       { label: "Approved", value: claimsTotals.approved_count.toString(), icon: CheckCircle },
                       { label: "Approved Amount", value: `$${claimsTotals.approved_amount.toFixed(2)}`, icon: DollarSign },
-                      { label: "Total Amount", value: `$${claimsTotals.total_amount.toFixed(2)}`, icon: DollarSign },
+                      {
+                        label: totalAmountInclusive ? "Total Amount (Incl. rejected)" : "Total Amount (Approved + Paid)",
+                        value: totalAmountInclusive
+                          ? `$${claimsTotals.total_amount.toFixed(2)}`
+                          : `$${(claimsTotals.approved_amount + claimsTotals.paid_amount).toFixed(2)}`,
+                        icon: DollarSign,
+                      },
                       { label: "Amount Paid", value: `$${claimsTotals.paid_amount.toFixed(2)}`, icon: CheckCircle },
                     ].map((item, i) => (
                       <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-3.5">
