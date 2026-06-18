@@ -6958,11 +6958,12 @@ export default function HostCarManagement() {
                                     <Shield className="w-4 h-4 text-primary" />
                                   </div>
                                   <h4 className="font-semibold text-sm capitalize">{claim.claim_type} Claim</h4>
-                                  <Badge variant={claim.claim_status === "approved" ? "default" : claim.claim_status === "denied" ? "destructive" : "secondary"} className="text-[10px] rounded-lg">
-                                    {claim.claim_status}
-                                  </Badge>
-                                  {claim.is_paid && (
+                                  {claim.is_paid || claim.claim_status === "paid" ? (
                                     <Badge variant="default" className="text-[10px] rounded-lg">Paid</Badge>
+                                  ) : (
+                                    <Badge variant={claim.claim_status === "approved" ? "default" : claim.claim_status === "denied" ? "destructive" : "secondary"} className="text-[10px] rounded-lg">
+                                      {claim.claim_status}
+                                    </Badge>
                                   )}
                                 </div>
 
