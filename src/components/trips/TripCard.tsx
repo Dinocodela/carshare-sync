@@ -51,19 +51,21 @@ function formatTime(d: Date): string {
 }
 
 function formatDateTime(d: Date): string {
-  return (
-    d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      timeZone: "UTC",
-    }) +
-    " " +
-    d.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      timeZone: "UTC",
-    })
-  );
+  const weekday = d.toLocaleDateString("en-US", {
+    weekday: "short",
+    timeZone: "UTC",
+  });
+  const date = d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "UTC",
+  });
+  return `${weekday}, ${date}, ${time}`;
 }
 
 function getStatus(start: Date, end: Date) {
