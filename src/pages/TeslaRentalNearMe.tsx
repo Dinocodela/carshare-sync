@@ -75,7 +75,7 @@ export default function TeslaRentalNearMe() {
             Looking to rent a Tesla? Teslys makes it easy to browse available Tesla vehicles in your area, choose your preferred model, and get it delivered straight to your door. No dealership visits, no long lines — just a premium electric car rental experience.
           </p>
           <div className="flex flex-wrap gap-3">
-            <a href="https://teslys.app.eonrides.com/" target="_blank" rel="noopener noreferrer">
+            <a href="https://app.eonrides.com/" target="_blank" rel="noopener noreferrer">
               <Button size="lg">Browse Available Teslas <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </a>
             <Link to="/earnings-calculator">
@@ -240,7 +240,7 @@ export default function TeslaRentalNearMe() {
           <h2 className="text-3xl font-bold mb-4">Ready to Rent a Tesla Near You?</h2>
           <p className="text-lg opacity-90 mb-8">Browse available Tesla vehicles, compare prices, and get your car delivered today. The easiest way to experience electric driving.</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <a href="https://teslys.app.eonrides.com/" target="_blank" rel="noopener noreferrer">
+            <a href="https://app.eonrides.com/" target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="secondary">Browse Teslas Near Me <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </a>
           </div>

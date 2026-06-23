@@ -73,7 +73,7 @@ export default function TeslaRentalInsurance() {
             Every Tesla rental through Teslys comes with comprehensive insurance coverage. Whether you're renting a Tesla or listing yours on our platform, you're fully protected from day one.
           </p>
           <div className="flex flex-wrap gap-3">
-            <a href="https://teslys.app.eonrides.com/" target="_blank" rel="noopener noreferrer">
+            <a href="https://app.eonrides.com/" target="_blank" rel="noopener noreferrer">
               <Button size="lg">Browse Available Teslas <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </a>
             <Link to="/register/client">
@@ -239,7 +239,7 @@ export default function TeslaRentalInsurance() {
           <h2 className="text-3xl font-bold mb-4">Drive Protected. Rent or List with Confidence.</h2>
           <p className="text-lg opacity-90 mb-8">Every Tesla on Teslys is fully insured. Whether you're renting or earning, your peace of mind is included.</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <a href="https://teslys.app.eonrides.com/" target="_blank" rel="noopener noreferrer">
+            <a href="https://app.eonrides.com/" target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="secondary">Rent a Tesla <ArrowRight className="ml-2 h-4 w-4" /></Button>
             </a>
             <Link to="/register/client">
