@@ -10,6 +10,7 @@ export interface TripCardData {
   earning_period_end: string;
   is_delivery?: boolean;
   delivery_address?: string | null;
+  return_address?: string | null;
   car: {
     make: string;
     model: string;
@@ -134,10 +135,26 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                   <div className="text-xs font-semibold uppercase tracking-wide text-primary">
                     Delivery
                   </div>
-                  {(trip.delivery_address || trip.car?.location) && (
-                    <div className="truncate text-foreground">
-                      {trip.delivery_address || trip.car?.location}
+                  {trip.delivery_address ? (
+                    <div className="space-y-0.5 text-foreground">
+                      <div>
+                        <span className="text-muted-foreground">Pickup: </span>
+                        {trip.delivery_address}
+                      </div>
+                      {trip.return_address &&
+                        trip.return_address !== trip.delivery_address && (
+                          <div>
+                            <span className="text-muted-foreground">
+                              Return:{" "}
+                            </span>
+                            {trip.return_address}
+                          </div>
+                        )}
                     </div>
+                  ) : (
+                    trip.car?.location && (
+                      <div className="text-foreground">{trip.car.location}</div>
+                    )
                   )}
                 </div>
               </div>

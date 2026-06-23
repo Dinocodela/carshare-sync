@@ -42,7 +42,7 @@ export default function Trips() {
       let query = supabase
         .from("host_earnings")
         .select(
-          "id, trip_id, guest_name, earning_period_start, earning_period_end, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)",
+          "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)",
           { count: "exact" },
         );
 
@@ -107,7 +107,8 @@ export default function Trips() {
           earning_period_start: row.earning_period_start,
           earning_period_end: row.earning_period_end,
           is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
-          delivery_address: null,
+          delivery_address: row.pickup_address || null,
+          return_address: row.return_address || null,
           car: row.cars
             ? {
                 make: row.cars.make,
