@@ -10,6 +10,7 @@ export interface TripCardData {
   earning_period_end: string;
   is_delivery?: boolean;
   delivery_address?: string | null;
+  return_address?: string | null;
   car: {
     make: string;
     model: string;
