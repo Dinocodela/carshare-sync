@@ -157,7 +157,22 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 {trip.guest_name || "Unknown guest"}
               </span>
               {trip.trip_id && (
-                <span className="text-muted-foreground">#{trip.trip_id}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(trip.trip_id!);
+                    toast({
+                      title: "Copied",
+                      description: `Trip ID ${trip.trip_id} copied to clipboard.`,
+                    });
+                  }}
+                  className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <span>#{trip.trip_id}</span>
+                  <Copy className="h-3 w-3" />
+                </button>
               )}
             </div>
           </div>
