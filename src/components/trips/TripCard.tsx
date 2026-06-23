@@ -49,6 +49,22 @@ function formatTime(d: Date): string {
   });
 }
 
+function formatDateTime(d: Date): string {
+  return (
+    d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }) +
+    " " +
+    d.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "UTC",
+    })
+  );
+}
+
 function getStatus(start: Date, end: Date) {
   const now = new Date();
   if (now < start) {
@@ -105,7 +121,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
               <span>
-                {formatTime(start)} – {formatTime(end)}
+                {formatDateTime(start)} – {formatDateTime(end)}
               </span>
             </div>
             {trip.is_delivery ? (
