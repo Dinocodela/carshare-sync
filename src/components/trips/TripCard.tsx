@@ -41,8 +41,12 @@ function formatDateHeader(d: Date): string {
     .toUpperCase();
 }
 
-function formatTime(d: Date): string {
-  return d.toLocaleTimeString("en-US", {
+function formatDateTime(d: Date): string {
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }) + " " + d.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     timeZone: "UTC",
