@@ -41,6 +41,21 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_grants: {
+        Row: {
+          granted_at: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_assistant_conversations: {
         Row: {
           created_at: string
