@@ -107,7 +107,8 @@ export default function Trips() {
           earning_period_start: row.earning_period_start,
           earning_period_end: row.earning_period_end,
           is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
-          delivery_address: null,
+          delivery_address: row.pickup_address || null,
+          return_address: row.return_address || null,
           car: row.cars
             ? {
                 make: row.cars.make,
