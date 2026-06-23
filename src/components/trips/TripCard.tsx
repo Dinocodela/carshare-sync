@@ -158,6 +158,11 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                   )}
                 </div>
               </div>
+            ) : trip.delivery_address ? (
+              <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                {trip.delivery_address}
+              </p>
             ) : (
               trip.car?.location && (
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground line-clamp-1">
