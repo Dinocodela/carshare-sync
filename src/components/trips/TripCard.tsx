@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Car as CarIcon, Clock, MapPin, Truck } from "lucide-react";
+import { Car as CarIcon, Clock, Copy, MapPin, Truck } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export interface TripCardData {
   id: string;
