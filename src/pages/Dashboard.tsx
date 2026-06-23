@@ -428,7 +428,7 @@ export default function Dashboard() {
     };
   }, [user?.id, isHost, clientData?.cars]);
 
-  // Recent trips
+  // Current trips (active / in-progress)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -439,22 +439,24 @@ export default function Dashboard() {
         if (isHost) {
           const { data: rows } = await supabase
             .from("host_earnings")
-            .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
-            .lte("earning_period_end", todayStr)
-            .order("earning_period_end", { ascending: false })
+            .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address")
+            .lte("earning_period_start", todayStr)
+            .gte("earning_period_end", todayStr)
+            .order("earning_period_end", { ascending: true })
             .limit(5);
-          if (!cancelled) setRecentTrips((rows || []).slice().reverse());
+          if (!cancelled) setRecentTrips(rows || []);
         } else {
           const carIds = (clientData?.cars || []).map((c: any) => c.id);
           if (carIds.length) {
             const { data: rows } = await supabase
               .from("host_earnings")
-              .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+              .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address")
               .in("car_id", carIds)
-              .lte("earning_period_end", todayStr)
-              .order("earning_period_end", { ascending: false })
+              .lte("earning_period_start", todayStr)
+              .gte("earning_period_end", todayStr)
+              .order("earning_period_end", { ascending: true })
               .limit(5);
-            if (!cancelled) setRecentTrips((rows || []).slice().reverse());
+            if (!cancelled) setRecentTrips(rows || []);
           } else {
             if (!cancelled) setRecentTrips([]);
           }
