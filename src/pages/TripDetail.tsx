@@ -214,8 +214,9 @@ export default function TripDetail() {
           </div>
         </section>
 
-        {/* Location */}
-        {trip.car?.location && (
+        {/* Location (car's general location) — only shown when no specific
+            pickup/return addresses are available */}
+        {trip.car?.location && !trip.pickup_address && !trip.return_address && (
           <section className="mb-6 rounded-2xl border bg-card p-5">
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Location
