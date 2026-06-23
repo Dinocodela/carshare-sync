@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Car as CarIcon, Clock, MapPin, Truck } from "lucide-react";
+import { Car as CarIcon, Clock, Copy, MapPin, Truck } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export interface TripCardData {
   id: string;
@@ -50,19 +51,21 @@ function formatTime(d: Date): string {
 }
 
 function formatDateTime(d: Date): string {
-  return (
-    d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      timeZone: "UTC",
-    }) +
-    " " +
-    d.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      timeZone: "UTC",
-    })
-  );
+  const weekday = d.toLocaleDateString("en-US", {
+    weekday: "short",
+    timeZone: "UTC",
+  });
+  const date = d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "UTC",
+  });
+  return `${weekday}, ${date}, ${time}`;
 }
 
 function getStatus(start: Date, end: Date) {
@@ -154,7 +157,22 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 {trip.guest_name || "Unknown guest"}
               </span>
               {trip.trip_id && (
-                <span className="text-muted-foreground">#{trip.trip_id}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(trip.trip_id!);
+                    toast({
+                      title: "Copied",
+                      description: `Trip ID ${trip.trip_id} copied to clipboard.`,
+                    });
+                  }}
+                  className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <span>#{trip.trip_id}</span>
+                  <Copy className="h-3 w-3" />
+                </button>
               )}
             </div>
           </div>
