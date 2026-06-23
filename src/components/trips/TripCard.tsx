@@ -121,7 +121,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
               <span>
-                {formatTime(start)} – {formatTime(end)}
+                {formatDateTime(start)} – {formatDateTime(end)}
               </span>
             </div>
             {trip.is_delivery ? (
