@@ -441,10 +441,10 @@ export default function MyCars() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="w-full rounded-lg h-7 gap-1.5 text-[11px] text-destructive hover:text-destructive hover:bg-destructive/10"
+                                className="w-full rounded-lg h-6 gap-1 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10"
                                 onClick={() => setUnhostCarId(car.id)}
                               >
-                                <XCircle className="w-3.5 h-3.5" />
+                                <XCircle className="w-3 h-3" />
                                 Cancel & Remove from Hosting
                               </Button>
                             )}
@@ -454,16 +454,16 @@ export default function MyCars() {
                               const canComplete = daysSince >= 3;
 
                               return (
-                                <div className="space-y-1.5">
+                                <div className="space-y-1">
                                   {canComplete && (
-                                    <div className="p-2 bg-muted/60 rounded-lg">
-                                      <p className="text-[11px] text-muted-foreground flex items-start gap-1.5">
+                                    <div className="p-1.5 bg-muted/60 rounded-md">
+                                      <p className="text-[10px] text-muted-foreground flex items-start gap-1">
                                         <Info className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
                                         Host hasn't confirmed return yet. You can complete it yourself.
                                       </p>
                                     </div>
                                   )}
-                                  <div className="flex gap-2">
+                                  <div className="flex gap-1.5">
                                     <CancelReturnButton
                                       carId={car.id}
                                       afterSuccess={() => window.location.reload()}
