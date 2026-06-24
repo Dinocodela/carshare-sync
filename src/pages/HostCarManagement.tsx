@@ -34,6 +34,7 @@ import {
   Palette,
   User,
   Info,
+  Copy,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";

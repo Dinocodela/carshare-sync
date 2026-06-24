@@ -4,7 +4,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Car as CarIcon, Loader2, MapPin } from "lucide-react";
+import { ArrowLeft, Car as CarIcon, Loader2, MapPin, Copy } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 function parseDate(s: string): Date {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00`);
