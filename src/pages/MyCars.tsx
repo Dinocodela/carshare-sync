@@ -41,6 +41,7 @@ import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
 import { CompleteReturnButton } from "@/components/cars/CompleteReturnButton";
 import { CarBookingHistoryModal } from "@/components/cars/CarBookingHistoryModal";
+import { formatCarName } from "@/lib/carName";
 
 /* ── helpers ── */
 function useMounted() {
