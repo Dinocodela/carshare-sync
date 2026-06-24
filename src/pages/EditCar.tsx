@@ -313,6 +313,35 @@ export default function EditCar() {
               </div>
             </div>
 
+            {/* Display Name */}
+            <div style={fadeIn(3)} className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-3">
+              <div className="flex items-center gap-2.5 mb-1">
+                <div className="rounded-lg bg-primary/10 p-2"><CarIcon className="h-4 w-4 text-primary" /></div>
+                <h2 className="text-base font-semibold tracking-tight">Display Name</h2>
+              </div>
+              <p className="text-xs text-muted-foreground -mt-1">
+                Set a custom name so the car follows the correct format (e.g.{" "}
+                <span className="font-mono">Onyx Y 26 B/B EP47L73 - 31478</span>). Useful for cars
+                added automatically for Eon. Leave blank to use the default format.
+              </p>
+              <FormField control={form.control} name="nickname" render={({ field }) => (
+                <FormItem><FormLabel className="text-xs">Car Name</FormLabel><FormControl>
+                  <Input placeholder="Onyx Y 26 B/B EP47L73 - 31478" {...field} className="rounded-xl bg-background/50 font-mono" />
+                </FormControl><FormMessage /></FormItem>
+              )} />
+              <div className="rounded-xl border border-border/60 bg-background/80 px-4 py-3">
+                <p className="text-[11px] text-muted-foreground mb-1">Appears across Teslys as:</p>
+                <p className="font-mono text-sm font-semibold text-foreground break-all">
+                  {formatCarName({
+                    model: form.watch("model"),
+                    vin_number: form.watch("vin_number"),
+                    license_plate: form.watch("license_plate"),
+                    nickname: form.watch("nickname"),
+                  })}
+                </p>
+              </div>
+            </div>
+
             {/* Photos */}
             <div style={fadeIn(4)} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm p-5 space-y-4">
               <div className="flex items-center gap-2.5 mb-1">
