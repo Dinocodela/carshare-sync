@@ -69,17 +69,18 @@ export function CompleteReturnButton({
       <AlertDialogTrigger asChild>
         <Button 
           variant="default" 
-          className={fullWidth ? "w-full" : ""}
+          size="sm"
+          className={`rounded-lg h-7 text-[11px] gap-1 ${fullWidth ? "w-full" : ""}`}
           disabled={loading}
         >
           {loading ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-3 w-3 animate-spin" />
               Processing...
             </>
           ) : (
             <>
-              <CheckCircle className="h-4 w-4 mr-2" />
+              <CheckCircle className="h-3 w-3" />
               Complete Return
             </>
           )}
