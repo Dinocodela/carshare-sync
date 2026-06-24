@@ -11,7 +11,6 @@ import {
   ArrowUpRight,
   MapPin,
   Calendar,
-  ChevronRight,
   Hash,
   CreditCard,
   XCircle,
