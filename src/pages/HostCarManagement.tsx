@@ -427,6 +427,11 @@ export default function HostCarManagement() {
   const { toast } = useToast();
   const { user, session } = useAuth();
   const isMobile = useIsMobile();
+
+  // Handle deep-link from query params (e.g. ?trip_id=123)
+  const queryParams = new URLSearchParams(location.search);
+  const deeplinkTripId = queryParams.get("trip_id");
+
   const [cars, setCars] = useState<CarWithClient[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [earnings, setEarnings] = useState<Earning[]>([]);
@@ -518,12 +523,23 @@ export default function HostCarManagement() {
   ]);
 
   // Active tab state for conditional mobile UI
-  const [tab, setTab] = useState<Tab>(() => tabFromHash(location.hash));
+  const [tab, setTab] = useState<Tab>(() => {
+    if (deeplinkTripId) return "earnings";
+    return tabFromHash(location.hash);
+  });
 
   // keep state in sync when hash changes (e.g., bottom nav links)
   useEffect(() => {
     setTab(tabFromHash(location.hash));
   }, [location.hash]);
+
+  // Clear trip_id query param after handling deep-link so refresh doesn't re-apply
+  useEffect(() => {
+    if (deeplinkTripId) {
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, "", cleanUrl);
+    }
+  }, [deeplinkTripId]);
   // Sync tab with URL hash (supports deep-linking, e.g., #returns)
   //   useEffect(() => {
   //     const fromHash = window.location.hash.replace("#", "");
@@ -561,7 +577,7 @@ export default function HostCarManagement() {
     paymentSource: "all",
     paymentStatus: "all",
     dateRange: "all",
-    tripSearch: "",
+    tripSearch: deeplinkTripId || "",
   });
 
   // Filter state for claims

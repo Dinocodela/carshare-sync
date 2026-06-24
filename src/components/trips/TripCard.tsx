@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Car as CarIcon, Clock, Copy, MapPin, Truck } from "lucide-react";
+import { Car as CarIcon, Clock, Copy, MapPin, Truck, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export interface TripCardData {
@@ -179,22 +179,32 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 {trip.guest_name || "Unknown guest"}
               </span>
               {trip.trip_id && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    navigator.clipboard.writeText(trip.trip_id!);
-                    toast({
-                      title: "Copied",
-                      description: `Trip ID ${trip.trip_id} copied to clipboard.`,
-                    });
-                  }}
-                  className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <span>#{trip.trip_id}</span>
-                  <Copy className="h-3 w-3" />
-                </button>
+                <div className="mt-2 flex items-center gap-2">
+                  <Link
+                    to={`/host-car-management#earnings?trip_id=${trip.trip_id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                  >
+                    <span>Trip #{trip.trip_id}</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(trip.trip_id!);
+                      toast({
+                        title: "Copied",
+                        description: `Trip ID ${trip.trip_id} copied to clipboard.`,
+                      });
+                    }}
+                    className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                    title="Copy trip ID"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </button>
+                </div>
               )}
             </div>
           </div>
