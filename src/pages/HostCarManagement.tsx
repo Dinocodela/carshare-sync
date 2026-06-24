@@ -523,7 +523,10 @@ export default function HostCarManagement() {
   ]);
 
   // Active tab state for conditional mobile UI
-  const [tab, setTab] = useState<Tab>(() => tabFromHash(location.hash));
+  const [tab, setTab] = useState<Tab>(() => {
+    if (deeplinkTripId) return "earnings";
+    return tabFromHash(location.hash);
+  });
 
   // keep state in sync when hash changes (e.g., bottom nav links)
   useEffect(() => {
@@ -566,7 +569,7 @@ export default function HostCarManagement() {
     paymentSource: "all",
     paymentStatus: "all",
     dateRange: "all",
-    tripSearch: "",
+    tripSearch: deeplinkTripId || "",
   });
 
   // Filter state for claims
