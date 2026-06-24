@@ -4,7 +4,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Car as CarIcon, Loader2, MapPin } from "lucide-react";
+import { ArrowLeft, Car as CarIcon, Loader2, MapPin, Copy } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 function parseDate(s: string): Date {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00`);
@@ -71,6 +72,7 @@ export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
   const [loading, setLoading] = useState(true);
   const [trip, setTrip] = useState<TripFull | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!earningId) return;
@@ -314,9 +316,25 @@ export default function TripDetail() {
           </p>
           <dl className="space-y-2 text-sm">
             {trip.trip_id && (
-              <div className="flex justify-between gap-3">
+              <div className="flex justify-between gap-3 items-center">
                 <dt className="text-muted-foreground">Trip ID</dt>
-                <dd className="font-medium">#{trip.trip_id}</dd>
+                <dd className="font-medium flex items-center gap-2">
+                  #{trip.trip_id}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(trip.trip_id!);
+                      toast({
+                        title: "Copied",
+                        description: `Trip ID ${trip.trip_id} copied to clipboard.`,
+                      });
+                    }}
+                    className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                    title="Copy trip ID"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </button>
+                </dd>
               </div>
             )}
             {trip.earning_type && (

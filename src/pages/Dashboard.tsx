@@ -22,6 +22,7 @@ import {
   Sparkles,
   ArrowUpRight,
   MapPin,
+  Copy,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -808,7 +809,7 @@ export default function Dashboard() {
                                   {start}{start && end ? " – " : ""}{end}
                                 </p>
                                 {t.trip_id && (
-                                  <p className="text-[11px] text-muted-foreground/80 mt-0.5">
+                                  <p className="text-[11px] text-muted-foreground/80 mt-0.5 flex items-center gap-1.5">
                                     <button
                                       type="button"
                                       onClick={(e) => {
@@ -818,6 +819,21 @@ export default function Dashboard() {
                                       className="hover:text-primary hover:underline transition-colors"
                                     >
                                       Trip #{t.trip_id}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(t.trip_id);
+                                        toast({
+                                          title: "Copied",
+                                          description: `Trip ID ${t.trip_id} copied to clipboard.`,
+                                        });
+                                      }}
+                                      className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                                      title="Copy trip ID"
+                                    >
+                                      <Copy className="h-3 w-3" />
                                     </button>
                                   </p>
                                 )}
