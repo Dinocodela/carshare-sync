@@ -56,6 +56,7 @@ const carSchema = z.object({
   location: z.string().min(1, "Location is required"),
   license_plate: z.string().min(1, "License plate is required"),
   vin_number: z.string().min(1, "VIN number is required"),
+  nickname: z.string().optional(),
   description: z.string().optional(),
 });
 
