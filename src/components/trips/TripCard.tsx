@@ -181,7 +181,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
               {trip.trip_id && (
                 <div className="mt-2 flex items-center gap-2">
                   <Link
-                    to={`/host-car-management#earnings?trip_id=${trip.trip_id}`}
+                    to={`/host-car-management?trip_id=${trip.trip_id}#earnings`}
                     onClick={(e) => e.stopPropagation()}
                     className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                   >

@@ -26,7 +26,13 @@ export default function ScrollReset() {
     // If a hash is present, try to scroll to that anchor, else top
     const doScroll = () => {
       if (hash) {
-        const el = document.querySelector(hash) as HTMLElement | null;
+        let el: HTMLElement | null = null;
+        try {
+          el = document.querySelector(hash) as HTMLElement | null;
+        } catch {
+          // Ignore malformed hashes (e.g. hashes containing query strings)
+          el = null;
+        }
         if (el && "scrollIntoView" in el) {
           el.scrollIntoView({ block: "start", behavior: "auto" });
           return;
