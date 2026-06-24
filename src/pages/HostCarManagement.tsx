@@ -3504,7 +3504,21 @@ export default function HostCarManagement() {
                               </div>
                               <h4 className="font-semibold text-sm capitalize">{expense.expense_type}</h4>
                               {expense.trip_id && (
-                                <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {expense.trip_id}</Badge>
+                                <div className="flex items-center gap-1.5">
+                                  <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {expense.trip_id}</Badge>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigator.clipboard.writeText(expense.trip_id);
+                                      toast({ title: "Copied", description: `Trip ID ${expense.trip_id} copied to clipboard.` });
+                                    }}
+                                    className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                                    title="Copy trip ID"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </button>
+                                </div>
                               )}
                             </div>
 
@@ -5577,7 +5591,21 @@ export default function HostCarManagement() {
                                   </div>
                                   <h4 className="font-semibold text-sm capitalize">{earning.earning_type}</h4>
                                   {earning.trip_id && (
-                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {earning.trip_id}</Badge>
+                                    <div className="flex items-center gap-1.5">
+                                      <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {earning.trip_id}</Badge>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigator.clipboard.writeText(earning.trip_id);
+                                          toast({ title: "Copied", description: `Trip ID ${earning.trip_id} copied to clipboard.` });
+                                        }}
+                                        className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                                        title="Copy trip ID"
+                                      >
+                                        <Copy className="h-3 w-3" />
+                                      </button>
+                                    </div>
                                   )}
                                   <Badge variant={earning.payment_status === "paid" ? "default" : "secondary"} className="text-[10px] rounded-lg">
                                     {earning.payment_status}
@@ -7009,7 +7037,21 @@ export default function HostCarManagement() {
                                 {/* Badges row */}
                                 <div className="ml-10 flex flex-wrap gap-1.5">
                                   {claim.trip_id && (
-                                    <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {claim.trip_id}</Badge>
+                                    <div className="flex items-center gap-1.5">
+                                      <Badge variant="outline" className="text-[10px] rounded-lg">Trip# {claim.trip_id}</Badge>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigator.clipboard.writeText(claim.trip_id);
+                                          toast({ title: "Copied", description: `Trip ID ${claim.trip_id} copied to clipboard.` });
+                                        }}
+                                        className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                                        title="Copy trip ID"
+                                      >
+                                        <Copy className="h-3 w-3" />
+                                      </button>
+                                    </div>
                                   )}
                                   {claim.incident_id && (
                                     <Badge variant="outline" className="text-[10px] rounded-lg">Incident# {claim.incident_id}</Badge>
