@@ -84,6 +84,31 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user?.id, authLoading]);
 
+  // Keep the active workspace in sync with workspace-specific routes so that
+  // visiting e.g. /my-cars puts you in the Client workspace (and its sidebar),
+  // not whatever workspace happened to be active before.
+  useEffect(() => {
+    if (loading || !user) return;
+    const path = location.pathname;
+    const routeWorkspace: WorkspaceRole | null = path.startsWith("/investor")
+      ? "investor"
+      : path === "/my-cars" || path === "/client-analytics" || path === "/add-car"
+      ? "client"
+      : path.startsWith("/host-car-management") ||
+        path === "/registered-clients" ||
+        path === "/host-analytics"
+      ? "host"
+      : null;
+    if (!routeWorkspace || routeWorkspace === activeWorkspace) return;
+    if (!availableRoles.some((r) => r.role === routeWorkspace)) return;
+    setActiveWorkspace(routeWorkspace);
+    supabase
+      .from("profiles")
+      .update({ active_workspace: routeWorkspace })
+      .eq("user_id", user.id);
+  }, [location.pathname, loading, user, activeWorkspace, availableRoles]);
+
+
   const hasRole = useCallback(
     (role: WorkspaceRole) => availableRoles.some((r) => r.role === role),
     [availableRoles]
