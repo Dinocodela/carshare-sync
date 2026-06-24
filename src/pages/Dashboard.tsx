@@ -809,7 +809,16 @@ export default function Dashboard() {
                                 </p>
                                 {t.trip_id && (
                                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">
-                                    Trip #{t.trip_id}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/host-car-management#earnings?trip_id=${t.trip_id}`);
+                                      }}
+                                      className="hover:text-primary hover:underline transition-colors"
+                                    >
+                                      Trip #{t.trip_id}
+                                    </button>
                                   </p>
                                 )}
                               </div>
