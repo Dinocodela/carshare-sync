@@ -65,11 +65,11 @@ export function CancelReturnButton({
         <Button
           variant="destructive"
           size="sm"
-          className={fullWidth ? "w-full" : ""}
+          className={`rounded-lg h-7 text-[11px] gap-1 ${fullWidth ? "w-full" : ""}`}
           disabled={loading}
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Cancel Return Request
+          <Trash2 className="h-3 w-3" />
+          Cancel Return
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
