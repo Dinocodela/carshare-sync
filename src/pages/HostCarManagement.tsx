@@ -293,13 +293,8 @@ const claimSchema = z.object({
   photos_taken: z.boolean().default(false),
   is_paid: z.boolean().default(false),
 });
-// Helper function to format car display name
-const formatCarDisplayName = (car: CarWithClient) => {
-  const model = car.model || "Unknown Model";
-  const last5VIN = car.vin_number ? car.vin_number.slice(-5) : "N/A";
-  const licensePlate = car.license_plate || "N/A";
-  return `${model} - ${last5VIN} - ${licensePlate}`;
-};
+// Helper function to format car display name (standardized in @/lib/carName)
+const formatCarDisplayName = (car: CarWithClient) => formatCarName(car);
 
 // Helper function to format detailed car info
 const formatDetailedCarInfo = (car: CarWithClient) => (
