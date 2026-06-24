@@ -282,7 +282,7 @@ export default function MyCars() {
                     >
                       {/* Image */}
                       <div className="relative">
-                        <AspectRatio ratio={16 / 9}>
+                        <AspectRatio ratio={16 / 7}>
                           {car.images?.[0] ? (
                             <img
                               src={car.images[0]}
@@ -292,58 +292,58 @@ export default function MyCars() {
                             />
                           ) : (
                             <div className="h-full w-full bg-muted flex items-center justify-center">
-                              <CarIcon className="w-10 h-10 text-muted-foreground/40" />
+                              <CarIcon className="w-8 h-8 text-muted-foreground/40" />
                             </div>
                           )}
                         </AspectRatio>
 
                         {/* Status pill overlay */}
-                        <div className="absolute top-3 left-3">
-                          <div className="flex items-center gap-1.5 bg-background/80 backdrop-blur-md rounded-full px-3 py-1.5 border border-border/40">
-                            <div className={`w-2 h-2 rounded-full ${cfg.color}`} />
-                            <span className="text-xs font-medium text-foreground">{cfg.label}</span>
+                        <div className="absolute top-2.5 left-2.5">
+                          <div className="flex items-center gap-1.5 bg-background/80 backdrop-blur-md rounded-full px-2.5 py-1 border border-border/40">
+                            <div className={`w-1.5 h-1.5 rounded-full ${cfg.color}`} />
+                            <span className="text-[11px] font-medium text-foreground">{cfg.label}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Content */}
-                      <div className="p-4 space-y-3">
-                        <div className="flex items-start justify-between gap-3">
+                      <div className="p-3 space-y-2.5">
+                        <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <h3 className="text-base font-bold text-foreground leading-snug line-clamp-1">
+                            <h3 className="text-sm font-semibold text-foreground leading-tight line-clamp-1">
                               {car.year} {car.make} {car.model}
                             </h3>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[11px] text-muted-foreground">
                                 {car.color}
                               </span>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-[11px] text-muted-foreground">
                                 {car.mileage?.toLocaleString()} mi
                               </span>
                             </div>
                           </div>
                           {!car.is_shared && (
-                            <div className="flex gap-1.5 shrink-0">
+                            <div className="flex gap-1 shrink-0">
                               <button
                                 onClick={() => setShareCarId(car.id)}
-                                className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors"
+                                className="w-7 h-7 rounded-md bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors"
                                 title="Share"
                               >
-                                <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
+                                <Share2 className="w-3 h-3 text-muted-foreground" />
                               </button>
                               <button
                                 onClick={() => setManageAccessCarId(car.id)}
-                                className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors"
+                                className="w-7 h-7 rounded-md bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors"
                                 title="Manage Access"
                               >
-                                <Settings className="w-3.5 h-3.5 text-muted-foreground" />
+                                <Settings className="w-3 h-3 text-muted-foreground" />
                               </button>
                             </div>
                           )}
                         </div>
 
                         {/* Meta row */}
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {car.location}
@@ -356,15 +356,15 @@ export default function MyCars() {
 
                         {/* Identifiers */}
                         {(car.license_plate || car.vin_number) && !car.is_shared && (
-                          <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                          <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                             {car.license_plate && (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-foreground">
                                 <CreditCard className="w-3 h-3 text-muted-foreground" />
                                 {car.license_plate}
                               </span>
                             )}
                             {car.vin_number && (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 font-mono text-foreground">
+                              <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-foreground">
                                 <Hash className="w-3 h-3 text-muted-foreground" />
                                 {car.vin_number}
                               </span>
@@ -373,123 +373,115 @@ export default function MyCars() {
                         )}
 
                         {/* Actions */}
-                        <div className="pt-1 space-y-2">
-                          {/* View button always visible */}
+                        <div className="pt-0.5 grid grid-cols-2 gap-2">
                           <button
                             onClick={() => navigate(`/cars/${car.id}/view`)}
-                            className="w-full flex items-center justify-between rounded-xl bg-muted/50 hover:bg-muted px-4 py-3 transition-colors group/view"
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-muted/50 hover:bg-muted px-2 py-2 transition-colors text-xs font-medium text-foreground"
                           >
-                            <div className="flex items-center gap-2.5">
-                              <Eye className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-sm font-medium text-foreground">View Details</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/view:translate-x-0.5 transition-transform" />
+                            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+                            Details
                           </button>
-
-                          {/* Booking history */}
                           <button
                             onClick={() => setBookingsCarId(car.id)}
-                            className="w-full flex items-center justify-between rounded-xl bg-muted/50 hover:bg-muted px-4 py-3 transition-colors group/hist"
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-muted/50 hover:bg-muted px-2 py-2 transition-colors text-xs font-medium text-foreground"
                           >
-                            <div className="flex items-center gap-2.5">
-                              <History className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-sm font-medium text-foreground">View Bookings</span>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover/hist:translate-x-0.5 transition-transform" />
+                            <History className="w-3.5 h-3.5 text-muted-foreground" />
+                            Bookings
                           </button>
-                          {/* Contextual CTA */}
-                          {!car.is_shared && (
-                            <>
-                              {car.status === "available" && (
+                        </div>
+
+                        {/* Contextual CTA */}
+                        {!car.is_shared && (
+                          <div className="space-y-1.5">
+                            {car.status === "available" && (
+                              <Button
+                                size="sm"
+                                className="w-full rounded-lg h-8 gap-1.5 text-xs"
+                                onClick={() => navigate(`/select-host?carId=${car.id}`)}
+                              >
+                                <Shield className="w-3.5 h-3.5" />
+                                Request Hosting
+                              </Button>
+                            )}
+                            {car.status === "pending" && (
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="w-full rounded-lg h-8 text-xs"
+                                disabled
+                              >
+                                Request Sent — Awaiting Response
+                              </Button>
+                            )}
+                            {car.status === "hosted" && (
+                              <>
                                 <Button
+                                  variant="outline"
                                   size="sm"
-                                  className="w-full rounded-xl h-11 gap-2"
-                                  onClick={() => navigate(`/select-host?carId=${car.id}`)}
+                                  className="w-full rounded-lg h-8 gap-1.5 text-xs"
+                                  onClick={() => navigate(`/hosting-details/${car.id}`)}
+                                  disabled={!car.host_id}
                                 >
-                                  <Shield className="w-4 h-4" />
-                                  Request Hosting
+                                  <ArrowUpRight className="w-3.5 h-3.5" />
+                                  View Host Contact
                                 </Button>
-                              )}
-                              {car.status === "pending" && (
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  className="w-full rounded-xl h-11"
-                                  disabled
-                                >
-                                  Request Sent — Awaiting Response
-                                </Button>
-                              )}
-                              {car.status === "hosted" && (
-                                <>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full rounded-xl h-11 gap-2"
-                                    onClick={() => navigate(`/hosting-details/${car.id}`)}
-                                    disabled={!car.host_id}
-                                  >
-                                    <ArrowUpRight className="w-4 h-4" />
-                                    View Host Contact
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                    onClick={() => setUnhostCarId(car.id)}
-                                  >
-                                    <XCircle className="w-4 h-4" />
-                                    Remove from Hosting
-                                  </Button>
-                                </>
-                              )}
-                              {car.status === "pending" && car.host_id && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="w-full rounded-xl h-10 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  className="w-full rounded-lg h-7 gap-1.5 text-[11px] text-destructive hover:text-destructive hover:bg-destructive/10"
                                   onClick={() => setUnhostCarId(car.id)}
                                 >
-                                  <XCircle className="w-4 h-4" />
-                                  Cancel & Remove from Hosting
+                                  <XCircle className="w-3.5 h-3.5" />
+                                  Remove from Hosting
                                 </Button>
-                              )}
-                              {car.status === "ready_for_return" && (() => {
-                                const updatedAt = new Date(car.created_at);
-                                const daysSince = Math.floor((Date.now() - updatedAt.getTime()) / 86400000);
-                                const canComplete = daysSince >= 3;
+                              </>
+                            )}
+                            {car.status === "pending" && car.host_id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full rounded-lg h-7 gap-1.5 text-[11px] text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => setUnhostCarId(car.id)}
+                              >
+                                <XCircle className="w-3.5 h-3.5" />
+                                Cancel & Remove from Hosting
+                              </Button>
+                            )}
+                            {car.status === "ready_for_return" && (() => {
+                              const updatedAt = new Date(car.created_at);
+                              const daysSince = Math.floor((Date.now() - updatedAt.getTime()) / 86400000);
+                              const canComplete = daysSince >= 3;
 
-                                return (
-                                  <div className="space-y-2">
-                                    {canComplete && (
-                                      <div className="p-3 bg-muted/60 rounded-xl">
-                                        <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-                                          <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
-                                          Host hasn't confirmed return yet. You can complete it yourself.
-                                        </p>
-                                      </div>
-                                    )}
-                                    <div className="flex gap-2">
-                                      <CancelReturnButton
-                                        carId={car.id}
-                                        afterSuccess={() => window.location.reload()}
-                                        fullWidth={!canComplete}
-                                      />
-                                      {canComplete && (
-                                        <CompleteReturnButton
-                                          carId={car.id}
-                                          carName={`${car.year} ${car.make} ${car.model}`}
-                                          afterSuccess={() => window.location.reload()}
-                                          fullWidth={false}
-                                        />
-                                      )}
+                              return (
+                                <div className="space-y-1.5">
+                                  {canComplete && (
+                                    <div className="p-2 bg-muted/60 rounded-lg">
+                                      <p className="text-[11px] text-muted-foreground flex items-start gap-1.5">
+                                        <Info className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
+                                        Host hasn't confirmed return yet. You can complete it yourself.
+                                      </p>
                                     </div>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <CancelReturnButton
+                                      carId={car.id}
+                                      afterSuccess={() => window.location.reload()}
+                                      fullWidth={!canComplete}
+                                    />
+                                    {canComplete && (
+                                      <CompleteReturnButton
+                                        carId={car.id}
+                                        carName={`${car.year} ${car.make} ${car.model}`}
+                                        afterSuccess={() => window.location.reload()}
+                                        fullWidth={false}
+                                      />
+                                    )}
                                   </div>
-                                );
-                              })()}
-                            </>
-                          )}
-                        </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
