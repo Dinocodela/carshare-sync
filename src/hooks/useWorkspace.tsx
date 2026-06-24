@@ -33,6 +33,7 @@ const ROLE_HOME: Record<WorkspaceRole, string> = {
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceRole>("host");
   const [availableRoles, setAvailableRoles] = useState<WorkspaceRoleRow[]>([]);
   const [landingSeen, setLandingSeen] = useState<Partial<Record<WorkspaceRole, boolean>>>({});
