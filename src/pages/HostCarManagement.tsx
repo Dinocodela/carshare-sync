@@ -141,6 +141,7 @@ interface CarWithClient {
   images: string[] | null;
   vin_number: string | null;
   license_plate: string | null;
+  nickname?: string | null;
   created_at: string;
   updated_at: string;
   client: {
