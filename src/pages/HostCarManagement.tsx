@@ -532,6 +532,14 @@ export default function HostCarManagement() {
   useEffect(() => {
     setTab(tabFromHash(location.hash));
   }, [location.hash]);
+
+  // Clear trip_id query param after handling deep-link so refresh doesn't re-apply
+  useEffect(() => {
+    if (deeplinkTripId) {
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, "", cleanUrl);
+    }
+  }, [deeplinkTripId]);
   // Sync tab with URL hash (supports deep-linking, e.g., #returns)
   //   useEffect(() => {
   //     const fromHash = window.location.hash.replace("#", "");
