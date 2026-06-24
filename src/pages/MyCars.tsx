@@ -41,6 +41,7 @@ import { ManageCarAccessDialog } from "@/components/cars/ManageCarAccessDialog";
 import { CancelReturnButton } from "@/components/cars/CancelReturnButton";
 import { CompleteReturnButton } from "@/components/cars/CompleteReturnButton";
 import { CarBookingHistoryModal } from "@/components/cars/CarBookingHistoryModal";
+import { formatCarName } from "@/lib/carName";
 
 /* ── helpers ── */
 function useMounted() {
@@ -75,6 +76,7 @@ interface CarData {
   host_id: string | null;
   license_plate?: string | null;
   vin_number?: string | null;
+  nickname?: string | null;
   is_shared?: boolean;
 }
 
@@ -310,7 +312,7 @@ export default function MyCars() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <h3 className="text-sm font-semibold text-foreground leading-tight line-clamp-1">
-                              {car.year} {car.make} {car.model}
+                              {formatCarName(car)}
                             </h3>
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-[11px] text-muted-foreground">
