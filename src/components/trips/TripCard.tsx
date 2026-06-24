@@ -31,18 +31,6 @@ function parseDate(s: string): Date {
 // pickup/return wall-clock time, but are stored as UTC (e.g. 07:00:00+00
 // means a 7:00 AM pickup). Render in UTC so the viewer's browser timezone
 // doesn't shift the displayed time.
-function formatDateHeader(d: Date): string {
-  return d
-    .toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "UTC",
-    })
-    .toUpperCase();
-}
-
 function formatTime(d: Date): string {
   return d.toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -108,9 +96,6 @@ export function TripCard({ trip }: { trip: TripCardData }) {
       className="block"
       aria-label={`View trip details for ${carTitle}`}
     >
-      <div className="mb-2 text-center text-xs font-semibold tracking-wider text-muted-foreground">
-        {formatDateHeader(end)}
-      </div>
       <article className="rounded-2xl border bg-card p-5 shadow-sm transition hover:bg-accent/40">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
