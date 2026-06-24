@@ -785,8 +785,7 @@ export default function Dashboard() {
                   ) : (
                     <ul className="divide-y divide-border/50">
                       {recentTrips.map((t) => {
-                        const pct = isHost ? (t.host_profit_percentage || 30) : (t.client_profit_percentage || 70);
-                        const earned = ((t.amount || 0) * pct) / 100;
+                        const net = typeof t.net_amount === "number" ? t.net_amount : (t.amount || 0);
                         const fmt = (v?: string | null) => {
                           if (!v) return "";
                           const iso = v.includes("T") || v.includes(" ") ? v : v + "T00:00:00";
@@ -808,9 +807,15 @@ export default function Dashboard() {
                                 <p className="text-[11px] text-muted-foreground mt-0.5">
                                   {start}{start && end ? " – " : ""}{end}
                                 </p>
+                                {t.trip_id && (
+                                  <p className="text-[11px] text-muted-foreground/80 mt-0.5">
+                                    Trip #{t.trip_id}
+                                  </p>
+                                )}
                               </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-sm font-semibold text-foreground">${Number(earned).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <span className="text-sm font-semibold text-foreground">${Number(net).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                <span className="text-[10px] text-muted-foreground">net after expenses</span>
                                 <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 rounded-full ${t.payment_status === "paid" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
                                   {t.payment_status}
                                 </Badge>
