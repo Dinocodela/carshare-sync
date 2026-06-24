@@ -427,6 +427,11 @@ export default function HostCarManagement() {
   const { toast } = useToast();
   const { user, session } = useAuth();
   const isMobile = useIsMobile();
+
+  // Handle deep-link from query params (e.g. ?trip_id=123)
+  const queryParams = new URLSearchParams(location.search);
+  const deeplinkTripId = queryParams.get("trip_id");
+
   const [cars, setCars] = useState<CarWithClient[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [earnings, setEarnings] = useState<Earning[]>([]);
