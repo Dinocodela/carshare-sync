@@ -393,14 +393,14 @@ export default function MyCars() {
 
                         {/* Contextual CTA */}
                         {!car.is_shared && (
-                          <div className="space-y-1.5">
+                          <div className="space-y-1">
                             {car.status === "available" && (
                               <Button
                                 size="sm"
-                                className="w-full rounded-lg h-8 gap-1.5 text-xs"
+                                className="w-full rounded-lg h-7 gap-1 text-[11px]"
                                 onClick={() => navigate(`/select-host?carId=${car.id}`)}
                               >
-                                <Shield className="w-3.5 h-3.5" />
+                                <Shield className="w-3 h-3" />
                                 Request Hosting
                               </Button>
                             )}
@@ -408,7 +408,7 @@ export default function MyCars() {
                               <Button
                                 variant="secondary"
                                 size="sm"
-                                className="w-full rounded-lg h-8 text-xs"
+                                className="w-full rounded-lg h-7 text-[11px]"
                                 disabled
                               >
                                 Request Sent — Awaiting Response
@@ -419,20 +419,20 @@ export default function MyCars() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="w-full rounded-lg h-8 gap-1.5 text-xs"
+                                  className="w-full rounded-lg h-7 gap-1 text-[11px]"
                                   onClick={() => navigate(`/hosting-details/${car.id}`)}
                                   disabled={!car.host_id}
                                 >
-                                  <ArrowUpRight className="w-3.5 h-3.5" />
+                                  <ArrowUpRight className="w-3 h-3" />
                                   View Host Contact
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="w-full rounded-lg h-7 gap-1.5 text-[11px] text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  className="w-full rounded-lg h-6 gap-1 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10"
                                   onClick={() => setUnhostCarId(car.id)}
                                 >
-                                  <XCircle className="w-3.5 h-3.5" />
+                                  <XCircle className="w-3 h-3" />
                                   Remove from Hosting
                                 </Button>
                               </>
