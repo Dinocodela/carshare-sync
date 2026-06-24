@@ -171,7 +171,8 @@ export default function EditCar() {
       const { error } = await supabase.from("cars").update({
         make: data.make, model: data.model, year: data.year, mileage: data.mileage,
         color: data.color, location: data.location, license_plate: data.license_plate,
-        vin_number: data.vin_number, description: data.description,
+        vin_number: data.vin_number, nickname: data.nickname?.trim() || null,
+        description: data.description,
         images: allImages.length > 0 ? allImages : null, updated_at: new Date().toISOString(),
       }).eq("id", id).eq("client_id", user.id);
       if (error) throw error;
