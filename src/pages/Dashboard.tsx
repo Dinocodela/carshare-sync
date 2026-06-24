@@ -768,8 +768,14 @@ export default function Dashboard() {
                       {recentTrips.map((t) => {
                         const pct = isHost ? (t.host_profit_percentage || 30) : (t.client_profit_percentage || 70);
                         const earned = ((t.amount || 0) * pct) / 100;
-                        const start = t.earning_period_start ? new Date(t.earning_period_start + 'T00:00:00').toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
-                        const end = t.earning_period_end ? new Date(t.earning_period_end + 'T00:00:00').toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
+                        const fmt = (v?: string | null) => {
+                          if (!v) return "";
+                          const iso = v.includes("T") || v.includes(" ") ? v : v + "T00:00:00";
+                          const d = new Date(iso);
+                          return isNaN(d.getTime()) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+                        };
+                        const start = fmt(t.earning_period_start);
+                        const end = fmt(t.earning_period_end);
                         return (
                           <li key={t.id}>
                             <button
