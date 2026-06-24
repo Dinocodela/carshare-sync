@@ -813,7 +813,7 @@ export default function Dashboard() {
                                       type="button"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/host-car-management#earnings?trip_id=${t.trip_id}`);
+                                        navigate(`/host-car-management?trip_id=${t.trip_id}#earnings`);
                                       }}
                                       className="hover:text-primary hover:underline transition-colors"
                                     >
