@@ -46,6 +46,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useCameraCapture } from "@/hooks/useCameraCapture";
+import { formatCarName } from "@/lib/carName";
 
 const carSchema = z.object({
   make: z.string().min(1, "Make is required"),
@@ -56,6 +57,7 @@ const carSchema = z.object({
   location: z.string().min(1, "Location is required"),
   license_plate: z.string().min(1, "License plate is required"),
   vin_number: z.string().min(1, "VIN number is required"),
+  nickname: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -101,7 +103,8 @@ export default function EditCar() {
       form.reset({
         make: data.make, model: data.model, year: data.year, mileage: data.mileage || 0,
         color: data.color, location: data.location, license_plate: data.license_plate || "",
-        vin_number: data.vin_number || "", description: data.description || "",
+        vin_number: data.vin_number || "", nickname: (data as any).nickname || "",
+        description: data.description || "",
       });
       setExistingImages(data.images || []);
     } catch (error) {
@@ -169,7 +172,8 @@ export default function EditCar() {
       const { error } = await supabase.from("cars").update({
         make: data.make, model: data.model, year: data.year, mileage: data.mileage,
         color: data.color, location: data.location, license_plate: data.license_plate,
-        vin_number: data.vin_number, description: data.description,
+        vin_number: data.vin_number, nickname: data.nickname?.trim() || null,
+        description: data.description,
         images: allImages.length > 0 ? allImages : null, updated_at: new Date().toISOString(),
       }).eq("id", id).eq("client_id", user.id);
       if (error) throw error;
@@ -306,6 +310,35 @@ export default function EditCar() {
                     <div className="relative"><Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60" /><Input placeholder="1HGBH41JXMN109186" {...field} className="pl-9 rounded-xl bg-background/50" /></div>
                   </FormControl><FormMessage /></FormItem>
                 )} />
+              </div>
+            </div>
+
+            {/* Display Name */}
+            <div style={fadeIn(3)} className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-3">
+              <div className="flex items-center gap-2.5 mb-1">
+                <div className="rounded-lg bg-primary/10 p-2"><CarIcon className="h-4 w-4 text-primary" /></div>
+                <h2 className="text-base font-semibold tracking-tight">Display Name</h2>
+              </div>
+              <p className="text-xs text-muted-foreground -mt-1">
+                Set a custom name so the car follows the correct format (e.g.{" "}
+                <span className="font-mono">Onyx Y 26 B/B EP47L73 - 31478</span>). Useful for cars
+                added automatically for Eon. Leave blank to use the default format.
+              </p>
+              <FormField control={form.control} name="nickname" render={({ field }) => (
+                <FormItem><FormLabel className="text-xs">Car Name</FormLabel><FormControl>
+                  <Input placeholder="Onyx Y 26 B/B EP47L73 - 31478" {...field} className="rounded-xl bg-background/50 font-mono" />
+                </FormControl><FormMessage /></FormItem>
+              )} />
+              <div className="rounded-xl border border-border/60 bg-background/80 px-4 py-3">
+                <p className="text-[11px] text-muted-foreground mb-1">Appears across Teslys as:</p>
+                <p className="font-mono text-sm font-semibold text-foreground break-all">
+                  {formatCarName({
+                    model: form.watch("model"),
+                    vin_number: form.watch("vin_number"),
+                    license_plate: form.watch("license_plate"),
+                    nickname: form.watch("nickname"),
+                  })}
+                </p>
               </div>
             </div>
 
