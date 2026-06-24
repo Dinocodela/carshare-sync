@@ -436,19 +436,20 @@ export default function Dashboard() {
       setTripsLoading(true);
       try {
         const todayStr = new Date().toISOString().slice(0, 10);
+        let rows: any[] | null = null;
         if (isHost) {
-          const { data: rows } = await supabase
+          const res = await supabase
             .from("host_earnings")
             .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address")
             .lte("earning_period_start", todayStr)
             .gte("earning_period_end", todayStr)
             .order("earning_period_end", { ascending: true })
             .limit(5);
-          if (!cancelled) setRecentTrips(rows || []);
+          rows = res.data || [];
         } else {
           const carIds = (clientData?.cars || []).map((c: any) => c.id);
           if (carIds.length) {
-            const { data: rows } = await supabase
+            const res = await supabase
               .from("host_earnings")
               .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address")
               .in("car_id", carIds)
@@ -456,11 +457,29 @@ export default function Dashboard() {
               .gte("earning_period_end", todayStr)
               .order("earning_period_end", { ascending: true })
               .limit(5);
-            if (!cancelled) setRecentTrips(rows || []);
+            rows = res.data || [];
           } else {
-            if (!cancelled) setRecentTrips([]);
+            rows = [];
           }
         }
+
+        // Compute net (gross - trip expenses) for each trip
+        if (rows && rows.length) {
+          const carIds = Array.from(new Set(rows.map((r: any) => r.car_id).filter(Boolean)));
+          let expenses: any[] = [];
+          if (carIds.length) {
+            const { data: expData } = await supabase
+              .from("host_expenses")
+              .select("trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost")
+              .in("car_id", carIds);
+            expenses = expData || [];
+          }
+          rows = rows.map((r: any) => ({
+            ...r,
+            net_amount: (r.amount || 0) - getTripExpensesTotal(r.trip_id, expenses),
+          }));
+        }
+        if (!cancelled) setRecentTrips(rows || []);
       } finally {
         if (!cancelled) setTripsLoading(false);
       }
@@ -766,8 +785,7 @@ export default function Dashboard() {
                   ) : (
                     <ul className="divide-y divide-border/50">
                       {recentTrips.map((t) => {
-                        const pct = isHost ? (t.host_profit_percentage || 30) : (t.client_profit_percentage || 70);
-                        const earned = ((t.amount || 0) * pct) / 100;
+                        const net = typeof t.net_amount === "number" ? t.net_amount : (t.amount || 0);
                         const fmt = (v?: string | null) => {
                           if (!v) return "";
                           const iso = v.includes("T") || v.includes(" ") ? v : v + "T00:00:00";
@@ -789,9 +807,15 @@ export default function Dashboard() {
                                 <p className="text-[11px] text-muted-foreground mt-0.5">
                                   {start}{start && end ? " – " : ""}{end}
                                 </p>
+                                {t.trip_id && (
+                                  <p className="text-[11px] text-muted-foreground/80 mt-0.5">
+                                    Trip #{t.trip_id}
+                                  </p>
+                                )}
                               </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-sm font-semibold text-foreground">${Number(earned).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <span className="text-sm font-semibold text-foreground">${Number(net).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                                <span className="text-[10px] text-muted-foreground">net after expenses</span>
                                 <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 rounded-full ${t.payment_status === "paid" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
                                   {t.payment_status}
                                 </Badge>
