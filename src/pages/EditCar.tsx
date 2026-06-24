@@ -102,7 +102,8 @@ export default function EditCar() {
       form.reset({
         make: data.make, model: data.model, year: data.year, mileage: data.mileage || 0,
         color: data.color, location: data.location, license_plate: data.license_plate || "",
-        vin_number: data.vin_number || "", description: data.description || "",
+        vin_number: data.vin_number || "", nickname: (data as any).nickname || "",
+        description: data.description || "",
       });
       setExistingImages(data.images || []);
     } catch (error) {
