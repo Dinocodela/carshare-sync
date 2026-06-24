@@ -43,6 +43,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useCameraCapture } from "@/hooks/useCameraCapture";
+import { formatCarName } from "@/lib/carName";
 
 const carSchema = z.object({
   make: z.string().min(1, "Make is required"),
@@ -495,6 +496,44 @@ export default function AddCar() {
                 />
               </div>
             </div>
+
+            {/* Standardized Name Preview */}
+            {(() => {
+              const wModel = form.watch("model");
+              const wVin = form.watch("vin_number");
+              const wPlate = form.watch("license_plate");
+              const previewName = formatCarName({
+                model: wModel,
+                vin_number: wVin,
+                license_plate: wPlate,
+              });
+              return (
+                <div
+                  style={fadeIn(3)}
+                  className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="rounded-lg bg-primary/10 p-1.5">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                    </div>
+                    <h2 className="text-sm font-semibold text-foreground">
+                      Standardized Name Preview
+                    </h2>
+                  </div>
+                  <p className="text-xs text-muted-foreground -mt-1">
+                    This is exactly how your car will appear across Teslys after it's added.
+                  </p>
+                  <div className="rounded-xl border border-border/60 bg-background/80 px-4 py-3">
+                    <p className="font-mono text-base font-semibold text-foreground break-all">
+                      {previewName}
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Format: Model · Last 5 of VIN · License Plate
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* Section 3: Photos */}
             <div
