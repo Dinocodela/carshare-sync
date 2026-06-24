@@ -43,6 +43,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useCameraCapture } from "@/hooks/useCameraCapture";
+import { formatCarName } from "@/lib/carName";
 
 const carSchema = z.object({
   make: z.string().min(1, "Make is required"),
