@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,6 +37,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [availableRoles, setAvailableRoles] = useState<WorkspaceRoleRow[]>([]);
   const [landingSeen, setLandingSeen] = useState<Partial<Record<WorkspaceRole, boolean>>>({});
   const [loading, setLoading] = useState(true);
+  // Track which user we've already loaded the profile for, so token refreshes
+  // (which change the `user` object reference) don't re-fetch and clobber the
+  // workspace the user just switched to.
+  const loadedForUserId = useRef<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -44,6 +48,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       if (authLoading) return;
       if (!user) {
         setAvailableRoles([]);
+        setLoading(false);
+        loadedForUserId.current = null;
+        return;
+      }
+      // Already loaded for this user — don't re-fetch and reset state.
+      if (loadedForUserId.current === user.id) {
         setLoading(false);
         return;
       }
@@ -59,6 +69,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       ]);
 
       if (!alive) return;
+      loadedForUserId.current = user.id;
       setAvailableRoles((roles ?? []) as WorkspaceRoleRow[]);
       if (profile?.active_workspace) {
         setActiveWorkspace(profile.active_workspace as WorkspaceRole);
@@ -70,7 +81,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return () => {
       alive = false;
     };
-  }, [user, authLoading]);
+  }, [user?.id, authLoading]);
 
   const hasRole = useCallback(
     (role: WorkspaceRole) => availableRoles.some((r) => r.role === role),
