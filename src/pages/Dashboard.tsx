@@ -848,7 +848,7 @@ export default function Dashboard() {
                                       type="button"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/host-car-management?trip_id=${t.trip_id}#earnings`);
+                                        navigate(isHost ? `/host-car-management?trip_id=${t.trip_id}#earnings` : `/trips/${t.id}`);
                                       }}
                                       className="hover:text-primary hover:underline transition-colors"
                                     >
