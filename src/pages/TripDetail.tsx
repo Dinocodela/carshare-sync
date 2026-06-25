@@ -178,6 +178,8 @@ export default function TripDetail() {
           payment_source: row.payment_source,
           pickup_address: row.pickup_address ?? null,
           return_address: row.return_address ?? null,
+          net_amount: net,
+          date_paid: row.date_paid ?? null,
           car: row.cars
             ? {
                 make: row.cars.make,
