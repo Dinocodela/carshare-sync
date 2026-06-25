@@ -1,0 +1,1 @@
+UPDATE public.cars SET nickname = 'JEFF-Y-26-BW-ES91V02-49527', updated_at = now() WHERE id = '4296d63f-6103-4fd5-be57-68583fb4d10f';
