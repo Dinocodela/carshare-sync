@@ -6,6 +6,15 @@ import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Car as CarIcon, Loader2, MapPin, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getClientShare } from "@/lib/expenseMatching";
+
+function formatCurrency(n: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
 
 function parseDate(s: string): Date {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00`);
