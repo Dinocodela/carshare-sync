@@ -158,42 +158,42 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 </p>
               )
             )}
-            <div className="mt-3 flex items-center gap-2 text-sm">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-medium uppercase text-muted-foreground">
+            <div className="mt-2.5 flex items-center gap-2 text-xs sm:mt-3 sm:text-sm">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium uppercase text-muted-foreground sm:h-7 sm:w-7">
                 {(trip.guest_name || "?").charAt(0)}
               </div>
-              <span className="text-foreground">
+              <span className="truncate text-foreground">
                 {trip.guest_name || "Unknown guest"}
               </span>
-              {trip.trip_id && (
-                <div className="mt-2 flex items-center gap-2">
-                  <Link
-                    to={`/host-car-management?trip_id=${trip.trip_id}#earnings`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                  >
-                    <span>Trip #{trip.trip_id}</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      navigator.clipboard.writeText(trip.trip_id!);
-                      toast({
-                        title: "Copied",
-                        description: `Trip ID ${trip.trip_id} copied to clipboard.`,
-                      });
-                    }}
-                    className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
-                    title="Copy trip ID"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </button>
-                </div>
-              )}
             </div>
+            {trip.trip_id && (
+              <div className="mt-1.5 flex items-center gap-2">
+                <Link
+                  to={`/host-car-management?trip_id=${trip.trip_id}#earnings`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                >
+                  <span>Trip #{trip.trip_id}</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(trip.trip_id!);
+                    toast({
+                      title: "Copied",
+                      description: `Trip ID ${trip.trip_id} copied to clipboard.`,
+                    });
+                  }}
+                  className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                  title="Copy trip ID"
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex flex-col items-end gap-1">
             <div className="h-16 w-20 overflow-hidden rounded-lg bg-muted">
