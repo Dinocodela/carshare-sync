@@ -21,7 +21,7 @@ export function useCarBookings(carId: string | null) {
       try {
         const [{ data: e, error: eErr }, { data: x, error: xErr }] = await Promise.all([
           (supabase as any)
-            .from("host_earnings")
+            .from("client_visible_earnings")
             .select("*")
             .eq("car_id", carId)
             .order("earning_period_start", { ascending: false }),
