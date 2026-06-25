@@ -827,8 +827,6 @@ export default function Dashboard() {
                           const d = new Date(iso);
                           return isNaN(d.getTime()) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
                         };
-                        const fmtMoney = (v: number) =>
-                          `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
                         const start = fmt(t.earning_period_start);
                         const end = fmt(t.earning_period_end);
                         return (
