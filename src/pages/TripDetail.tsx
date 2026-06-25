@@ -241,7 +241,7 @@ export default function TripDetail() {
 
   return (
     <DashboardLayout>
-      <SEO title={`Booked trip · ${trip.guest_name || "Guest"} | Teslys`} description="Trip details" />
+      <SEO title={`Booked trip · ${trip.guest_name || trip.guest_initials || "Guest"} | Teslys`} description="Trip details" />
       <PageContainer className="pb-40 md:pb-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
@@ -263,7 +263,7 @@ export default function TripDetail() {
           </div>
           <div>
             <h1 className="text-xl font-bold leading-tight">Booked trip</h1>
-            <p className="text-sm text-muted-foreground">{trip.guest_name || "Guest"}</p>
+            <p className="text-sm text-muted-foreground">{trip.guest_name || trip.guest_initials || "Guest"}</p>
           </div>
         </div>
 
