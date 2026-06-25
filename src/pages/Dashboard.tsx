@@ -828,7 +828,6 @@ export default function Dashboard() {
                           `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
                         const start = fmt(t.earning_period_start);
                         const end = fmt(t.earning_period_end);
-                        const isExpanded = expandedEarnings.has(t.id);
                         return (
                           <li key={t.id}>
                             <button
@@ -880,12 +879,7 @@ export default function Dashboard() {
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setExpandedEarnings((prev) => {
-                                        const next = new Set(prev);
-                                        if (next.has(t.id)) next.delete(t.id);
-                                        else next.add(t.id);
-                                        return next;
-                                      });
+                                      setSelectedTrip(t);
                                     }}
                                     className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
                                     title="How is this calculated?"
@@ -898,34 +892,6 @@ export default function Dashboard() {
                                 </Badge>
                               </div>
                             </button>
-                            {isExpanded && (
-                              <div className="px-4 pb-3.5">
-                                <div className="rounded-xl bg-muted/50 border border-border/60 p-3 text-xs space-y-2">
-                                  <p className="font-medium text-foreground">Earnings estimate</p>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground">Gross trip revenue</span>
-                                    <span className="font-medium text-foreground">{fmtMoney(t.amount || 0)}</span>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground">Matched expenses</span>
-                                    <span className="font-medium text-destructive">-{fmtMoney(t.trip_expenses || 0)}</span>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground">Net after expenses</span>
-                                    <span className="font-medium text-foreground">{fmtMoney((t.amount || 0) - (t.trip_expenses || 0))}</span>
-                                  </div>
-                                  <div className="flex items-center justify-between border-t border-border/50 pt-2">
-                                    <span className="text-muted-foreground">Your share ({t.profit_percentage || (isHost ? 30 : 70)}%)</span>
-                                    <span className="font-semibold text-foreground">{fmtMoney(net)}</span>
-                                  </div>
-                                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                                    {isHost
-                                      ? "Hosts see the net after expenses. Client share is calculated separately from the remaining balance."
-                                      : "Your take is the net after matched expenses (tolls, charging, delivery, etc.) multiplied by your profit split percentage."}
-                                  </p>
-                                </div>
-                              </div>
-                            )}
                           </li>
                         );
                       })}
