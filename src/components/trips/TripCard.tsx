@@ -82,7 +82,10 @@ function formatDateTime(d: Date): string {
 }
 
 function getStatus(start: Date, end: Date) {
-  const now = new Date();
+  // Stored timestamps are naive wall-clock times displayed in UTC, so compare
+  // against "now" shifted into the same wall-clock-as-UTC frame.
+  const local = new Date();
+  const now = new Date(local.getTime() - local.getTimezoneOffset() * 60000);
   if (now < start) {
     return {
       label: `Starts ${start.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`,
