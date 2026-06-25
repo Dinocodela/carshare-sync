@@ -67,6 +67,7 @@ interface TripFull {
   id: string;
   trip_id: string | null;
   guest_name: string | null;
+  guest_initials: string | null;
   earning_period_start: string;
   earning_period_end: string;
   earning_type: string | null;
