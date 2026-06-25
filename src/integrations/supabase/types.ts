@@ -2276,6 +2276,7 @@ export type Database = {
           earning_period_start: string | null
           earning_type: string | null
           gross_earnings: number | null
+          guest_initials: string | null
           host_id: string | null
           host_profit_percentage: number | null
           id: string | null
@@ -2299,6 +2300,7 @@ export type Database = {
           earning_period_start?: string | null
           earning_type?: string | null
           gross_earnings?: number | null
+          guest_initials?: never
           host_id?: string | null
           host_profit_percentage?: number | null
           id?: string | null
@@ -2322,6 +2324,7 @@ export type Database = {
           earning_period_start?: string | null
           earning_type?: string | null
           gross_earnings?: number | null
+          guest_initials?: never
           host_id?: string | null
           host_profit_percentage?: number | null
           id?: string | null

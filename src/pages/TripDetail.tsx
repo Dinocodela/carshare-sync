@@ -67,6 +67,7 @@ interface TripFull {
   id: string;
   trip_id: string | null;
   guest_name: string | null;
+  guest_initials: string | null;
   earning_period_start: string;
   earning_period_end: string;
   earning_type: string | null;
@@ -125,7 +126,7 @@ export default function TripDetail() {
         const { data: viewRow } = await (supabase as any)
           .from("client_visible_earnings")
           .select(
-            "id, trip_id, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, client_profit_percentage, date_paid",
+            "id, trip_id, guest_initials, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, client_profit_percentage, date_paid",
           )
           .eq("id", earningId)
           .maybeSingle();
@@ -171,6 +172,7 @@ export default function TripDetail() {
           id: row.id,
           trip_id: row.trip_id,
           guest_name: row.guest_name ?? null,
+          guest_initials: row.guest_initials ?? null,
           earning_period_start: row.earning_period_start,
           earning_period_end: row.earning_period_end,
           earning_type: row.earning_type,
@@ -239,7 +241,7 @@ export default function TripDetail() {
 
   return (
     <DashboardLayout>
-      <SEO title={`Booked trip · ${trip.guest_name || "Guest"} | Teslys`} description="Trip details" />
+      <SEO title={`Booked trip · ${trip.guest_name || trip.guest_initials || "Guest"} | Teslys`} description="Trip details" />
       <PageContainer className="pb-40 md:pb-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
@@ -261,7 +263,7 @@ export default function TripDetail() {
           </div>
           <div>
             <h1 className="text-xl font-bold leading-tight">Booked trip</h1>
-            <p className="text-sm text-muted-foreground">{trip.guest_name || "Guest"}</p>
+            <p className="text-sm text-muted-foreground">{trip.guest_name || trip.guest_initials || "Guest"}</p>
           </div>
         </div>
 

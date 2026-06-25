@@ -6,6 +6,7 @@ export interface TripCardData {
   id: string;
   trip_id: string | null;
   guest_name: string | null;
+  guest_initials?: string | null;
   earning_period_start: string;
   earning_period_end: string;
   is_delivery?: boolean;
@@ -181,10 +182,12 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             )}
             <div className="mt-2.5 flex items-center gap-2 text-xs sm:mt-3 sm:text-sm">
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[0.65rem] font-bold uppercase tracking-tight text-muted-foreground sm:h-7 sm:w-7 sm:text-xs">
-                {getGuestInitials(trip.guest_name)}
+                {trip.guest_name
+                  ? getGuestInitials(trip.guest_name)
+                  : trip.guest_initials || "?"}
               </div>
               <span className="truncate text-foreground">
-                {trip.guest_name || "Unknown guest"}
+                {trip.guest_name || trip.guest_initials || "Guest"}
               </span>
             </div>
             {trip.trip_id && (
