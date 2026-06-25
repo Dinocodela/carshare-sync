@@ -2512,6 +2512,13 @@ export type Database = {
           partial_vin: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["workspace_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_workspace_role: {
         Args: {
           _role: Database["public"]["Enums"]["workspace_role"]
