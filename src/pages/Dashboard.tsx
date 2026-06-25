@@ -119,6 +119,11 @@ function useRecentActivity(
         const nextMonthStartTs = `${nextMonthStart}T00:00:00.000Z`;
         const payoutFields =
           "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
+        // Clients read from a privacy-safe view that excludes guest PII (no guest_name).
+        const clientPayoutFields =
+          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, earning_period_start, earning_period_end";
+        const earningsTable = role === "host" ? "host_earnings" : "client_visible_earnings";
+        const earningsFields = role === "host" ? payoutFields : clientPayoutFields;
 
         let earns: any[] = [];
         if (role === "host") {
