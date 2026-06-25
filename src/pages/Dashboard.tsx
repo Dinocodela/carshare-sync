@@ -309,6 +309,7 @@ export default function Dashboard() {
   const [activityOpen, setActivityOpen] = useState(true);
   const [recentTrips, setRecentTrips] = useState<any[]>([]);
   const [tripsLoading, setTripsLoading] = useState(false);
+  const [expandedEarnings, setExpandedEarnings] = useState<Set<string>>(new Set());
 
   // Only host super-admins can see pending accounts
   const isAdmin = profile?.is_super_admin && activeWorkspace === "host";
