@@ -67,12 +67,16 @@ export function useCars() {
       const ownedCarIds = new Set((ownedCars || []).map((c: any) => c.id));
       const safeNonOwnedCars = (safeCarData || []).filter((c: any) => !ownedCarIds.has(c.id));
       
-      // Add sharing metadata to non-owned cars
-      const carsWithSharingInfo = safeNonOwnedCars.map((car: any) => ({
-        ...car,
-        is_shared: car.user_relationship === 'shared_access',
-        share_permission: car.user_relationship === 'shared_access' ? 'viewer' : undefined,
-      }));
+      // Client portal: only show cars the user OWNS as a client or that are
+      // explicitly shared with them. Cars where the user is merely the HOST
+      // belong in the host portal and must not leak into "My Cars".
+      const carsWithSharingInfo = safeNonOwnedCars
+        .filter((car: any) => car.user_relationship === 'shared_access')
+        .map((car: any) => ({
+          ...car,
+          is_shared: true,
+          share_permission: 'viewer',
+        }));
 
       setCars([...(ownedCars || []), ...carsWithSharingInfo]);
     } catch (err) {
