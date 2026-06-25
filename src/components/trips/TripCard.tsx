@@ -52,6 +52,14 @@ function formatTime(d: Date): string {
   });
 }
 
+function formatCurrency(n: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
+
 function formatDateTime(d: Date): string {
   const weekday = d.toLocaleDateString("en-US", {
     weekday: "short",
