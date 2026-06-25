@@ -287,6 +287,43 @@ export default function TripDetail() {
           </div>
         </section>
 
+        {/* Your earnings */}
+        {trip.net_amount != null && (
+          <section className="mb-6 rounded-2xl border bg-card p-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Your earnings
+            </p>
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="text-3xl font-bold text-foreground">
+                  {formatCurrency(trip.net_amount)}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Estimated net after commission &amp; trip expenses
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <span
+                  className={`rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${
+                    trip.payment_status === "paid"
+                      ? "bg-primary/15 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {trip.payment_status === "paid" ? "Paid" : "Pending"}
+                </span>
+                {trip.payment_status === "paid" && trip.date_paid && (
+                  <span className="text-xs text-muted-foreground">
+                    {formatDayShort(parseDate(trip.date_paid))}
+                  </span>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+
+
         {/* Location (car's general location) — only shown when no specific
             pickup/return addresses are available */}
         {trip.car?.location && !trip.pickup_address && !trip.return_address && (
