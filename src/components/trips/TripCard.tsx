@@ -11,6 +11,8 @@ export interface TripCardData {
   is_delivery?: boolean;
   delivery_address?: string | null;
   return_address?: string | null;
+  net_amount?: number | null;
+  payment_status?: string | null;
   car: {
     make: string;
     model: string;
@@ -48,6 +50,14 @@ function formatTime(d: Date): string {
     minute: "2-digit",
     timeZone: "UTC",
   });
+}
+
+function formatCurrency(n: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
 }
 
 function formatDateTime(d: Date): string {
@@ -225,6 +235,24 @@ export function TripCard({ trip }: { trip: TripCardData }) {
               <span className="text-xs text-muted-foreground">
                 {trip.car.license_plate}
               </span>
+            )}
+            {trip.net_amount != null && (
+              <div className="mt-1 flex flex-col items-end">
+                <span className="text-sm font-bold text-foreground sm:text-base">
+                  {formatCurrency(trip.net_amount)}
+                </span>
+                {trip.payment_status && (
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-[0.6rem] font-medium uppercase tracking-wide ${
+                      trip.payment_status === "paid"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {trip.payment_status === "paid" ? "Paid" : "Pending"}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>

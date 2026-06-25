@@ -6,6 +6,15 @@ import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Car as CarIcon, Loader2, MapPin, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getClientShare } from "@/lib/expenseMatching";
+
+function formatCurrency(n: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
 
 function parseDate(s: string): Date {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00`);
@@ -65,6 +74,8 @@ interface TripFull {
   payment_source: string | null;
   pickup_address: string | null;
   return_address: string | null;
+  net_amount: number | null;
+  date_paid: string | null;
   car: {
     make: string;
     model: string;
@@ -94,7 +105,7 @@ export default function TripDetail() {
       const { data, error } = await supabase
         .from("host_earnings")
         .select(
-          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
         )
         .eq("id", earningId)
         .maybeSingle();
@@ -114,7 +125,7 @@ export default function TripDetail() {
         const { data: viewRow } = await (supabase as any)
           .from("client_visible_earnings")
           .select(
-            "id, trip_id, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id",
+            "id, trip_id, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, client_profit_percentage, date_paid",
           )
           .eq("id", earningId)
           .maybeSingle();
@@ -136,6 +147,26 @@ export default function TripDetail() {
       if (!row) {
         setTrip(null);
       } else {
+        let net: number | null = null;
+        if (row.amount != null) {
+          let exps: any[] = [];
+          if (row.trip_id) {
+            const { data: e } = await supabase
+              .from("host_expenses")
+              .select(
+                "trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost",
+              )
+              .eq("trip_id", row.trip_id);
+            exps = e || [];
+          }
+          if (cancelled) return;
+          net = getClientShare(
+            Number(row.amount),
+            row.client_profit_percentage,
+            row.trip_id,
+            exps as any,
+          );
+        }
         setTrip({
           id: row.id,
           trip_id: row.trip_id,
@@ -147,6 +178,8 @@ export default function TripDetail() {
           payment_source: row.payment_source,
           pickup_address: row.pickup_address ?? null,
           return_address: row.return_address ?? null,
+          net_amount: net,
+          date_paid: row.date_paid ?? null,
           car: row.cars
             ? {
                 make: row.cars.make,
@@ -253,6 +286,43 @@ export default function TripDetail() {
             </div>
           </div>
         </section>
+
+        {/* Your earnings */}
+        {trip.net_amount != null && (
+          <section className="mb-6 rounded-2xl border bg-card p-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Your earnings
+            </p>
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="text-3xl font-bold text-foreground">
+                  {formatCurrency(trip.net_amount)}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Estimated net after commission &amp; trip expenses
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <span
+                  className={`rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${
+                    trip.payment_status === "paid"
+                      ? "bg-primary/15 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {trip.payment_status === "paid" ? "Paid" : "Pending"}
+                </span>
+                {trip.payment_status === "paid" && trip.date_paid && (
+                  <span className="text-xs text-muted-foreground">
+                    {formatDayShort(parseDate(trip.date_paid))}
+                  </span>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+
 
         {/* Location (car's general location) — only shown when no specific
             pickup/return addresses are available */}

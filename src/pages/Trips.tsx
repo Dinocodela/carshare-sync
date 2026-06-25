@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
+import { getClientShare } from "@/lib/expenseMatching";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,10 +51,10 @@ export default function Trips() {
         const opts = countOnly ? { count: "exact" as const } : undefined;
         const fields = countOnly
           ? "id"
-          : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)";
+          : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, amount, client_profit_percentage, payment_status, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)";
         const clientFields = countOnly
           ? "id"
-          : "id, trip_id, earning_period_start, earning_period_end, car_id, host_id";
+          : "id, trip_id, earning_period_start, earning_period_end, car_id, host_id, amount, client_profit_percentage, payment_status";
 
         const q = isHostRole
           ? supabase.from("host_earnings").select(fields, opts)
@@ -127,14 +128,18 @@ export default function Trips() {
           ),
         );
         let deliveryTripIds = new Set<string>();
+        let tripExpenses: any[] = [];
         if (tripIds.length > 0) {
           const { data: expenses } = await supabase
             .from("host_expenses")
-            .select("trip_id, delivery_cost")
-            .in("trip_id", tripIds)
-            .gt("delivery_cost", 0);
+            .select(
+              "trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost",
+            )
+            .in("trip_id", tripIds);
+          tripExpenses = expenses || [];
           deliveryTripIds = new Set(
-            (expenses || [])
+            tripExpenses
+              .filter((e: any) => (e.delivery_cost || 0) > 0)
               .map((e: any) => e.trip_id)
               .filter((t: string | null): t is string => !!t),
           );
@@ -172,6 +177,16 @@ export default function Trips() {
             is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
             delivery_address: row.pickup_address || null,
             return_address: row.return_address || null,
+            net_amount:
+              row.amount != null
+                ? getClientShare(
+                    Number(row.amount),
+                    row.client_profit_percentage,
+                    row.trip_id,
+                    tripExpenses as any,
+                  )
+                : null,
+            payment_status: row.payment_status ?? null,
             car: car
               ? {
                   make: car.make,
