@@ -550,6 +550,9 @@ export default function Dashboard() {
 
   const earnings7d = isHost ? earn7Host : earn7Client;
 
+  const fmtMoney = (v: number) =>
+    `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
   // Fade-in helper
   const fadeIn = (idx: number) =>
     ({
