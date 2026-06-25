@@ -21,6 +21,17 @@ function formatDayShort(d: Date) {
   });
 }
 
+function getGuestInitials(name: string | null | undefined): string {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (
+    parts[0].charAt(0) + parts[parts.length - 1].charAt(0)
+  ).toUpperCase();
+}
+
+
 function formatTime(d: Date) {
   return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
 }
@@ -300,8 +311,8 @@ export default function TripDetail() {
           </p>
           <div className="rounded-2xl border bg-card p-5">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-lg font-bold uppercase text-muted-foreground">
-                {(trip.guest_name || "?").charAt(0)}
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-lg font-bold uppercase tracking-tight text-muted-foreground">
+                {getGuestInitials(trip.guest_name)}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-foreground">

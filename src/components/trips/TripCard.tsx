@@ -27,6 +27,17 @@ function parseDate(s: string): Date {
   return new Date(s);
 }
 
+function getGuestInitials(name: string | null | undefined): string {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (
+    parts[0].charAt(0) + parts[parts.length - 1].charAt(0)
+  ).toUpperCase();
+}
+
+
 // Timestamps from host_earnings come from Turo/Eon as the trip's local
 // pickup/return wall-clock time, but are stored as UTC (e.g. 07:00:00+00
 // means a 7:00 AM pickup). Render in UTC so the viewer's browser timezone
@@ -159,8 +170,8 @@ export function TripCard({ trip }: { trip: TripCardData }) {
               )
             )}
             <div className="mt-2.5 flex items-center gap-2 text-xs sm:mt-3 sm:text-sm">
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium uppercase text-muted-foreground sm:h-7 sm:w-7">
-                {(trip.guest_name || "?").charAt(0)}
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[0.65rem] font-bold uppercase tracking-tight text-muted-foreground sm:h-7 sm:w-7 sm:text-xs">
+                {getGuestInitials(trip.guest_name)}
               </div>
               <span className="truncate text-foreground">
                 {trip.guest_name || "Unknown guest"}
