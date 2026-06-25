@@ -118,7 +118,7 @@ export function useClientAnalytics(
     if (carIds.length === 0) return;
     try {
       const yearsSet = new Set<number>();
-      const { data: e } = await supabase.from('host_earnings').select('earning_period_start').in('car_id', carIds);
+      const { data: e } = await (supabase as any).from('client_visible_earnings').select('earning_period_start').in('car_id', carIds);
       (e || []).forEach((r: any) => { if (r.earning_period_start) yearsSet.add(new Date(r.earning_period_start).getFullYear()); });
       const { data: x } = await supabase.from('host_expenses').select('expense_date').in('car_id', carIds);
       (x || []).forEach((r: any) => { if (r.expense_date) yearsSet.add(new Date(r.expense_date).getFullYear()); });
