@@ -11,6 +11,8 @@ export interface TripCardData {
   is_delivery?: boolean;
   delivery_address?: string | null;
   return_address?: string | null;
+  net_amount?: number | null;
+  payment_status?: string | null;
   car: {
     make: string;
     model: string;
