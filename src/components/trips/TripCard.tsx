@@ -195,8 +195,8 @@ export function TripCard({ trip }: { trip: TripCardData }) {
               </div>
             )}
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <div className="h-16 w-20 overflow-hidden rounded-lg bg-muted">
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <div className="h-12 w-16 overflow-hidden rounded-lg bg-muted sm:h-16 sm:w-20">
               {carImage ? (
                 <img
                   src={carImage}
@@ -206,7 +206,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                  <CarIcon className="h-6 w-6" />
+                  <CarIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
               )}
             </div>
