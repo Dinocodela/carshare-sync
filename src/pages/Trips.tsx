@@ -127,14 +127,18 @@ export default function Trips() {
           ),
         );
         let deliveryTripIds = new Set<string>();
+        let tripExpenses: any[] = [];
         if (tripIds.length > 0) {
           const { data: expenses } = await supabase
             .from("host_expenses")
-            .select("trip_id, delivery_cost")
-            .in("trip_id", tripIds)
-            .gt("delivery_cost", 0);
+            .select(
+              "trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost",
+            )
+            .in("trip_id", tripIds);
+          tripExpenses = expenses || [];
           deliveryTripIds = new Set(
-            (expenses || [])
+            tripExpenses
+              .filter((e: any) => (e.delivery_cost || 0) > 0)
               .map((e: any) => e.trip_id)
               .filter((t: string | null): t is string => !!t),
           );
