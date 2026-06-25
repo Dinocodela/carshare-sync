@@ -154,9 +154,9 @@ function useRecentActivity(
         } else {
           const carIds = allCars.map((c) => c.id);
           if (carIds.length) {
-            const { data } = await supabase
-              .from("host_earnings")
-              .select(payoutFields)
+            const { data } = await (supabase as any)
+              .from("client_visible_earnings")
+              .select(clientPayoutFields)
               .eq("payment_status", "paid")
               .in("car_id", carIds)
               .gte("date_paid", monthStart)
@@ -166,9 +166,9 @@ function useRecentActivity(
             earns = data || [];
 
             if (earns.length === 0) {
-              const { data: fallback } = await supabase
-                .from("host_earnings")
-                .select(payoutFields)
+              const { data: fallback } = await (supabase as any)
+                .from("client_visible_earnings")
+                .select(clientPayoutFields)
                 .eq("payment_status", "paid")
                 .in("car_id", carIds)
                 .is("date_paid", null)
