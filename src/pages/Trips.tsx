@@ -40,7 +40,12 @@ export default function Trips() {
     (async () => {
       setLoading(true);
 
-      const nowIso = new Date().toISOString();
+      // Stored timestamps are naive wall-clock times (displayed in UTC), so
+      // compare against "now" shifted into the same wall-clock-as-UTC frame.
+      const localNow = new Date();
+      const nowIso = new Date(
+        localNow.getTime() - localNow.getTimezoneOffset() * 60000,
+      ).toISOString();
 
       // Use the user's actual host role (not the active UI workspace) to decide
       // which data source to read. Hosts should always see real guest names from
