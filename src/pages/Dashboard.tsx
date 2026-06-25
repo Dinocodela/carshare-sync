@@ -853,7 +853,7 @@ export default function Dashboard() {
                               </div>
                               <div className="flex flex-col items-end gap-1 shrink-0">
                                 <span className="text-sm font-semibold text-foreground">${Number(net).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                                <span className="text-[10px] text-muted-foreground">net after expenses</span>
+                                <span className="text-[10px] text-muted-foreground">{isHost ? "net after expenses" : "your earnings"}</span>
                                 <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 rounded-full ${t.payment_status === "paid" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
                                   {t.payment_status}
                                 </Badge>
