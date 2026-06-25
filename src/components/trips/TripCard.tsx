@@ -49,12 +49,14 @@ function formatDateTime(d: Date): string {
     day: "numeric",
     timeZone: "UTC",
   });
-  const time = d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-  });
-  return `${weekday}, ${date}, ${time}`;
+  const time = d
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "UTC",
+    })
+    .replace(":00", "");
+  return `${weekday} ${date}, ${time}`;
 }
 
 function getStatus(start: Date, end: Date) {
