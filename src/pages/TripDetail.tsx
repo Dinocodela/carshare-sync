@@ -147,6 +147,26 @@ export default function TripDetail() {
       if (!row) {
         setTrip(null);
       } else {
+        let net: number | null = null;
+        if (row.amount != null) {
+          let exps: any[] = [];
+          if (row.trip_id) {
+            const { data: e } = await supabase
+              .from("host_expenses")
+              .select(
+                "trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost",
+              )
+              .eq("trip_id", row.trip_id);
+            exps = e || [];
+          }
+          if (cancelled) return;
+          net = getClientShare(
+            Number(row.amount),
+            row.client_profit_percentage,
+            row.trip_id,
+            exps as any,
+          );
+        }
         setTrip({
           id: row.id,
           trip_id: row.trip_id,
