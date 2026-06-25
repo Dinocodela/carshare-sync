@@ -16,6 +16,7 @@ type Filter = "all" | "upcoming" | "active" | "past";
 
 export default function Trips() {
   const { user } = useAuth();
+  const { activeWorkspace } = useWorkspace();
   const [loading, setLoading] = useState(true);
   const [pageItems, setPageItems] = useState<TripCardData[]>([]);
   const [totalCount, setTotalCount] = useState(0);
