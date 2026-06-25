@@ -154,10 +154,10 @@ export default function EditCar() {
     for (const file of selectedImages) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${carId}-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `car-images/${fileName}`;
-      const { error: uploadError } = await supabase.storage.from("cars").upload(filePath, file);
-      if (uploadError) { console.error("Error uploading file:", uploadError); continue; }
-      const { data: urlData } = supabase.storage.from("cars").getPublicUrl(filePath);
+      const filePath = `${carId}/${fileName}`;
+      const { error: uploadError } = await supabase.storage.from("car-images").upload(filePath, file);
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("car-images").getPublicUrl(filePath);
       uploadedUrls.push(urlData.publicUrl);
     }
     return uploadedUrls;
@@ -175,7 +175,7 @@ export default function EditCar() {
         vin_number: data.vin_number, nickname: data.nickname?.trim() || null,
         description: data.description,
         images: allImages.length > 0 ? allImages : null, updated_at: new Date().toISOString(),
-      }).eq("id", id).eq("client_id", user.id);
+      }).eq("id", id).eq("client_id", user.id).select("id").single();
       if (error) throw error;
       toast({ title: "Car updated successfully!", description: "Your car details have been updated." });
       navigate("/my-cars");
