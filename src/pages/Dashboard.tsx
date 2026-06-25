@@ -24,6 +24,7 @@ import {
   ArrowUpRight,
   MapPin,
   Copy,
+  Info,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -308,6 +309,7 @@ export default function Dashboard() {
   const [activityOpen, setActivityOpen] = useState(true);
   const [recentTrips, setRecentTrips] = useState<any[]>([]);
   const [tripsLoading, setTripsLoading] = useState(false);
+  const [expandedEarnings, setExpandedEarnings] = useState<Set<string>>(new Set());
 
   // Only host super-admins can see pending accounts
   const isAdmin = profile?.is_super_admin && activeWorkspace === "host";
@@ -485,12 +487,20 @@ export default function Dashboard() {
             expenses = expData || [];
           }
           rows = rows.map((r: any) => {
-            const netAfterExpenses = (r.amount || 0) - getTripExpensesTotal(r.trip_id, expenses);
+            const tripExpenses = getTripExpensesTotal(r.trip_id, expenses);
+            const netAfterExpenses = (r.amount || 0) - tripExpenses;
             // For clients, show their profit share; hosts see full net after expenses
             const net_amount = isHost
               ? netAfterExpenses
               : (netAfterExpenses * (r.client_profit_percentage || 70)) / 100;
-            return { ...r, net_amount };
+            return {
+              ...r,
+              net_amount,
+              trip_expenses: tripExpenses,
+              profit_percentage: isHost
+                ? r.host_profit_percentage || 30
+                : r.client_profit_percentage || 70,
+            };
           });
         }
         if (!cancelled) setRecentTrips(rows || []);
@@ -806,8 +816,11 @@ export default function Dashboard() {
                           const d = new Date(iso);
                           return isNaN(d.getTime()) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
                         };
+                        const fmtMoney = (v: number) =>
+                          `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
                         const start = fmt(t.earning_period_start);
                         const end = fmt(t.earning_period_end);
+                        const isExpanded = expandedEarnings.has(t.id);
                         return (
                           <li key={t.id}>
                             <button
@@ -852,13 +865,59 @@ export default function Dashboard() {
                                 )}
                               </div>
                               <div className="flex flex-col items-end gap-1 shrink-0">
-                                <span className="text-sm font-semibold text-foreground">${Number(net).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                                <span className="text-[10px] text-muted-foreground">{isHost ? "net after expenses" : "your earnings"}</span>
+                                <span className="text-sm font-semibold text-foreground">{fmtMoney(net)}</span>
+                                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                  {isHost ? "net after expenses" : "your earnings"}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedEarnings((prev) => {
+                                        const next = new Set(prev);
+                                        if (next.has(t.id)) next.delete(t.id);
+                                        else next.add(t.id);
+                                        return next;
+                                      });
+                                    }}
+                                    className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                                    title="How is this calculated?"
+                                  >
+                                    <Info className="h-3 w-3" />
+                                  </button>
+                                </span>
                                 <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 rounded-full ${t.payment_status === "paid" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
                                   {t.payment_status}
                                 </Badge>
                               </div>
                             </button>
+                            {isExpanded && (
+                              <div className="px-4 pb-3.5">
+                                <div className="rounded-xl bg-muted/50 border border-border/60 p-3 text-xs space-y-2">
+                                  <p className="font-medium text-foreground">Earnings estimate</p>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">Gross trip revenue</span>
+                                    <span className="font-medium text-foreground">{fmtMoney(t.amount || 0)}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">Matched expenses</span>
+                                    <span className="font-medium text-destructive">-{fmtMoney(t.trip_expenses || 0)}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">Net after expenses</span>
+                                    <span className="font-medium text-foreground">{fmtMoney((t.amount || 0) - (t.trip_expenses || 0))}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                                    <span className="text-muted-foreground">Your share ({t.profit_percentage || (isHost ? 30 : 70)}%)</span>
+                                    <span className="font-semibold text-foreground">{fmtMoney(net)}</span>
+                                  </div>
+                                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                                    {isHost
+                                      ? "Hosts see the net after expenses. Client share is calculated separately from the remaining balance."
+                                      : "Your take is the net after matched expenses (tolls, charging, delivery, etc.) multiplied by your profit split percentage."}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </li>
                         );
                       })}
