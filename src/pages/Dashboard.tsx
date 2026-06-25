@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useCars, useHostCars } from "@/hooks/useCars";
 import { useProfile } from "@/hooks/useProfile";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { supabase } from "@/integrations/supabase/client";
@@ -295,6 +296,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
+  const { activeWorkspace } = useWorkspace();
   const { toast } = useToast();
 
   const [pendingCount, setPendingCount] = useState(0);
@@ -308,7 +310,7 @@ export default function Dashboard() {
   const [tripsLoading, setTripsLoading] = useState(false);
 
   // Only host super-admins can see pending accounts
-  const isAdmin = profile?.is_super_admin && profile?.role === "host";
+  const isAdmin = profile?.is_super_admin && activeWorkspace === "host";
   const [pendingAccounts, setPendingAccounts] = useState<number>(0);
 
   useEffect(() => {
@@ -359,7 +361,9 @@ export default function Dashboard() {
   const clientData = useCars();
   const hostData = useHostCars();
 
-  const isHost = profile?.role === "host";
+  // Workspace determines whether this page should behave as Host or Client.
+  // Some users keep profiles.role = "client" while holding an active host role.
+  const isHost = activeWorkspace === "host";
   const data = isHost ? hostData : clientData;
 
   // Earnings (30d)
