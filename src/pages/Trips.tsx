@@ -216,10 +216,30 @@ export default function Trips() {
           className="mb-4"
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="active">In progress</TabsTrigger>
-            <TabsTrigger value="past">Past</TabsTrigger>
-            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="upcoming" className="flex items-center justify-center gap-1.5">
+              <span>Upcoming</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.upcoming}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="active" className="flex items-center justify-center gap-1.5">
+              <span>In progress</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.active}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="past" className="flex items-center justify-center gap-1.5">
+              <span>Past</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.past}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="all" className="flex items-center justify-center gap-1.5">
+              <span>All</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.all}
+              </span>
+            </TabsTrigger>
           </TabsList>
           <TabsContent value={filter} className="mt-4 pb-20">
             {loading ? (
