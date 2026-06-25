@@ -837,7 +837,7 @@ export default function Dashboard() {
                             >
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-foreground truncate">
-                                  {t.guest_name || t.trip_id || "Trip"}
+                                  {t.guest_name || t.guest_initials || t.trip_id || "Trip"}
                                 </p>
                                 <p className="text-[11px] text-muted-foreground mt-0.5">
                                   {start}{start && end ? " – " : ""}{end}
