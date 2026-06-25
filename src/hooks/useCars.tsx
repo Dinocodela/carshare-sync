@@ -151,9 +151,11 @@ export function useHostCars() {
       
       if (safeCarError) throw safeCarError;
 
-      // Filter to only cars where user is the host
-      const hostCars = (safeCarData || []).filter((car: any) => 
-        car.user_relationship === 'host'
+      // Include every car where the user is the host, even if they are also
+      // listed as the owner (client_id). get_safe_car_info labels those cars
+      // as 'owner' because it checks client_id first, so rely on host_id here.
+      const hostCars = (safeCarData || []).filter((car: any) =>
+        car.host_id === user.id
       );
 
       setCars(hostCars);
