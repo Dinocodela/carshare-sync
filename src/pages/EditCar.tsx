@@ -149,12 +149,12 @@ export default function EditCar() {
     }
   };
 
-  const uploadImages = async (carId: string): Promise<string[]> => {
+  const uploadImages = async (carId: string, userId: string): Promise<string[]> => {
     const uploadedUrls: string[] = [];
     for (const file of selectedImages) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${carId}-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${carId}/${fileName}`;
+      const filePath = `${userId}/${carId}/${fileName}`;
       const { error: uploadError } = await supabase.storage.from("car-images").upload(filePath, file);
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("car-images").getPublicUrl(filePath);
@@ -167,7 +167,7 @@ export default function EditCar() {
     if (!user || !id) return;
     setIsSubmitting(true);
     try {
-      const newImageUrls = selectedImages.length > 0 ? await uploadImages(id) : [];
+      const newImageUrls = selectedImages.length > 0 ? await uploadImages(id, user.id) : [];
       const allImages = [...existingImages, ...newImageUrls];
       const { error } = await supabase.from("cars").update({
         make: data.make, model: data.model, year: data.year, mileage: data.mileage,
