@@ -176,6 +176,16 @@ export default function Trips() {
             is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
             delivery_address: row.pickup_address || null,
             return_address: row.return_address || null,
+            net_amount:
+              row.amount != null
+                ? getClientShare(
+                    Number(row.amount),
+                    row.client_profit_percentage,
+                    row.trip_id,
+                    tripExpenses as any,
+                  )
+                : null,
+            payment_status: row.payment_status ?? null,
             car: car
               ? {
                   make: car.make,
