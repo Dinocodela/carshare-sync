@@ -902,6 +902,56 @@ export default function Dashboard() {
             </div>
           </Collapsible>
 
+          {/* ─── Earnings Estimate Sheet ─── */}
+          <Sheet open={!!selectedTrip} onOpenChange={(open) => !open && setSelectedTrip(null)}>
+            <SheetContent side="bottom" className="rounded-t-2xl px-4 pb-6 pt-2 sm:max-w-md sm:mx-auto">
+              <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-muted" />
+              {selectedTrip && (
+                <>
+                  <SheetHeader className="text-left pb-2">
+                    <SheetTitle className="text-base">Earnings estimate</SheetTitle>
+                    <SheetDescription>
+                      Trip #{selectedTrip.trip_id}
+                      {selectedTrip.guest_name ? ` · ${selectedTrip.guest_name}` : ""}
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="rounded-xl bg-muted/50 border border-border/60 p-3 text-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Gross trip revenue</span>
+                      <span className="font-medium text-foreground">{fmtMoney(selectedTrip.amount || 0)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Matched expenses</span>
+                      <span className="font-medium text-destructive">-{fmtMoney(selectedTrip.trip_expenses || 0)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Net after expenses</span>
+                      <span className="font-medium text-foreground">{fmtMoney((selectedTrip.amount || 0) - (selectedTrip.trip_expenses || 0))}</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                      <span className="text-muted-foreground">Your share ({selectedTrip.profit_percentage || (isHost ? 30 : 70)}%)</span>
+                      <span className="font-semibold text-foreground">{fmtMoney(typeof selectedTrip.net_amount === "number" ? selectedTrip.net_amount : selectedTrip.amount || 0)}</span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
+                    {isHost
+                      ? "Hosts see the net after expenses. Client share is calculated separately from the remaining balance."
+                      : "Your take is the net after matched expenses (tolls, charging, delivery, etc.) multiplied by your profit split percentage."}
+                  </p>
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTrip(null)}
+                      className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground active:scale-[0.98] transition-transform"
+                    >
+                      Got it
+                    </button>
+                  </div>
+                </>
+              )}
+            </SheetContent>
+          </Sheet>
+
           {/* ─── Recent Activity ─── */}
           <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
             <div style={fadeIn(8)} className="space-y-3">
