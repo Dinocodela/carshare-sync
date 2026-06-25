@@ -486,12 +486,20 @@ export default function Dashboard() {
             expenses = expData || [];
           }
           rows = rows.map((r: any) => {
-            const netAfterExpenses = (r.amount || 0) - getTripExpensesTotal(r.trip_id, expenses);
+            const tripExpenses = getTripExpensesTotal(r.trip_id, expenses);
+            const netAfterExpenses = (r.amount || 0) - tripExpenses;
             // For clients, show their profit share; hosts see full net after expenses
             const net_amount = isHost
               ? netAfterExpenses
               : (netAfterExpenses * (r.client_profit_percentage || 70)) / 100;
-            return { ...r, net_amount };
+            return {
+              ...r,
+              net_amount,
+              trip_expenses: tripExpenses,
+              profit_percentage: isHost
+                ? r.host_profit_percentage || 30
+                : r.client_profit_percentage || 70,
+            };
           });
         }
         if (!cancelled) setRecentTrips(rows || []);
