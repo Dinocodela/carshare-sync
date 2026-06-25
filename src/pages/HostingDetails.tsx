@@ -215,70 +215,63 @@ Please note: This request provides the required 30-day notice period.${
     );
   }
 
+  const hostInitials = `${car.host.first_name?.[0] ?? ""}${
+    car.host.last_name?.[0] ?? ""
+  }`.toUpperCase();
+
   return (
     <DashboardLayout>
-      <header className=" z-10">
-        <div className="mx-auto max-w-2xl px-4 h-12 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-4 pb-12">
+        {/* Top bar */}
+        <div className="flex items-center gap-3 pt-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/my-cars")}
             aria-label="Back"
-            className="h-9 w-9"
+            className="h-9 w-9 rounded-full"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-
-          <div className="flex items-center gap-2">
-            <h1 className=" text-xl sm:text-2xl font-bold">Hosting Details</h1>
-          </div>
-
-          {/* spacer to keep title centered */}
-          <div className="h-9 w-9" />
+          <span className="text-sm text-muted-foreground">Back to My Cars</span>
         </div>
-      </header>
 
-      <div className="max-w-4xl mx-auto mt-6">
+        {/* Hero banner */}
+        <div
+          className="relative mt-4 overflow-hidden rounded-3xl p-6 sm:p-8 text-primary-foreground shadow-elegant"
+          style={{ background: "var(--gradient-logo)" }}
+        >
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-12 -left-6 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-white/70">
+                <Car className="h-4 w-4" />
+                Hosting Details
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                {car.year} {car.make} {car.model}
+              </h1>
+              <p className="max-w-md text-sm text-white/75">
+                Your car is being cared for by your host. Reach out anytime using
+                the contact details below.
+              </p>
+            </div>
+            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-2 backdrop-blur-sm">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300" />
+              </span>
+              <span className="text-sm font-semibold">Being Hosted</span>
+            </div>
+          </div>
+        </div>
+
         {/* Content */}
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
-          {/* Car Status */}
-          <Card className="border-muted/60">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                <Car className="h-5 w-5 text-primary" />
-                Car Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Current Status
-                </span>
-                <Badge className="px-3 py-1 text-xs">Being Hosted</Badge>
-              </div>
-
-              <div className="rounded-lg bg-muted/40 px-3 py-2">
-                <p className="text-sm font-medium">
-                  {car.year} {car.make} {car.model}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Your car is under the care of your host. Use the contact info
-                  below if you need anything.
-                </p>
-              </div>
-
-              {car.status === "hosted" && (
-                <ReturnRequestDialog
-                  onSubmit={handleReturnRequest}
-                  loading={false}
-                />
-              )}
-            </CardContent>
-          </Card>
-
+        <div className="mt-6 grid gap-5 md:grid-cols-5">
           {/* Host Contact */}
-          <Card className="border-muted/60">
-            <CardHeader className="pb-2">
+          <Card className="md:col-span-3 overflow-hidden border-muted/60 shadow-card">
+            <CardHeader className="pb-3">
               <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                 <UserCircle className="h-5 w-5 text-primary" />
                 Host Contact
@@ -287,7 +280,25 @@ Please note: This request provides the required 30-day notice period.${
                 Get in touch with your host for any questions or concerns.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
+              <div className="mb-4 flex items-center gap-3 rounded-2xl bg-muted/40 p-3">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-bold text-primary-foreground"
+                  style={{ background: "var(--gradient-primary)" }}
+                >
+                  {hostInitials || <UserCircle className="h-6 w-6" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">
+                    {car.host.first_name} {car.host.last_name}
+                  </p>
+                  {car.host.company_name && (
+                    <p className="truncate text-sm text-muted-foreground">
+                      {car.host.company_name}
+                    </p>
+                  )}
+                </div>
+              </div>
               <HostProfilePreview
                 host={{
                   first_name: car.host.first_name,
@@ -305,42 +316,58 @@ Please note: This request provides the required 30-day notice period.${
               />
             </CardContent>
           </Card>
-        </div>
 
-        {/* Important info – slim banner */}
-        <div className="mt-4 sm:mt-6 rounded-2xl border bg-muted/40 p-4">
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-              <Info className="h-5 w-5 text-primary" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">
-                Important information
-              </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary"></span>
-                  <span>
-                    Keep this contact information handy for any questions about
-                    your car.
+          {/* Actions + Status */}
+          <div className="md:col-span-2 space-y-5">
+            <Card className="border-muted/60 shadow-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Car className="h-5 w-5 text-primary" />
+                  Car Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between rounded-xl bg-muted/40 px-3 py-2.5">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Current Status
                   </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary"></span>
-                  <span>
-                    Your host will contact you when it’s time to arrange the car
-                    return.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary"></span>
-                  <span>
-                    For emergencies, contact your host directly using the phone
-                    number provided.
-                  </span>
-                </li>
-              </ul>
-            </div>
+                  <Badge className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/15">
+                    Being Hosted
+                  </Badge>
+                </div>
+
+                {car.status === "hosted" && (
+                  <ReturnRequestDialog
+                    onSubmit={handleReturnRequest}
+                    loading={false}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Important info */}
+            <Card className="border-muted/60 shadow-card">
+              <CardContent className="p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="rounded-lg bg-primary/10 p-1.5">
+                    <Info className="h-4 w-4 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold">Important information</p>
+                </div>
+                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                  {[
+                    "Keep this contact information handy for any questions about your car.",
+                    "Your host will contact you when it’s time to arrange the car return.",
+                    "For emergencies, contact your host directly using the phone number provided.",
+                  ].map((text) => (
+                    <li key={text} className="flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      <span>{text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
