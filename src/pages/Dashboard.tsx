@@ -402,8 +402,8 @@ export default function Dashboard() {
         const carIds = (clientData?.cars || []).map((c: any) => c.id);
         if (carIds.length) {
           const [{ data: rows }, { data: expRows }] = await Promise.all([
-            supabase
-              .from("host_earnings")
+            (supabase as any)
+              .from("client_visible_earnings")
               .select(
                 "amount, trip_id, client_profit_percentage, payment_status, date_paid, earning_period_end, car_id"
               )
@@ -455,9 +455,9 @@ export default function Dashboard() {
         } else {
           const carIds = (clientData?.cars || []).map((c: any) => c.id);
           if (carIds.length) {
-            const res = await supabase
-              .from("host_earnings")
-              .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address")
+            const res = await (supabase as any)
+              .from("client_visible_earnings")
+              .select("id, trip_id, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
               .in("car_id", carIds)
               .lte("earning_period_start", todayStr)
               .gte("earning_period_end", todayStr)
