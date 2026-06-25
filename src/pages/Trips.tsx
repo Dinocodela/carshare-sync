@@ -39,15 +39,12 @@ export default function Trips() {
     (async () => {
       setLoading(true);
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
       const nowIso = new Date().toISOString();
 
-      const isHostRole = profile?.role === "host";
+      // Use the active workspace (not profiles.role) to decide which data source
+      // to read. Users can hold a "client" profile role while operating as a
+      // host; reading host_earnings keeps guest names visible for hosts.
+      const isHostRole = activeWorkspace === "host";
 
       const buildBaseQuery = (countOnly = false) => {
         const opts = countOnly ? { count: "exact" as const } : undefined;
