@@ -98,19 +98,19 @@ export function TripCard({ trip }: { trip: TripCardData }) {
       className="block"
       aria-label={`View trip details for ${carTitle}`}
     >
-      <article className="rounded-2xl border bg-card p-5 shadow-sm transition hover:bg-accent/40">
-        <div className="flex items-start justify-between gap-4">
+      <article className="rounded-2xl border bg-card p-3.5 shadow-sm transition hover:bg-accent/40 sm:p-5">
+        <div className="flex items-start justify-between gap-3 sm:gap-4">
           <div className="min-w-0 flex-1">
             <span
-              className={`inline-block rounded-md px-2.5 py-1 text-sm font-medium ${statusClasses}`}
+              className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium sm:px-2.5 sm:py-1 sm:text-sm ${statusClasses}`}
             >
               {status.label}
             </span>
-            <h3 className="mt-3 truncate text-xl font-bold text-foreground">
+            <h3 className="mt-2 truncate text-base font-bold text-foreground sm:mt-3 sm:text-xl">
               {carTitle}
             </h3>
-            <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" />
+            <div className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground sm:text-sm">
+              <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <span>
                 {formatDateTime(start)} – {formatDateTime(end)}
               </span>
