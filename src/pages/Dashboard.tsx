@@ -221,9 +221,9 @@ function useRecentActivity(
         // If we still need more items, backfill with older paid payouts.
         if (mapped.length < limit) {
           const existingIds = new Set(earns.map((e: any) => e.id));
-          let olderQuery = supabase
-            .from("host_earnings")
-            .select(payoutFields)
+          let olderQuery = (supabase as any)
+            .from(earningsTable)
+            .select(earningsFields)
             .eq("payment_status", "paid")
             .order("date_paid", { ascending: false, nullsFirst: false })
             .limit(limit * 2);
