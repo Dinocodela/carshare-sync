@@ -236,6 +236,24 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 {trip.car.license_plate}
               </span>
             )}
+            {trip.net_amount != null && (
+              <div className="mt-1 flex flex-col items-end">
+                <span className="text-sm font-bold text-foreground sm:text-base">
+                  {formatCurrency(trip.net_amount)}
+                </span>
+                {trip.payment_status && (
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-[0.6rem] font-medium uppercase tracking-wide ${
+                      trip.payment_status === "paid"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {trip.payment_status === "paid" ? "Paid" : "Pending"}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </article>
