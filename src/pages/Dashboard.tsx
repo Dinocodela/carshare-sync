@@ -484,10 +484,14 @@ export default function Dashboard() {
               .in("car_id", carIds);
             expenses = expData || [];
           }
-          rows = rows.map((r: any) => ({
-            ...r,
-            net_amount: (r.amount || 0) - getTripExpensesTotal(r.trip_id, expenses),
-          }));
+          rows = rows.map((r: any) => {
+            const netAfterExpenses = (r.amount || 0) - getTripExpensesTotal(r.trip_id, expenses);
+            // For clients, show their profit share; hosts see full net after expenses
+            const net_amount = isHost
+              ? netAfterExpenses
+              : (netAfterExpenses * (r.client_profit_percentage || 70)) / 100;
+            return { ...r, net_amount };
+          });
         }
         if (!cancelled) setRecentTrips(rows || []);
       } finally {
