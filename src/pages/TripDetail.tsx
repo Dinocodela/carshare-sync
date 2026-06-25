@@ -125,7 +125,7 @@ export default function TripDetail() {
         const { data: viewRow } = await (supabase as any)
           .from("client_visible_earnings")
           .select(
-            "id, trip_id, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id",
+            "id, trip_id, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, client_profit_percentage, date_paid",
           )
           .eq("id", earningId)
           .maybeSingle();
