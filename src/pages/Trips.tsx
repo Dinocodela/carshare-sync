@@ -192,7 +192,7 @@ export default function Trips() {
     return () => {
       cancelled = true;
     };
-  }, [user, filter, page]);
+  }, [user, filter, page, activeWorkspace]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
