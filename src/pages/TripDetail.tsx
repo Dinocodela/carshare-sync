@@ -384,11 +384,11 @@ export default function TripDetail() {
           <div className="rounded-2xl border bg-card p-5">
             <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-lg font-bold uppercase tracking-tight text-muted-foreground">
-                {getGuestInitials(trip.guest_name)}
+                {trip.guest_name ? getGuestInitials(trip.guest_name) : trip.guest_initials || "?"}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-foreground">
-                  {trip.guest_name || "Unknown guest"}
+                  {trip.guest_name || trip.guest_initials || "Guest"}
                 </p>
                 {trip.trip_id && (
                   <p className="text-sm text-muted-foreground">Trip #{trip.trip_id}</p>
