@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Car as CarIcon, Clock, Copy, MapPin, Truck, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useWorkspace } from "@/hooks/useWorkspace";
 
 export interface TripCardData {
   id: string;
@@ -102,6 +103,8 @@ function getStatus(start: Date, end: Date) {
 }
 
 export function TripCard({ trip }: { trip: TripCardData }) {
+  const { activeWorkspace } = useWorkspace();
+  const isHost = activeWorkspace === "host";
   const start = parseDate(trip.earning_period_start);
   const end = parseDate(trip.earning_period_end);
   const status = getStatus(start, end);
@@ -196,7 +199,11 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             {trip.trip_id && (
               <div className="mt-1.5 flex items-center gap-2">
                 <Link
-                  to={`/host-car-management?trip_id=${trip.trip_id}#earnings`}
+                  to={
+                    isHost
+                      ? `/host-car-management?trip_id=${trip.trip_id}#earnings`
+                      : `/trips/${trip.id}`
+                  }
                   onClick={(e) => e.stopPropagation()}
                   className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                 >
