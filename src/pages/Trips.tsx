@@ -172,6 +172,7 @@ export default function Trips() {
             id: row.id,
             trip_id: row.trip_id,
             guest_name: row.guest_name ?? null,
+            guest_initials: row.guest_initials ?? null,
             earning_period_start: row.earning_period_start,
             earning_period_end: row.earning_period_end,
             is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
