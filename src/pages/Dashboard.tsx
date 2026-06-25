@@ -471,7 +471,7 @@ export default function Dashboard() {
           if (carIds.length) {
             const res = await (supabase as any)
               .from("client_visible_earnings")
-              .select("id, trip_id, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+              .select("id, trip_id, guest_initials, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
               .in("car_id", carIds)
               .lte("earning_period_start", todayStr)
               .gte("earning_period_end", todayStr)
