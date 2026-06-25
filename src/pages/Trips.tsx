@@ -54,7 +54,7 @@ export default function Trips() {
           : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, amount, client_profit_percentage, payment_status, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)";
         const clientFields = countOnly
           ? "id"
-          : "id, trip_id, earning_period_start, earning_period_end, car_id, host_id, amount, client_profit_percentage, payment_status";
+          : "id, trip_id, guest_initials, earning_period_start, earning_period_end, car_id, host_id, amount, client_profit_percentage, payment_status";
 
         const q = isHostRole
           ? supabase.from("host_earnings").select(fields, opts)
