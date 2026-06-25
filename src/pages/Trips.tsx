@@ -90,8 +90,8 @@ export default function Trips() {
         setPageItems([]);
         setTotalCount(0);
       } else {
-        const rows = data || [];
-        const tripIds = Array.from(
+        const rows: any[] = (data as any[]) || [];
+        const tripIds: string[] = Array.from(
           new Set(
             rows
               .map((r: any) => r.trip_id)
@@ -112,26 +112,50 @@ export default function Trips() {
           );
         }
 
-        const mapped: TripCardData[] = rows.map((row: any) => ({
-          id: row.id,
-          trip_id: row.trip_id,
-          guest_name: row.guest_name,
-          earning_period_start: row.earning_period_start,
-          earning_period_end: row.earning_period_end,
-          is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
-          delivery_address: row.pickup_address || null,
-          return_address: row.return_address || null,
-          car: row.cars
-            ? {
-                make: row.cars.make,
-                model: row.cars.model,
-                year: row.cars.year,
-                license_plate: row.cars.license_plate,
-                location: row.cars.location,
-                images: row.cars.images,
-              }
-            : null,
-        }));
+        // Clients: fetch car details separately (view has no embed).
+        let carsById: Record<string, any> = {};
+        if (!isHostRole) {
+          const carIds: string[] = Array.from(
+            new Set(
+              rows
+                .map((r: any) => r.car_id)
+                .filter((c: string | null): c is string => !!c),
+            ),
+          );
+          if (carIds.length > 0) {
+            const { data: carRows } = await supabase
+              .from("cars")
+              .select("id, make, model, year, license_plate, location, images")
+              .in("id", carIds);
+            (carRows || []).forEach((c: any) => {
+              carsById[c.id] = c;
+            });
+          }
+        }
+
+        const mapped: TripCardData[] = rows.map((row: any) => {
+          const car = isHostRole ? row.cars : carsById[row.car_id];
+          return {
+            id: row.id,
+            trip_id: row.trip_id,
+            guest_name: row.guest_name ?? null,
+            earning_period_start: row.earning_period_start,
+            earning_period_end: row.earning_period_end,
+            is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
+            delivery_address: row.pickup_address || null,
+            return_address: row.return_address || null,
+            car: car
+              ? {
+                  make: car.make,
+                  model: car.model,
+                  year: car.year,
+                  license_plate: car.license_plate,
+                  location: car.location,
+                  images: car.images,
+                }
+              : null,
+          };
+        });
         setPageItems(mapped);
         setTotalCount(count || 0);
       }
