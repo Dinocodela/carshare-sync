@@ -18,6 +18,12 @@ export default function Trips() {
   const [loading, setLoading] = useState(true);
   const [pageItems, setPageItems] = useState<TripCardData[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [filterCounts, setFilterCounts] = useState<Record<Filter, number>>({
+    all: 0,
+    upcoming: 0,
+    active: 0,
+    past: 0,
+  });
   const [filter, setFilter] = useState<Filter>("active");
   const [page, setPage] = useState(1);
 
@@ -41,41 +47,64 @@ export default function Trips() {
 
       const isHostRole = profile?.role === "host";
 
-      // Hosts read the base table (with embedded car + guest PII they're entitled to).
-      // Clients read a privacy-safe view that excludes guest name and addresses,
-      // and have car details fetched separately (the view has no embed relationship).
-      let query = isHostRole
-        ? supabase
-            .from("host_earnings")
-            .select(
-              "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)",
-              { count: "exact" },
-            )
-        : (supabase as any)
-            .from("client_visible_earnings")
-            .select(
-              "id, trip_id, earning_period_start, earning_period_end, car_id, host_id",
-              { count: "exact" },
-            );
+      const buildBaseQuery = (countOnly = false) => {
+        const opts = countOnly ? { count: "exact" as const } : undefined;
+        const fields = countOnly
+          ? "id"
+          : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)";
+        const clientFields = countOnly
+          ? "id"
+          : "id, trip_id, earning_period_start, earning_period_end, car_id, host_id";
 
-      if (isHostRole) {
-        query = query.eq("host_id", user.id);
-      }
+        const q = isHostRole
+          ? supabase.from("host_earnings").select(fields, opts)
+          : (supabase as any).from("client_visible_earnings").select(clientFields, opts);
 
-      // Tab-aware server-side filtering + ordering
+        if (isHostRole) {
+          return (q as any).eq("host_id", user.id);
+        }
+        return q;
+      };
+
+      const applyFilter = (q: any, f: Filter) => {
+        if (f === "upcoming") {
+          return q.gt("earning_period_start", nowIso);
+        } else if (f === "active") {
+          return q.lte("earning_period_start", nowIso).gte("earning_period_end", nowIso);
+        } else if (f === "past") {
+          return q.lt("earning_period_end", nowIso);
+        }
+        return q;
+      };
+
+      // Fetch counts for all filters in parallel
+      const filters: Filter[] = ["all", "upcoming", "active", "past"];
+      const countResults = await Promise.all(
+        filters.map(async (f) => {
+          const q = applyFilter(buildBaseQuery(true), f);
+          const { count, error } = await q;
+          if (error) {
+            console.error(`Failed to count ${f} trips:`, error);
+            return { filter: f, count: 0 };
+          }
+          return { filter: f, count: count || 0 };
+        }),
+      );
+
+      const newCounts = { all: 0, upcoming: 0, active: 0, past: 0 };
+      countResults.forEach(({ filter, count }) => {
+        newCounts[filter] = count;
+      });
+      setFilterCounts(newCounts);
+
+      // Tab-aware server-side filtering + ordering for the current page
+      let query = applyFilter(buildBaseQuery(false), filter);
       if (filter === "upcoming") {
-        query = query
-          .gt("earning_period_start", nowIso)
-          .order("earning_period_start", { ascending: true });
+        query = query.order("earning_period_start", { ascending: true });
       } else if (filter === "active") {
-        query = query
-          .lte("earning_period_start", nowIso)
-          .gte("earning_period_end", nowIso)
-          .order("earning_period_end", { ascending: true });
+        query = query.order("earning_period_end", { ascending: true });
       } else if (filter === "past") {
-        query = query
-          .lt("earning_period_end", nowIso)
-          .order("earning_period_end", { ascending: false });
+        query = query.order("earning_period_end", { ascending: false });
       } else {
         query = query.order("earning_period_start", { ascending: true });
       }
@@ -187,10 +216,30 @@ export default function Trips() {
           className="mb-4"
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="active">In progress</TabsTrigger>
-            <TabsTrigger value="past">Past</TabsTrigger>
-            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="upcoming" className="flex items-center justify-center gap-1.5">
+              <span>Upcoming</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.upcoming}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="active" className="flex items-center justify-center gap-1.5">
+              <span>In progress</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.active}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="past" className="flex items-center justify-center gap-1.5">
+              <span>Past</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.past}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="all" className="flex items-center justify-center gap-1.5">
+              <span>All</span>
+              <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[0.65rem] font-semibold text-primary">
+                {filterCounts.all}
+              </span>
+            </TabsTrigger>
           </TabsList>
           <TabsContent value={filter} className="mt-4 pb-20">
             {loading ? (
