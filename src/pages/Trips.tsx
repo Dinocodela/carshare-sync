@@ -3,6 +3,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -15,6 +16,7 @@ type Filter = "all" | "upcoming" | "active" | "past";
 
 export default function Trips() {
   const { user } = useAuth();
+  const { activeWorkspace } = useWorkspace();
   const [loading, setLoading] = useState(true);
   const [pageItems, setPageItems] = useState<TripCardData[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -37,15 +39,12 @@ export default function Trips() {
     (async () => {
       setLoading(true);
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
       const nowIso = new Date().toISOString();
 
-      const isHostRole = profile?.role === "host";
+      // Use the active workspace (not profiles.role) to decide which data source
+      // to read. Users can hold a "client" profile role while operating as a
+      // host; reading host_earnings keeps guest names visible for hosts.
+      const isHostRole = activeWorkspace === "host";
 
       const buildBaseQuery = (countOnly = false) => {
         const opts = countOnly ? { count: "exact" as const } : undefined;
@@ -193,7 +192,7 @@ export default function Trips() {
     return () => {
       cancelled = true;
     };
-  }, [user, filter, page]);
+  }, [user, filter, page, activeWorkspace]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);

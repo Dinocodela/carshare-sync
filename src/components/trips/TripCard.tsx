@@ -49,12 +49,14 @@ function formatDateTime(d: Date): string {
     day: "numeric",
     timeZone: "UTC",
   });
-  const time = d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-  });
-  return `${weekday}, ${date}, ${time}`;
+  const time = d
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "UTC",
+    })
+    .replace(":00", "");
+  return `${weekday} ${date}, ${time}`;
 }
 
 function getStatus(start: Date, end: Date) {
@@ -96,19 +98,19 @@ export function TripCard({ trip }: { trip: TripCardData }) {
       className="block"
       aria-label={`View trip details for ${carTitle}`}
     >
-      <article className="rounded-2xl border bg-card p-5 shadow-sm transition hover:bg-accent/40">
-        <div className="flex items-start justify-between gap-4">
+      <article className="rounded-2xl border bg-card p-3.5 shadow-sm transition hover:bg-accent/40 sm:p-5">
+        <div className="flex items-start justify-between gap-3 sm:gap-4">
           <div className="min-w-0 flex-1">
             <span
-              className={`inline-block rounded-md px-2.5 py-1 text-sm font-medium ${statusClasses}`}
+              className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium sm:px-2.5 sm:py-1 sm:text-sm ${statusClasses}`}
             >
               {status.label}
             </span>
-            <h3 className="mt-3 truncate text-xl font-bold text-foreground">
+            <h3 className="mt-2 truncate text-base font-bold text-foreground sm:mt-3 sm:text-xl">
               {carTitle}
             </h3>
-            <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" />
+            <div className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground sm:text-sm">
+              <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <span>
                 {formatDateTime(start)} – {formatDateTime(end)}
               </span>
@@ -156,45 +158,45 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 </p>
               )
             )}
-            <div className="mt-3 flex items-center gap-2 text-sm">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-medium uppercase text-muted-foreground">
+            <div className="mt-2.5 flex items-center gap-2 text-xs sm:mt-3 sm:text-sm">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium uppercase text-muted-foreground sm:h-7 sm:w-7">
                 {(trip.guest_name || "?").charAt(0)}
               </div>
-              <span className="text-foreground">
+              <span className="truncate text-foreground">
                 {trip.guest_name || "Unknown guest"}
               </span>
-              {trip.trip_id && (
-                <div className="mt-2 flex items-center gap-2">
-                  <Link
-                    to={`/host-car-management?trip_id=${trip.trip_id}#earnings`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                  >
-                    <span>Trip #{trip.trip_id}</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      navigator.clipboard.writeText(trip.trip_id!);
-                      toast({
-                        title: "Copied",
-                        description: `Trip ID ${trip.trip_id} copied to clipboard.`,
-                      });
-                    }}
-                    className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
-                    title="Copy trip ID"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </button>
-                </div>
-              )}
             </div>
+            {trip.trip_id && (
+              <div className="mt-1.5 flex items-center gap-2">
+                <Link
+                  to={`/host-car-management?trip_id=${trip.trip_id}#earnings`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                >
+                  <span>Trip #{trip.trip_id}</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(trip.trip_id!);
+                    toast({
+                      title: "Copied",
+                      description: `Trip ID ${trip.trip_id} copied to clipboard.`,
+                    });
+                  }}
+                  className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                  title="Copy trip ID"
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <div className="h-16 w-20 overflow-hidden rounded-lg bg-muted">
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <div className="h-12 w-16 overflow-hidden rounded-lg bg-muted sm:h-16 sm:w-20">
               {carImage ? (
                 <img
                   src={carImage}
@@ -204,7 +206,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                  <CarIcon className="h-6 w-6" />
+                  <CarIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
               )}
             </div>
