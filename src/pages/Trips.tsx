@@ -186,7 +186,7 @@ export default function Trips() {
           };
         });
         setPageItems(mapped);
-        setTotalCount(count || 0);
+        setTotalCount(newCounts[filter] || count || mapped.length);
       }
       setLoading(false);
     })();
