@@ -39,14 +39,26 @@ export default function Trips() {
 
       const nowIso = new Date().toISOString();
 
-      let query = supabase
-        .from("host_earnings")
-        .select(
-          "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)",
-          { count: "exact" },
-        );
+      const isHostRole = profile?.role === "host";
 
-      if (profile?.role === "host") {
+      // Hosts read the base table (with embedded car + guest PII they're entitled to).
+      // Clients read a privacy-safe view that excludes guest name and addresses,
+      // and have car details fetched separately (the view has no embed relationship).
+      let query = isHostRole
+        ? supabase
+            .from("host_earnings")
+            .select(
+              "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, car_id, host_id, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)",
+              { count: "exact" },
+            )
+        : (supabase as any)
+            .from("client_visible_earnings")
+            .select(
+              "id, trip_id, earning_period_start, earning_period_end, car_id, host_id",
+              { count: "exact" },
+            );
+
+      if (isHostRole) {
         query = query.eq("host_id", user.id);
       }
 
