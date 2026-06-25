@@ -1022,6 +1022,13 @@ export type Database = {
             foreignKeyName: "host_earnings_guest_contact_earning_id_fkey"
             columns: ["earning_id"]
             isOneToOne: true
+            referencedRelation: "client_visible_earnings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "host_earnings_guest_contact_earning_id_fkey"
+            columns: ["earning_id"]
+            isOneToOne: true
             referencedRelation: "host_earnings"
             referencedColumns: ["id"]
           },
@@ -2256,7 +2263,86 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      client_visible_earnings: {
+        Row: {
+          amount: number | null
+          booking_id: string | null
+          car_id: string | null
+          client_profit_percentage: number | null
+          commission: number | null
+          created_at: string | null
+          date_paid: string | null
+          earning_period_end: string | null
+          earning_period_start: string | null
+          earning_type: string | null
+          gross_earnings: number | null
+          host_id: string | null
+          host_profit_percentage: number | null
+          id: string | null
+          net_amount: number | null
+          payment_date: string | null
+          payment_source: string | null
+          payment_status: string | null
+          trip_id: string | null
+          trip_idd: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          booking_id?: string | null
+          car_id?: string | null
+          client_profit_percentage?: number | null
+          commission?: number | null
+          created_at?: string | null
+          date_paid?: string | null
+          earning_period_end?: string | null
+          earning_period_start?: string | null
+          earning_type?: string | null
+          gross_earnings?: number | null
+          host_id?: string | null
+          host_profit_percentage?: number | null
+          id?: string | null
+          net_amount?: number | null
+          payment_date?: string | null
+          payment_source?: string | null
+          payment_status?: string | null
+          trip_id?: string | null
+          trip_idd?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          booking_id?: string | null
+          car_id?: string | null
+          client_profit_percentage?: number | null
+          commission?: number | null
+          created_at?: string | null
+          date_paid?: string | null
+          earning_period_end?: string | null
+          earning_period_start?: string | null
+          earning_type?: string | null
+          gross_earnings?: number | null
+          host_id?: string | null
+          host_profit_percentage?: number | null
+          id?: string | null
+          net_amount?: number | null
+          payment_date?: string | null
+          payment_source?: string | null
+          payment_status?: string | null
+          trip_id?: string | null
+          trip_idd?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_host_earnings_car_id"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_hosting_request: { Args: { p_request_id: string }; Returns: Json }

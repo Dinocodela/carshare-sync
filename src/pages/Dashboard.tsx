@@ -119,6 +119,11 @@ function useRecentActivity(
         const nextMonthStartTs = `${nextMonthStart}T00:00:00.000Z`;
         const payoutFields =
           "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
+        // Clients read from a privacy-safe view that excludes guest PII (no guest_name).
+        const clientPayoutFields =
+          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, earning_period_start, earning_period_end";
+        const earningsTable = role === "host" ? "host_earnings" : "client_visible_earnings";
+        const earningsFields = role === "host" ? payoutFields : clientPayoutFields;
 
         let earns: any[] = [];
         if (role === "host") {
@@ -149,9 +154,9 @@ function useRecentActivity(
         } else {
           const carIds = allCars.map((c) => c.id);
           if (carIds.length) {
-            const { data } = await supabase
-              .from("host_earnings")
-              .select(payoutFields)
+            const { data } = await (supabase as any)
+              .from("client_visible_earnings")
+              .select(clientPayoutFields)
               .eq("payment_status", "paid")
               .in("car_id", carIds)
               .gte("date_paid", monthStart)
@@ -161,9 +166,9 @@ function useRecentActivity(
             earns = data || [];
 
             if (earns.length === 0) {
-              const { data: fallback } = await supabase
-                .from("host_earnings")
-                .select(payoutFields)
+              const { data: fallback } = await (supabase as any)
+                .from("client_visible_earnings")
+                .select(clientPayoutFields)
                 .eq("payment_status", "paid")
                 .in("car_id", carIds)
                 .is("date_paid", null)
@@ -216,9 +221,9 @@ function useRecentActivity(
         // If we still need more items, backfill with older paid payouts.
         if (mapped.length < limit) {
           const existingIds = new Set(earns.map((e: any) => e.id));
-          let olderQuery = supabase
-            .from("host_earnings")
-            .select(payoutFields)
+          let olderQuery = (supabase as any)
+            .from(earningsTable)
+            .select(earningsFields)
             .eq("payment_status", "paid")
             .order("date_paid", { ascending: false, nullsFirst: false })
             .limit(limit * 2);
@@ -397,8 +402,8 @@ export default function Dashboard() {
         const carIds = (clientData?.cars || []).map((c: any) => c.id);
         if (carIds.length) {
           const [{ data: rows }, { data: expRows }] = await Promise.all([
-            supabase
-              .from("host_earnings")
+            (supabase as any)
+              .from("client_visible_earnings")
               .select(
                 "amount, trip_id, client_profit_percentage, payment_status, date_paid, earning_period_end, car_id"
               )
@@ -450,9 +455,9 @@ export default function Dashboard() {
         } else {
           const carIds = (clientData?.cars || []).map((c: any) => c.id);
           if (carIds.length) {
-            const res = await supabase
-              .from("host_earnings")
-              .select("id, trip_id, guest_name, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address")
+            const res = await (supabase as any)
+              .from("client_visible_earnings")
+              .select("id, trip_id, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
               .in("car_id", carIds)
               .lte("earning_period_start", todayStr)
               .gte("earning_period_end", todayStr)

@@ -79,6 +79,7 @@ export default function TripDetail() {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      // Hosts can read the base table (with guest PII + embedded car).
       const { data, error } = await supabase
         .from("host_earnings")
         .select(
@@ -94,21 +95,47 @@ export default function TripDetail() {
         .maybeSingle();
 
       if (cancelled) return;
-      if (error || !data) {
+
+      // Clients have no access to the base table; fall back to the privacy-safe
+      // view (excludes guest name and addresses) and fetch the car separately.
+      let row: any = data;
+      if (!row) {
+        const { data: viewRow } = await (supabase as any)
+          .from("client_visible_earnings")
+          .select(
+            "id, trip_id, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id",
+          )
+          .eq("id", earningId)
+          .maybeSingle();
+        if (viewRow) {
+          let car: any = null;
+          if (viewRow.car_id) {
+            const { data: carRow } = await supabase
+              .from("cars")
+              .select("make, model, year, color, mileage, license_plate, location, images")
+              .eq("id", viewRow.car_id)
+              .maybeSingle();
+            car = carRow;
+          }
+          row = { ...viewRow, cars: car };
+        }
+      }
+
+      if (cancelled) return;
+      if (!row) {
         setTrip(null);
       } else {
-        const row: any = data;
         setTrip({
           id: row.id,
           trip_id: row.trip_id,
-          guest_name: row.guest_name,
+          guest_name: row.guest_name ?? null,
           earning_period_start: row.earning_period_start,
           earning_period_end: row.earning_period_end,
           earning_type: row.earning_type,
           payment_status: row.payment_status,
           payment_source: row.payment_source,
-          pickup_address: row.pickup_address,
-          return_address: row.return_address,
+          pickup_address: row.pickup_address ?? null,
+          return_address: row.return_address ?? null,
           car: row.cars
             ? {
                 make: row.cars.make,

@@ -34,8 +34,8 @@ export function BestMonthWidget({ carId, carName }: Props) {
     setLoading(true);
     (async () => {
       const [e, x] = await Promise.all([
-        supabase
-          .from("host_earnings")
+        (supabase as any)
+          .from("client_visible_earnings")
           .select("amount, gross_earnings, client_profit_percentage, earning_period_start, trip_id")
           .eq("car_id", carId),
         supabase

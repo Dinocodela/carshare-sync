@@ -118,7 +118,7 @@ export function useClientAnalytics(
     if (carIds.length === 0) return;
     try {
       const yearsSet = new Set<number>();
-      const { data: e } = await supabase.from('host_earnings').select('earning_period_start').in('car_id', carIds);
+      const { data: e } = await (supabase as any).from('client_visible_earnings').select('earning_period_start').in('car_id', carIds);
       (e || []).forEach((r: any) => { if (r.earning_period_start) yearsSet.add(new Date(r.earning_period_start).getFullYear()); });
       const { data: x } = await supabase.from('host_expenses').select('expense_date').in('car_id', carIds);
       (x || []).forEach((r: any) => { if (r.expense_date) yearsSet.add(new Date(r.expense_date).getFullYear()); });
@@ -193,9 +193,9 @@ export function useClientAnalytics(
       setCarsMap(carInfoMap);
 
       fetchAvailableYears(carIds);
-      let earningsQuery = supabase
-        .from('host_earnings')
-        .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, guest_name, earning_type, payment_source, created_at')
+      let earningsQuery = (supabase as any)
+        .from('client_visible_earnings')
+        .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, earning_type, payment_source, created_at')
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
