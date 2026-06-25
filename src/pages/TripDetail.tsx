@@ -65,6 +65,8 @@ interface TripFull {
   payment_source: string | null;
   pickup_address: string | null;
   return_address: string | null;
+  net_amount: number | null;
+  date_paid: string | null;
   car: {
     make: string;
     model: string;
