@@ -854,6 +854,11 @@ export default function Dashboard() {
                                 <p className="text-[11px] text-muted-foreground mt-0.5">
                                   {start}{start && end ? " – " : ""}{end}
                                 </p>
+                                {t.delivery_address && (
+                                  <p className="text-[11px] text-primary mt-0.5 truncate">
+                                    Delivered to: {t.delivery_address}
+                                  </p>
+                                )}
                                 {t.trip_id && (
                                   <p className="text-[11px] text-muted-foreground/80 mt-0.5 flex items-center gap-1.5">
                                     <button
