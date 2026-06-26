@@ -501,10 +501,22 @@ export default function Dashboard() {
             const net_amount = isHost
               ? netAfterExpenses
               : (netAfterExpenses * (r.client_profit_percentage || 70)) / 100;
+            // Itemized expense breakdown for full transparency
+            const tripExps = expenses.filter((e: any) => e.trip_id && e.trip_id === r.trip_id);
+            const sum = (key: string) =>
+              tripExps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
+            const expense_items = [
+              { label: "EV charging", amount: sum("ev_charge_cost") },
+              { label: "Tolls", amount: sum("toll_cost") },
+              { label: "Delivery", amount: sum("delivery_cost") },
+              { label: "Car wash", amount: sum("carwash_cost") },
+              { label: "Other expenses", amount: sum("amount") },
+            ].filter((e) => e.amount > 0);
             return {
               ...r,
               net_amount,
               trip_expenses: tripExpenses,
+              expense_items,
               profit_percentage: isHost
                 ? r.host_profit_percentage || 30
                 : r.client_profit_percentage || 70,
