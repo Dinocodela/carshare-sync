@@ -362,7 +362,7 @@ export default function TripDetail() {
                   {formatCurrency(trip.net_amount)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Estimated net after commission &amp; trip expenses
+                  Net after commission &amp; trip expenses
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">
@@ -382,7 +382,60 @@ export default function TripDetail() {
                 )}
               </div>
             </div>
+
+            {/* Full transparency breakdown */}
+            {trip.breakdown && (
+              <div className="mt-5 border-t pt-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  How this is calculated
+                </p>
+                <dl className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">Rental total (guest paid)</dt>
+                    <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">
+                      {trip.breakdown.platformLabel} fee (30%)
+                    </dt>
+                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-foreground">After {trip.breakdown.platformLabel}</dt>
+                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
+                  </div>
+
+                  {trip.breakdown.expenses.map((e) => (
+                    <div key={e.label} className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">{e.label}</dt>
+                      <dd className="font-medium text-foreground">−{money2(e.amount)}</dd>
+                    </div>
+                  ))}
+
+                  {trip.breakdown.totalExpenses > 0 && (
+                    <div className="flex items-center justify-between border-t pt-2">
+                      <dt className="text-foreground">Net after expenses</dt>
+                      <dd className="font-semibold text-foreground">{money2(trip.breakdown.netAfterExpenses)}</dd>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">
+                      Management fee ({trip.breakdown.hostPct}%)
+                    </dt>
+                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-base font-semibold text-foreground">
+                      Your earnings ({trip.breakdown.clientPct}%)
+                    </dt>
+                    <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
+                  </div>
+                </dl>
+              </div>
+            )}
           </section>
+
         )}
 
 
