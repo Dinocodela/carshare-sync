@@ -2409,18 +2409,33 @@ export type Database = {
           phone: string
         }[]
       }
-      get_host_claims_page: {
-        Args: {
-          p_car_id?: string
-          p_claim_status?: string
-          p_claim_type?: string
-          p_date_from?: string
-          p_date_to?: string
-          p_limit?: number
-          p_offset?: number
-        }
-        Returns: Json
-      }
+      get_host_claims_page:
+        | {
+            Args: {
+              p_car_id?: string
+              p_claim_status?: string
+              p_claim_type?: string
+              p_date_from?: string
+              p_date_to?: string
+              p_limit?: number
+              p_offset?: number
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_car_id?: string
+              p_claim_status?: string
+              p_claim_type?: string
+              p_date_from?: string
+              p_date_to?: string
+              p_incident_id?: string
+              p_limit?: number
+              p_offset?: number
+              p_trip_search?: string
+            }
+            Returns: Json
+          }
       get_host_contact_for_client: {
         Args: { p_car_id: string; p_client_id: string }
         Returns: {
