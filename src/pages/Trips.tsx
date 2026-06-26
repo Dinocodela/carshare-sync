@@ -173,6 +173,9 @@ export default function Trips() {
 
         const mapped: TripCardData[] = rows.map((row: any) => {
           const car = isHostRole ? row.cars : carsById[row.car_id];
+          const hasDeliveryExpense = row.trip_id
+            ? deliveryTripIds.has(row.trip_id)
+            : false;
           return {
             id: row.id,
             trip_id: row.trip_id,
@@ -180,9 +183,10 @@ export default function Trips() {
             guest_initials: row.guest_initials ?? null,
             earning_period_start: row.earning_period_start,
             earning_period_end: row.earning_period_end,
-            is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
+            is_delivery: hasDeliveryExpense,
             delivery_address: row.pickup_address || null,
-            delivery_destination: row.delivery_address || row.pickup_address || null,
+            delivery_destination:
+              row.delivery_address || (hasDeliveryExpense ? row.pickup_address : null),
             return_address: row.return_address || null,
             net_amount:
               row.amount != null
