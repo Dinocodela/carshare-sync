@@ -167,6 +167,7 @@ export default function TripDetail() {
         setTrip(null);
       } else {
         let net: number | null = null;
+        let breakdown: EarningsBreakdown | null = null;
         if (row.amount != null) {
           let exps: any[] = [];
           if (row.trip_id) {
@@ -185,6 +186,47 @@ export default function TripDetail() {
             row.trip_id,
             exps as any,
           );
+
+          // Build a fully transparent breakdown for the client.
+          const netFromPlatform = Number(row.amount);
+          const grossRental =
+            PLATFORM_COMMISSION_RATE < 1
+              ? netFromPlatform / (1 - PLATFORM_COMMISSION_RATE)
+              : netFromPlatform;
+          const platformFee = grossRental - netFromPlatform;
+
+          const sum = (key: string) =>
+            exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
+          const expenseItems = [
+            { label: "EV charging", amount: sum("ev_charge_cost") },
+            { label: "Tolls", amount: sum("toll_cost") },
+            { label: "Delivery", amount: sum("delivery_cost") },
+            { label: "Car wash", amount: sum("carwash_cost") },
+            { label: "Other expenses", amount: sum("amount") },
+          ].filter((e) => e.amount > 0);
+          const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
+          const netAfterExpenses = netFromPlatform - totalExpenses;
+          const clientPct =
+            row.client_profit_percentage != null
+              ? Number(row.client_profit_percentage)
+              : 70;
+          const hostPct = 100 - clientPct;
+          const clientEarnings = (netAfterExpenses * clientPct) / 100;
+          const managementFee = netAfterExpenses - clientEarnings;
+
+          breakdown = {
+            grossRental,
+            platformFee,
+            platformLabel: row.payment_source || "Platform",
+            netFromPlatform,
+            expenses: expenseItems,
+            totalExpenses,
+            netAfterExpenses,
+            clientPct,
+            hostPct,
+            managementFee,
+            clientEarnings,
+          };
         }
         setTrip({
           id: row.id,
@@ -199,6 +241,7 @@ export default function TripDetail() {
           pickup_address: row.pickup_address ?? null,
           return_address: row.return_address ?? null,
           net_amount: net,
+          breakdown,
           date_paid: row.date_paid ?? null,
           car: row.cars
             ? {
