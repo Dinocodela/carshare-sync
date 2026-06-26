@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
@@ -27,7 +28,12 @@ export default function Trips() {
     active: 0,
     past: 0,
   });
-  const [filter, setFilter] = useState<Filter>("active");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab") as Filter | null;
+  const validFilters: Filter[] = ["all", "upcoming", "active", "past"];
+  const [filter, setFilter] = useState<Filter>(
+    tabParam && validFilters.includes(tabParam) ? tabParam : "active"
+  );
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -237,7 +243,13 @@ export default function Trips() {
 
         <Tabs
           value={filter}
-          onValueChange={(v) => setFilter(v as Filter)}
+          onValueChange={(v) => {
+            setFilter(v as Filter);
+            setSearchParams((prev) => {
+              prev.set("tab", v);
+              return prev;
+            });
+          }}
           className="mb-4"
         >
           <TabsList className="grid w-full grid-cols-4">
