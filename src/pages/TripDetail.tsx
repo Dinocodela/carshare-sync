@@ -16,6 +16,15 @@ function formatCurrency(n: number): string {
   }).format(n);
 }
 
+function money2(n: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+}
+
 function parseDate(s: string): Date {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00`);
   return new Date(s);
