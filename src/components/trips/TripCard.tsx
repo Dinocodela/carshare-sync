@@ -151,26 +151,10 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                   <div className="text-xs font-semibold uppercase tracking-wide text-primary">
                     Delivery
                   </div>
-                  {trip.delivery_destination ? (
+                  {trip.delivery_destination || trip.delivery_address ? (
                     <div className="text-foreground">
                       <span className="text-muted-foreground">Delivered to: </span>
-                      {trip.delivery_destination}
-                    </div>
-                  ) : trip.delivery_address ? (
-                    <div className="space-y-0.5 text-foreground">
-                      <div>
-                        <span className="text-muted-foreground">Pickup: </span>
-                        {trip.delivery_address}
-                      </div>
-                      {trip.return_address &&
-                        trip.return_address !== trip.delivery_address && (
-                          <div>
-                            <span className="text-muted-foreground">
-                              Return:{" "}
-                            </span>
-                            {trip.return_address}
-                          </div>
-                        )}
+                      {trip.delivery_destination || trip.delivery_address}
                     </div>
                   ) : (
                     trip.car?.location && (
