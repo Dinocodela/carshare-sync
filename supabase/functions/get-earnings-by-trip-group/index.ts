@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     const earningsRes = await admin
       .from("host_earnings")
       .select(
-        "amount, commission, payment_status, payment_date, guest_name, gross_earnings, payment_source, trip_id, trip_idd, earning_period_end, host_id, car_id, cars!inner(client_id, host_id)"
+        "amount, commission, payment_status, payment_date, guest_name, gross_earnings, payment_source, trip_id, trip_idd, earning_period_end, host_id, car_id, delivery_address, cars!inner(client_id, host_id)"
       )
       .or(`trip_id.eq.${tripValue},trip_idd.eq.${tripValue}`);
 
@@ -93,6 +93,7 @@ Deno.serve(async (req) => {
         trip_id: earning.trip_id,
         trip_idd: earning.trip_idd,
         earning_period_end: earning.earning_period_end,
+        delivery_address: earning.delivery_address,
       };
     });
 

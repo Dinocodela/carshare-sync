@@ -12,6 +12,7 @@ export interface TripCardData {
   earning_period_end: string;
   is_delivery?: boolean;
   delivery_address?: string | null;
+  delivery_destination?: string | null;
   return_address?: string | null;
   net_amount?: number | null;
   payment_status?: string | null;
@@ -143,14 +144,19 @@ export function TripCard({ trip }: { trip: TripCardData }) {
                 {formatDateTime(start)} – {formatDateTime(end)}
               </span>
             </div>
-            {trip.is_delivery ? (
+            {trip.is_delivery || trip.delivery_destination ? (
               <div className="mt-2 flex items-start gap-1.5 rounded-md bg-accent/40 px-2 py-1.5 text-sm">
                 <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                 <div className="min-w-0">
                   <div className="text-xs font-semibold uppercase tracking-wide text-primary">
                     Delivery
                   </div>
-                  {trip.delivery_address ? (
+                  {trip.delivery_destination ? (
+                    <div className="text-foreground">
+                      <span className="text-muted-foreground">Delivered to: </span>
+                      {trip.delivery_destination}
+                    </div>
+                  ) : trip.delivery_address ? (
                     <div className="space-y-0.5 text-foreground">
                       <div>
                         <span className="text-muted-foreground">Pickup: </span>

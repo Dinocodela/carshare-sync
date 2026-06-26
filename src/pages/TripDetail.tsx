@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Car as CarIcon, Loader2, MapPin, Copy } from "lucide-react";
+import { ArrowLeft, Car as CarIcon, Loader2, MapPin, Copy, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getClientShare } from "@/lib/expenseMatching";
 
@@ -98,6 +98,7 @@ interface TripFull {
   payment_source: string | null;
   pickup_address: string | null;
   return_address: string | null;
+  delivery_address: string | null;
   net_amount: number | null;
   breakdown: EarningsBreakdown | null;
   date_paid: string | null;
@@ -133,7 +134,7 @@ export default function TripDetail() {
       const { data, error } = await supabase
         .from("host_earnings")
         .select(
-          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
         )
         .eq("id", earningId)
         .maybeSingle();
@@ -153,7 +154,7 @@ export default function TripDetail() {
         const { data: viewRow } = await (supabase as any)
           .from("client_visible_earnings")
           .select(
-            "id, trip_id, guest_initials, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, client_profit_percentage, date_paid",
+            "id, trip_id, guest_initials, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, client_profit_percentage, date_paid, delivery_address",
           )
           .eq("id", earningId)
           .maybeSingle();
@@ -249,6 +250,7 @@ export default function TripDetail() {
           payment_source: row.payment_source,
           pickup_address: row.pickup_address ?? null,
           return_address: row.return_address ?? null,
+          delivery_address: row.delivery_address ?? null,
           net_amount: net,
           breakdown,
           date_paid: row.date_paid ?? null,
@@ -449,19 +451,35 @@ export default function TripDetail() {
 
 
 
-        {/* Location (car's general location) — only shown when no specific
-            pickup/return addresses are available */}
-        {trip.car?.location && !trip.pickup_address && !trip.return_address && (
-          <section className="mb-6 rounded-2xl border bg-card p-5">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Location
+        {/* Dedicated delivery destination (separate from car home base) */}
+        {trip.delivery_address && (
+          <section className="mb-6 rounded-2xl border bg-primary/5 p-5">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
+              Delivery destination
             </p>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-base text-foreground">{trip.car.location}</p>
-              <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+              <p className="text-base text-foreground">{trip.delivery_address}</p>
+              <Truck className="mt-1 h-5 w-5 shrink-0 text-primary" />
             </div>
           </section>
         )}
+
+        {/* Location (car's general location) — only shown when no specific
+            pickup/return/delivery addresses are available */}
+        {trip.car?.location &&
+          !trip.pickup_address &&
+          !trip.return_address &&
+          !trip.delivery_address && (
+            <section className="mb-6 rounded-2xl border bg-card p-5">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Location
+              </p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-base text-foreground">{trip.car.location}</p>
+                <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+              </div>
+            </section>
+          )}
 
         {/* Pickup / Return addresses */}
         {(trip.pickup_address || trip.return_address) && (

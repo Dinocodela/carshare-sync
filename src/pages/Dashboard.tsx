@@ -460,7 +460,7 @@ export default function Dashboard() {
         if (isHost) {
           const res = await supabase
             .from("host_earnings")
-            .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address")
+            .select("id, trip_id, guest_name, amount, host_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, pickup_address, return_address, delivery_address")
             .lte("earning_period_start", todayStr)
             .gte("earning_period_end", todayStr)
             .order("earning_period_end", { ascending: true })
@@ -471,7 +471,7 @@ export default function Dashboard() {
           if (carIds.length) {
             const res = await (supabase as any)
               .from("client_visible_earnings")
-              .select("id, trip_id, guest_initials, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id")
+              .select("id, trip_id, guest_initials, amount, client_profit_percentage, payment_status, earning_period_start, earning_period_end, car_id, delivery_address")
               .in("car_id", carIds)
               .lte("earning_period_start", todayStr)
               .gte("earning_period_end", todayStr)
@@ -854,6 +854,11 @@ export default function Dashboard() {
                                 <p className="text-[11px] text-muted-foreground mt-0.5">
                                   {start}{start && end ? " – " : ""}{end}
                                 </p>
+                                {t.delivery_address && (
+                                  <p className="text-[11px] text-primary mt-0.5 truncate">
+                                    Delivered to: {t.delivery_address}
+                                  </p>
+                                )}
                                 {t.trip_id && (
                                   <p className="text-[11px] text-muted-foreground/80 mt-0.5 flex items-center gap-1.5">
                                     <button

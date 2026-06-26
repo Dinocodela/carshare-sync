@@ -196,6 +196,7 @@ interface Earning {
   date_paid?: string;
   pickup_address?: string;
   return_address?: string;
+  delivery_address?: string;
   created_at: string;
   updated_at: string;
 }
@@ -276,6 +277,7 @@ const earningSchema = z.object({
   date_paid: z.string().min(1, "Date paid is required"),
   pickup_address: z.string().optional(),
   return_address: z.string().optional(),
+  delivery_address: z.string().optional(),
 });
 
 const claimSchema = z.object({
@@ -615,6 +617,7 @@ export default function HostCarManagement() {
       payment_status: "pending",
       pickup_address: "",
       return_address: "",
+      delivery_address: "",
     },
   });
 
@@ -1717,6 +1720,7 @@ export default function HostCarManagement() {
         date_paid: values.date_paid || null,
         pickup_address: values.pickup_address || null,
         return_address: values.return_address || null,
+        delivery_address: values.delivery_address || null,
       };
 
       const guestContact = {
@@ -1919,6 +1923,7 @@ export default function HostCarManagement() {
       date_paid: "",
       pickup_address: "",
       return_address: "",
+      delivery_address: "",
     });
     setEarningDialogOpen(true);
   };
@@ -1949,6 +1954,7 @@ export default function HostCarManagement() {
       date_paid: earning.date_paid || new Date().toLocaleDateString("en-CA"),
       pickup_address: earning.pickup_address || "",
       return_address: earning.return_address || "",
+      delivery_address: earning.delivery_address || "",
     });
     setEarningDialogOpen(true);
   };
@@ -3915,6 +3921,26 @@ export default function HostCarManagement() {
                                 />
                               </div>
 
+                              <FormField
+                                control={earningForm.control}
+                                name="delivery_address"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                      <MapPin className="h-3 w-3" />
+                                      Delivery Destination
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Where the car was delivered (separate from home base)"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
@@ -4862,6 +4888,26 @@ export default function HostCarManagement() {
                                   )}
                                 />
                               </div>
+
+                              <FormField
+                                control={earningForm.control}
+                                name="delivery_address"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                      <MapPin className="h-3 w-3" />
+                                      Delivery Destination
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Where the car was delivered (separate from home base)"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
