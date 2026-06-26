@@ -134,7 +134,7 @@ export default function TripDetail() {
       const { data, error } = await supabase
         .from("host_earnings")
         .select(
-          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
         )
         .eq("id", earningId)
         .maybeSingle();
