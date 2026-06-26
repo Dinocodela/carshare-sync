@@ -93,6 +93,7 @@ Deno.serve(async (req) => {
         trip_id: earning.trip_id,
         trip_idd: earning.trip_idd,
         earning_period_end: earning.earning_period_end,
+        delivery_address: earning.delivery_address,
       };
     });
 
