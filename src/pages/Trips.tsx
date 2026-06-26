@@ -59,7 +59,7 @@ export default function Trips() {
           : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)";
         const clientFields = countOnly
           ? "id"
-          : "id, trip_id, guest_initials, earning_period_start, earning_period_end, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status";
+          : "id, trip_id, guest_initials, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status";
 
         const q = isHostRole
           ? supabase.from("host_earnings").select(fields, opts)
@@ -182,7 +182,7 @@ export default function Trips() {
             earning_period_end: row.earning_period_end,
             is_delivery: row.trip_id ? deliveryTripIds.has(row.trip_id) : false,
             delivery_address: row.pickup_address || null,
-            delivery_destination: row.delivery_address || null,
+            delivery_destination: row.delivery_address || row.pickup_address || null,
             return_address: row.return_address || null,
             net_amount:
               row.amount != null
