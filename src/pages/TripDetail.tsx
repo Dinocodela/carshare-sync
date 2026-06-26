@@ -63,6 +63,20 @@ function statusBanner(start: Date, end: Date): string {
   return `Ended on ${end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}.`;
 }
 
+interface EarningsBreakdown {
+  grossRental: number;
+  platformFee: number;
+  platformLabel: string;
+  netFromPlatform: number;
+  expenses: { label: string; amount: number }[];
+  totalExpenses: number;
+  netAfterExpenses: number;
+  clientPct: number;
+  hostPct: number;
+  managementFee: number;
+  clientEarnings: number;
+}
+
 interface TripFull {
   id: string;
   trip_id: string | null;
@@ -76,6 +90,7 @@ interface TripFull {
   pickup_address: string | null;
   return_address: string | null;
   net_amount: number | null;
+  breakdown: EarningsBreakdown | null;
   date_paid: string | null;
   car: {
     make: string;
@@ -90,6 +105,9 @@ interface TripFull {
   guest_email: string | null;
   guest_phone: string | null;
 }
+
+// Eon retains a 30% platform commission before paying the host.
+const PLATFORM_COMMISSION_RATE = 0.3;
 
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
