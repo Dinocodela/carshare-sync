@@ -47,7 +47,7 @@ async function resolveProfitSplit(
   // Get the client's profile
   const { data: profile } = await supabase
     .from("profiles")
-    .select("profit_program, promo_start_date, created_at")
+    .select("profit_program, promo_start_date, created_at, custom_client_profit_percentage")
     .eq("user_id", clientId)
     .single();
 
@@ -61,6 +61,18 @@ async function resolveProfitSplit(
     if (daysSincePromo <= 30) {
       console.log("Applying first_month_free split 100/0 for client:", clientId);
       return { clientPct: 100, hostPct: 0 };
+    }
+  }
+
+  // 1b. Per-client custom override (personalized split set by the host)
+  if (
+    profile.custom_client_profit_percentage !== null &&
+    profile.custom_client_profit_percentage !== undefined
+  ) {
+    const cPct = Number(profile.custom_client_profit_percentage);
+    if (!Number.isNaN(cPct) && cPct >= 0 && cPct <= 100) {
+      console.log("Applying custom split", cPct, "/", 100 - cPct, "for client:", clientId);
+      return { clientPct: cPct, hostPct: 100 - cPct };
     }
   }
 

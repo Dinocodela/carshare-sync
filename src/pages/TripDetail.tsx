@@ -16,6 +16,15 @@ function formatCurrency(n: number): string {
   }).format(n);
 }
 
+function money2(n: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+}
+
 function parseDate(s: string): Date {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(`${s}T00:00:00`);
   return new Date(s);
@@ -63,6 +72,20 @@ function statusBanner(start: Date, end: Date): string {
   return `Ended on ${end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}.`;
 }
 
+interface EarningsBreakdown {
+  grossRental: number;
+  platformFee: number;
+  platformLabel: string;
+  netFromPlatform: number;
+  expenses: { label: string; amount: number }[];
+  totalExpenses: number;
+  netAfterExpenses: number;
+  clientPct: number;
+  hostPct: number;
+  managementFee: number;
+  clientEarnings: number;
+}
+
 interface TripFull {
   id: string;
   trip_id: string | null;
@@ -76,6 +99,7 @@ interface TripFull {
   pickup_address: string | null;
   return_address: string | null;
   net_amount: number | null;
+  breakdown: EarningsBreakdown | null;
   date_paid: string | null;
   car: {
     make: string;
@@ -90,6 +114,9 @@ interface TripFull {
   guest_email: string | null;
   guest_phone: string | null;
 }
+
+// Eon retains a 30% platform commission before paying the host.
+const PLATFORM_COMMISSION_RATE = 0.3;
 
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
@@ -149,6 +176,7 @@ export default function TripDetail() {
         setTrip(null);
       } else {
         let net: number | null = null;
+        let breakdown: EarningsBreakdown | null = null;
         if (row.amount != null) {
           let exps: any[] = [];
           if (row.trip_id) {
@@ -167,6 +195,47 @@ export default function TripDetail() {
             row.trip_id,
             exps as any,
           );
+
+          // Build a fully transparent breakdown for the client.
+          const netFromPlatform = Number(row.amount);
+          const grossRental =
+            PLATFORM_COMMISSION_RATE < 1
+              ? netFromPlatform / (1 - PLATFORM_COMMISSION_RATE)
+              : netFromPlatform;
+          const platformFee = grossRental - netFromPlatform;
+
+          const sum = (key: string) =>
+            exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
+          const expenseItems = [
+            { label: "EV charging", amount: sum("ev_charge_cost") },
+            { label: "Tolls", amount: sum("toll_cost") },
+            { label: "Delivery", amount: sum("delivery_cost") },
+            { label: "Car wash", amount: sum("carwash_cost") },
+            { label: "Other expenses", amount: sum("amount") },
+          ].filter((e) => e.amount > 0);
+          const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
+          const netAfterExpenses = netFromPlatform - totalExpenses;
+          const clientPct =
+            row.client_profit_percentage != null
+              ? Number(row.client_profit_percentage)
+              : 70;
+          const hostPct = 100 - clientPct;
+          const clientEarnings = (netAfterExpenses * clientPct) / 100;
+          const managementFee = netAfterExpenses - clientEarnings;
+
+          breakdown = {
+            grossRental,
+            platformFee,
+            platformLabel: row.payment_source || "Platform",
+            netFromPlatform,
+            expenses: expenseItems,
+            totalExpenses,
+            netAfterExpenses,
+            clientPct,
+            hostPct,
+            managementFee,
+            clientEarnings,
+          };
         }
         setTrip({
           id: row.id,
@@ -181,6 +250,7 @@ export default function TripDetail() {
           pickup_address: row.pickup_address ?? null,
           return_address: row.return_address ?? null,
           net_amount: net,
+          breakdown,
           date_paid: row.date_paid ?? null,
           car: row.cars
             ? {
@@ -301,7 +371,7 @@ export default function TripDetail() {
                   {formatCurrency(trip.net_amount)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Estimated net after commission &amp; trip expenses
+                  Net after commission &amp; trip expenses
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">
@@ -321,7 +391,60 @@ export default function TripDetail() {
                 )}
               </div>
             </div>
+
+            {/* Full transparency breakdown */}
+            {trip.breakdown && (
+              <div className="mt-5 border-t pt-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  How this is calculated
+                </p>
+                <dl className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">Rental total (guest paid)</dt>
+                    <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">
+                      {trip.breakdown.platformLabel} fee (30%)
+                    </dt>
+                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-foreground">After {trip.breakdown.platformLabel}</dt>
+                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
+                  </div>
+
+                  {trip.breakdown.expenses.map((e) => (
+                    <div key={e.label} className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">{e.label}</dt>
+                      <dd className="font-medium text-foreground">−{money2(e.amount)}</dd>
+                    </div>
+                  ))}
+
+                  {trip.breakdown.totalExpenses > 0 && (
+                    <div className="flex items-center justify-between border-t pt-2">
+                      <dt className="text-foreground">Net after expenses</dt>
+                      <dd className="font-semibold text-foreground">{money2(trip.breakdown.netAfterExpenses)}</dd>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">
+                      Management fee ({trip.breakdown.hostPct}%)
+                    </dt>
+                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-base font-semibold text-foreground">
+                      Your earnings ({trip.breakdown.clientPct}%)
+                    </dt>
+                    <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
+                  </div>
+                </dl>
+              </div>
+            )}
           </section>
+
         )}
 
 
