@@ -12,6 +12,7 @@ export interface TripCardData {
   earning_period_end: string;
   is_delivery?: boolean;
   delivery_address?: string | null;
+  delivery_destination?: string | null;
   return_address?: string | null;
   net_amount?: number | null;
   payment_status?: string | null;
