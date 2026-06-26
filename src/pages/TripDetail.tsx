@@ -451,19 +451,35 @@ export default function TripDetail() {
 
 
 
-        {/* Location (car's general location) — only shown when no specific
-            pickup/return addresses are available */}
-        {trip.car?.location && !trip.pickup_address && !trip.return_address && (
-          <section className="mb-6 rounded-2xl border bg-card p-5">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Location
+        {/* Dedicated delivery destination (separate from car home base) */}
+        {trip.delivery_address && (
+          <section className="mb-6 rounded-2xl border bg-primary/5 p-5">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">
+              Delivery destination
             </p>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-base text-foreground">{trip.car.location}</p>
-              <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+              <p className="text-base text-foreground">{trip.delivery_address}</p>
+              <Truck className="mt-1 h-5 w-5 shrink-0 text-primary" />
             </div>
           </section>
         )}
+
+        {/* Location (car's general location) — only shown when no specific
+            pickup/return/delivery addresses are available */}
+        {trip.car?.location &&
+          !trip.pickup_address &&
+          !trip.return_address &&
+          !trip.delivery_address && (
+            <section className="mb-6 rounded-2xl border bg-card p-5">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Location
+              </p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-base text-foreground">{trip.car.location}</p>
+                <MapPin className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
+              </div>
+            </section>
+          )}
 
         {/* Pickup / Return addresses */}
         {(trip.pickup_address || trip.return_address) && (
