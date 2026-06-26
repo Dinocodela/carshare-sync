@@ -28,7 +28,12 @@ export default function Trips() {
     active: 0,
     past: 0,
   });
-  const [filter, setFilter] = useState<Filter>("active");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab") as Filter | null;
+  const validFilters: Filter[] = ["all", "upcoming", "active", "past"];
+  const [filter, setFilter] = useState<Filter>(
+    tabParam && validFilters.includes(tabParam) ? tabParam : "active"
+  );
   const [page, setPage] = useState(1);
 
   useEffect(() => {
