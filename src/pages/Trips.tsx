@@ -243,7 +243,13 @@ export default function Trips() {
 
         <Tabs
           value={filter}
-          onValueChange={(v) => setFilter(v as Filter)}
+          onValueChange={(v) => {
+            setFilter(v as Filter);
+            setSearchParams((prev) => {
+              prev.set("tab", v);
+              return prev;
+            });
+          }}
           className="mb-4"
         >
           <TabsList className="grid w-full grid-cols-4">
