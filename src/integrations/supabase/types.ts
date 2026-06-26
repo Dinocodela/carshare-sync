@@ -1734,6 +1734,7 @@ export type Database = {
           bio: string | null
           company_name: string | null
           created_at: string
+          custom_client_profit_percentage: number | null
           custom_properties: Json | null
           decided_at: string | null
           decided_by: string | null
@@ -1778,6 +1779,7 @@ export type Database = {
           bio?: string | null
           company_name?: string | null
           created_at?: string
+          custom_client_profit_percentage?: number | null
           custom_properties?: Json | null
           decided_at?: string | null
           decided_by?: string | null
@@ -1822,6 +1824,7 @@ export type Database = {
           bio?: string | null
           company_name?: string | null
           created_at?: string
+          custom_client_profit_percentage?: number | null
           custom_properties?: Json | null
           decided_at?: string | null
           decided_by?: string | null
