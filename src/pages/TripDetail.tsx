@@ -250,6 +250,7 @@ export default function TripDetail() {
           payment_source: row.payment_source,
           pickup_address: row.pickup_address ?? null,
           return_address: row.return_address ?? null,
+          delivery_address: row.delivery_address ?? null,
           net_amount: net,
           breakdown,
           date_paid: row.date_paid ?? null,
