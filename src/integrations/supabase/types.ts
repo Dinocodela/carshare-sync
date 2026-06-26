@@ -915,6 +915,7 @@ export type Database = {
           commission: number | null
           created_at: string
           date_paid: string | null
+          delivery_address: string | null
           earning_period_end: string
           earning_period_start: string
           earning_type: string
@@ -941,6 +942,7 @@ export type Database = {
           commission?: number | null
           created_at?: string
           date_paid?: string | null
+          delivery_address?: string | null
           earning_period_end: string
           earning_period_start: string
           earning_type?: string
@@ -967,6 +969,7 @@ export type Database = {
           commission?: number | null
           created_at?: string
           date_paid?: string | null
+          delivery_address?: string | null
           earning_period_end?: string
           earning_period_start?: string
           earning_type?: string

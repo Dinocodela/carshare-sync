@@ -1,0 +1,1 @@
+ALTER TABLE public.host_earnings ADD COLUMN IF NOT EXISTS delivery_address text;
