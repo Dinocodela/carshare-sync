@@ -456,6 +456,7 @@ export default function TripDetail() {
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
                 </dl>
+                )}
               </div>
             )}
           </section>
