@@ -3609,19 +3609,21 @@ export default function HostCarManagement() {
                               )}
                             </div>
 
-                            {/* Car Details */}
+                            {/* Vehicle */}
                             {(() => {
                               const expenseCar = cars.find((car) => car.id === expense.car_id);
-                              if (!expenseCar) return null;
-                              return (
-                                <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5 mt-2">
-                                  <div className="flex items-center gap-1.5 mb-1">
-                                    <Car className="w-3 h-3 text-muted-foreground" />
-                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
-                                  </div>
-                                  {formatDetailedCarInfo(expenseCar)}
+                              return expenseCar ? (
+                                <div className="ml-10">
+                                  <VehicleReveal
+                                    make={expenseCar.make}
+                                    model={expenseCar.model}
+                                    year={expenseCar.year}
+                                    color={expenseCar.color}
+                                    license_plate={expenseCar.license_plate}
+                                    vin_number={expenseCar.vin_number}
+                                  />
                                 </div>
-                              );
+                              ) : null;
                             })()}
                           </div>
 
