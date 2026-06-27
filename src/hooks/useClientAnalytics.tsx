@@ -21,7 +21,7 @@ export interface ClientEarning {
   earning_period_end: string;
   payment_status: string;
   trip_id?: string | null;
-  guest_name?: string | null;
+  guest_initials?: string | null;
   earning_type: string;
   payment_source: string;
   created_at: string;
