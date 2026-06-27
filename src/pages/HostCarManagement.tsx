@@ -282,6 +282,8 @@ const earningSchema = z.object({
   pickup_address: z.string().optional(),
   return_address: z.string().optional(),
   delivery_address: z.string().optional(),
+  daily_rate: z.string().optional(),
+  nights: z.string().optional(),
 });
 
 const claimSchema = z.object({
