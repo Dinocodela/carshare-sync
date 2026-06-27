@@ -491,6 +491,32 @@ export default function TripDetail() {
 
         )}
 
+        {/* Reimbursed to host (separate from earnings) */}
+        {trip.breakdown && trip.breakdown.totalExpenses > 0 && (
+          <section className="mb-6 rounded-2xl border bg-card p-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Reimbursed to host
+            </p>
+            <dl className="space-y-2 text-sm">
+              {trip.breakdown.expenses.map((e) => (
+                <div key={e.label} className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">{e.label}</dt>
+                  <dd className="font-medium text-foreground">{money2(e.amount)}</dd>
+                </div>
+              ))}
+              <div className="flex items-center justify-between border-t pt-2">
+                <dt className="text-foreground">Total reimbursement</dt>
+                <dd className="font-semibold text-foreground">{money2(trip.breakdown.totalExpenses)}</dd>
+              </div>
+            </dl>
+            <p className="pt-2 text-xs text-muted-foreground">
+              These costs (EV charging, tolls, delivery, etc.) are reimbursed to the host and are not part of your earnings.
+            </p>
+          </section>
+        )}
+
+
+
 
 
         {/* Dedicated delivery destination (separate from car home base) */}
