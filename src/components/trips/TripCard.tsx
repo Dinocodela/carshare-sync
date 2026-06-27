@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Car as CarIcon, Clock, Copy, MapPin, Truck, ExternalLink } from "lucide-react";
+import { Car as CarIcon, ChevronDown, Clock, Copy, MapPin, Truck, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/hooks/useWorkspace";
 
