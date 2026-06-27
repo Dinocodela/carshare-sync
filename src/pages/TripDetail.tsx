@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
@@ -122,6 +122,7 @@ const PLATFORM_COMMISSION_RATE = 0.3;
 
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [trip, setTrip] = useState<TripFull | null>(null);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
@@ -327,13 +328,17 @@ export default function TripDetail() {
       <PageContainer className="pb-40 md:pb-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
-          <Link
-            to="/trips"
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) navigate(-1);
+              else navigate("/trips");
+            }}
             className="rounded-full p-2 text-foreground hover:bg-accent"
             aria-label="Back to trips"
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </button>
           <div className="h-12 w-12 overflow-hidden rounded-lg bg-muted">
             {carImage ? (
               <img src={carImage} alt={carTitle} className="h-full w-full object-cover" />
