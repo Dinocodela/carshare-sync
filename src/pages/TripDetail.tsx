@@ -122,6 +122,7 @@ const PLATFORM_COMMISSION_RATE = 0.3;
 
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [trip, setTrip] = useState<TripFull | null>(null);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
