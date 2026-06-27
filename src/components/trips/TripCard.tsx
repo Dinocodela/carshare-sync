@@ -107,6 +107,7 @@ function getStatus(start: Date, end: Date) {
 export function TripCard({ trip }: { trip: TripCardData }) {
   const { activeWorkspace } = useWorkspace();
   const isHost = activeWorkspace === "host";
+  const [deliveryOpen, setDeliveryOpen] = useState(false);
   const start = parseDate(trip.earning_period_start);
   const end = parseDate(trip.earning_period_end);
   const status = getStatus(start, end);
