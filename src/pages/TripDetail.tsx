@@ -251,6 +251,8 @@ export default function TripDetail() {
 
           breakdown = {
             grossRental,
+            days,
+            dailyRate,
             platformFee,
             platformLabel: row.payment_source || "Platform",
             netFromPlatform,
