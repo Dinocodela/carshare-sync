@@ -6339,6 +6339,47 @@ export default function HostCarManagement() {
                           </div>
                           <div>
                             <Label className="text-xs font-medium mb-2 block">
+                              Trip Number
+                            </Label>
+                            <div className="relative">
+                              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="text"
+                                placeholder="Search by trip #"
+                                value={claimsFilters.tripSearch}
+                                onChange={(e) =>
+                                  setClaimsFilters((prev) => ({
+                                    ...prev,
+                                    tripSearch: e.target.value,
+                                  }))
+                                }
+                                className="h-10 pl-9"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">
+                              Incident Number
+                            </Label>
+                            <div className="relative">
+                              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="text"
+                                placeholder="Search by incident #"
+                                value={claimsFilters.incidentSearch}
+                                onChange={(e) =>
+                                  setClaimsFilters((prev) => ({
+                                    ...prev,
+                                    incidentSearch: e.target.value,
+                                  }))
+                                }
+                                className="h-10 pl-9"
+                              />
+                            </div>
+                          </div>
+                          <div>
+
+                            <Label className="text-xs font-medium mb-2 block">
                               Claim Status
                             </Label>
                             <Select
