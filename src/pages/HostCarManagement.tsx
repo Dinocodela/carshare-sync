@@ -1734,6 +1734,14 @@ export default function HostCarManagement() {
         pickup_address: values.pickup_address || null,
         return_address: values.return_address || null,
         delivery_address: values.delivery_address || null,
+        daily_rate:
+          values.daily_rate && values.daily_rate.trim() !== ""
+            ? Number(values.daily_rate)
+            : null,
+        nights:
+          values.nights && values.nights.trim() !== ""
+            ? Number(values.nights)
+            : null,
       };
 
       const guestContact = {
