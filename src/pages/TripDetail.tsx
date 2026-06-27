@@ -263,8 +263,10 @@ export default function TripDetail() {
               ? Number(row.client_profit_percentage)
               : 70;
           const hostPct = 100 - clientPct;
-          const clientEarnings = (rentalNet * clientPct) / 100;
-          const managementFee = rentalNet - clientEarnings;
+          const clientShare = (rentalNet * clientPct) / 100;
+          const managementFee = rentalNet - clientShare;
+          // Tolls are the client's cost — deducted from their share.
+          const clientEarnings = clientShare - tollCost;
           net = clientEarnings;
 
           breakdown = {
@@ -285,6 +287,8 @@ export default function TripDetail() {
             clientPct,
             hostPct,
             managementFee,
+            clientShare,
+            tollCost,
             clientEarnings,
           };
 
