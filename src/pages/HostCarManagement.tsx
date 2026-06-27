@@ -201,6 +201,8 @@ interface Earning {
   pickup_address?: string;
   return_address?: string;
   delivery_address?: string;
+  daily_rate?: number | null;
+  nights?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -282,6 +284,8 @@ const earningSchema = z.object({
   pickup_address: z.string().optional(),
   return_address: z.string().optional(),
   delivery_address: z.string().optional(),
+  daily_rate: z.string().optional(),
+  nights: z.string().optional(),
 });
 
 const claimSchema = z.object({
@@ -600,6 +604,8 @@ export default function HostCarManagement() {
       pickup_address: "",
       return_address: "",
       delivery_address: "",
+      daily_rate: "",
+      nights: "",
     },
   });
 
@@ -1730,6 +1736,14 @@ export default function HostCarManagement() {
         pickup_address: values.pickup_address || null,
         return_address: values.return_address || null,
         delivery_address: values.delivery_address || null,
+        daily_rate:
+          values.daily_rate && values.daily_rate.trim() !== ""
+            ? Number(values.daily_rate)
+            : null,
+        nights:
+          values.nights && values.nights.trim() !== ""
+            ? Number(values.nights)
+            : null,
       };
 
       const guestContact = {
@@ -1933,6 +1947,8 @@ export default function HostCarManagement() {
       pickup_address: "",
       return_address: "",
       delivery_address: "",
+      daily_rate: "",
+      nights: "",
     });
     setEarningDialogOpen(true);
   };
@@ -1964,6 +1980,9 @@ export default function HostCarManagement() {
       pickup_address: earning.pickup_address || "",
       return_address: earning.return_address || "",
       delivery_address: earning.delivery_address || "",
+      daily_rate:
+        earning.daily_rate != null ? String(earning.daily_rate) : "",
+      nights: earning.nights != null ? String(earning.nights) : "",
     });
     setEarningDialogOpen(true);
   };
@@ -3955,6 +3974,46 @@ export default function HostCarManagement() {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
+                                  name="daily_rate"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Daily Rate (as listed)</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          placeholder="e.g. 169"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="nights"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Nights</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="1"
+                                          placeholder="e.g. 3"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
                                   name="earning_type"
                                   render={({ field }) => (
                                     <FormItem>
@@ -4919,6 +4978,46 @@ export default function HostCarManagement() {
                                   </FormItem>
                                 )}
                               />
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
+                                  name="daily_rate"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Daily Rate (as listed)</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          placeholder="e.g. 169"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="nights"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Nights</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="1"
+                                          placeholder="e.g. 3"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField

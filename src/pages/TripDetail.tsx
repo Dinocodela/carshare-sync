@@ -77,6 +77,10 @@ interface EarningsBreakdown {
   grossRental: number;
   days: number;
   dailyRate: number;
+  /** Daily rate exactly as reported by the platform (display-only). */
+  actualDailyRate: number | null;
+  /** Nights exactly as reported by the platform (display-only). */
+  actualNights: number | null;
   platformFee: number;
   platformLabel: string;
   netFromPlatform: number;
@@ -143,7 +147,7 @@ export default function TripDetail() {
         ? await supabase
             .from("host_earnings")
             .select(
-              "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+              "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, daily_rate, nights, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
             )
             .eq("id", earningId)
             .maybeSingle()
@@ -167,7 +171,7 @@ export default function TripDetail() {
         const { data: viewRow } = await (supabase as any)
           .from("client_visible_earnings")
           .select(
-            "id, trip_id, guest_initials, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, client_profit_percentage, date_paid, delivery_address",
+            "id, trip_id, guest_initials, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, car_id, amount, daily_rate, nights, client_profit_percentage, date_paid, delivery_address",
           )
           .eq("id", earningId)
           .maybeSingle();
@@ -250,6 +254,9 @@ export default function TripDetail() {
             grossRental,
             days,
             dailyRate,
+            actualDailyRate:
+              row.daily_rate != null ? Number(row.daily_rate) : null,
+            actualNights: row.nights != null ? Number(row.nights) : null,
             platformFee,
             platformLabel: row.payment_source || "Platform",
             netFromPlatform,
@@ -452,7 +459,9 @@ export default function TripDetail() {
                   </div>
                   <div className="flex items-center justify-between pl-3">
                     <dt className="text-xs text-muted-foreground">
-                      {money2(trip.breakdown.dailyRate)}/day × {trip.breakdown.days} {trip.breakdown.days === 1 ? "day" : "days"}
+                      {trip.breakdown.actualDailyRate != null
+                        ? `${money2(trip.breakdown.actualDailyRate)}/day × ${trip.breakdown.actualNights ?? trip.breakdown.days} ${(trip.breakdown.actualNights ?? trip.breakdown.days) === 1 ? "night" : "nights"}`
+                        : `${money2(trip.breakdown.dailyRate)}/day × ${trip.breakdown.days} ${trip.breakdown.days === 1 ? "day" : "days"}`}
                     </dt>
                     <dd className="text-xs text-muted-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
