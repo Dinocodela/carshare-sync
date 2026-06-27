@@ -284,6 +284,16 @@ export function BottomNavBar() {
                 </li>
               );
             })}
+            <li className="mt-1 border-t pt-1">
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-left text-destructive transition-colors hover:bg-destructive/10 active:bg-destructive/10"
+              >
+                <LogOut className="h-5 w-5 shrink-0" />
+                <span className="flex-1 text-base font-medium">Sign Out</span>
+              </button>
+            </li>
           </ul>
         </DrawerContent>
       </Drawer>
