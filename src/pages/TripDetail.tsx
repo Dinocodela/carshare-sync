@@ -84,6 +84,8 @@ interface EarningsBreakdown {
   platformFee: number;
   platformLabel: string;
   netFromPlatform: number;
+  deliveryFee: number;
+  rentalNet: number;
   expenses: { label: string; amount: number }[];
   totalExpenses: number;
   netAfterExpenses: number;
