@@ -53,10 +53,11 @@ export default function Trips() {
         localNow.getTime() - localNow.getTimezoneOffset() * 60000,
       ).toISOString();
 
-      // Use the user's actual host role (not the active UI workspace) to decide
-      // which data source to read. Hosts should always see real guest names from
-      // host_earnings; the client view intentionally masks guest PII.
-      const isHostRole = availableRoles.some((r) => r.role === "host");
+      // Use the active workspace to decide which data source to read. In the
+      // host workspace, show real guest names from host_earnings; the client
+      // portal must only ever expose guest initials (no full names).
+      const isHostRole =
+        activeWorkspace === "host" && availableRoles.some((r) => r.role === "host");
 
       const buildBaseQuery = (countOnly = false) => {
         const opts = countOnly ? { count: "exact" as const } : undefined;
