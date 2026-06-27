@@ -462,7 +462,12 @@ export default function TripDetail() {
                 {breakdownOpen && (
                 <dl className="mt-3 space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">Rental total (guest paid)</dt>
+                    <dt className="text-muted-foreground">
+                      Rental total (guest paid)
+                      {trip.breakdown.deliveryFee > 0 && (
+                        <span className="block text-xs text-muted-foreground">incl. delivery fee</span>
+                      )}
+                    </dt>
                     <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
                   <div className="flex items-center justify-between pl-3">
