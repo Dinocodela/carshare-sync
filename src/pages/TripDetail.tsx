@@ -254,6 +254,9 @@ export default function TripDetail() {
             grossRental,
             days,
             dailyRate,
+            actualDailyRate:
+              row.daily_rate != null ? Number(row.daily_rate) : null,
+            actualNights: row.nights != null ? Number(row.nights) : null,
             platformFee,
             platformLabel: row.payment_source || "Platform",
             netFromPlatform,
