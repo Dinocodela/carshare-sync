@@ -337,6 +337,9 @@ export default function TripDetail() {
           <div>
             <h1 className="text-xl font-bold leading-tight">Booked trip</h1>
             <p className="text-sm text-muted-foreground">{trip.guest_name || trip.guest_initials || "Guest"}</p>
+            {trip.car?.license_plate && (
+              <p className="text-sm font-medium text-foreground">{trip.car.license_plate}</p>
+            )}
           </div>
         </div>
 
