@@ -3974,6 +3974,46 @@ export default function HostCarManagement() {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
+                                  name="daily_rate"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Daily Rate (as listed)</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          placeholder="e.g. 169"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={earningForm.control}
+                                  name="nights"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Nights</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          step="1"
+                                          placeholder="e.g. 3"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={earningForm.control}
                                   name="earning_type"
                                   render={({ field }) => (
                                     <FormItem>
