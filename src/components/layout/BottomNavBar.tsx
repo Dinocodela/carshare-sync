@@ -12,6 +12,7 @@ import {
   Shield,
   Receipt,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +34,7 @@ interface NavItem {
 }
 
 export function BottomNavBar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { activeWorkspace, availableRoles } = useWorkspace();
@@ -229,6 +230,12 @@ export function BottomNavBar() {
     navigate(url);
   };
 
+  const handleSignOut = async () => {
+    setMoreOpen(false);
+    await signOut();
+    navigate("/auth");
+  };
+
   return (
     <>
       <nav
@@ -277,6 +284,16 @@ export function BottomNavBar() {
                 </li>
               );
             })}
+            <li className="mt-1 border-t pt-1">
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-left text-destructive transition-colors hover:bg-destructive/10 active:bg-destructive/10"
+              >
+                <LogOut className="h-5 w-5 shrink-0" />
+                <span className="flex-1 text-base font-medium">Sign Out</span>
+              </button>
+            </li>
           </ul>
         </DrawerContent>
       </Drawer>
