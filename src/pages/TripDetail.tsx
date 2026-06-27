@@ -484,6 +484,21 @@ export default function TripDetail() {
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
                   </div>
 
+                  {trip.breakdown.deliveryFee > 0 && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <dt className="text-muted-foreground">
+                          Less delivery fee (reimbursed to host)
+                        </dt>
+                        <dd className="font-medium text-foreground">−{money2(trip.breakdown.deliveryFee)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between border-t pt-2">
+                        <dt className="text-foreground">Rental net (earnings base)</dt>
+                        <dd className="font-semibold text-foreground">{money2(trip.breakdown.rentalNet)}</dd>
+                      </div>
+                    </>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
                       Management fee ({trip.breakdown.hostPct}%)
