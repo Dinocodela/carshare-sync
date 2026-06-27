@@ -126,26 +126,34 @@ export default function TripDetail() {
   const [trip, setTrip] = useState<TripFull | null>(null);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const { toast } = useToast();
+  const { activeWorkspace } = useWorkspace();
 
   useEffect(() => {
     if (!earningId) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      // Hosts can read the base table (with guest PII + embedded car).
-      const { data, error } = await supabase
-        .from("host_earnings")
-        .select(
-          "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
-        )
-        .eq("id", earningId)
-        .maybeSingle();
+      // Only the host workspace may read the base table (with guest PII). In the
+      // client portal we always use the privacy-safe view (initials only).
+      const isHost = activeWorkspace === "host";
+      const { data, error } = isHost
+        ? await supabase
+            .from("host_earnings")
+            .select(
+              "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+            )
+            .eq("id", earningId)
+            .maybeSingle()
+        : { data: null, error: null };
 
-      const { data: contact } = await supabase
-        .from("host_earnings_guest_contact")
-        .select("guest_email, guest_phone")
-        .eq("earning_id", earningId)
-        .maybeSingle();
+      const { data: contact } = isHost
+        ? await supabase
+            .from("host_earnings_guest_contact")
+            .select("guest_email, guest_phone")
+            .eq("earning_id", earningId)
+            .maybeSingle()
+        : { data: null };
+
 
       if (cancelled) return;
 
