@@ -304,31 +304,6 @@ const claimSchema = z.object({
 // Helper function to format car display name (standardized in @/lib/carName)
 const formatCarDisplayName = (car: CarWithClient) => formatCarName(car);
 
-// Helper function to format detailed car info
-const formatDetailedCarInfo = (car: CarWithClient) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-    <div>
-      <span className="text-muted-foreground">Make:</span> {car.make || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">Model:</span> {car.model || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">Year:</span> {car.year || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">Color:</span> {car.color || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">License:</span>{" "}
-      {car.license_plate || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">VIN:</span>{" "}
-      {car.vin_number || "N/A"}
-    </div>
-  </div>
-);
 
 interface NumericPlaceholderInputProps
   extends Omit<
