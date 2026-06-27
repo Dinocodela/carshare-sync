@@ -128,6 +128,7 @@ import { Calendar as CalendarWidget } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { formatCarName } from "@/lib/carName";
+import { ContactReveal } from "@/components/earnings/ContactReveal";
 
 interface CarWithClient {
   id: string;
