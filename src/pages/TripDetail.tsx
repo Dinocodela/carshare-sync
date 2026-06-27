@@ -543,7 +543,7 @@ export default function TripDetail() {
         )}
 
         {/* Reimbursed to host (separate from earnings) */}
-        {trip.breakdown && trip.breakdown.totalExpenses > 0 && (
+        {trip.breakdown && trip.breakdown.expenses.length > 0 && (
           <section className="mb-6 rounded-2xl border bg-card p-5">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Reimbursed to host
@@ -561,10 +561,11 @@ export default function TripDetail() {
               </div>
             </dl>
             <p className="pt-2 text-xs text-muted-foreground">
-              These costs (EV charging, tolls, delivery, etc.) are reimbursed to the host and are not part of your earnings.
+              These costs (EV charging, delivery, etc.) are reimbursed to the host and are not part of your earnings. Amounts shown as $0.00 are placeholders until post-trip data is entered.
             </p>
           </section>
         )}
+
 
 
 
