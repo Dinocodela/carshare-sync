@@ -914,6 +914,7 @@ export type Database = {
           client_profit_percentage: number | null
           commission: number | null
           created_at: string
+          daily_rate: number | null
           date_paid: string | null
           delivery_address: string | null
           earning_period_end: string
@@ -925,6 +926,7 @@ export type Database = {
           host_profit_percentage: number | null
           id: string
           net_amount: number
+          nights: number | null
           payment_date: string | null
           payment_source: string | null
           payment_status: string
@@ -941,6 +943,7 @@ export type Database = {
           client_profit_percentage?: number | null
           commission?: number | null
           created_at?: string
+          daily_rate?: number | null
           date_paid?: string | null
           delivery_address?: string | null
           earning_period_end: string
@@ -952,6 +955,7 @@ export type Database = {
           host_profit_percentage?: number | null
           id?: string
           net_amount: number
+          nights?: number | null
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
@@ -968,6 +972,7 @@ export type Database = {
           client_profit_percentage?: number | null
           commission?: number | null
           created_at?: string
+          daily_rate?: number | null
           date_paid?: string | null
           delivery_address?: string | null
           earning_period_end?: string
@@ -979,6 +984,7 @@ export type Database = {
           host_profit_percentage?: number | null
           id?: string
           net_amount?: number
+          nights?: number | null
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
@@ -2277,6 +2283,7 @@ export type Database = {
           client_profit_percentage: number | null
           commission: number | null
           created_at: string | null
+          daily_rate: number | null
           date_paid: string | null
           delivery_address: string | null
           earning_period_end: string | null
@@ -2288,6 +2295,7 @@ export type Database = {
           host_profit_percentage: number | null
           id: string | null
           net_amount: number | null
+          nights: number | null
           payment_date: string | null
           payment_source: string | null
           payment_status: string | null
@@ -2304,6 +2312,7 @@ export type Database = {
           client_profit_percentage?: number | null
           commission?: number | null
           created_at?: string | null
+          daily_rate?: number | null
           date_paid?: string | null
           delivery_address?: string | null
           earning_period_end?: string | null
@@ -2315,6 +2324,7 @@ export type Database = {
           host_profit_percentage?: number | null
           id?: string | null
           net_amount?: number | null
+          nights?: number | null
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string | null
@@ -2331,6 +2341,7 @@ export type Database = {
           client_profit_percentage?: number | null
           commission?: number | null
           created_at?: string | null
+          daily_rate?: number | null
           date_paid?: string | null
           delivery_address?: string | null
           earning_period_end?: string | null
@@ -2342,6 +2353,7 @@ export type Database = {
           host_profit_percentage?: number | null
           id?: string | null
           net_amount?: number | null
+          nights?: number | null
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string | null
