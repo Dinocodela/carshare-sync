@@ -92,6 +92,8 @@ interface EarningsBreakdown {
   clientPct: number;
   hostPct: number;
   managementFee: number;
+  clientShare: number;
+  tollCost: number;
   clientEarnings: number;
 }
 
@@ -219,13 +221,19 @@ export default function TripDetail() {
 
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
+          const tollCost = sum("toll_cost");
+          // Host reimbursements. EV charging is always shown (as a $0
+          // placeholder until the post-trip data is entered); the rest only
+          // appear when there is a real amount. Tolls are NOT here — they are
+          // charged to the client and shown separately.
           const expenseItems = [
-            { label: "EV charging", amount: sum("ev_charge_cost") },
-            { label: "Tolls", amount: sum("toll_cost") },
+            { label: "EV charging", amount: sum("ev_charge_cost"), always: true },
             { label: "Delivery", amount: sum("delivery_cost") },
             { label: "Car wash", amount: sum("carwash_cost") },
             { label: "Other expenses", amount: sum("amount") },
-          ].filter((e) => e.amount > 0);
+          ]
+            .filter((e) => e.always || e.amount > 0)
+            .map(({ label, amount }) => ({ label, amount }));
           const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
 
           // The platform payout (amount) INCLUDES the guest-paid delivery fee,
@@ -257,8 +265,10 @@ export default function TripDetail() {
               ? Number(row.client_profit_percentage)
               : 70;
           const hostPct = 100 - clientPct;
-          const clientEarnings = (rentalNet * clientPct) / 100;
-          const managementFee = rentalNet - clientEarnings;
+          const clientShare = (rentalNet * clientPct) / 100;
+          const managementFee = rentalNet - clientShare;
+          // Tolls are the client's cost — deducted from their share.
+          const clientEarnings = clientShare - tollCost;
           net = clientEarnings;
 
           breakdown = {
@@ -279,6 +289,8 @@ export default function TripDetail() {
             clientPct,
             hostPct,
             managementFee,
+            clientShare,
+            tollCost,
             clientEarnings,
           };
 
@@ -502,14 +514,25 @@ export default function TripDetail() {
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
                   </div>
                   <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
+                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">
+                      Tolls (your cost)
+                    </dt>
+                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.tollCost)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between border-t pt-2">
                     <dt className="text-base font-semibold text-foreground">
-                      Your earnings ({trip.breakdown.clientPct}%)
+                      Your earnings
                     </dt>
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
                   <p className="pt-1 text-xs text-muted-foreground">
-                    Expenses are not deducted from earnings — they are reimbursed to the host separately.
+                    Tolls are charged to you. EV charging, delivery and other costs are reimbursed to the host and are not part of your earnings.
                   </p>
+
 
                 </dl>
                 )}
@@ -520,7 +543,7 @@ export default function TripDetail() {
         )}
 
         {/* Reimbursed to host (separate from earnings) */}
-        {trip.breakdown && trip.breakdown.totalExpenses > 0 && (
+        {trip.breakdown && trip.breakdown.expenses.length > 0 && (
           <section className="mb-6 rounded-2xl border bg-card p-5">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Reimbursed to host
@@ -538,10 +561,11 @@ export default function TripDetail() {
               </div>
             </dl>
             <p className="pt-2 text-xs text-muted-foreground">
-              These costs (EV charging, tolls, delivery, etc.) are reimbursed to the host and are not part of your earnings.
+              These costs (EV charging, delivery, etc.) are reimbursed to the host and are not part of your earnings. Amounts shown as $0.00 are placeholders until post-trip data is entered.
             </p>
           </section>
         )}
+
 
 
 
