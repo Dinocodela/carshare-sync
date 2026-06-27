@@ -405,8 +405,9 @@ export default function TripDetail() {
                   {formatCurrency(trip.net_amount)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Net after commission &amp; trip expenses
+                  Net after Eon commission &amp; management fee
                 </p>
+
               </div>
               <div className="flex flex-col items-end gap-1">
                 <span
