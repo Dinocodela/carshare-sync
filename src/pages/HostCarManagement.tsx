@@ -7258,12 +7258,15 @@ export default function HostCarManagement() {
 
                                 {/* Vehicle */}
                                 {claimCar && (
-                                  <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
-                                    <div className="flex items-center gap-1.5 mb-1">
-                                      <Car className="w-3 h-3 text-muted-foreground" />
-                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
-                                    </div>
-                                    {formatDetailedCarInfo(claimCar)}
+                                  <div className="ml-10">
+                                    <VehicleReveal
+                                      make={claimCar.make}
+                                      model={claimCar.model}
+                                      year={claimCar.year}
+                                      color={claimCar.color}
+                                      license_plate={claimCar.license_plate}
+                                      vin_number={claimCar.vin_number}
+                                    />
                                   </div>
                                 )}
                               </div>
