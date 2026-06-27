@@ -514,14 +514,25 @@ export default function TripDetail() {
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
                   </div>
                   <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
+                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <dt className="text-muted-foreground">
+                      Tolls (your cost)
+                    </dt>
+                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.tollCost)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between border-t pt-2">
                     <dt className="text-base font-semibold text-foreground">
-                      Your earnings ({trip.breakdown.clientPct}%)
+                      Your earnings
                     </dt>
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
                   <p className="pt-1 text-xs text-muted-foreground">
-                    Expenses are not deducted from earnings — they are reimbursed to the host separately.
+                    Tolls are charged to you. EV charging, delivery and other costs are reimbursed to the host and are not part of your earnings.
                   </p>
+
 
                 </dl>
                 )}
