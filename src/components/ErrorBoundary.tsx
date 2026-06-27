@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
     // Log to analytics/monitoring service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
       // Add your error reporting service here
       console.error('Production error:', { error, errorInfo });
     }
