@@ -230,6 +230,12 @@ export function BottomNavBar() {
     navigate(url);
   };
 
+  const handleSignOut = async () => {
+    setMoreOpen(false);
+    await signOut();
+    navigate("/auth");
+  };
+
   return (
     <>
       <nav
