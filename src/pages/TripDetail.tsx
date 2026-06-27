@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Car as CarIcon, Loader2, MapPin, Copy, Truck } from "lucide-react";
+import { ArrowLeft, Car as CarIcon, ChevronDown, Loader2, MapPin, Copy, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getClientShare } from "@/lib/expenseMatching";
 
@@ -123,6 +123,7 @@ export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
   const [loading, setLoading] = useState(true);
   const [trip, setTrip] = useState<TripFull | null>(null);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -397,10 +398,22 @@ export default function TripDetail() {
             {/* Full transparency breakdown */}
             {trip.breakdown && (
               <div className="mt-5 border-t pt-4">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  How this is calculated
-                </p>
-                <dl className="space-y-2 text-sm">
+                <button
+                  type="button"
+                  onClick={() => setBreakdownOpen((v) => !v)}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    How this is calculated
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                      breakdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {breakdownOpen && (
+                <dl className="mt-3 space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">Rental total (guest paid)</dt>
                     <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
@@ -443,6 +456,7 @@ export default function TripDetail() {
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
                 </dl>
+                )}
               </div>
             )}
           </section>
