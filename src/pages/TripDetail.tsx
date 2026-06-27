@@ -459,7 +459,9 @@ export default function TripDetail() {
                   </div>
                   <div className="flex items-center justify-between pl-3">
                     <dt className="text-xs text-muted-foreground">
-                      {money2(trip.breakdown.dailyRate)}/day × {trip.breakdown.days} {trip.breakdown.days === 1 ? "day" : "days"}
+                      {trip.breakdown.actualDailyRate != null
+                        ? `${money2(trip.breakdown.actualDailyRate)}/day × ${trip.breakdown.actualNights ?? trip.breakdown.days} ${(trip.breakdown.actualNights ?? trip.breakdown.days) === 1 ? "night" : "nights"}`
+                        : `${money2(trip.breakdown.dailyRate)}/day × ${trip.breakdown.days} ${trip.breakdown.days === 1 ? "day" : "days"}`}
                     </dt>
                     <dd className="text-xs text-muted-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
