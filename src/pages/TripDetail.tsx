@@ -467,21 +467,6 @@ export default function TripDetail() {
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
                   </div>
 
-
-                  {trip.breakdown.expenses.map((e) => (
-                    <div key={e.label} className="flex items-center justify-between">
-                      <dt className="text-muted-foreground">{e.label}</dt>
-                      <dd className="font-medium text-foreground">−{money2(e.amount)}</dd>
-                    </div>
-                  ))}
-
-                  {trip.breakdown.totalExpenses > 0 && (
-                    <div className="flex items-center justify-between border-t pt-2">
-                      <dt className="text-foreground">Net after expenses</dt>
-                      <dd className="font-semibold text-foreground">{money2(trip.breakdown.netAfterExpenses)}</dd>
-                    </div>
-                  )}
-
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
                       Management fee ({trip.breakdown.hostPct}%)
@@ -494,6 +479,10 @@ export default function TripDetail() {
                     </dt>
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
+                  <p className="pt-1 text-xs text-muted-foreground">
+                    Expenses are not deducted from earnings — they are reimbursed to the host separately.
+                  </p>
+
                 </dl>
                 )}
               </div>
