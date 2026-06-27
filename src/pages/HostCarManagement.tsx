@@ -35,6 +35,7 @@ import {
   User,
   Info,
   Copy,
+  Hash,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -586,7 +587,10 @@ export default function HostCarManagement() {
     claimStatus: "all",
     claimType: "all",
     dateRange: "all",
+    tripSearch: "",
+    incidentSearch: "",
   });
+
 
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
@@ -884,8 +888,11 @@ export default function HostCarManagement() {
       claimStatus: "all",
       claimType: "all",
       dateRange: "all",
+      tripSearch: "",
+      incidentSearch: "",
     });
   };
+
 
   // Filtered earnings based on filters
   const filteredEarnings = useMemo(() => {
@@ -965,12 +972,32 @@ export default function HostCarManagement() {
   const filteredClaims = useMemo(() => {
     let filtered = [...claims];
 
+    // Filter by trip search
+    if (claimsFilters.tripSearch && claimsFilters.tripSearch.trim() !== "") {
+      const searchTerm = claimsFilters.tripSearch.trim().toLowerCase();
+      filtered = filtered.filter(
+        (claim) =>
+          (claim.trip_id && claim.trip_id.toLowerCase().includes(searchTerm)) ||
+          (claim.guest_name && claim.guest_name.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    // Filter by incident search
+    if (claimsFilters.incidentSearch && claimsFilters.incidentSearch.trim() !== "") {
+      const incidentTerm = claimsFilters.incidentSearch.trim().toLowerCase();
+      filtered = filtered.filter(
+        (claim) =>
+          claim.incident_id && claim.incident_id.toLowerCase().includes(incidentTerm)
+      );
+    }
+
     // Filter by car
     if (claimsFilters.carId && claimsFilters.carId !== "all") {
       filtered = filtered.filter(
         (claim) => claim.car_id === claimsFilters.carId
       );
     }
+
 
     // Filter by claim status
     if (claimsFilters.claimStatus && claimsFilters.claimStatus !== "all") {
@@ -1115,8 +1142,9 @@ export default function HostCarManagement() {
     (value) => value && value !== "all"
   ).length;
   const activeClaimsFiltersCount = Object.values(claimsFilters).filter(
-    (value) => value && value !== "all"
+    (value) => value && value !== "all" && String(value).trim() !== ""
   ).length;
+
 
   useEffect(() => {
     if (user) {
@@ -1444,7 +1472,10 @@ export default function HostCarManagement() {
         p_date_to,
         p_limit: PAGE_SIZE,
         p_offset: (claimsPage - 1) * PAGE_SIZE,
+        p_trip_search: claimsFilters.tripSearch?.trim() || null,
+        p_incident_id: claimsFilters.incidentSearch?.trim() || null,
       });
+
       if (error) throw error;
       const result: any = data || {};
       setClaimsPageRows(result.rows || []);
@@ -6309,6 +6340,47 @@ export default function HostCarManagement() {
                           </div>
                           <div>
                             <Label className="text-xs font-medium mb-2 block">
+                              Trip Number
+                            </Label>
+                            <div className="relative">
+                              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="text"
+                                placeholder="Search by trip #"
+                                value={claimsFilters.tripSearch}
+                                onChange={(e) =>
+                                  setClaimsFilters((prev) => ({
+                                    ...prev,
+                                    tripSearch: e.target.value,
+                                  }))
+                                }
+                                className="h-10 pl-9"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium mb-2 block">
+                              Incident Number
+                            </Label>
+                            <div className="relative">
+                              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="text"
+                                placeholder="Search by incident #"
+                                value={claimsFilters.incidentSearch}
+                                onChange={(e) =>
+                                  setClaimsFilters((prev) => ({
+                                    ...prev,
+                                    incidentSearch: e.target.value,
+                                  }))
+                                }
+                                className="h-10 pl-9"
+                              />
+                            </div>
+                          </div>
+                          <div>
+
+                            <Label className="text-xs font-medium mb-2 block">
                               Claim Status
                             </Label>
                             <Select
@@ -6860,7 +6932,7 @@ export default function HostCarManagement() {
                         )}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         {/* Car Filter */}
                         <div>
                           <Label className="text-xs font-medium mb-2 block">
@@ -6888,6 +6960,51 @@ export default function HostCarManagement() {
                             </SelectContent>
                           </Select>
                         </div>
+
+                        {/* Trip Number Search */}
+                        <div>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Trip Number
+                          </Label>
+                          <div className="relative">
+                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="text"
+                              placeholder="Search trip #"
+                              value={claimsFilters.tripSearch}
+                              onChange={(e) =>
+                                setClaimsFilters((prev) => ({
+                                  ...prev,
+                                  tripSearch: e.target.value,
+                                }))
+                              }
+                              className="h-8 pl-9"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Incident Number Search */}
+                        <div>
+                          <Label className="text-xs font-medium mb-2 block">
+                            Incident Number
+                          </Label>
+                          <div className="relative">
+                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="text"
+                              placeholder="Search incident #"
+                              value={claimsFilters.incidentSearch}
+                              onChange={(e) =>
+                                setClaimsFilters((prev) => ({
+                                  ...prev,
+                                  incidentSearch: e.target.value,
+                                }))
+                              }
+                              className="h-8 pl-9"
+                            />
+                          </div>
+                        </div>
+
 
                         {/* Claim Status Filter */}
                         <div>
