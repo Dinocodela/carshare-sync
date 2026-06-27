@@ -219,13 +219,19 @@ export default function TripDetail() {
 
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
+          const tollCost = sum("toll_cost");
+          // Host reimbursements. EV charging is always shown (as a $0
+          // placeholder until the post-trip data is entered); the rest only
+          // appear when there is a real amount. Tolls are NOT here — they are
+          // charged to the client and shown separately.
           const expenseItems = [
-            { label: "EV charging", amount: sum("ev_charge_cost") },
-            { label: "Tolls", amount: sum("toll_cost") },
+            { label: "EV charging", amount: sum("ev_charge_cost"), always: true },
             { label: "Delivery", amount: sum("delivery_cost") },
             { label: "Car wash", amount: sum("carwash_cost") },
             { label: "Other expenses", amount: sum("amount") },
-          ].filter((e) => e.amount > 0);
+          ]
+            .filter((e) => e.always || e.amount > 0)
+            .map(({ label, amount }) => ({ label, amount }));
           const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
 
           // The platform payout (amount) INCLUDES the guest-paid delivery fee,
