@@ -75,6 +75,8 @@ function statusBanner(start: Date, end: Date): string {
 
 interface EarningsBreakdown {
   grossRental: number;
+  days: number;
+  dailyRate: number;
   platformFee: number;
   platformLabel: string;
   netFromPlatform: number;
