@@ -216,21 +216,6 @@ export default function TripDetail() {
           // etc.) are NOT deducted from earnings — they are reimbursed to the
           // host separately and shown in their own section.
           const netFromPlatform = Number(row.amount);
-          const grossRental =
-            PLATFORM_COMMISSION_RATE < 1
-              ? netFromPlatform / (1 - PLATFORM_COMMISSION_RATE)
-              : netFromPlatform;
-          const platformFee = grossRental - netFromPlatform;
-
-          // Derive rental days from the trip period so we can show
-          // "daily price x days" and make the rental total clear.
-          const startMs = new Date(row.earning_period_start).getTime();
-          const endMs = new Date(row.earning_period_end).getTime();
-          const days = Math.max(
-            1,
-            Math.round((endMs - startMs) / 86400000) || 1,
-          );
-          const dailyRate = grossRental / days;
 
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
@@ -242,16 +227,36 @@ export default function TripDetail() {
             { label: "Other expenses", amount: sum("amount") },
           ].filter((e) => e.amount > 0);
           const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
+
+          // The platform payout (amount) INCLUDES the guest-paid delivery fee,
+          // which is reimbursed entirely to the host and is NOT subject to the
+          // Eon commission. We must remove it BEFORE grossing up, otherwise the
+          // derived daily rate and the client's share are both inflated.
+          const deliveryFee = sum("delivery_cost");
+          // Net rental amount after Eon's commission (delivery excluded).
+          const rentalNet = Math.max(0, netFromPlatform - deliveryFee);
+          // Gross rental the guest paid for the car (before Eon's 30%).
+          const grossRental =
+            PLATFORM_COMMISSION_RATE < 1
+              ? rentalNet / (1 - PLATFORM_COMMISSION_RATE)
+              : rentalNet;
+          const platformFee = grossRental - rentalNet;
+
+          // Derive rental days from the trip period so we can show
+          // "daily price x days" and make the rental total clear.
+          const startMs = new Date(row.earning_period_start).getTime();
+          const endMs = new Date(row.earning_period_end).getTime();
+          const days = Math.max(
+            1,
+            Math.round((endMs - startMs) / 86400000) || 1,
+          );
+          const dailyRate = grossRental / days;
+
           const clientPct =
             row.client_profit_percentage != null
               ? Number(row.client_profit_percentage)
               : 70;
           const hostPct = 100 - clientPct;
-          // The platform payout (amount) INCLUDES the guest-paid delivery fee,
-          // which is reimbursed entirely to the host. We must exclude it before
-          // splitting earnings, otherwise the client's share is inflated.
-          const deliveryFee = sum("delivery_cost");
-          const rentalNet = Math.max(0, netFromPlatform - deliveryFee);
           const clientEarnings = (rentalNet * clientPct) / 100;
           const managementFee = rentalNet - clientEarnings;
           net = clientEarnings;
