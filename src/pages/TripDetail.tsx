@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Car as CarIcon, ChevronDown, Loader2, MapPin, Copy, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/hooks/useWorkspace";
-import { getClientShare } from "@/lib/expenseMatching";
+
 
 function formatCurrency(n: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -203,16 +203,12 @@ export default function TripDetail() {
             exps = e || [];
           }
           if (cancelled) return;
-          net = getClientShare(
-            Number(row.amount),
-            row.client_profit_percentage,
-            row.trip_id,
-            exps as any,
-          );
 
-          // Build a fully transparent breakdown for the client.
-          // The platform (Eon) commission applies ONLY to the rental
-          // (daily price x days), never to reimbursed expenses.
+          // Build the breakdown for the client.
+          // Earnings are based ONLY on the rental (daily price x days):
+          // rental - Eon 30% - management fee. Expenses (EV, tolls, delivery,
+          // etc.) are NOT deducted from earnings — they are reimbursed to the
+          // host separately and shown in their own section.
           const netFromPlatform = Number(row.amount);
           const grossRental =
             PLATFORM_COMMISSION_RATE < 1
@@ -240,14 +236,15 @@ export default function TripDetail() {
             { label: "Other expenses", amount: sum("amount") },
           ].filter((e) => e.amount > 0);
           const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
-          const netAfterExpenses = netFromPlatform - totalExpenses;
           const clientPct =
             row.client_profit_percentage != null
               ? Number(row.client_profit_percentage)
               : 70;
           const hostPct = 100 - clientPct;
-          const clientEarnings = (netAfterExpenses * clientPct) / 100;
-          const managementFee = netAfterExpenses - clientEarnings;
+          // Earnings come from rental only (after Eon), not from expenses.
+          const clientEarnings = (netFromPlatform * clientPct) / 100;
+          const managementFee = netFromPlatform - clientEarnings;
+          net = clientEarnings;
 
           breakdown = {
             grossRental,
@@ -258,12 +255,13 @@ export default function TripDetail() {
             netFromPlatform,
             expenses: expenseItems,
             totalExpenses,
-            netAfterExpenses,
+            netAfterExpenses: netFromPlatform,
             clientPct,
             hostPct,
             managementFee,
             clientEarnings,
           };
+
         }
         setTrip({
           id: row.id,
@@ -407,8 +405,9 @@ export default function TripDetail() {
                   {formatCurrency(trip.net_amount)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Net after commission &amp; trip expenses
+                  Net after Eon commission &amp; management fee
                 </p>
+
               </div>
               <div className="flex flex-col items-end gap-1">
                 <span
@@ -468,21 +467,6 @@ export default function TripDetail() {
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
                   </div>
 
-
-                  {trip.breakdown.expenses.map((e) => (
-                    <div key={e.label} className="flex items-center justify-between">
-                      <dt className="text-muted-foreground">{e.label}</dt>
-                      <dd className="font-medium text-foreground">−{money2(e.amount)}</dd>
-                    </div>
-                  ))}
-
-                  {trip.breakdown.totalExpenses > 0 && (
-                    <div className="flex items-center justify-between border-t pt-2">
-                      <dt className="text-foreground">Net after expenses</dt>
-                      <dd className="font-semibold text-foreground">{money2(trip.breakdown.netAfterExpenses)}</dd>
-                    </div>
-                  )}
-
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
                       Management fee ({trip.breakdown.hostPct}%)
@@ -495,6 +479,10 @@ export default function TripDetail() {
                     </dt>
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
+                  <p className="pt-1 text-xs text-muted-foreground">
+                    Expenses are not deducted from earnings — they are reimbursed to the host separately.
+                  </p>
+
                 </dl>
                 )}
               </div>
@@ -502,6 +490,32 @@ export default function TripDetail() {
           </section>
 
         )}
+
+        {/* Reimbursed to host (separate from earnings) */}
+        {trip.breakdown && trip.breakdown.totalExpenses > 0 && (
+          <section className="mb-6 rounded-2xl border bg-card p-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Reimbursed to host
+            </p>
+            <dl className="space-y-2 text-sm">
+              {trip.breakdown.expenses.map((e) => (
+                <div key={e.label} className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">{e.label}</dt>
+                  <dd className="font-medium text-foreground">{money2(e.amount)}</dd>
+                </div>
+              ))}
+              <div className="flex items-center justify-between border-t pt-2">
+                <dt className="text-foreground">Total reimbursement</dt>
+                <dd className="font-semibold text-foreground">{money2(trip.breakdown.totalExpenses)}</dd>
+              </div>
+            </dl>
+            <p className="pt-2 text-xs text-muted-foreground">
+              These costs (EV charging, tolls, delivery, etc.) are reimbursed to the host and are not part of your earnings.
+            </p>
+          </section>
+        )}
+
+
 
 
 
