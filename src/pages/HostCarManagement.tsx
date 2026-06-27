@@ -1945,6 +1945,8 @@ export default function HostCarManagement() {
       pickup_address: "",
       return_address: "",
       delivery_address: "",
+      daily_rate: "",
+      nights: "",
     });
     setEarningDialogOpen(true);
   };
