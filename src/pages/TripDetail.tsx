@@ -211,12 +211,24 @@ export default function TripDetail() {
           );
 
           // Build a fully transparent breakdown for the client.
+          // The platform (Eon) commission applies ONLY to the rental
+          // (daily price x days), never to reimbursed expenses.
           const netFromPlatform = Number(row.amount);
           const grossRental =
             PLATFORM_COMMISSION_RATE < 1
               ? netFromPlatform / (1 - PLATFORM_COMMISSION_RATE)
               : netFromPlatform;
           const platformFee = grossRental - netFromPlatform;
+
+          // Derive rental days from the trip period so we can show
+          // "daily price x days" and make the rental total clear.
+          const startMs = new Date(row.earning_period_start).getTime();
+          const endMs = new Date(row.earning_period_end).getTime();
+          const days = Math.max(
+            1,
+            Math.round((endMs - startMs) / 86400000) || 1,
+          );
+          const dailyRate = grossRental / days;
 
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
