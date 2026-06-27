@@ -586,7 +586,10 @@ export default function HostCarManagement() {
     claimStatus: "all",
     claimType: "all",
     dateRange: "all",
+    tripSearch: "",
+    incidentSearch: "",
   });
+
 
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
@@ -884,8 +887,11 @@ export default function HostCarManagement() {
       claimStatus: "all",
       claimType: "all",
       dateRange: "all",
+      tripSearch: "",
+      incidentSearch: "",
     });
   };
+
 
   // Filtered earnings based on filters
   const filteredEarnings = useMemo(() => {
@@ -965,12 +971,32 @@ export default function HostCarManagement() {
   const filteredClaims = useMemo(() => {
     let filtered = [...claims];
 
+    // Filter by trip search
+    if (claimsFilters.tripSearch && claimsFilters.tripSearch.trim() !== "") {
+      const searchTerm = claimsFilters.tripSearch.trim().toLowerCase();
+      filtered = filtered.filter(
+        (claim) =>
+          (claim.trip_id && claim.trip_id.toLowerCase().includes(searchTerm)) ||
+          (claim.guest_name && claim.guest_name.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    // Filter by incident search
+    if (claimsFilters.incidentSearch && claimsFilters.incidentSearch.trim() !== "") {
+      const incidentTerm = claimsFilters.incidentSearch.trim().toLowerCase();
+      filtered = filtered.filter(
+        (claim) =>
+          claim.incident_id && claim.incident_id.toLowerCase().includes(incidentTerm)
+      );
+    }
+
     // Filter by car
     if (claimsFilters.carId && claimsFilters.carId !== "all") {
       filtered = filtered.filter(
         (claim) => claim.car_id === claimsFilters.carId
       );
     }
+
 
     // Filter by claim status
     if (claimsFilters.claimStatus && claimsFilters.claimStatus !== "all") {
@@ -1115,8 +1141,9 @@ export default function HostCarManagement() {
     (value) => value && value !== "all"
   ).length;
   const activeClaimsFiltersCount = Object.values(claimsFilters).filter(
-    (value) => value && value !== "all"
+    (value) => value && value !== "all" && String(value).trim() !== ""
   ).length;
+
 
   useEffect(() => {
     if (user) {
