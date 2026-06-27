@@ -84,6 +84,8 @@ interface EarningsBreakdown {
   platformFee: number;
   platformLabel: string;
   netFromPlatform: number;
+  deliveryFee: number;
+  rentalNet: number;
   expenses: { label: string; amount: number }[];
   totalExpenses: number;
   netAfterExpenses: number;
@@ -245,9 +247,13 @@ export default function TripDetail() {
               ? Number(row.client_profit_percentage)
               : 70;
           const hostPct = 100 - clientPct;
-          // Earnings come from rental only (after Eon), not from expenses.
-          const clientEarnings = (netFromPlatform * clientPct) / 100;
-          const managementFee = netFromPlatform - clientEarnings;
+          // The platform payout (amount) INCLUDES the guest-paid delivery fee,
+          // which is reimbursed entirely to the host. We must exclude it before
+          // splitting earnings, otherwise the client's share is inflated.
+          const deliveryFee = sum("delivery_cost");
+          const rentalNet = Math.max(0, netFromPlatform - deliveryFee);
+          const clientEarnings = (rentalNet * clientPct) / 100;
+          const managementFee = rentalNet - clientEarnings;
           net = clientEarnings;
 
           breakdown = {
@@ -260,9 +266,11 @@ export default function TripDetail() {
             platformFee,
             platformLabel: row.payment_source || "Platform",
             netFromPlatform,
+            deliveryFee,
+            rentalNet,
             expenses: expenseItems,
             totalExpenses,
-            netAfterExpenses: netFromPlatform,
+            netAfterExpenses: rentalNet,
             clientPct,
             hostPct,
             managementFee,
@@ -454,7 +462,12 @@ export default function TripDetail() {
                 {breakdownOpen && (
                 <dl className="mt-3 space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">Rental total (guest paid)</dt>
+                    <dt className="text-muted-foreground">
+                      Rental total (guest paid)
+                      {trip.breakdown.deliveryFee > 0 && (
+                        <span className="block text-xs text-muted-foreground">incl. delivery fee</span>
+                      )}
+                    </dt>
                     <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
                   <div className="flex items-center justify-between pl-3">
@@ -475,6 +488,21 @@ export default function TripDetail() {
                     <dt className="text-foreground">After {trip.breakdown.platformLabel}</dt>
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
                   </div>
+
+                  {trip.breakdown.deliveryFee > 0 && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <dt className="text-muted-foreground">
+                          Less delivery fee (reimbursed to host)
+                        </dt>
+                        <dd className="font-medium text-foreground">−{money2(trip.breakdown.deliveryFee)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between border-t pt-2">
+                        <dt className="text-foreground">Rental net (earnings base)</dt>
+                        <dd className="font-semibold text-foreground">{money2(trip.breakdown.rentalNet)}</dd>
+                      </div>
+                    </>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
