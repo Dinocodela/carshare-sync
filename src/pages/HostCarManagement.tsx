@@ -130,6 +130,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { format } from "date-fns";
 import { formatCarName } from "@/lib/carName";
 import { ContactReveal } from "@/components/earnings/ContactReveal";
+import { VehicleReveal } from "@/components/earnings/VehicleReveal";
 
 interface CarWithClient {
   id: string;
@@ -303,31 +304,6 @@ const claimSchema = z.object({
 // Helper function to format car display name (standardized in @/lib/carName)
 const formatCarDisplayName = (car: CarWithClient) => formatCarName(car);
 
-// Helper function to format detailed car info
-const formatDetailedCarInfo = (car: CarWithClient) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-    <div>
-      <span className="text-muted-foreground">Make:</span> {car.make || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">Model:</span> {car.model || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">Year:</span> {car.year || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">Color:</span> {car.color || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">License:</span>{" "}
-      {car.license_plate || "N/A"}
-    </div>
-    <div>
-      <span className="text-muted-foreground">VIN:</span>{" "}
-      {car.vin_number || "N/A"}
-    </div>
-  </div>
-);
 
 interface NumericPlaceholderInputProps
   extends Omit<
@@ -3608,19 +3584,21 @@ export default function HostCarManagement() {
                               )}
                             </div>
 
-                            {/* Car Details */}
+                            {/* Vehicle */}
                             {(() => {
                               const expenseCar = cars.find((car) => car.id === expense.car_id);
-                              if (!expenseCar) return null;
-                              return (
-                                <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5 mt-2">
-                                  <div className="flex items-center gap-1.5 mb-1">
-                                    <Car className="w-3 h-3 text-muted-foreground" />
-                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
-                                  </div>
-                                  {formatDetailedCarInfo(expenseCar)}
+                              return expenseCar ? (
+                                <div className="ml-10">
+                                  <VehicleReveal
+                                    make={expenseCar.make}
+                                    model={expenseCar.model}
+                                    year={expenseCar.year}
+                                    color={expenseCar.color}
+                                    license_plate={expenseCar.license_plate}
+                                    vin_number={expenseCar.vin_number}
+                                  />
                                 </div>
-                              );
+                              ) : null;
                             })()}
                           </div>
 
@@ -5735,6 +5713,19 @@ export default function HostCarManagement() {
                                   <span>Paid: {new Date(earning.date_paid).toLocaleDateString()}</span>
                                 )}
                               </div>
+                              {(() => {
+                                const earningCar = cars.find((car) => car.id === earning.car_id);
+                                return earningCar ? (
+                                  <VehicleReveal
+                                    make={earningCar.make}
+                                    model={earningCar.model}
+                                    year={earningCar.year}
+                                    color={earningCar.color}
+                                    license_plate={earningCar.license_plate}
+                                    vin_number={earningCar.vin_number}
+                                  />
+                                ) : null;
+                              })()}
                             </div>
 
                             {/* Profit Breakdown Grid (full width) */}
@@ -5772,22 +5763,6 @@ export default function HostCarManagement() {
                               <div className="text-[10px] text-muted-foreground">{relatedExpenses.length} related expense(s)</div>
                             )}
 
-                            {/* Vehicle (collapsible) */}
-                            {(() => {
-                              const earningCar = cars.find((car) => car.id === earning.car_id);
-                              return earningCar ? (
-                                <details className="rounded-xl border border-border/40 bg-background/50 group">
-                                  <summary className="flex items-center gap-1.5 p-2.5 cursor-pointer list-none select-none">
-                                    <Car className="w-3 h-3 text-muted-foreground" />
-                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider flex-1">Vehicle</span>
-                                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground transition-transform group-open:rotate-180" />
-                                  </summary>
-                                  <div className="px-2.5 pb-2.5">
-                                    {formatDetailedCarInfo(earningCar)}
-                                  </div>
-                                </details>
-                              ) : null;
-                            })()}
                           </div>
                         </div>
                       );
@@ -7258,12 +7233,15 @@ export default function HostCarManagement() {
 
                                 {/* Vehicle */}
                                 {claimCar && (
-                                  <div className="ml-10 rounded-xl border border-border/40 bg-background/50 p-2.5">
-                                    <div className="flex items-center gap-1.5 mb-1">
-                                      <Car className="w-3 h-3 text-muted-foreground" />
-                                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Vehicle</span>
-                                    </div>
-                                    {formatDetailedCarInfo(claimCar)}
+                                  <div className="ml-10">
+                                    <VehicleReveal
+                                      make={claimCar.make}
+                                      model={claimCar.model}
+                                      year={claimCar.year}
+                                      color={claimCar.color}
+                                      license_plate={claimCar.license_plate}
+                                      vin_number={claimCar.vin_number}
+                                    />
                                   </div>
                                 )}
                               </div>
