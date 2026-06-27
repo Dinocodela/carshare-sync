@@ -75,6 +75,8 @@ function statusBanner(start: Date, end: Date): string {
 
 interface EarningsBreakdown {
   grossRental: number;
+  days: number;
+  dailyRate: number;
   platformFee: number;
   platformLabel: string;
   netFromPlatform: number;
@@ -209,12 +211,24 @@ export default function TripDetail() {
           );
 
           // Build a fully transparent breakdown for the client.
+          // The platform (Eon) commission applies ONLY to the rental
+          // (daily price x days), never to reimbursed expenses.
           const netFromPlatform = Number(row.amount);
           const grossRental =
             PLATFORM_COMMISSION_RATE < 1
               ? netFromPlatform / (1 - PLATFORM_COMMISSION_RATE)
               : netFromPlatform;
           const platformFee = grossRental - netFromPlatform;
+
+          // Derive rental days from the trip period so we can show
+          // "daily price x days" and make the rental total clear.
+          const startMs = new Date(row.earning_period_start).getTime();
+          const endMs = new Date(row.earning_period_end).getTime();
+          const days = Math.max(
+            1,
+            Math.round((endMs - startMs) / 86400000) || 1,
+          );
+          const dailyRate = grossRental / days;
 
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
@@ -237,6 +251,8 @@ export default function TripDetail() {
 
           breakdown = {
             grossRental,
+            days,
+            dailyRate,
             platformFee,
             platformLabel: row.payment_source || "Platform",
             netFromPlatform,
@@ -435,9 +451,15 @@ export default function TripDetail() {
                     <dt className="text-muted-foreground">Rental total (guest paid)</dt>
                     <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
+                  <div className="flex items-center justify-between pl-3">
+                    <dt className="text-xs text-muted-foreground">
+                      {money2(trip.breakdown.dailyRate)}/day × {trip.breakdown.days} {trip.breakdown.days === 1 ? "day" : "days"}
+                    </dt>
+                    <dd className="text-xs text-muted-foreground">{money2(trip.breakdown.grossRental)}</dd>
+                  </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
-                      {trip.breakdown.platformLabel} fee (30%)
+                      {trip.breakdown.platformLabel} fee (30% of rental)
                     </dt>
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
                   </div>
@@ -445,6 +467,7 @@ export default function TripDetail() {
                     <dt className="text-foreground">After {trip.breakdown.platformLabel}</dt>
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
                   </div>
+
 
                   {trip.breakdown.expenses.map((e) => (
                     <div key={e.label} className="flex items-center justify-between">
