@@ -35,6 +35,7 @@ import {
   User,
   Info,
   Copy,
+  Hash,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
