@@ -451,9 +451,15 @@ export default function TripDetail() {
                     <dt className="text-muted-foreground">Rental total (guest paid)</dt>
                     <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
+                  <div className="flex items-center justify-between pl-3">
+                    <dt className="text-xs text-muted-foreground">
+                      {money2(trip.breakdown.dailyRate)}/day × {trip.breakdown.days} {trip.breakdown.days === 1 ? "day" : "days"}
+                    </dt>
+                    <dd className="text-xs text-muted-foreground">{money2(trip.breakdown.grossRental)}</dd>
+                  </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
-                      {trip.breakdown.platformLabel} fee (30%)
+                      {trip.breakdown.platformLabel} fee (30% of rental)
                     </dt>
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
                   </div>
@@ -461,6 +467,7 @@ export default function TripDetail() {
                     <dt className="text-foreground">After {trip.breakdown.platformLabel}</dt>
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
                   </div>
+
 
                   {trip.breakdown.expenses.map((e) => (
                     <div key={e.label} className="flex items-center justify-between">
