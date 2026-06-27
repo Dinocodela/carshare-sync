@@ -201,6 +201,8 @@ interface Earning {
   pickup_address?: string;
   return_address?: string;
   delivery_address?: string;
+  daily_rate?: number | null;
+  nights?: number | null;
   created_at: string;
   updated_at: string;
 }
