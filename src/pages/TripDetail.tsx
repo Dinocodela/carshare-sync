@@ -285,7 +285,7 @@ export default function TripDetail() {
     return () => {
       cancelled = true;
     };
-  }, [earningId]);
+  }, [earningId, activeWorkspace]);
 
   if (loading) {
     return (
