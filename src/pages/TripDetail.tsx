@@ -467,12 +467,7 @@ export default function TripDetail() {
                 {breakdownOpen && (
                 <dl className="mt-3 space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">
-                      Rental total (guest paid)
-                      {trip.breakdown.deliveryFee > 0 && (
-                        <span className="block text-xs text-muted-foreground">incl. delivery fee</span>
-                      )}
-                    </dt>
+                    <dt className="text-muted-foreground">Rental total (guest paid)</dt>
                     <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
                   <div className="flex items-center justify-between pl-3">
@@ -490,23 +485,14 @@ export default function TripDetail() {
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
                   </div>
                   <div className="flex items-center justify-between border-t pt-2">
-                    <dt className="text-foreground">After {trip.breakdown.platformLabel}</dt>
-                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.netFromPlatform)}</dd>
+                    <dt className="text-foreground">Net rental (after {trip.breakdown.platformLabel})</dt>
+                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.rentalNet)}</dd>
                   </div>
 
                   {trip.breakdown.deliveryFee > 0 && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">
-                          Less delivery fee (reimbursed to host)
-                        </dt>
-                        <dd className="font-medium text-foreground">−{money2(trip.breakdown.deliveryFee)}</dd>
-                      </div>
-                      <div className="flex items-center justify-between border-t pt-2">
-                        <dt className="text-foreground">Rental net (earnings base)</dt>
-                        <dd className="font-semibold text-foreground">{money2(trip.breakdown.rentalNet)}</dd>
-                      </div>
-                    </>
+                    <p className="text-xs text-muted-foreground">
+                      Delivery fee ({money2(trip.breakdown.deliveryFee)}) is reimbursed to the host separately and is not part of earnings.
+                    </p>
                   )}
 
                   <div className="flex items-center justify-between">
