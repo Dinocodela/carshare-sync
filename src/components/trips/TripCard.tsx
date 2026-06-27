@@ -147,23 +147,40 @@ export function TripCard({ trip }: { trip: TripCardData }) {
               </span>
             </div>
             {trip.is_delivery || trip.delivery_destination ? (
-              <div className="mt-2 flex items-start gap-1.5 rounded-md bg-accent/40 px-2 py-1.5 text-sm">
-                <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-primary">
+              <div className="mt-2 rounded-md bg-accent/40 text-sm">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDeliveryOpen((v) => !v);
+                  }}
+                  className="flex w-full items-center gap-1.5 px-2 py-1.5 text-left"
+                >
+                  <Truck className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-primary">
                     Delivery
+                  </span>
+                  <ChevronDown
+                    className={`ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                      deliveryOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {deliveryOpen && (
+                  <div className="px-2 pb-2 pl-7">
+                    {trip.delivery_destination || trip.delivery_address ? (
+                      <div className="text-foreground">
+                        <span className="text-muted-foreground">Delivered to: </span>
+                        {trip.delivery_destination || trip.delivery_address}
+                      </div>
+                    ) : (
+                      trip.car?.location && (
+                        <div className="text-foreground">{trip.car.location}</div>
+                      )
+                    )}
                   </div>
-                  {trip.delivery_destination || trip.delivery_address ? (
-                    <div className="text-foreground">
-                      <span className="text-muted-foreground">Delivered to: </span>
-                      {trip.delivery_destination || trip.delivery_address}
-                    </div>
-                  ) : (
-                    trip.car?.location && (
-                      <div className="text-foreground">{trip.car.location}</div>
-                    )
-                  )}
-                </div>
+                )}
               </div>
             ) : trip.delivery_address ? (
               <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground">
