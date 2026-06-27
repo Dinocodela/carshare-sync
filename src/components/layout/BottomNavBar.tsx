@@ -34,7 +34,7 @@ interface NavItem {
 }
 
 export function BottomNavBar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { activeWorkspace, availableRoles } = useWorkspace();
