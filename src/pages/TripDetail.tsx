@@ -203,16 +203,12 @@ export default function TripDetail() {
             exps = e || [];
           }
           if (cancelled) return;
-          net = getClientShare(
-            Number(row.amount),
-            row.client_profit_percentage,
-            row.trip_id,
-            exps as any,
-          );
 
-          // Build a fully transparent breakdown for the client.
-          // The platform (Eon) commission applies ONLY to the rental
-          // (daily price x days), never to reimbursed expenses.
+          // Build the breakdown for the client.
+          // Earnings are based ONLY on the rental (daily price x days):
+          // rental - Eon 30% - management fee. Expenses (EV, tolls, delivery,
+          // etc.) are NOT deducted from earnings — they are reimbursed to the
+          // host separately and shown in their own section.
           const netFromPlatform = Number(row.amount);
           const grossRental =
             PLATFORM_COMMISSION_RATE < 1
@@ -240,14 +236,15 @@ export default function TripDetail() {
             { label: "Other expenses", amount: sum("amount") },
           ].filter((e) => e.amount > 0);
           const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
-          const netAfterExpenses = netFromPlatform - totalExpenses;
           const clientPct =
             row.client_profit_percentage != null
               ? Number(row.client_profit_percentage)
               : 70;
           const hostPct = 100 - clientPct;
-          const clientEarnings = (netAfterExpenses * clientPct) / 100;
-          const managementFee = netAfterExpenses - clientEarnings;
+          // Earnings come from rental only (after Eon), not from expenses.
+          const clientEarnings = (netFromPlatform * clientPct) / 100;
+          const managementFee = netFromPlatform - clientEarnings;
+          net = clientEarnings;
 
           breakdown = {
             grossRental,
@@ -258,12 +255,13 @@ export default function TripDetail() {
             netFromPlatform,
             expenses: expenseItems,
             totalExpenses,
-            netAfterExpenses,
+            netAfterExpenses: netFromPlatform,
             clientPct,
             hostPct,
             managementFee,
             clientEarnings,
           };
+
         }
         setTrip({
           id: row.id,
