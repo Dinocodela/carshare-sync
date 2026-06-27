@@ -5736,6 +5736,19 @@ export default function HostCarManagement() {
                                   <span>Paid: {new Date(earning.date_paid).toLocaleDateString()}</span>
                                 )}
                               </div>
+                              {(() => {
+                                const earningCar = cars.find((car) => car.id === earning.car_id);
+                                return earningCar ? (
+                                  <VehicleReveal
+                                    make={earningCar.make}
+                                    model={earningCar.model}
+                                    year={earningCar.year}
+                                    color={earningCar.color}
+                                    license_plate={earningCar.license_plate}
+                                    vin_number={earningCar.vin_number}
+                                  />
+                                ) : null;
+                              })()}
                             </div>
 
                             {/* Profit Breakdown Grid (full width) */}
