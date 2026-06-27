@@ -204,7 +204,7 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
                       <div className="flex items-center gap-2 flex-wrap">
                         <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-sm font-medium text-foreground truncate">
-                          {e.guest_name || "Guest"}
+                          {e.guest_initials || "Guest"}
                         </span>
                         <Badge
                           variant="outline"

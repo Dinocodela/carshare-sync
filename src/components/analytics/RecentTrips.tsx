@@ -58,7 +58,7 @@ export function RecentTrips({ earnings, expenses = [], carsMap = {}, limit = 10 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <p className="text-sm font-medium text-foreground truncate">
-                        {earning.guest_name || earning.trip_id || "Trip"}
+                        {earning.guest_initials || earning.trip_id || "Trip"}
                       </p>
                       <Badge variant="outline" className={`text-[10px] px-1.5 py-0 rounded-full border ${getStatusBadge(earning.payment_status)}`}>
                         {earning.payment_status}
