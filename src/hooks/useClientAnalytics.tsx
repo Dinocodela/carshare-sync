@@ -195,7 +195,7 @@ export function useClientAnalytics(
       fetchAvailableYears(carIds);
       let earningsQuery = (supabase as any)
         .from('client_visible_earnings')
-        .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, earning_type, payment_source, created_at')
+        .select('id, car_id, host_id, amount, commission, net_amount, gross_earnings, client_profit_percentage, host_profit_percentage, payment_date, earning_period_start, earning_period_end, payment_status, trip_id, guest_initials, earning_type, payment_source, created_at')
         .in('car_id', carIds)
         .order('created_at', { ascending: false });
 
