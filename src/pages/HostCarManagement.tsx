@@ -1978,6 +1978,9 @@ export default function HostCarManagement() {
       pickup_address: earning.pickup_address || "",
       return_address: earning.return_address || "",
       delivery_address: earning.delivery_address || "",
+      daily_rate:
+        earning.daily_rate != null ? String(earning.daily_rate) : "",
+      nights: earning.nights != null ? String(earning.nights) : "",
     });
     setEarningDialogOpen(true);
   };
