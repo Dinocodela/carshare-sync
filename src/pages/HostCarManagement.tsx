@@ -36,6 +36,7 @@ import {
   Info,
   Copy,
   Hash,
+  ChevronDown,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
