@@ -6,6 +6,7 @@ import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Car as CarIcon, ChevronDown, Loader2, MapPin, Copy, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { getClientShare } from "@/lib/expenseMatching";
 
 function formatCurrency(n: number): string {
