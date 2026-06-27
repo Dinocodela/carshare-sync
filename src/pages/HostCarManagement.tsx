@@ -1471,7 +1471,10 @@ export default function HostCarManagement() {
         p_date_to,
         p_limit: PAGE_SIZE,
         p_offset: (claimsPage - 1) * PAGE_SIZE,
+        p_trip_search: claimsFilters.tripSearch?.trim() || null,
+        p_incident_id: claimsFilters.incidentSearch?.trim() || null,
       });
+
       if (error) throw error;
       const result: any = data || {};
       setClaimsPageRows(result.rows || []);
