@@ -92,6 +92,8 @@ interface EarningsBreakdown {
   clientPct: number;
   hostPct: number;
   managementFee: number;
+  clientShare: number;
+  tollCost: number;
   clientEarnings: number;
 }
 
