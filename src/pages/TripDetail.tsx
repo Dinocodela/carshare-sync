@@ -77,6 +77,10 @@ interface EarningsBreakdown {
   grossRental: number;
   days: number;
   dailyRate: number;
+  /** Daily rate exactly as reported by the platform (display-only). */
+  actualDailyRate: number | null;
+  /** Nights exactly as reported by the platform (display-only). */
+  actualNights: number | null;
   platformFee: number;
   platformLabel: string;
   netFromPlatform: number;
