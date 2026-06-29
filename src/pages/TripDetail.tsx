@@ -519,7 +519,7 @@ export default function TripDetail() {
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
-                      Tolls (your cost)
+                      Toll (your reimbursement)
                     </dt>
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.tollCost)}</dd>
                   </div>
