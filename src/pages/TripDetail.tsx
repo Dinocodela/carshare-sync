@@ -267,8 +267,13 @@ export default function TripDetail() {
           const hostPct = 100 - clientPct;
           const clientShare = (rentalNet * clientPct) / 100;
           const managementFee = rentalNet - clientShare;
-          // Tolls are the client's cost — deducted from their share.
-          const clientEarnings = clientShare - tollCost;
+          // Tolls are a client reimbursement to the host, NOT an expense that
+          // reduces rental earnings. The client earnings are based on the rental
+          // only; tolls are shown separately as a positive amount added to the
+          // host's reimbursement.
+          const clientEarnings = clientShare;
+          // Keep tollCost in the breakdown so the host can see how much the
+          // client will reimburse for tolls, displayed as a positive amount.
           net = clientEarnings;
 
           breakdown = {
