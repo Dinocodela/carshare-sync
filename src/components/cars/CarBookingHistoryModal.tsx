@@ -6,6 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,14 @@ import {
 import {
   Calendar,
   ChevronDown,
+  ChevronLeft,
   CreditCard,
   Hash,
   MapPin,
   Receipt,
   User,
   Wallet,
+  X,
 } from "lucide-react";
 import { useCarBookings } from "@/hooks/useCarBookings";
 import {
@@ -103,10 +106,24 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-2xl overflow-y-auto p-0"
+        className="w-full sm:max-w-2xl overflow-y-auto p-0 [&>button]:hidden"
       >
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
-          <SheetHeader className="px-6 pt-6 pb-4 text-left space-y-2">
+          {/* Top bar with back + close */}
+          <div className="flex items-center justify-between px-3 pt-3">
+            <SheetClose asChild>
+              <Button variant="ghost" size="sm" className="gap-1 -ml-1 text-muted-foreground">
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button variant="ghost" size="icon" aria-label="Close" className="text-muted-foreground">
+                <X className="w-5 h-5" />
+              </Button>
+            </SheetClose>
+          </div>
+          <SheetHeader className="px-6 pt-2 pb-4 text-left space-y-2">
             <SheetTitle className="text-xl">
               Booking History
               {car && (
