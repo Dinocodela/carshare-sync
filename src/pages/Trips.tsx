@@ -256,8 +256,10 @@ export default function Trips() {
           value={filter}
           onValueChange={(v) => {
             setFilter(v as Filter);
+            setPage(1);
             setSearchParams((prev) => {
               prev.set("tab", v);
+              prev.set("page", "1");
               return prev;
             });
           }}
