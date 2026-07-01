@@ -39,6 +39,8 @@ export default function Trips() {
   const [page, setPage] = useState(
     Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
   );
+  const [search, setSearch] = useState(searchParams.get("q") || "");
+  const searchTerm = searchParams.get("q")?.trim() || "";
 
   const goToPage = (updater: (p: number) => number) => {
     setPage((prev) => {
