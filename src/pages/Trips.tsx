@@ -34,11 +34,21 @@ export default function Trips() {
   const [filter, setFilter] = useState<Filter>(
     tabParam && validFilters.includes(tabParam) ? tabParam : "active"
   );
-  const [page, setPage] = useState(1);
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
+  const [page, setPage] = useState(
+    Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
+  );
 
-  useEffect(() => {
-    setPage(1);
-  }, [filter]);
+  const goToPage = (updater: (p: number) => number) => {
+    setPage((prev) => {
+      const next = updater(prev);
+      setSearchParams((sp) => {
+        sp.set("page", String(next));
+        return sp;
+      });
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!user) return;
