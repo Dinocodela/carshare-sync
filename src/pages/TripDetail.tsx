@@ -435,6 +435,23 @@ export default function TripDetail() {
             {trip.car?.license_plate && (
               <p className="text-sm font-medium text-foreground">{trip.car.license_plate}</p>
             )}
+            {trip.trip_id && (
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(trip.trip_id!);
+                  toast({
+                    title: "Copied",
+                    description: `Trip ID ${trip.trip_id} copied to clipboard.`,
+                  });
+                }}
+                className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                title="Copy trip ID"
+              >
+                <span>Trip #{trip.trip_id}</span>
+                <Copy className="h-3 w-3" />
+              </button>
+            )}
           </div>
         </div>
 
