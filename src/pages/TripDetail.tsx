@@ -96,6 +96,8 @@ interface EarningsBreakdown {
   managementFee: number;
   clientShare: number;
   tollCost: number;
+  /** When true tolls are reimbursed to the client; otherwise to the host. */
+  tollToClient: boolean;
   clientEarnings: number;
 }
 
