@@ -553,12 +553,14 @@ export default function TripDetail() {
                     <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">
-                      Toll (reimbursement to client)
-                    </dt>
-                    <dd className="font-medium text-foreground">+{money2(trip.breakdown.tollCost)}</dd>
-                  </div>
+                  {trip.breakdown.tollToClient && (
+                    <div className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">
+                        Toll (reimbursement to client)
+                      </dt>
+                      <dd className="font-medium text-foreground">+{money2(trip.breakdown.tollCost)}</dd>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between border-t pt-2">
                     <dt className="text-base font-semibold text-foreground">
                       Your rental earnings
