@@ -242,28 +242,36 @@ export default function TripDetail() {
             .map(({ label, amount }) => ({ label, amount }));
           const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
 
-          // The platform payout (amount) INCLUDES the guest-paid delivery fee,
-          // which is reimbursed entirely to the host and is NOT subject to the
-          // Eon commission. We must remove it BEFORE grossing up, otherwise the
-          // derived daily rate and the client's share are both inflated.
-          const deliveryFee = sum("delivery_cost");
-          // Net rental amount after Eon's commission (delivery excluded).
-          const rentalNet = Math.max(0, netFromPlatform - deliveryFee);
-          // Gross rental the guest paid for the car (before Eon's 30%).
-          const grossRental =
-            PLATFORM_COMMISSION_RATE < 1
-              ? rentalNet / (1 - PLATFORM_COMMISSION_RATE)
-              : rentalNet;
-          const platformFee = grossRental - rentalNet;
-
-          // Derive rental days from the trip period so we can show
-          // "daily price x days" and make the rental total clear.
+          // Derive rental days from the trip period first — the commission rate
+          // depends on the length of the stay.
           const startMs = new Date(row.earning_period_start).getTime();
           const endMs = new Date(row.earning_period_end).getTime();
           const days = Math.max(
             1,
             Math.round((endMs - startMs) / 86400000) || 1,
           );
+
+          // 7-night (or longer) rentals get a 15% long-stay discount, so Eon's
+          // commission becomes 45% of the rental instead of the standard 30%.
+          const commissionRate =
+            days >= LONG_RENTAL_MIN_DAYS
+              ? LONG_RENTAL_COMMISSION_RATE
+              : PLATFORM_COMMISSION_RATE;
+          const platformPct = Math.round(commissionRate * 100);
+
+          // The platform payout (amount) INCLUDES reimbursements that are paid
+          // straight back to the host (EV charging, delivery, car wash, other)
+          // and are NOT subject to Eon's commission. Strip ALL of them out so the
+          // derived daily rate reflects the actual rental price only — never the
+          // EV or delivery totals.
+          const deliveryFee = sum("delivery_cost");
+          const rentalNet = Math.max(0, netFromPlatform - totalExpenses);
+          // Gross rental the guest paid for the car (before Eon's commission).
+          const grossRental =
+            commissionRate < 1
+              ? rentalNet / (1 - commissionRate)
+              : rentalNet;
+          const platformFee = grossRental - rentalNet;
           const dailyRate = grossRental / days;
 
           const clientPct =
