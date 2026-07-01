@@ -51,6 +51,53 @@ export default function Trips() {
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const searchTerm = searchParams.get("q")?.trim() || "";
 
+  // Recent trip-number searches (device-local memory).
+  const RECENT_KEY = "trips_recent_searches";
+  const RECENT_MAX = 8;
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(RECENT_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((s): s is string => typeof s === "string")
+        : [];
+    } catch {
+      return [];
+    }
+  });
+  const [showRecent, setShowRecent] = useState(false);
+
+  const persistRecent = (list: string[]) => {
+    setRecentSearches(list);
+    try {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    } catch {
+      /* ignore storage errors */
+    }
+  };
+
+  const addRecentSearch = (term: string) => {
+    const t = term.trim();
+    if (!t) return;
+    persistRecent([t, ...recentSearches.filter((s) => s !== t)].slice(0, RECENT_MAX));
+  };
+
+  const clearRecentSearches = () => persistRecent([]);
+
+  const runSearch = (term: string) => {
+    const v = term.trim();
+    setSearch(v);
+    setShowRecent(false);
+    setPage(1);
+    if (v) addRecentSearch(v);
+    setSearchParams((prev) => {
+      if (v) prev.set("q", v);
+      else prev.delete("q");
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
   const isHostRole =
     activeWorkspace === "host" && availableRoles.some((r) => r.role === "host");
 
@@ -380,16 +427,10 @@ export default function Trips() {
           <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${isHostRole ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
             {/* Trip Search */}
             <form
+              className="relative"
               onSubmit={(e) => {
                 e.preventDefault();
-                setPage(1);
-                setSearchParams((prev) => {
-                  const v = search.trim();
-                  if (v) prev.set("q", v);
-                  else prev.delete("q");
-                  prev.set("page", "1");
-                  return prev;
-                });
+                runSearch(search);
               }}
             >
               <Label className="mb-1.5 block text-xs font-medium">
@@ -400,6 +441,8 @@ export default function Trips() {
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onFocus={() => setShowRecent(true)}
+                  onBlur={() => setTimeout(() => setShowRecent(false), 150)}
                   placeholder="Enter trip#..."
                   className="h-9 pl-9"
                   inputMode="numeric"
@@ -423,7 +466,45 @@ export default function Trips() {
                   </button>
                 )}
               </div>
+
+              {showRecent && recentSearches.length > 0 && (
+                <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
+                  <div className="flex items-center justify-between px-3 py-1.5">
+                    <span className="text-[0.65rem] font-medium uppercase tracking-wide text-muted-foreground">
+                      Recent searches
+                    </span>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        clearRecentSearches();
+                      }}
+                      className="text-[0.65rem] font-medium text-muted-foreground hover:text-foreground"
+                    >
+                      Clear history
+                    </button>
+                  </div>
+                  <ul className="max-h-56 overflow-y-auto pb-1">
+                    {recentSearches.map((term) => (
+                      <li key={term}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            runSearch(term);
+                          }}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                        >
+                          <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="truncate">{term}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </form>
+
 
             {/* Car Filter */}
             <div>
