@@ -51,6 +51,53 @@ export default function Trips() {
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const searchTerm = searchParams.get("q")?.trim() || "";
 
+  // Recent trip-number searches (device-local memory).
+  const RECENT_KEY = "trips_recent_searches";
+  const RECENT_MAX = 8;
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(RECENT_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((s): s is string => typeof s === "string")
+        : [];
+    } catch {
+      return [];
+    }
+  });
+  const [showRecent, setShowRecent] = useState(false);
+
+  const persistRecent = (list: string[]) => {
+    setRecentSearches(list);
+    try {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+    } catch {
+      /* ignore storage errors */
+    }
+  };
+
+  const addRecentSearch = (term: string) => {
+    const t = term.trim();
+    if (!t) return;
+    persistRecent([t, ...recentSearches.filter((s) => s !== t)].slice(0, RECENT_MAX));
+  };
+
+  const clearRecentSearches = () => persistRecent([]);
+
+  const runSearch = (term: string) => {
+    const v = term.trim();
+    setSearch(v);
+    setShowRecent(false);
+    setPage(1);
+    if (v) addRecentSearch(v);
+    setSearchParams((prev) => {
+      if (v) prev.set("q", v);
+      else prev.delete("q");
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
   const isHostRole =
     activeWorkspace === "host" && availableRoles.some((r) => r.role === "host");
 
