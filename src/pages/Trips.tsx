@@ -319,7 +319,7 @@ export default function Trips() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        onClick={() => goToPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                       >
                         <ChevronLeft className="h-4 w-4" />
@@ -332,7 +332,7 @@ export default function Trips() {
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          setPage((p) => Math.min(totalPages, p + 1))
+                          goToPage((p) => Math.min(totalPages, p + 1))
                         }
                         disabled={currentPage === totalPages}
                       >
