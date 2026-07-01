@@ -462,6 +462,14 @@ export default function TripDetail() {
           </div>
         </div>
 
+        {trip.payment_status === "cancelled" && (
+          <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive">
+            This booking was cancelled. No payment is due for this trip.
+          </div>
+        )}
+
+
+
         {/* Date range */}
         <section className="mb-6 rounded-2xl border bg-card p-5">
           <div className="flex items-center justify-around text-center">
@@ -496,12 +504,18 @@ export default function TripDetail() {
               <div className="flex flex-col items-end gap-1">
                 <span
                   className={`rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${
-                    trip.payment_status === "paid"
-                      ? "bg-primary/15 text-primary"
-                      : "bg-muted text-muted-foreground"
+                    trip.payment_status === "cancelled"
+                      ? "bg-destructive/15 text-destructive"
+                      : trip.payment_status === "paid"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {trip.payment_status === "paid" ? "Paid" : "Pending"}
+                  {trip.payment_status === "cancelled"
+                    ? "Cancelled"
+                    : trip.payment_status === "paid"
+                      ? "Paid"
+                      : "Pending"}
                 </span>
                 {trip.payment_status === "paid" && trip.date_paid && (
                   <span className="text-xs text-muted-foreground">

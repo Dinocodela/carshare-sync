@@ -115,9 +115,11 @@ export function TripCard({ trip }: { trip: TripCardData }) {
     ? `${trip.car.make} ${trip.car.model} ${trip.car.year}`
     : "Vehicle";
   const carImage = trip.car?.images?.[0];
+  const isCancelled = trip.payment_status === "cancelled";
 
-  const statusClasses =
-    status.tone === "active"
+  const statusClasses = isCancelled
+    ? "bg-destructive/15 text-destructive"
+    : status.tone === "active"
       ? "bg-destructive/15 text-destructive"
       : status.tone === "upcoming"
         ? "bg-primary/15 text-primary"
@@ -135,7 +137,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <span
               className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium sm:px-2.5 sm:py-1 sm:text-sm ${statusClasses}`}
             >
-              {status.label}
+              {isCancelled ? "Cancelled" : status.label}
             </span>
             <h3 className="mt-2 truncate text-base font-bold text-foreground sm:mt-3 sm:text-xl">
               {carTitle}
@@ -260,18 +262,30 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             )}
             {trip.net_amount != null && (
               <div className="mt-1 flex flex-col items-end">
-                <span className="text-sm font-bold text-foreground sm:text-base">
+                <span
+                  className={`text-sm font-bold sm:text-base ${
+                    isCancelled
+                      ? "text-muted-foreground line-through"
+                      : "text-foreground"
+                  }`}
+                >
                   {formatCurrency(trip.net_amount)}
                 </span>
                 {trip.payment_status && (
                   <span
                     className={`rounded px-1.5 py-0.5 text-[0.6rem] font-medium uppercase tracking-wide ${
-                      trip.payment_status === "paid"
-                        ? "bg-primary/15 text-primary"
-                        : "bg-muted text-muted-foreground"
+                      isCancelled
+                        ? "bg-destructive/15 text-destructive"
+                        : trip.payment_status === "paid"
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {trip.payment_status === "paid" ? "Paid" : "Pending"}
+                    {isCancelled
+                      ? "Cancelled"
+                      : trip.payment_status === "paid"
+                        ? "Paid"
+                        : "Pending"}
                   </span>
                 )}
               </div>
