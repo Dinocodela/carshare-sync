@@ -8,10 +8,19 @@ import { useWorkspace } from "@/hooks/useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { getClientShare } from "@/lib/expenseMatching";
+import { formatCarName } from "@/lib/carName";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const PAGE_SIZE = 10;
 
@@ -42,6 +51,77 @@ export default function Trips() {
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const searchTerm = searchParams.get("q")?.trim() || "";
 
+  const isHostRole =
+    activeWorkspace === "host" && availableRoles.some((r) => r.role === "host");
+
+  // Additional filters
+  const [carFilter, setCarFilter] = useState(searchParams.get("car") || "all");
+  const [sourceFilter, setSourceFilter] = useState(
+    searchParams.get("source") || "all"
+  );
+  const [statusFilter, setStatusFilter] = useState(
+    searchParams.get("status") || "all"
+  );
+  const [dateRange, setDateRange] = useState(searchParams.get("range") || "all");
+  const [carOptions, setCarOptions] = useState<
+    { id: string; label: string }[]
+  >([]);
+
+  const activeFilterCount =
+    (carFilter !== "all" ? 1 : 0) +
+    (sourceFilter !== "all" ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (dateRange !== "all" ? 1 : 0) +
+    (searchTerm ? 1 : 0);
+
+  const updateFilterParam = (key: string, value: string) => {
+    setPage(1);
+    setSearchParams((prev) => {
+      if (value && value !== "all") prev.set(key, value);
+      else prev.delete(key);
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
+  const clearAllFilters = () => {
+    setSearch("");
+    setCarFilter("all");
+    setSourceFilter("all");
+    setStatusFilter("all");
+    setDateRange("all");
+    setPage(1);
+    setSearchParams((prev) => {
+      ["q", "car", "source", "status", "range"].forEach((k) => prev.delete(k));
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
+  // Load car options for the dropdown based on workspace/role.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const col = isHostRole ? "host_id" : "client_id";
+      const { data } = await supabase
+        .from("cars")
+        .select("id, model, vin_number, license_plate, nickname")
+        .eq(col, user.id);
+      if (cancelled) return;
+      setCarOptions(
+        (data || []).map((c: any) => ({
+          id: c.id,
+          label: formatCarName(c),
+        }))
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, isHostRole]);
+
+
   const goToPage = (updater: (p: number) => number) => {
     setPage((prev) => {
       const next = updater(prev);
@@ -69,8 +149,22 @@ export default function Trips() {
       // Use the active workspace to decide which data source to read. In the
       // host workspace, show real guest names from host_earnings; the client
       // portal must only ever expose guest initials (no full names).
-      const isHostRole =
-        activeWorkspace === "host" && availableRoles.some((r) => r.role === "host");
+
+      // Compute date-range lower bound (against earning_period_start).
+      let rangeStartIso: string | null = null;
+      if (dateRange !== "all") {
+        const d = new Date(localNow);
+        if (dateRange === "today") {
+          d.setHours(0, 0, 0, 0);
+        } else if (dateRange === "week") {
+          d.setDate(d.getDate() - 7);
+        } else if (dateRange === "month") {
+          d.setMonth(d.getMonth() - 1);
+        }
+        rangeStartIso = new Date(
+          d.getTime() - d.getTimezoneOffset() * 60000,
+        ).toISOString();
+      }
 
       const buildBaseQuery = (countOnly = false) => {
         const opts = countOnly ? { count: "exact" as const } : undefined;
@@ -85,14 +179,24 @@ export default function Trips() {
           ? supabase.from("host_earnings").select(fields, opts)
           : (supabase as any).from("client_visible_earnings").select(clientFields, opts);
 
-        const withSearch = (qq: any) =>
-          searchTerm ? qq.ilike("trip_id", `%${searchTerm}%`) : qq;
+        const withFilters = (qq: any) => {
+          let r = qq;
+          if (searchTerm) r = r.ilike("trip_id", `%${searchTerm}%`);
+          if (carFilter !== "all") r = r.eq("car_id", carFilter);
+          if (statusFilter !== "all") r = r.eq("payment_status", statusFilter);
+          // Payment source only exists on host_earnings.
+          if (isHostRole && sourceFilter !== "all")
+            r = r.eq("payment_source", sourceFilter);
+          if (rangeStartIso) r = r.gte("earning_period_start", rangeStartIso);
+          return r;
+        };
 
         if (isHostRole) {
-          return withSearch((q as any).eq("host_id", user.id));
+          return withFilters((q as any).eq("host_id", user.id));
         }
-        return withSearch(q);
+        return withFilters(q);
       };
+
 
       const applyFilter = (q: any, f: Filter) => {
         if (f === "upcoming") {
@@ -241,7 +345,7 @@ export default function Trips() {
     return () => {
       cancelled = true;
     };
-  }, [user, filter, page, availableRoles, searchTerm]);
+  }, [user, filter, page, availableRoles, activeWorkspace, searchTerm, carFilter, sourceFilter, statusFilter, dateRange]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -258,52 +362,171 @@ export default function Trips() {
           </p>
         </header>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setPage(1);
-            setSearchParams((prev) => {
-              const v = search.trim();
-              if (v) prev.set("q", v);
-              else prev.delete("q");
-              prev.set("page", "1");
-              return prev;
-            });
-          }}
-          className="mb-4 flex items-center gap-2"
-        >
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by Trip#"
-              className="pl-9"
-              inputMode="numeric"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch("");
-                  setPage(1);
-                  setSearchParams((prev) => {
-                    prev.delete("q");
-                    prev.set("page", "1");
-                    return prev;
-                  });
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
-                aria-label="Clear search"
+        <div className="mb-4 rounded-2xl border border-border/50 bg-card/80 p-4 backdrop-blur-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h4 className="font-medium">Filter Trips</h4>
+            {activeFilterCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearAllFilters}
+                className="h-8"
               >
-                <X className="h-4 w-4" />
-              </button>
+                <X className="mr-1 h-3 w-3" />
+                Clear Filters
+              </Button>
             )}
           </div>
-          <Button type="submit" size="sm">
-            Search
-          </Button>
-        </form>
+          <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${isHostRole ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
+            {/* Trip Search */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setPage(1);
+                setSearchParams((prev) => {
+                  const v = search.trim();
+                  if (v) prev.set("q", v);
+                  else prev.delete("q");
+                  prev.set("page", "1");
+                  return prev;
+                });
+              }}
+            >
+              <Label className="mb-1.5 block text-xs font-medium">
+                Search by Trip#
+              </Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Enter trip#..."
+                  className="h-9 pl-9"
+                  inputMode="numeric"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setPage(1);
+                      setSearchParams((prev) => {
+                        prev.delete("q");
+                        prev.set("page", "1");
+                        return prev;
+                      });
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {/* Car Filter */}
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium">Car</Label>
+              <Select
+                value={carFilter}
+                onValueChange={(v) => {
+                  setCarFilter(v);
+                  updateFilterParam("car", v);
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All cars" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All cars</SelectItem>
+                  {carOptions.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Payment Source (host only) */}
+            {isHostRole && (
+              <div>
+                <Label className="mb-1.5 block text-xs font-medium">
+                  Payment Source
+                </Label>
+                <Select
+                  value={sourceFilter}
+                  onValueChange={(v) => {
+                    setSourceFilter(v);
+                    updateFilterParam("source", v);
+                  }}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="All sources" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All sources</SelectItem>
+                    <SelectItem value="Turo">Turo</SelectItem>
+                    <SelectItem value="Eon">Eon</SelectItem>
+                    <SelectItem value="GetAround">GetAround</SelectItem>
+                    <SelectItem value="Private">Private</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Payment Status */}
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium">
+                Payment Status
+              </Label>
+              <Select
+                value={statusFilter}
+                onValueChange={(v) => {
+                  setStatusFilter(v);
+                  updateFilterParam("status", v);
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Range */}
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium">
+                Date Range
+              </Label>
+              <Select
+                value={dateRange}
+                onValueChange={(v) => {
+                  setDateRange(v);
+                  updateFilterParam("range", v);
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">This Week</SelectItem>
+                  <SelectItem value="month">This Month</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
 
 
         <Tabs
