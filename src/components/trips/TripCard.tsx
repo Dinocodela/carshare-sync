@@ -262,18 +262,30 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             )}
             {trip.net_amount != null && (
               <div className="mt-1 flex flex-col items-end">
-                <span className="text-sm font-bold text-foreground sm:text-base">
+                <span
+                  className={`text-sm font-bold sm:text-base ${
+                    isCancelled
+                      ? "text-muted-foreground line-through"
+                      : "text-foreground"
+                  }`}
+                >
                   {formatCurrency(trip.net_amount)}
                 </span>
                 {trip.payment_status && (
                   <span
                     className={`rounded px-1.5 py-0.5 text-[0.6rem] font-medium uppercase tracking-wide ${
-                      trip.payment_status === "paid"
-                        ? "bg-primary/15 text-primary"
-                        : "bg-muted text-muted-foreground"
+                      isCancelled
+                        ? "bg-destructive/15 text-destructive"
+                        : trip.payment_status === "paid"
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {trip.payment_status === "paid" ? "Paid" : "Pending"}
+                    {isCancelled
+                      ? "Cancelled"
+                      : trip.payment_status === "paid"
+                        ? "Paid"
+                        : "Pending"}
                   </span>
                 )}
               </div>
