@@ -51,6 +51,77 @@ export default function Trips() {
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const searchTerm = searchParams.get("q")?.trim() || "";
 
+  const isHostRole =
+    activeWorkspace === "host" && availableRoles.some((r) => r.role === "host");
+
+  // Additional filters
+  const [carFilter, setCarFilter] = useState(searchParams.get("car") || "all");
+  const [sourceFilter, setSourceFilter] = useState(
+    searchParams.get("source") || "all"
+  );
+  const [statusFilter, setStatusFilter] = useState(
+    searchParams.get("status") || "all"
+  );
+  const [dateRange, setDateRange] = useState(searchParams.get("range") || "all");
+  const [carOptions, setCarOptions] = useState<
+    { id: string; label: string }[]
+  >([]);
+
+  const activeFilterCount =
+    (carFilter !== "all" ? 1 : 0) +
+    (sourceFilter !== "all" ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (dateRange !== "all" ? 1 : 0) +
+    (searchTerm ? 1 : 0);
+
+  const updateFilterParam = (key: string, value: string) => {
+    setPage(1);
+    setSearchParams((prev) => {
+      if (value && value !== "all") prev.set(key, value);
+      else prev.delete(key);
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
+  const clearAllFilters = () => {
+    setSearch("");
+    setCarFilter("all");
+    setSourceFilter("all");
+    setStatusFilter("all");
+    setDateRange("all");
+    setPage(1);
+    setSearchParams((prev) => {
+      ["q", "car", "source", "status", "range"].forEach((k) => prev.delete(k));
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
+  // Load car options for the dropdown based on workspace/role.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const col = isHostRole ? "host_id" : "client_id";
+      const { data } = await supabase
+        .from("cars")
+        .select("id, model, vin_number, license_plate, nickname")
+        .eq(col, user.id);
+      if (cancelled) return;
+      setCarOptions(
+        (data || []).map((c: any) => ({
+          id: c.id,
+          label: formatCarName(c),
+        }))
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, isHostRole]);
+
+
   const goToPage = (updater: (p: number) => number) => {
     setPage((prev) => {
       const next = updater(prev);
