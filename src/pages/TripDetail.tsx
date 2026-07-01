@@ -236,6 +236,12 @@ export default function TripDetail() {
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
           const tollCost = sum("toll_cost");
+          // Whether tolls are reimbursed to the client (Geoff only) or, for
+          // everyone else, to the host.
+          const clientId = row.cars?.client_id ?? row.client_id ?? null;
+          const tollToClient = clientId
+            ? TOLL_TO_CLIENT_CLIENT_IDS.has(clientId)
+            : false;
           // Host reimbursements. EV charging is always shown (as a $0
           // placeholder until the post-trip data is entered); the rest only
           // appear when there is a real amount. Tolls are NOT here — they are
