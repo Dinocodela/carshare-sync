@@ -19,12 +19,14 @@ import {
 import {
   Calendar,
   ChevronDown,
+  ChevronLeft,
   CreditCard,
   Hash,
   MapPin,
   Receipt,
   User,
   Wallet,
+  X,
 } from "lucide-react";
 import { useCarBookings } from "@/hooks/useCarBookings";
 import {
