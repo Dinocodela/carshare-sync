@@ -258,6 +258,54 @@ export default function Trips() {
           </p>
         </header>
 
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setPage(1);
+            setSearchParams((prev) => {
+              const v = search.trim();
+              if (v) prev.set("q", v);
+              else prev.delete("q");
+              prev.set("page", "1");
+              return prev;
+            });
+          }}
+          className="mb-4 flex items-center gap-2"
+        >
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by Trip#"
+              className="pl-9"
+              inputMode="numeric"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                  setSearchParams((prev) => {
+                    prev.delete("q");
+                    prev.set("page", "1");
+                    return prev;
+                  });
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <Button type="submit" size="sm">
+            Search
+          </Button>
+        </form>
+
+
         <Tabs
           value={filter}
           onValueChange={(v) => {
