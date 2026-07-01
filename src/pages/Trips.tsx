@@ -149,8 +149,22 @@ export default function Trips() {
       // Use the active workspace to decide which data source to read. In the
       // host workspace, show real guest names from host_earnings; the client
       // portal must only ever expose guest initials (no full names).
-      const isHostRole =
-        activeWorkspace === "host" && availableRoles.some((r) => r.role === "host");
+
+      // Compute date-range lower bound (against earning_period_start).
+      let rangeStartIso: string | null = null;
+      if (dateRange !== "all") {
+        const d = new Date(localNow);
+        if (dateRange === "today") {
+          d.setHours(0, 0, 0, 0);
+        } else if (dateRange === "week") {
+          d.setDate(d.getDate() - 7);
+        } else if (dateRange === "month") {
+          d.setMonth(d.getMonth() - 1);
+        }
+        rangeStartIso = new Date(
+          d.getTime() - d.getTimezoneOffset() * 60000,
+        ).toISOString();
+      }
 
       const buildBaseQuery = (countOnly = false) => {
         const opts = countOnly ? { count: "exact" as const } : undefined;
@@ -165,14 +179,24 @@ export default function Trips() {
           ? supabase.from("host_earnings").select(fields, opts)
           : (supabase as any).from("client_visible_earnings").select(clientFields, opts);
 
-        const withSearch = (qq: any) =>
-          searchTerm ? qq.ilike("trip_id", `%${searchTerm}%`) : qq;
+        const withFilters = (qq: any) => {
+          let r = qq;
+          if (searchTerm) r = r.ilike("trip_id", `%${searchTerm}%`);
+          if (carFilter !== "all") r = r.eq("car_id", carFilter);
+          if (statusFilter !== "all") r = r.eq("payment_status", statusFilter);
+          // Payment source only exists on host_earnings.
+          if (isHostRole && sourceFilter !== "all")
+            r = r.eq("payment_source", sourceFilter);
+          if (rangeStartIso) r = r.gte("earning_period_start", rangeStartIso);
+          return r;
+        };
 
         if (isHostRole) {
-          return withSearch((q as any).eq("host_id", user.id));
+          return withFilters((q as any).eq("host_id", user.id));
         }
-        return withSearch(q);
+        return withFilters(q);
       };
+
 
       const applyFilter = (q: any, f: Filter) => {
         if (f === "upcoming") {
