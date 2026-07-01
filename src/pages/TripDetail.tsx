@@ -325,6 +325,7 @@ export default function TripDetail() {
             managementFee,
             clientShare,
             tollCost,
+            tollToClient,
             clientEarnings,
           };
 
