@@ -137,7 +137,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <span
               className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium sm:px-2.5 sm:py-1 sm:text-sm ${statusClasses}`}
             >
-              {status.label}
+              {isCancelled ? "Cancelled" : status.label}
             </span>
             <h3 className="mt-2 truncate text-base font-bold text-foreground sm:mt-3 sm:text-xl">
               {carTitle}
