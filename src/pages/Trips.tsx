@@ -9,8 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { getClientShare } from "@/lib/expenseMatching";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const PAGE_SIZE = 10;
 
@@ -38,6 +39,8 @@ export default function Trips() {
   const [page, setPage] = useState(
     Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
   );
+  const [search, setSearch] = useState(searchParams.get("q") || "");
+  const searchTerm = searchParams.get("q")?.trim() || "";
 
   const goToPage = (updater: (p: number) => number) => {
     setPage((prev) => {
@@ -82,10 +85,13 @@ export default function Trips() {
           ? supabase.from("host_earnings").select(fields, opts)
           : (supabase as any).from("client_visible_earnings").select(clientFields, opts);
 
+        const withSearch = (qq: any) =>
+          searchTerm ? qq.ilike("trip_id", `%${searchTerm}%`) : qq;
+
         if (isHostRole) {
-          return (q as any).eq("host_id", user.id);
+          return withSearch((q as any).eq("host_id", user.id));
         }
-        return q;
+        return withSearch(q);
       };
 
       const applyFilter = (q: any, f: Filter) => {
@@ -235,7 +241,7 @@ export default function Trips() {
     return () => {
       cancelled = true;
     };
-  }, [user, filter, page, availableRoles]);
+  }, [user, filter, page, availableRoles, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -251,6 +257,54 @@ export default function Trips() {
             Sorted by start date, oldest first.
           </p>
         </header>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setPage(1);
+            setSearchParams((prev) => {
+              const v = search.trim();
+              if (v) prev.set("q", v);
+              else prev.delete("q");
+              prev.set("page", "1");
+              return prev;
+            });
+          }}
+          className="mb-4 flex items-center gap-2"
+        >
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by Trip#"
+              className="pl-9"
+              inputMode="numeric"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                  setSearchParams((prev) => {
+                    prev.delete("q");
+                    prev.set("page", "1");
+                    return prev;
+                  });
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <Button type="submit" size="sm">
+            Search
+          </Button>
+        </form>
+
 
         <Tabs
           value={filter}
