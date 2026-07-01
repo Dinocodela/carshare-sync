@@ -136,6 +136,12 @@ const PLATFORM_COMMISSION_RATE = 0.3;
 const LONG_RENTAL_COMMISSION_RATE = 0.45;
 const LONG_RENTAL_MIN_DAYS = 7;
 
+// Tolls are normally reimbursed BY the client TO the host. Geoff is the only
+// exception: for his account tolls are a reimbursement TO the client.
+const TOLL_TO_CLIENT_CLIENT_IDS = new Set<string>([
+  "0b5a8c34-6ce4-4fd7-bd85-8a37d9836b3d", // geoff@trenkleland.com
+]);
+
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
   const navigate = useNavigate();
