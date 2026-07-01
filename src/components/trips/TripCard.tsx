@@ -115,9 +115,11 @@ export function TripCard({ trip }: { trip: TripCardData }) {
     ? `${trip.car.make} ${trip.car.model} ${trip.car.year}`
     : "Vehicle";
   const carImage = trip.car?.images?.[0];
+  const isCancelled = trip.payment_status === "cancelled";
 
-  const statusClasses =
-    status.tone === "active"
+  const statusClasses = isCancelled
+    ? "bg-destructive/15 text-destructive"
+    : status.tone === "active"
       ? "bg-destructive/15 text-destructive"
       : status.tone === "upcoming"
         ? "bg-primary/15 text-primary"
