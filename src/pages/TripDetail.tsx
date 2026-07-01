@@ -596,9 +596,20 @@ export default function TripDetail() {
                   <dd className="font-medium text-foreground">{money2(e.amount)}</dd>
                 </div>
               ))}
+              {!trip.breakdown.tollToClient && (
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">Toll</dt>
+                  <dd className="font-medium text-foreground">{money2(trip.breakdown.tollCost)}</dd>
+                </div>
+              )}
               <div className="flex items-center justify-between border-t pt-2">
                 <dt className="text-foreground">Total reimbursement</dt>
-                <dd className="font-semibold text-foreground">{money2(trip.breakdown.totalExpenses)}</dd>
+                <dd className="font-semibold text-foreground">
+                  {money2(
+                    trip.breakdown.totalExpenses +
+                      (trip.breakdown.tollToClient ? 0 : trip.breakdown.tollCost),
+                  )}
+                </dd>
               </div>
             </dl>
             <p className="pt-2 text-xs text-muted-foreground">
