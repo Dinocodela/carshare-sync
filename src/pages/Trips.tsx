@@ -85,10 +85,13 @@ export default function Trips() {
           ? supabase.from("host_earnings").select(fields, opts)
           : (supabase as any).from("client_visible_earnings").select(clientFields, opts);
 
+        const withSearch = (qq: any) =>
+          searchTerm ? qq.ilike("trip_id", `%${searchTerm}%`) : qq;
+
         if (isHostRole) {
-          return (q as any).eq("host_id", user.id);
+          return withSearch((q as any).eq("host_id", user.id));
         }
-        return q;
+        return withSearch(q);
       };
 
       const applyFilter = (q: any, f: Filter) => {
