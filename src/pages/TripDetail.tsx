@@ -96,6 +96,8 @@ interface EarningsBreakdown {
   managementFee: number;
   clientShare: number;
   tollCost: number;
+  /** When true tolls are reimbursed to the client; otherwise to the host. */
+  tollToClient: boolean;
   clientEarnings: number;
 }
 
@@ -136,6 +138,12 @@ const PLATFORM_COMMISSION_RATE = 0.3;
 const LONG_RENTAL_COMMISSION_RATE = 0.45;
 const LONG_RENTAL_MIN_DAYS = 7;
 
+// Tolls are normally reimbursed BY the client TO the host. Geoff is the only
+// exception: for his account tolls are a reimbursement TO the client.
+const TOLL_TO_CLIENT_CLIENT_IDS = new Set<string>([
+  "0b5a8c34-6ce4-4fd7-bd85-8a37d9836b3d", // geoff@trenkleland.com
+]);
+
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
   const navigate = useNavigate();
@@ -157,7 +165,7 @@ export default function TripDetail() {
         ? await supabase
             .from("host_earnings")
             .select(
-              "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, daily_rate, nights, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images)",
+              "id, trip_id, guest_name, earning_period_start, earning_period_end, earning_type, payment_status, payment_source, pickup_address, return_address, delivery_address, amount, daily_rate, nights, client_profit_percentage, date_paid, cars!fk_host_earnings_car_id(make, model, year, color, mileage, license_plate, location, images, client_id)",
             )
             .eq("id", earningId)
             .maybeSingle()
@@ -190,7 +198,7 @@ export default function TripDetail() {
           if (viewRow.car_id) {
             const { data: carRow } = await supabase
               .from("cars")
-              .select("make, model, year, color, mileage, license_plate, location, images")
+              .select("make, model, year, color, mileage, license_plate, location, images, client_id")
               .eq("id", viewRow.car_id)
               .maybeSingle();
             car = carRow;
@@ -228,6 +236,12 @@ export default function TripDetail() {
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
           const tollCost = sum("toll_cost");
+          // Whether tolls are reimbursed to the client (Geoff only) or, for
+          // everyone else, to the host.
+          const clientId = row.cars?.client_id ?? row.client_id ?? null;
+          const tollToClient = clientId
+            ? TOLL_TO_CLIENT_CLIENT_IDS.has(clientId)
+            : false;
           // Host reimbursements. EV charging is always shown (as a $0
           // placeholder until the post-trip data is entered); the rest only
           // appear when there is a real amount. Tolls are NOT here — they are
@@ -311,6 +325,7 @@ export default function TripDetail() {
             managementFee,
             clientShare,
             tollCost,
+            tollToClient,
             clientEarnings,
           };
 
@@ -538,12 +553,14 @@ export default function TripDetail() {
                     <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">
-                      Toll (reimbursement to client)
-                    </dt>
-                    <dd className="font-medium text-foreground">+{money2(trip.breakdown.tollCost)}</dd>
-                  </div>
+                  {trip.breakdown.tollToClient && (
+                    <div className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">
+                        Toll (reimbursement to client)
+                      </dt>
+                      <dd className="font-medium text-foreground">+{money2(trip.breakdown.tollCost)}</dd>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between border-t pt-2">
                     <dt className="text-base font-semibold text-foreground">
                       Your rental earnings
@@ -551,8 +568,11 @@ export default function TripDetail() {
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
                   <p className="pt-1 text-xs text-muted-foreground">
-                    Tolls are paid by you to the host as a reimbursement and are not part of your rental earnings. EV charging, delivery and other costs are also reimbursed to the host and are not part of your earnings.
+                    {trip.breakdown.tollToClient
+                      ? "Tolls are reimbursed to you and are not part of your rental earnings. EV charging, delivery and other costs are reimbursed to the host and are not part of your earnings."
+                      : "Tolls, EV charging, delivery and other costs are reimbursed to the host and are not part of your rental earnings."}
                   </p>
+
 
 
                 </dl>
@@ -576,9 +596,20 @@ export default function TripDetail() {
                   <dd className="font-medium text-foreground">{money2(e.amount)}</dd>
                 </div>
               ))}
+              {!trip.breakdown.tollToClient && (
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">Toll</dt>
+                  <dd className="font-medium text-foreground">{money2(trip.breakdown.tollCost)}</dd>
+                </div>
+              )}
               <div className="flex items-center justify-between border-t pt-2">
                 <dt className="text-foreground">Total reimbursement</dt>
-                <dd className="font-semibold text-foreground">{money2(trip.breakdown.totalExpenses)}</dd>
+                <dd className="font-semibold text-foreground">
+                  {money2(
+                    trip.breakdown.totalExpenses +
+                      (trip.breakdown.tollToClient ? 0 : trip.breakdown.tollCost),
+                  )}
+                </dd>
               </div>
             </dl>
             <p className="pt-2 text-xs text-muted-foreground">
