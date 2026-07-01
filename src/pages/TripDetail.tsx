@@ -82,6 +82,8 @@ interface EarningsBreakdown {
   /** Nights exactly as reported by the platform (display-only). */
   actualNights: number | null;
   platformFee: number;
+  /** Eon commission rate applied (0.30 standard, 0.45 for 7+ day rentals). */
+  platformPct: number;
   platformLabel: string;
   netFromPlatform: number;
   deliveryFee: number;
