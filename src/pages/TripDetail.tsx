@@ -190,7 +190,7 @@ export default function TripDetail() {
           if (viewRow.car_id) {
             const { data: carRow } = await supabase
               .from("cars")
-              .select("make, model, year, color, mileage, license_plate, location, images")
+              .select("make, model, year, color, mileage, license_plate, location, images, client_id")
               .eq("id", viewRow.car_id)
               .maybeSingle();
             car = carRow;
