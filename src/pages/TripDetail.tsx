@@ -129,8 +129,12 @@ interface TripFull {
   guest_phone: string | null;
 }
 
-// Eon retains a 30% platform commission before paying the host.
+// Eon retains a 30% platform commission before paying the host. For rentals of
+// 7 nights or longer we apply a 15% long-stay discount, so Eon's effective
+// commission becomes 45% of the rental.
 const PLATFORM_COMMISSION_RATE = 0.3;
+const LONG_RENTAL_COMMISSION_RATE = 0.45;
+const LONG_RENTAL_MIN_DAYS = 7;
 
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
