@@ -298,6 +298,7 @@ export default function TripDetail() {
               row.daily_rate != null ? Number(row.daily_rate) : null,
             actualNights: row.nights != null ? Number(row.nights) : null,
             platformFee,
+            platformPct,
             platformLabel: row.payment_source || "Platform",
             netFromPlatform,
             deliveryFee,
