@@ -362,52 +362,171 @@ export default function Trips() {
           </p>
         </header>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setPage(1);
-            setSearchParams((prev) => {
-              const v = search.trim();
-              if (v) prev.set("q", v);
-              else prev.delete("q");
-              prev.set("page", "1");
-              return prev;
-            });
-          }}
-          className="mb-4 flex items-center gap-2"
-        >
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by Trip#"
-              className="pl-9"
-              inputMode="numeric"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch("");
-                  setPage(1);
-                  setSearchParams((prev) => {
-                    prev.delete("q");
-                    prev.set("page", "1");
-                    return prev;
-                  });
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
-                aria-label="Clear search"
+        <div className="mb-4 rounded-2xl border border-border/50 bg-card/80 p-4 backdrop-blur-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h4 className="font-medium">Filter Trips</h4>
+            {activeFilterCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearAllFilters}
+                className="h-8"
               >
-                <X className="h-4 w-4" />
-              </button>
+                <X className="mr-1 h-3 w-3" />
+                Clear Filters
+              </Button>
             )}
           </div>
-          <Button type="submit" size="sm">
-            Search
-          </Button>
-        </form>
+          <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${isHostRole ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
+            {/* Trip Search */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setPage(1);
+                setSearchParams((prev) => {
+                  const v = search.trim();
+                  if (v) prev.set("q", v);
+                  else prev.delete("q");
+                  prev.set("page", "1");
+                  return prev;
+                });
+              }}
+            >
+              <Label className="mb-1.5 block text-xs font-medium">
+                Search by Trip#
+              </Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Enter trip#..."
+                  className="h-9 pl-9"
+                  inputMode="numeric"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setPage(1);
+                      setSearchParams((prev) => {
+                        prev.delete("q");
+                        prev.set("page", "1");
+                        return prev;
+                      });
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {/* Car Filter */}
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium">Car</Label>
+              <Select
+                value={carFilter}
+                onValueChange={(v) => {
+                  setCarFilter(v);
+                  updateFilterParam("car", v);
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All cars" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All cars</SelectItem>
+                  {carOptions.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Payment Source (host only) */}
+            {isHostRole && (
+              <div>
+                <Label className="mb-1.5 block text-xs font-medium">
+                  Payment Source
+                </Label>
+                <Select
+                  value={sourceFilter}
+                  onValueChange={(v) => {
+                    setSourceFilter(v);
+                    updateFilterParam("source", v);
+                  }}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="All sources" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All sources</SelectItem>
+                    <SelectItem value="Turo">Turo</SelectItem>
+                    <SelectItem value="Eon">Eon</SelectItem>
+                    <SelectItem value="GetAround">GetAround</SelectItem>
+                    <SelectItem value="Private">Private</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Payment Status */}
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium">
+                Payment Status
+              </Label>
+              <Select
+                value={statusFilter}
+                onValueChange={(v) => {
+                  setStatusFilter(v);
+                  updateFilterParam("status", v);
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Range */}
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium">
+                Date Range
+              </Label>
+              <Select
+                value={dateRange}
+                onValueChange={(v) => {
+                  setDateRange(v);
+                  updateFilterParam("range", v);
+                }}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">This Week</SelectItem>
+                  <SelectItem value="month">This Month</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
 
 
         <Tabs
