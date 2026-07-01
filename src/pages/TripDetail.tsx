@@ -512,8 +512,9 @@ export default function TripDetail() {
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
-                      {trip.breakdown.platformLabel} fee (30% of rental)
+                      {trip.breakdown.platformLabel} fee ({trip.breakdown.platformPct}% of rental)
                     </dt>
+
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
                   </div>
                   <div className="flex items-center justify-between border-t pt-2">
