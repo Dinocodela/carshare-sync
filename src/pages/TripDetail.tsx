@@ -82,6 +82,8 @@ interface EarningsBreakdown {
   /** Nights exactly as reported by the platform (display-only). */
   actualNights: number | null;
   platformFee: number;
+  /** Eon commission rate applied (0.30 standard, 0.45 for 7+ day rentals). */
+  platformPct: number;
   platformLabel: string;
   netFromPlatform: number;
   deliveryFee: number;
@@ -127,8 +129,12 @@ interface TripFull {
   guest_phone: string | null;
 }
 
-// Eon retains a 30% platform commission before paying the host.
+// Eon retains a 30% platform commission before paying the host. For rentals of
+// 7 nights or longer we apply a 15% long-stay discount, so Eon's effective
+// commission becomes 45% of the rental.
 const PLATFORM_COMMISSION_RATE = 0.3;
+const LONG_RENTAL_COMMISSION_RATE = 0.45;
+const LONG_RENTAL_MIN_DAYS = 7;
 
 export default function TripDetail() {
   const { earningId } = useParams<{ earningId: string }>();
@@ -236,28 +242,36 @@ export default function TripDetail() {
             .map(({ label, amount }) => ({ label, amount }));
           const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
 
-          // The platform payout (amount) INCLUDES the guest-paid delivery fee,
-          // which is reimbursed entirely to the host and is NOT subject to the
-          // Eon commission. We must remove it BEFORE grossing up, otherwise the
-          // derived daily rate and the client's share are both inflated.
-          const deliveryFee = sum("delivery_cost");
-          // Net rental amount after Eon's commission (delivery excluded).
-          const rentalNet = Math.max(0, netFromPlatform - deliveryFee);
-          // Gross rental the guest paid for the car (before Eon's 30%).
-          const grossRental =
-            PLATFORM_COMMISSION_RATE < 1
-              ? rentalNet / (1 - PLATFORM_COMMISSION_RATE)
-              : rentalNet;
-          const platformFee = grossRental - rentalNet;
-
-          // Derive rental days from the trip period so we can show
-          // "daily price x days" and make the rental total clear.
+          // Derive rental days from the trip period first — the commission rate
+          // depends on the length of the stay.
           const startMs = new Date(row.earning_period_start).getTime();
           const endMs = new Date(row.earning_period_end).getTime();
           const days = Math.max(
             1,
             Math.round((endMs - startMs) / 86400000) || 1,
           );
+
+          // 7-night (or longer) rentals get a 15% long-stay discount, so Eon's
+          // commission becomes 45% of the rental instead of the standard 30%.
+          const commissionRate =
+            days >= LONG_RENTAL_MIN_DAYS
+              ? LONG_RENTAL_COMMISSION_RATE
+              : PLATFORM_COMMISSION_RATE;
+          const platformPct = Math.round(commissionRate * 100);
+
+          // The platform payout (amount) INCLUDES reimbursements that are paid
+          // straight back to the host (EV charging, delivery, car wash, other)
+          // and are NOT subject to Eon's commission. Strip ALL of them out so the
+          // derived daily rate reflects the actual rental price only — never the
+          // EV or delivery totals.
+          const deliveryFee = sum("delivery_cost");
+          const rentalNet = Math.max(0, netFromPlatform - totalExpenses);
+          // Gross rental the guest paid for the car (before Eon's commission).
+          const grossRental =
+            commissionRate < 1
+              ? rentalNet / (1 - commissionRate)
+              : rentalNet;
+          const platformFee = grossRental - rentalNet;
           const dailyRate = grossRental / days;
 
           const clientPct =
@@ -284,6 +298,7 @@ export default function TripDetail() {
               row.daily_rate != null ? Number(row.daily_rate) : null,
             actualNights: row.nights != null ? Number(row.nights) : null,
             platformFee,
+            platformPct,
             platformLabel: row.payment_source || "Platform",
             netFromPlatform,
             deliveryFee,
@@ -497,8 +512,9 @@ export default function TripDetail() {
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
-                      {trip.breakdown.platformLabel} fee (30% of rental)
+                      {trip.breakdown.platformLabel} fee ({trip.breakdown.platformPct}% of rental)
                     </dt>
+
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
                   </div>
                   <div className="flex items-center justify-between border-t pt-2">
