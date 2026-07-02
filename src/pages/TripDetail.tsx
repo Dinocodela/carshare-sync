@@ -73,6 +73,11 @@ function statusBanner(start: Date, end: Date): string {
   return `Ended on ${end.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}.`;
 }
 
+interface RentalPriceItem {
+  rate: number;
+  count: number;
+}
+
 interface EarningsBreakdown {
   grossRental: number;
   days: number;
@@ -99,6 +104,14 @@ interface EarningsBreakdown {
   /** When true tolls are reimbursed to the client; otherwise to the host. */
   tollToClient: boolean;
   clientEarnings: number;
+  /** Detailed nightly rate lines from the earning's break_down field. */
+  rentalItems: RentalPriceItem[];
+  /** Weekly discount (stored negative, reduces the balance). */
+  weeklyDiscount: number;
+  /** Monthly discount (stored negative, reduces the balance). */
+  monthlyDiscount: number;
+  /** Rental total after discounts, before the Eon fee. */
+  subTotal: number;
 }
 
 interface TripFull {
