@@ -565,19 +565,34 @@ export default function TripDetail() {
                     <dt className="text-muted-foreground">Rental total (guest paid)</dt>
                     <dd className="font-medium text-foreground">{money2(trip.breakdown.grossRental)}</dd>
                   </div>
-                  <div className="flex items-center justify-between pl-3">
-                    <dt className="text-xs text-muted-foreground">
-                      {trip.breakdown.actualDailyRate != null
-                        ? `${money2(trip.breakdown.actualDailyRate)}/day × ${trip.breakdown.actualNights ?? trip.breakdown.days} ${(trip.breakdown.actualNights ?? trip.breakdown.days) === 1 ? "night" : "nights"}`
-                        : `${money2(trip.breakdown.dailyRate)}/day × ${trip.breakdown.days} ${trip.breakdown.days === 1 ? "day" : "days"}`}
-                    </dt>
-                    <dd className="text-xs text-muted-foreground">{money2(trip.breakdown.grossRental)}</dd>
+                  {trip.breakdown.rentalItems.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between pl-3">
+                      <dt className="text-xs text-muted-foreground">
+                        {money2(item.rate)}/day × {item.count} {item.count === 1 ? "day" : "days"}
+                      </dt>
+                      <dd className="text-xs text-muted-foreground">{money2(item.rate * item.count)}</dd>
+                    </div>
+                  ))}
+                  {trip.breakdown.weeklyDiscount !== 0 && (
+                    <div className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">Weekly discount</dt>
+                      <dd className="font-medium text-foreground">−{money2(Math.abs(trip.breakdown.weeklyDiscount))}</dd>
+                    </div>
+                  )}
+                  {trip.breakdown.monthlyDiscount !== 0 && (
+                    <div className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">Monthly discount</dt>
+                      <dd className="font-medium text-foreground">−{money2(Math.abs(trip.breakdown.monthlyDiscount))}</dd>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-foreground">Subtotal (before {trip.breakdown.platformLabel} fee)</dt>
+                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.subTotal)}</dd>
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
-                      {trip.breakdown.platformLabel} fee ({trip.breakdown.platformPct}% of rental)
+                      {trip.breakdown.platformLabel} fee ({trip.breakdown.platformPct}% of subtotal)
                     </dt>
-
                     <dd className="font-medium text-foreground">−{money2(trip.breakdown.platformFee)}</dd>
                   </div>
                   <div className="flex items-center justify-between border-t pt-2">
@@ -585,11 +600,6 @@ export default function TripDetail() {
                     <dd className="font-semibold text-foreground">{money2(trip.breakdown.rentalNet)}</dd>
                   </div>
 
-                  {trip.breakdown.deliveryFee > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      Delivery fee ({money2(trip.breakdown.deliveryFee)}) is reimbursed to the host separately and is not part of earnings.
-                    </p>
-                  )}
 
                   <div className="flex items-center justify-between">
                     <dt className="text-muted-foreground">
