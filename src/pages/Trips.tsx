@@ -422,6 +422,10 @@ export default function Trips() {
     };
   }, [user, filter, page, availableRoles, activeWorkspace, searchTerm, carFilter, sourceFilter, statusFilter, dateRange]);
 
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+
   const renderFilterFields = (gridClass: string) => (
     <div className={`grid gap-3 ${gridClass}`}>
       {/* Trip Search */}
