@@ -637,8 +637,22 @@ export default function Trips() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </div>
+            <div className="mt-4 flex gap-2">
+              {activeFilterCount > 0 && (
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={clearAllFilters}
+                >
+                  Clear
+                </Button>
+              )}
+              <Button className="flex-1" onClick={() => setFiltersOpen(false)}>
+                Done
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
 
 
 
