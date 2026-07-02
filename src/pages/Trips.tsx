@@ -422,7 +422,190 @@ export default function Trips() {
     };
   }, [user, filter, page, availableRoles, activeWorkspace, searchTerm, carFilter, sourceFilter, statusFilter, dateRange]);
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const renderFilterFields = (gridClass: string) => (
+    <div className={`grid gap-3 ${gridClass}`}>
+      {/* Trip Search */}
+      <form
+        className="relative"
+        onSubmit={(e) => {
+          e.preventDefault();
+          runSearch(search);
+        }}
+      >
+        <Label className="mb-1.5 block text-xs font-medium">
+          Search by Trip#
+        </Label>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onFocus={() => setShowRecent(true)}
+            onBlur={() => setTimeout(() => setShowRecent(false), 150)}
+            placeholder="Enter trip#..."
+            className="h-9 pl-9"
+            inputMode="numeric"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setPage(1);
+                setSearchParams((prev) => {
+                  prev.delete("q");
+                  prev.set("page", "1");
+                  return prev;
+                });
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {showRecent && recentSearches.length > 0 && (
+          <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
+            <div className="flex items-center justify-between px-3 py-1.5">
+              <span className="text-[0.65rem] font-medium uppercase tracking-wide text-muted-foreground">
+                Recent searches
+              </span>
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  clearRecentSearches();
+                }}
+                className="text-[0.65rem] font-medium text-muted-foreground hover:text-foreground"
+              >
+                Clear history
+              </button>
+            </div>
+            <ul className="max-h-56 overflow-y-auto pb-1">
+              {recentSearches.map((term) => (
+                <li key={term}>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      runSearch(term);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                  >
+                    <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="truncate">{term}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </form>
+
+      {/* Car Filter */}
+      <div>
+        <Label className="mb-1.5 block text-xs font-medium">Car</Label>
+        <Select
+          value={carFilter}
+          onValueChange={(v) => {
+            setCarFilter(v);
+            updateFilterParam("car", v);
+          }}
+        >
+          <SelectTrigger className="h-9">
+            <SelectValue placeholder="All cars" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All cars</SelectItem>
+            {carOptions.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Payment Source (host only) */}
+      {isHostRole && (
+        <div>
+          <Label className="mb-1.5 block text-xs font-medium">
+            Payment Source
+          </Label>
+          <Select
+            value={sourceFilter}
+            onValueChange={(v) => {
+              setSourceFilter(v);
+              updateFilterParam("source", v);
+            }}
+          >
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="All sources" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All sources</SelectItem>
+              <SelectItem value="Turo">Turo</SelectItem>
+              <SelectItem value="Eon">Eon</SelectItem>
+              <SelectItem value="GetAround">GetAround</SelectItem>
+              <SelectItem value="Private">Private</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Payment Status */}
+      <div>
+        <Label className="mb-1.5 block text-xs font-medium">
+          Payment Status
+        </Label>
+        <Select
+          value={statusFilter}
+          onValueChange={(v) => {
+            setStatusFilter(v);
+            updateFilterParam("status", v);
+          }}
+        >
+          <SelectTrigger className="h-9">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Date Range */}
+      <div>
+        <Label className="mb-1.5 block text-xs font-medium">
+          Date Range
+        </Label>
+        <Select
+          value={dateRange}
+          onValueChange={(v) => {
+            setDateRange(v);
+            updateFilterParam("range", v);
+          }}
+        >
+          <SelectTrigger className="h-9">
+            <SelectValue placeholder="All time" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All time</SelectItem>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="week">This Week</SelectItem>
+            <SelectItem value="month">This Month</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
   const currentPage = Math.min(page, totalPages);
   const pageStart = (currentPage - 1) * PAGE_SIZE;
 
