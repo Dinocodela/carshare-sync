@@ -637,6 +637,7 @@ export default function Trips() {
                 </SelectContent>
               </Select>
             </div>
+            </div>
             <div className="mt-4 flex gap-2">
               {activeFilterCount > 0 && (
                 <Button
