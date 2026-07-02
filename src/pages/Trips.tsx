@@ -10,10 +10,18 @@ import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { getClientShare } from "@/lib/expenseMatching";
 import { formatCarName } from "@/lib/carName";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Search, X, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
