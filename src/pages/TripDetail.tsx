@@ -239,38 +239,15 @@ export default function TripDetail() {
           }
           if (cancelled) return;
 
-          // Build the breakdown for the client.
-          // Earnings are based ONLY on the rental (daily price x days):
-          // rental - Eon 30% - management fee. Expenses (EV, tolls, delivery,
-          // etc.) are NOT deducted from earnings — they are reimbursed to the
-          // host separately and shown in their own section.
           const netFromPlatform = Number(row.amount);
-
           const sum = (key: string) =>
             exps.reduce((s: number, x: any) => s + (Number(x[key]) || 0), 0);
           const tollCost = sum("toll_cost");
-          // Whether tolls are reimbursed to the client (Geoff only) or, for
-          // everyone else, to the host.
           const clientId = row.cars?.client_id ?? row.client_id ?? null;
           const tollToClient = clientId
             ? TOLL_TO_CLIENT_CLIENT_IDS.has(clientId)
             : false;
-          // Host reimbursements. EV charging is always shown (as a $0
-          // placeholder until the post-trip data is entered); the rest only
-          // appear when there is a real amount. Tolls are NOT here — they are
-          // charged to the client and shown separately.
-          const expenseItems = [
-            { label: "EV charging", amount: sum("ev_charge_cost"), always: true },
-            { label: "Delivery", amount: sum("delivery_cost") },
-            { label: "Car wash", amount: sum("carwash_cost") },
-            { label: "Other expenses", amount: sum("amount") },
-          ]
-            .filter((e) => e.always || e.amount > 0)
-            .map(({ label, amount }) => ({ label, amount }));
-          const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
 
-          // Derive rental days from the trip period first — the commission rate
-          // depends on the length of the stay.
           const startMs = new Date(row.earning_period_start).getTime();
           const endMs = new Date(row.earning_period_end).getTime();
           const days = Math.max(
@@ -278,71 +255,98 @@ export default function TripDetail() {
             Math.round((endMs - startMs) / 86400000) || 1,
           );
 
-          // 7-night (or longer) rentals get a 15% long-stay discount, so Eon's
-          // commission becomes 45% of the rental instead of the standard 30%.
-          const commissionRate =
-            days >= LONG_RENTAL_MIN_DAYS
-              ? LONG_RENTAL_COMMISSION_RATE
-              : PLATFORM_COMMISSION_RATE;
-          const platformPct = Math.round(commissionRate * 100);
-
-          // The platform payout (amount) INCLUDES reimbursements that are paid
-          // straight back to the host (EV charging, delivery, car wash, other)
-          // and are NOT subject to Eon's commission. Strip ALL of them out so the
-          // derived daily rate reflects the actual rental price only — never the
-          // EV or delivery totals.
-          const deliveryFee = sum("delivery_cost");
-          const rentalNet = Math.max(0, netFromPlatform - totalExpenses);
-          // Gross rental the guest paid for the car (before Eon's commission).
-          const grossRental =
-            commissionRate < 1
-              ? rentalNet / (1 - commissionRate)
-              : rentalNet;
-          const platformFee = grossRental - rentalNet;
-          const dailyRate = grossRental / days;
-
           const clientPct =
             row.client_profit_percentage != null
               ? Number(row.client_profit_percentage)
               : 70;
           const hostPct = 100 - clientPct;
-          const clientShare = (rentalNet * clientPct) / 100;
-          const managementFee = rentalNet - clientShare;
-          // Tolls are a client reimbursement to the host, NOT an expense that
-          // reduces rental earnings. The client earnings are based on the rental
-          // only; tolls are shown separately as a positive amount added to the
-          // host's reimbursement.
-          const clientEarnings = clientShare;
-          // Keep tollCost in the breakdown so the host can see how much the
-          // client will reimburse for tolls, displayed as a positive amount.
-          net = clientEarnings;
 
-          breakdown = {
-            grossRental,
-            days,
-            dailyRate,
-            actualDailyRate:
-              row.daily_rate != null ? Number(row.daily_rate) : null,
-            actualNights: row.nights != null ? Number(row.nights) : null,
-            platformFee,
-            platformPct,
-            platformLabel: row.payment_source || "Platform",
-            netFromPlatform,
-            deliveryFee,
-            rentalNet,
-            expenses: expenseItems,
-            totalExpenses,
-            netAfterExpenses: rentalNet,
-            clientPct,
-            hostPct,
-            managementFee,
-            clientShare,
-            tollCost,
-            tollToClient,
-            clientEarnings,
-          };
+          // Parse the optional break_down field. When present it drives the
+          // "How this is calculated" section with the exact nightly rates and
+          // weekly/monthly discounts reported by Eon.
+          let bd: any = row.break_down;
+          if (typeof bd === "string") {
+            try {
+              bd = JSON.parse(bd);
+            } catch {
+              bd = null;
+            }
+          }
+          const rentalItems: RentalPriceItem[] = Array.isArray(bd?.rental_prices)
+            ? bd.rental_prices
+                .map((p: any) => ({
+                  rate: Number(p?.rate) || 0,
+                  count: Number(p?.count) || 0,
+                }))
+                .filter((p: RentalPriceItem) => p.count > 0)
+            : [];
 
+          if (bd && rentalItems.length > 0) {
+            // break_down driven calculation.
+            const grossRental = rentalItems.reduce(
+              (s, p) => s + p.rate * p.count,
+              0,
+            );
+            // Discounts are stored as negative values and reduce the balance.
+            const weeklyDiscount = Number(bd.weekly_discount) || 0;
+            const monthlyDiscount = Number(bd.monthly_discount) || 0;
+            const subTotal = grossRental + weeklyDiscount + monthlyDiscount;
+            // Eon fee is a flat 30% of the discounted subtotal.
+            const platformFee = subTotal * PLATFORM_COMMISSION_RATE;
+            const rentalNet = subTotal - platformFee;
+            const clientShare = (rentalNet * clientPct) / 100;
+            const managementFee = rentalNet - clientShare;
+            const clientEarnings = clientShare;
+            net = clientEarnings;
+
+            breakdown = {
+              grossRental,
+              days,
+              dailyRate: 0,
+              actualDailyRate:
+                row.daily_rate != null ? Number(row.daily_rate) : null,
+              actualNights: row.nights != null ? Number(row.nights) : null,
+              platformFee,
+              platformPct: Math.round(PLATFORM_COMMISSION_RATE * 100),
+              platformLabel: row.payment_source || "Platform",
+              netFromPlatform,
+              deliveryFee: 0,
+              rentalNet,
+              expenses: [],
+              totalExpenses: 0,
+              netAfterExpenses: rentalNet,
+              clientPct,
+              hostPct,
+              managementFee,
+              clientShare,
+              tollCost,
+              tollToClient,
+              clientEarnings,
+              rentalItems,
+              weeklyDiscount,
+              monthlyDiscount,
+              subTotal,
+            };
+          } else {
+            // No break_down: the "How this is calculated" section is hidden, but
+            // we still derive the client's net for the top "Your earnings" card
+            // using the legacy platform-payout derivation.
+            const expenseItems = [
+              { label: "EV charging", amount: sum("ev_charge_cost"), always: true },
+              { label: "Delivery", amount: sum("delivery_cost") },
+              { label: "Car wash", amount: sum("carwash_cost") },
+              { label: "Other expenses", amount: sum("amount") },
+            ]
+              .filter((e) => e.always || e.amount > 0)
+              .map(({ label, amount }) => ({ label, amount }));
+            const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
+            const rentalNet = Math.max(0, netFromPlatform - totalExpenses);
+            const clientShare = (rentalNet * clientPct) / 100;
+            net = clientShare;
+            breakdown = null;
+          }
         }
+
         setTrip({
           id: row.id,
           trip_id: row.trip_id,
