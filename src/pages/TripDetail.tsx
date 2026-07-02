@@ -150,6 +150,7 @@ export default function TripDetail() {
   const [loading, setLoading] = useState(true);
   const [trip, setTrip] = useState<TripFull | null>(null);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [reimbursementOpen, setReimbursementOpen] = useState(false);
   const { toast } = useToast();
   const { activeWorkspace } = useWorkspace();
 
