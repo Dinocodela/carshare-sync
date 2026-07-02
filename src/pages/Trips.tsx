@@ -418,23 +418,46 @@ export default function Trips() {
           </p>
         </header>
 
-        <div className="mb-4 rounded-2xl border border-border/50 bg-card/80 p-4 backdrop-blur-sm">
-          <div className="mb-3 flex items-center justify-between">
-            <h4 className="font-medium">Filter Trips</h4>
+        <div className="mb-4 flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFiltersOpen(true)}
+            className="h-9"
+            aria-label="Open filters"
+          >
+            <SlidersHorizontal className="mr-2 h-4 w-4" />
+            Filters
             {activeFilterCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearAllFilters}
-                className="h-8"
-              >
-                <X className="mr-1 h-3 w-3" />
-                Clear Filters
-              </Button>
+              <Badge variant="secondary" className="ml-2">
+                {activeFilterCount}
+              </Badge>
             )}
-          </div>
-          <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${isHostRole ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
-            {/* Trip Search */}
+          </Button>
+          {activeFilterCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="h-9 text-muted-foreground hover:text-foreground"
+            >
+              <X className="mr-1 h-3 w-3" />
+              Clear
+            </Button>
+          )}
+        </div>
+
+        <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+          <SheetContent
+            side="bottom"
+            className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto"
+          >
+            <SheetHeader className="mb-4 text-left">
+              <SheetTitle>Filter Trips</SheetTitle>
+              <SheetDescription>Refine the list of trips.</SheetDescription>
+            </SheetHeader>
+            <div className="grid grid-cols-1 gap-3">
+              {/* Trip Search */}
             <form
               className="relative"
               onSubmit={(e) => {
