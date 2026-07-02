@@ -121,6 +121,7 @@ export default function Trips() {
   const [carOptions, setCarOptions] = useState<
     { id: string; label: string }[]
   >([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const activeFilterCount =
     (carFilter !== "all" ? 1 : 0) +
