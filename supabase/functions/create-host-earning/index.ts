@@ -23,6 +23,11 @@ interface EarningPayload {
   earning_type?: string;
   pickup_address?: string;
   return_address?: string;
+  break_down?: {
+    weekly_discount?: number;
+    monthly_discount?: number;
+    rental_prices?: { rate: number; count: number }[];
+  } | null;
 }
 
 /**
