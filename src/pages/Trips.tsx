@@ -610,8 +610,7 @@ export default function Trips() {
     </div>
   );
 
-  const currentPage = Math.min(page, totalPages);
-  const pageStart = (currentPage - 1) * PAGE_SIZE;
+
 
   return (
     <DashboardLayout>
