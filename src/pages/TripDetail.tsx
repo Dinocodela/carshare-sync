@@ -533,12 +533,12 @@ export default function TripDetail() {
                   onClick={() => setBreakdownOpen((v) => !v)}
                   className="flex w-full items-center justify-between text-left"
                 >
-                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-primary">
                     How this is calculated
                   </span>
                   <ChevronDown
-                    className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
-                      breakdownOpen ? "rotate-180" : ""
+                    className={`h-5 w-5 shrink-0 text-primary transition-transform ${
+                      breakdownOpen ? "rotate-180" : "animate-bounce"
                     }`}
                   />
                 </button>
