@@ -75,6 +75,24 @@ export default function Trips() {
     }
   });
   const [showRecent, setShowRecent] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Live search: update the query as the user types (debounced), no Enter needed.
+  useEffect(() => {
+    const v = search.trim();
+    if (v === searchTerm) return;
+    const t = setTimeout(() => {
+      setPage(1);
+      setSearchParams((prev) => {
+        if (v) prev.set("q", v);
+        else prev.delete("q");
+        prev.set("page", "1");
+        return prev;
+      });
+    }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const persistRecent = (list: string[]) => {
     setRecentSearches(list);
