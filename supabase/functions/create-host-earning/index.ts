@@ -23,6 +23,11 @@ interface EarningPayload {
   earning_type?: string;
   pickup_address?: string;
   return_address?: string;
+  break_down?: {
+    weekly_discount?: number;
+    monthly_discount?: number;
+    rental_prices?: { rate: number; count: number }[];
+  } | null;
 }
 
 /**
@@ -196,6 +201,7 @@ Deno.serve(async (req) => {
       if (payload.guest_name !== undefined) data.guest_name = payload.guest_name || null;
       if (payload.pickup_address !== undefined) data.pickup_address = payload.pickup_address || null;
       if (payload.return_address !== undefined) data.return_address = payload.return_address || null;
+      if (payload.break_down !== undefined) data.break_down = payload.break_down ?? null;
       if (payload.trip_idd !== undefined) data.trip_idd = payload.trip_idd || null;
       if (payload.earning_type !== undefined) data.earning_type = payload.earning_type;
       if (payload.payment_source !== undefined) data.payment_source = payload.payment_source;

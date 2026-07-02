@@ -910,6 +910,7 @@ export type Database = {
         Row: {
           amount: number
           booking_id: string | null
+          break_down: Json | null
           car_id: string
           client_profit_percentage: number | null
           commission: number | null
@@ -939,6 +940,7 @@ export type Database = {
         Insert: {
           amount: number
           booking_id?: string | null
+          break_down?: Json | null
           car_id: string
           client_profit_percentage?: number | null
           commission?: number | null
@@ -968,6 +970,7 @@ export type Database = {
         Update: {
           amount?: number
           booking_id?: string | null
+          break_down?: Json | null
           car_id?: string
           client_profit_percentage?: number | null
           commission?: number | null
@@ -2279,6 +2282,7 @@ export type Database = {
         Row: {
           amount: number | null
           booking_id: string | null
+          break_down: Json | null
           car_id: string | null
           client_profit_percentage: number | null
           commission: number | null
@@ -2308,6 +2312,7 @@ export type Database = {
         Insert: {
           amount?: number | null
           booking_id?: string | null
+          break_down?: Json | null
           car_id?: string | null
           client_profit_percentage?: number | null
           commission?: number | null
@@ -2337,6 +2342,7 @@ export type Database = {
         Update: {
           amount?: number | null
           booking_id?: string | null
+          break_down?: Json | null
           car_id?: string | null
           client_profit_percentage?: number | null
           commission?: number | null
