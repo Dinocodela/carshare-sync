@@ -468,8 +468,12 @@ export default function Trips() {
 
         <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
           <SheetContent
-            side="bottom"
-            className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto"
+            side={isMobile ? "bottom" : "right"}
+            className={
+              isMobile
+                ? "rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto"
+                : "w-full sm:max-w-md p-6 overflow-y-auto"
+            }
           >
             <SheetHeader className="mb-4 text-left">
               <SheetTitle>Filter Trips</SheetTitle>
