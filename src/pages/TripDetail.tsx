@@ -150,6 +150,7 @@ export default function TripDetail() {
   const [loading, setLoading] = useState(true);
   const [trip, setTrip] = useState<TripFull | null>(null);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [reimbursementOpen, setReimbursementOpen] = useState(false);
   const { toast } = useToast();
   const { activeWorkspace } = useWorkspace();
 
@@ -617,35 +618,58 @@ export default function TripDetail() {
         {/* Reimbursed to host (separate from earnings) */}
         {trip.breakdown && trip.breakdown.expenses.length > 0 && (
           <section className="mb-6 rounded-2xl border bg-card p-5">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Reimbursed to host
-            </p>
-            <dl className="space-y-2 text-sm">
-              {trip.breakdown.expenses.map((e) => (
-                <div key={e.label} className="flex items-center justify-between">
-                  <dt className="text-muted-foreground">{e.label}</dt>
-                  <dd className="font-medium text-foreground">{money2(e.amount)}</dd>
-                </div>
-              ))}
-              {!trip.breakdown.tollToClient && (
-                <div className="flex items-center justify-between">
-                  <dt className="text-muted-foreground">Toll</dt>
-                  <dd className="font-medium text-foreground">{money2(trip.breakdown.tollCost)}</dd>
-                </div>
-              )}
-              <div className="flex items-center justify-between border-t pt-2">
-                <dt className="text-foreground">Total reimbursement</dt>
-                <dd className="font-semibold text-foreground">
+            <button
+              type="button"
+              onClick={() => setReimbursementOpen((v) => !v)}
+              className="flex w-full items-center justify-between text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Reimbursed to host
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground">
                   {money2(
                     trip.breakdown.totalExpenses +
                       (trip.breakdown.tollToClient ? 0 : trip.breakdown.tollCost),
                   )}
-                </dd>
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                    reimbursementOpen ? "rotate-180" : ""
+                  }`}
+                />
               </div>
-            </dl>
-            <p className="pt-2 text-xs text-muted-foreground">
-              These costs (EV charging, delivery, etc.) are reimbursed to the host and are not part of your earnings. Amounts shown as $0.00 are placeholders until post-trip data is entered.
-            </p>
+            </button>
+            {reimbursementOpen && (
+              <>
+                <dl className="mt-3 space-y-2 text-sm">
+                  {trip.breakdown.expenses.map((e) => (
+                    <div key={e.label} className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">{e.label}</dt>
+                      <dd className="font-medium text-foreground">{money2(e.amount)}</dd>
+                    </div>
+                  ))}
+                  {!trip.breakdown.tollToClient && (
+                    <div className="flex items-center justify-between">
+                      <dt className="text-muted-foreground">Toll</dt>
+                      <dd className="font-medium text-foreground">{money2(trip.breakdown.tollCost)}</dd>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between border-t pt-2">
+                    <dt className="text-foreground">Total reimbursement</dt>
+                    <dd className="font-semibold text-foreground">
+                      {money2(
+                        trip.breakdown.totalExpenses +
+                          (trip.breakdown.tollToClient ? 0 : trip.breakdown.tollCost),
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="pt-2 text-xs text-muted-foreground">
+                  These costs (EV charging, delivery, etc.) are reimbursed to the host and are not part of your earnings. Amounts shown as $0.00 are placeholders until post-trip data is entered.
+                </p>
+              </>
+            )}
           </section>
         )}
 
