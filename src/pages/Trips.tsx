@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Sheet,
   SheetContent,
@@ -74,6 +75,24 @@ export default function Trips() {
     }
   });
   const [showRecent, setShowRecent] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Live search: update the query as the user types (debounced), no Enter needed.
+  useEffect(() => {
+    const v = search.trim();
+    if (v === searchTerm) return;
+    const t = setTimeout(() => {
+      setPage(1);
+      setSearchParams((prev) => {
+        if (v) prev.set("q", v);
+        else prev.delete("q");
+        prev.set("page", "1");
+        return prev;
+      });
+    }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const persistRecent = (list: string[]) => {
     setRecentSearches(list);
@@ -449,8 +468,12 @@ export default function Trips() {
 
         <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
           <SheetContent
-            side="bottom"
-            className="rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto"
+            side={isMobile ? "bottom" : "right"}
+            className={
+              isMobile
+                ? "rounded-t-2xl p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] max-h-[85vh] overflow-y-auto"
+                : "w-full sm:max-w-md p-6 overflow-y-auto"
+            }
           >
             <SheetHeader className="mb-4 text-left">
               <SheetTitle>Filter Trips</SheetTitle>
