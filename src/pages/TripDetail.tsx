@@ -625,11 +625,6 @@ export default function TripDetail() {
                     </dt>
                     <dd className="text-base font-bold text-primary">{money2(trip.breakdown.clientEarnings)}</dd>
                   </div>
-                  <p className="pt-1 text-xs text-muted-foreground">
-                    {trip.breakdown.tollToClient
-                      ? "Tolls are reimbursed to you and are not part of your rental earnings. EV charging, delivery and other costs are reimbursed to the host and are not part of your earnings."
-                      : "Tolls, EV charging, delivery and other costs are reimbursed to the host and are not part of your rental earnings."}
-                  </p>
 
 
 
