@@ -138,9 +138,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-      navigate(ROLE_HOME[role]);
+
+      // Only redirect when the current page belongs to a *different* workspace.
+      // Pages that aren't workspace-specific (dashboard, trips, settings, etc.)
+      // are shared, so we stay put on those.
+      const pageWorkspace = workspaceForPath(location.pathname);
+      if (pageWorkspace && pageWorkspace !== role) {
+        navigate(ROLE_HOME[role]);
+      }
     },
-    [user, landingSeen, navigate]
+    [user, landingSeen, navigate, location.pathname]
   );
 
   const markLandingSeen = useCallback(
