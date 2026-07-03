@@ -30,6 +30,21 @@ const ROLE_HOME: Record<WorkspaceRole, string> = {
   investor: "/investor",
 };
 
+// Maps a route to the workspace it belongs to. Returns null for shared pages
+// (dashboard, trips, settings, etc.) that every workspace can access.
+function workspaceForPath(path: string): WorkspaceRole | null {
+  if (path.startsWith("/investor")) return "investor";
+  if (path === "/my-cars" || path === "/client-analytics" || path === "/add-car")
+    return "client";
+  if (
+    path.startsWith("/host-car-management") ||
+    path === "/registered-clients" ||
+    path === "/host-analytics"
+  )
+    return "host";
+  return null;
+}
+
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -89,16 +104,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   // not whatever workspace happened to be active before.
   useEffect(() => {
     if (loading || !user) return;
-    const path = location.pathname;
-    const routeWorkspace: WorkspaceRole | null = path.startsWith("/investor")
-      ? "investor"
-      : path === "/my-cars" || path === "/client-analytics" || path === "/add-car"
-      ? "client"
-      : path.startsWith("/host-car-management") ||
-        path === "/registered-clients" ||
-        path === "/host-analytics"
-      ? "host"
-      : null;
+    const routeWorkspace = workspaceForPath(location.pathname);
     if (!routeWorkspace || routeWorkspace === activeWorkspace) return;
     if (!availableRoles.some((r) => r.role === routeWorkspace)) return;
     setActiveWorkspace(routeWorkspace);
@@ -138,9 +144,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-      navigate(ROLE_HOME[role]);
+
+      // Only redirect when the current page belongs to a *different* workspace.
+      // Pages that aren't workspace-specific (dashboard, trips, settings, etc.)
+      // are shared, so we stay put on those.
+      const pageWorkspace = workspaceForPath(location.pathname);
+      if (pageWorkspace && pageWorkspace !== role) {
+        navigate(ROLE_HOME[role]);
+      }
     },
-    [user, landingSeen, navigate]
+    [user, landingSeen, navigate, location.pathname]
   );
 
   const markLandingSeen = useCallback(
