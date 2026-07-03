@@ -604,16 +604,33 @@ export default function TripDetail() {
                   </div>
 
 
-                  <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">
-                      Management fee ({trip.breakdown.hostPct}%)
-                    </dt>
-                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
-                  </div>
-                  <div className="flex items-center justify-between border-t pt-2">
-                    <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
-                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
-                  </div>
+                  {activeWorkspace === "host" ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <dt className="text-muted-foreground">
+                          Client share ({trip.breakdown.clientPct}%)
+                        </dt>
+                        <dd className="font-medium text-foreground">−{money2(trip.breakdown.clientShare)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between border-t pt-2">
+                        <dt className="text-foreground">Your management fee ({trip.breakdown.hostPct}%)</dt>
+                        <dd className="font-semibold text-foreground">{money2(trip.breakdown.managementFee)}</dd>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <dt className="text-muted-foreground">
+                          Management fee ({trip.breakdown.hostPct}%)
+                        </dt>
+                        <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between border-t pt-2">
+                        <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
+                        <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
+                      </div>
+                    </>
+                  )}
                   {trip.breakdown.tollToClient && (
                     <div className="flex items-center justify-between">
                       <dt className="text-muted-foreground">
