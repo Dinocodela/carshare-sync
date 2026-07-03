@@ -30,6 +30,21 @@ const ROLE_HOME: Record<WorkspaceRole, string> = {
   investor: "/investor",
 };
 
+// Maps a route to the workspace it belongs to. Returns null for shared pages
+// (dashboard, trips, settings, etc.) that every workspace can access.
+function workspaceForPath(path: string): WorkspaceRole | null {
+  if (path.startsWith("/investor")) return "investor";
+  if (path === "/my-cars" || path === "/client-analytics" || path === "/add-car")
+    return "client";
+  if (
+    path.startsWith("/host-car-management") ||
+    path === "/registered-clients" ||
+    path === "/host-analytics"
+  )
+    return "host";
+  return null;
+}
+
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
