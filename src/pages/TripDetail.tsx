@@ -296,7 +296,9 @@ export default function TripDetail() {
             const rentalNet = subTotal - platformFee;
             const clientShare = (rentalNet * clientPct) / 100;
             const managementFee = rentalNet - clientShare;
-            const clientEarnings = clientShare;
+            // "Your earnings" reflects the active workspace: hosts see the
+            // management fee they keep, clients see their share.
+            const clientEarnings = isHost ? managementFee : clientShare;
             net = clientEarnings;
 
             breakdown = {
