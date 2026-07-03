@@ -344,7 +344,8 @@ export default function TripDetail() {
             const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
             const rentalNet = Math.max(0, netFromPlatform - totalExpenses);
             const clientShare = (rentalNet * clientPct) / 100;
-            net = clientShare;
+            const managementFee = rentalNet - clientShare;
+            net = isHost ? managementFee : clientShare;
             breakdown = null;
           }
         }
