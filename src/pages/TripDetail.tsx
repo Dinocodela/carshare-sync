@@ -296,7 +296,9 @@ export default function TripDetail() {
             const rentalNet = subTotal - platformFee;
             const clientShare = (rentalNet * clientPct) / 100;
             const managementFee = rentalNet - clientShare;
-            const clientEarnings = clientShare;
+            // "Your earnings" reflects the active workspace: hosts see the
+            // management fee they keep, clients see their share.
+            const clientEarnings = isHost ? managementFee : clientShare;
             net = clientEarnings;
 
             breakdown = {
@@ -342,7 +344,8 @@ export default function TripDetail() {
             const totalExpenses = expenseItems.reduce((s, e) => s + e.amount, 0);
             const rentalNet = Math.max(0, netFromPlatform - totalExpenses);
             const clientShare = (rentalNet * clientPct) / 100;
-            net = clientShare;
+            const managementFee = rentalNet - clientShare;
+            net = isHost ? managementFee : clientShare;
             breakdown = null;
           }
         }
@@ -601,16 +604,33 @@ export default function TripDetail() {
                   </div>
 
 
-                  <div className="flex items-center justify-between">
-                    <dt className="text-muted-foreground">
-                      Management fee ({trip.breakdown.hostPct}%)
-                    </dt>
-                    <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
-                  </div>
-                  <div className="flex items-center justify-between border-t pt-2">
-                    <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
-                    <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
-                  </div>
+                  {activeWorkspace === "host" ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <dt className="text-muted-foreground">
+                          Client share ({trip.breakdown.clientPct}%)
+                        </dt>
+                        <dd className="font-medium text-foreground">−{money2(trip.breakdown.clientShare)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between border-t pt-2">
+                        <dt className="text-foreground">Your management fee ({trip.breakdown.hostPct}%)</dt>
+                        <dd className="font-semibold text-foreground">{money2(trip.breakdown.managementFee)}</dd>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <dt className="text-muted-foreground">
+                          Management fee ({trip.breakdown.hostPct}%)
+                        </dt>
+                        <dd className="font-medium text-foreground">−{money2(trip.breakdown.managementFee)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between border-t pt-2">
+                        <dt className="text-foreground">Your share ({trip.breakdown.clientPct}%)</dt>
+                        <dd className="font-semibold text-foreground">{money2(trip.breakdown.clientShare)}</dd>
+                      </div>
+                    </>
+                  )}
                   {trip.breakdown.tollToClient && (
                     <div className="flex items-center justify-between">
                       <dt className="text-muted-foreground">
