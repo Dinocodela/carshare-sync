@@ -13,6 +13,7 @@ import {
   Receipt,
   ChevronRight,
   LogOut,
+  CalendarDays,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,6 +111,7 @@ export function BottomNavBar() {
   // Secondary items shown in the "More" drawer
   const clientMoreItems: NavItem[] = useMemo(
     () => [
+      { title: "Calendar", url: "/calendar", icon: CalendarDays },
       { title: "My Cars", url: "/my-cars", icon: Car },
       { title: "Fixed Expenses", url: "/client-fixed-expenses", icon: Receipt },
       { title: "Settings", url: "/settings", icon: Settings },
@@ -119,6 +121,7 @@ export function BottomNavBar() {
 
   const hostMoreItems: NavItem[] = useMemo(
     () => [
+      { title: "Calendar", url: "/calendar", icon: CalendarDays },
       { title: "Hosted Cars", url: "/host-car-management", icon: Car },
       { title: "Clients", url: "/registered-clients", icon: Users },
       { title: "Claims", url: "/host-car-management#claims", icon: Shield },
