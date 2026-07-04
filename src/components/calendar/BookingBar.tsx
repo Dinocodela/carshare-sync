@@ -54,12 +54,9 @@ export function BookingBar({
     </div>
   );
 
-  if (booking.trip_id) {
-    return (
-      <Link to={`/trips/${booking.id}`} className="block">
-        {content}
-      </Link>
-    );
-  }
-  return content;
+  return (
+    <Link to={`/trips/${booking.id}`} className="block">
+      {content}
+    </Link>
+  );
 }
