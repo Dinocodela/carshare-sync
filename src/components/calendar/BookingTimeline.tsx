@@ -107,7 +107,7 @@ export function BookingTimeline({
                 className="sticky left-0 z-20 bg-card border-r flex items-center gap-2 px-2"
                 style={{ width: LEFT_WIDTH, minWidth: LEFT_WIDTH }}
               >
-                <div className="h-10 w-10 shrink-0 rounded-md bg-muted overflow-hidden flex items-center justify-center">
+                <div className="h-11 w-11 shrink-0 rounded-lg bg-muted overflow-hidden flex items-center justify-center ring-1 ring-border">
                   {car.images && car.images[0] ? (
                     <img
                       src={car.images[0]}
@@ -121,13 +121,14 @@ export function BookingTimeline({
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold leading-tight truncate">
-                    {car.model
-                      ? `${car.year ?? ""} ${car.make ?? ""} ${car.model}`.trim()
-                      : formatCarName(car)}
+                    {car.nickname?.trim() ||
+                      (car.model
+                        ? `${car.make ?? ""} ${car.model}`.trim()
+                        : formatCarName(car))}
                   </p>
                   {car.license_plate && (
-                    <p className="text-[10px] text-muted-foreground truncate">
-                      {car.license_plate}
+                    <p className="mt-0.5 inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-muted-foreground truncate max-w-full">
+                      {car.license_plate.toUpperCase()}
                     </p>
                   )}
                 </div>
