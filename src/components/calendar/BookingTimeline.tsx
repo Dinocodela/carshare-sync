@@ -14,9 +14,9 @@ interface BookingTimelineProps {
   toDate: (s: string) => Date;
 }
 
-const COL_WIDTH = 56;
-const LEFT_WIDTH = 168;
-const ROW_HEIGHT = 72;
+const COL_WIDTH = 52;
+const LEFT_WIDTH = 128;
+const ROW_HEIGHT = 68;
 
 export function BookingTimeline({
   cars,
