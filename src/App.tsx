@@ -86,6 +86,7 @@ import TeslaRentalNearMe from "./pages/TeslaRentalNearMe";
 import TeslaRentalInsurance from "./pages/TeslaRentalInsurance";
 import TeslaRentalStatistics from "./pages/TeslaRentalStatistics";
 import Trips from "./pages/Trips";
+import BookingCalendar from "./pages/BookingCalendar";
 import TripDetail from "./pages/TripDetail";
 import { WorkspaceProvider } from "@/hooks/useWorkspace";
 import WelcomeInvestor from "./pages/welcome/WelcomeInvestor";
@@ -217,6 +218,7 @@ const App = () => (
                   <Route element={<RequireSubscribed />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/trips" element={<Trips />} />
+                    <Route path="/calendar" element={<BookingCalendar />} />
                     <Route path="/trips/:earningId" element={<TripDetail />} />
                     <Route
                       path="/client-analytics"
