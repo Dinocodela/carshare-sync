@@ -1,35 +1,50 @@
-# Client push notifications on payment completed
-
 ## Goal
-When a host marks a client's earning as **paid**, the client should get:
-- An **email** — already working (`send-client-commission-paid`).
-- A **push notification on their phone** (installed native app) — currently broken.
+Add a Turo-style **booking calendar** for both host and client workspaces: a horizontally scrollable timeline where each accessible car is a row, days run across the top, and bookings appear as bars spanning their date range. It respects the active workspace (host sees host cars, client sees owned/shared cars).
 
-## Why it's broken today
-1. `send-client-commission-paid` calls `push-send` using a **service-role** token. `push-send` runs `auth.getUser()` on that token, which is not a real user, so it returns **401** and no push is sent.
-2. Even if that call succeeded, `push-send` only sends **Web Push** (VAPID → `push_subscriptions`). It never sends **native FCM** (→ `push_devices`), which is what the installed app relies on. FCM credentials already exist as secrets (`FCM_PROJECT_ID`, `FCM_CLIENT_EMAIL`, `FCM_PRIVATE_KEY`) but nothing uses them for sending.
+## Data reality (important)
+- The app has **no per-day price or availability model** for cars. Prices only exist on actual bookings via `host_earnings` (`amount`, `earning_period_start`, `earning_period_end`, and the new `break_down` JSON).
+- Therefore the calendar shows **booking bars** across their date ranges. For per-day display, we derive a daily rate on booked days only: `amount / number_of_days`. Open (unbooked) days render as empty cells, not priced cells like Turo's screenshot.
+- No DB/schema/migration changes are needed. This is read-only, frontend-only work using existing tables and existing car-access logic.
 
-## Changes
+## Layout (mobile-first, Turo-style)
+```text
+            | JUL 3 | 4 | 5 | 6 | 7 | 8 | 9 | ...
+Model 3     |   [====$99/day====]        |
+9CUJ351     |
+Model Y     |          [==$112/day==]     |
+9DZM189     |
+```
+- Sticky left column: car thumbnail + name + plate (reuse `carName` / existing car fields).
+- Sticky top header row: day columns (weekday + date). Today highlighted.
+- Body: one row per car; each booking rendered as a rounded bar positioned/spanning from `earning_period_start` to `earning_period_end`, tinted (amber accent like the reference), showing derived per-day rate (toggle-able / bar shows range).
+- Horizontal scroll for the day axis; vertical scroll for cars. Left column and top header stay pinned.
+- Default visible window: current month (or ~30 days from today), with prev/next month navigation and a "today" jump — matching the reference's `JULY 2026` selector and arrows.
 
-### 1. Add native FCM sending to `push-send`
-- Add a helper that mints a Google OAuth access token from the service-account secrets (`FCM_CLIENT_EMAIL`, `FCM_PRIVATE_KEY`, `FCM_PROJECT_ID`) and POSTs to the FCM HTTP v1 endpoint (`https://fcm.googleapis.com/v1/projects/{FCM_PROJECT_ID}/messages:send`).
-- Look up the target user's rows in `push_devices` where `muted = false` and `revoked_at IS NULL`, and send each token an FCM message (title, body, and a `data.url` so tapping opens the right screen — reusing the existing `attachNotificationNavigation` handler).
-- On FCM `404`/`UNREGISTERED` responses, delete the stale device token (mirrors the existing web-push cleanup).
-- Keep the existing Web Push (`push_subscriptions`) delivery so browser/PWA users still work. The function sends to whatever the user has registered.
+## Placement
+- New route `/calendar`, rendered inside the existing `DashboardLayout` (so it inherits sidebar/bottom-nav + workspace switcher).
+- Add a **Calendar** nav item (icon + label) to both `AppSidebar.tsx` and `BottomNavBar.tsx`, visible in host and client workspaces. Keep bottom nav at 5 items max (per project rule) — if full, replace/relocate a lower-priority item or place Calendar in the sidebar + an entry point on Trips.
 
-### 2. Allow trusted server-to-server calls to `push-send`
-- Detect when the incoming `Authorization` bearer equals `SUPABASE_SERVICE_ROLE_KEY`. In that case, treat the call as trusted internal and honor `targetUserId` without requiring a signed-in user.
-- Keep the current rule for normal callers: a regular user can only push to themselves; targeting another user still requires `is_super_admin`.
-- This unblocks the payment flow while preserving the existing security posture (memory: `targetUserId` restricted to super-admins for end-user callers).
+## Data fetching
+- New hook `useBookingsCalendar()`:
+  - Determine cars for the active workspace by reusing existing logic (`useHostCars` for host, `useCars` for client) so access rules/RLS are respected.
+  - Fetch `host_earnings` for those `car_id`s within the visible date window (`id, car_id, trip_id, guest_name, amount, earning_period_start, earning_period_end, break_down`).
+  - Group earnings by `car_id`; compute per-booking day span and derived daily rate.
+- Respect the 1000-row default limit by scoping the query to the visible window and the user's car set.
 
-### 3. Payment flow stays as-is
-- `send-client-commission-paid` already invokes `push-send` with `targetUserId: car.client_id` and a good title/body/url. No change needed there beyond it now succeeding. The email path is untouched.
+## Components
+- `src/pages/BookingCalendar.tsx` — page wrapper, month state, workspace-aware title, empty state.
+- `src/components/calendar/BookingTimeline.tsx` — the scrollable grid (header, car rows, positioning math).
+- `src/components/calendar/BookingBar.tsx` — a single booking bar (range, amount/daily rate, guest name on tap → link to `/trip/:tripId` when `trip_id` exists).
+- Reuse shadcn `Card`, existing date helpers, and the `T00:00:00` date-parsing rule (per project memory) for all date-string → Date conversions to avoid off-by-one.
+
+## Styling
+- Use semantic tokens only (no hardcoded colors) — amber/primary accent for booking bars to echo the Turo look, muted grid lines, `bg-accent` for today.
+- Mobile-first; also usable on desktop (wider visible window).
+
+## Out of scope (unless you want it)
+- Editing/creating bookings from the calendar (view-only for now).
+- A real per-day pricing/availability calendar for open days (would need a new pricing model + schema).
 
 ## Verification
-- Deploy `push-send`.
-- Mark a test earning as **paid** for a client who has the app installed and notifications enabled, and confirm the phone receives the push (and the existing email still arrives).
-- Check `push-send` edge logs for FCM send results / token cleanup.
-
-## Notes
-- Requires the client to have opened the installed app and enabled notifications (you confirmed this is done) so a row exists in `push_devices`.
-- No schema/table changes — `push_devices` and `push_subscriptions` already exist. This is edge-function-only work.
+- Typecheck with `tsgo`.
+- Playwright against localhost: load `/calendar` in host and client workspaces, confirm correct cars appear as rows and booking bars land on the right dates; screenshot mobile viewport.
