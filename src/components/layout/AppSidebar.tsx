@@ -1,4 +1,4 @@
-import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Route as RouteIcon, TrendingUp, ShoppingBag, DollarSign } from 'lucide-react';
+import { Car, Home, Plus, Settings, BarChart3, Shield, Users, Route as RouteIcon, TrendingUp, ShoppingBag, DollarSign, CalendarDays } from 'lucide-react';
 
 import { NavLink } from 'react-router-dom';
 import {
