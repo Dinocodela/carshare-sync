@@ -28,6 +28,7 @@ export function AppSidebar() {
       return [
         ...baseItems,
         { title: "Trips", url: "/trips", icon: RouteIcon },
+        { title: "Calendar", url: "/calendar", icon: CalendarDays },
         { title: "Analytics", url: "/client-analytics", icon: BarChart3 },
         { title: "My Cars", url: "/my-cars", icon: Car },
         { title: "Add Car", url: "/add-car", icon: Plus },
@@ -39,6 +40,7 @@ export function AppSidebar() {
       return [
         ...baseItems,
         { title: "Trips", url: "/trips", icon: RouteIcon },
+        { title: "Calendar", url: "/calendar", icon: CalendarDays },
         { title: "Analytics", url: "/host-analytics", icon: BarChart3 },
         { title: "Hosted Cars", url: "/host-car-management", icon: Car },
         { title: "Clients", url: "/registered-clients", icon: Users },
