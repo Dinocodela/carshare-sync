@@ -20,6 +20,7 @@ export interface CalendarBooking {
   trip_id: string | null;
   guest_name: string | null;
   amount: number;
+  displayAmount: number; // party's share (net, after expenses)
   start: string; // date string
   end: string; // date string
 }
