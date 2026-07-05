@@ -101,24 +101,51 @@ export function useBookingsCalendar(windowStart: Date, windowEnd: Date) {
           const { data: earnings, error: eErr } = await supabase
             .from("host_earnings")
             .select(
-              "id, car_id, trip_id, guest_name, amount, earning_period_start, earning_period_end"
+              "id, car_id, trip_id, guest_name, amount, client_profit_percentage, host_profit_percentage, earning_period_start, earning_period_end"
             )
             .in("car_id", carIds)
             .lte("earning_period_start", endISO)
             .gte("earning_period_end", startISO);
           if (eErr) throw eErr;
 
-          bookingRows = (earnings || [])
-            .filter((r: any) => r.earning_period_start && r.earning_period_end)
-            .map((r: any) => ({
+          const rows = (earnings || []).filter(
+            (r: any) => r.earning_period_start && r.earning_period_end
+          );
+
+          // Fetch matched trip expenses for the trips in this window.
+          const tripIds = Array.from(
+            new Set(rows.map((r: any) => r.trip_id).filter(Boolean))
+          ) as string[];
+          let expenses: any[] = [];
+          if (tripIds.length > 0) {
+            const { data: exp } = await supabase
+              .from("host_expenses")
+              .select(
+                "trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost"
+              )
+              .in("trip_id", tripIds);
+            expenses = exp || [];
+          }
+
+          const isHost = activeWorkspace === "host";
+          bookingRows = rows.map((r: any) => {
+            const amount = Number(r.amount) || 0;
+            const tripExpenses = getTripExpensesTotal(r.trip_id, expenses);
+            const net = amount - tripExpenses;
+            const pct = isHost
+              ? Number(r.host_profit_percentage) || 30
+              : Number(r.client_profit_percentage) || 70;
+            return {
               id: r.id,
               car_id: r.car_id,
               trip_id: r.trip_id,
               guest_name: r.guest_name,
-              amount: Number(r.amount) || 0,
+              amount,
+              displayAmount: (net * pct) / 100,
               start: r.earning_period_start,
               end: r.earning_period_end,
-            }));
+            };
+          });
         }
 
         if (!cancelled) {
