@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useWorkspace } from "./useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
+import { getTripExpensesTotal } from "@/lib/expenseMatching";
 
 export interface CalendarCar {
   id: string;
