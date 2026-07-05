@@ -1,27 +1,34 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   startOfMonth,
   endOfMonth,
   addMonths,
   subMonths,
   differenceInCalendarDays,
-  format,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Loader2, CalendarDays } from "lucide-react";
+import { Loader2, CalendarDays } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
-import { Button } from "@/components/ui/button";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { useBookingsCalendar } from "@/hooks/useBookingsCalendar";
 import { BookingTimeline } from "@/components/calendar/BookingTimeline";
 
+// Continuous rolling window: 1 month back → 12 months ahead.
+const MONTHS_BACK = 1;
+const MONTHS_AHEAD = 12;
+
 export default function BookingCalendar() {
   const { activeWorkspace } = useWorkspace();
-  const [monthAnchor, setMonthAnchor] = useState(() => new Date());
 
-  const windowStart = useMemo(() => startOfMonth(monthAnchor), [monthAnchor]);
-  const windowEnd = useMemo(() => endOfMonth(monthAnchor), [monthAnchor]);
+  const windowStart = useMemo(
+    () => startOfMonth(subMonths(new Date(), MONTHS_BACK)),
+    []
+  );
+  const windowEnd = useMemo(
+    () => endOfMonth(addMonths(new Date(), MONTHS_AHEAD)),
+    []
+  );
   const days = differenceInCalendarDays(windowEnd, windowStart) + 1;
 
   const { cars, bookings, loading, error, toDate } = useBookingsCalendar(
@@ -37,46 +44,16 @@ export default function BookingCalendar() {
       />
       <PageContainer>
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                <CalendarDays className="h-6 w-6 text-primary" />
-                Booking Calendar
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {activeWorkspace === "host"
-                  ? "Bookings across the cars you host"
-                  : "Bookings across your vehicles"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setMonthAnchor((m) => subMonths(m, 1))}
-                aria-label="Previous month"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="min-w-[130px] text-center text-sm font-semibold">
-                {format(monthAnchor, "MMMM yyyy")}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setMonthAnchor((m) => addMonths(m, 1))}
-                aria-label="Next month"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMonthAnchor(new Date())}
-              >
-                Today
-              </Button>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <CalendarDays className="h-6 w-6 text-primary" />
+              Booking Calendar
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {activeWorkspace === "host"
+                ? "Bookings across the cars you host — scroll sideways to move through the months"
+                : "Bookings across your vehicles — scroll sideways to move through the months"}
+            </p>
           </div>
 
           {loading ? (
