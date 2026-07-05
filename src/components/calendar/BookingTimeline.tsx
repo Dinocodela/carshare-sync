@@ -1,5 +1,5 @@
 import { useMemo, useRef, useEffect } from "react";
-import { addDays, format, isToday, isWeekend } from "date-fns";
+import { addDays, format, isToday, isWeekend, isSameMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatCarName } from "@/lib/carName";
 import { CalendarCar, CalendarBooking } from "@/hooks/useBookingsCalendar";
@@ -32,6 +32,20 @@ export function BookingTimeline({
     [windowStart, days]
   );
 
+  // Group consecutive days into month segments for the top month band.
+  const monthSegments = useMemo(() => {
+    const segments: { label: string; startIdx: number; span: number }[] = [];
+    dayList.forEach((d, i) => {
+      const last = segments[segments.length - 1];
+      if (last && isSameMonth(d, addDays(windowStart, last.startIdx))) {
+        last.span += 1;
+      } else {
+        segments.push({ label: format(d, "MMMM yyyy"), startIdx: i, span: 1 });
+      }
+    });
+    return segments;
+  }, [dayList, windowStart]);
+
   const bookingsByCar = useMemo(() => {
     const map = new Map<string, CalendarBooking[]>();
     bookings.forEach((b) => {
@@ -42,7 +56,7 @@ export function BookingTimeline({
     return map;
   }, [bookings]);
 
-  // Scroll so that "today" (or window start) is comfortably in view on mount.
+  // Scroll so that "today" is comfortably in view on mount.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -61,14 +75,34 @@ export function BookingTimeline({
       style={{ maxHeight: "calc(100dvh - 220px)" }}
     >
       <div style={{ width: gridWidth }}>
-        {/* Header */}
-        <div className="flex sticky top-0 z-30 bg-card border-b">
+        {/* Month band */}
+        <div className="flex sticky top-0 z-40 bg-card border-b">
           <div
-            className="sticky left-0 z-40 bg-card border-r flex items-center px-3 text-xs font-semibold text-muted-foreground"
+            className="sticky left-0 z-50 bg-card border-r"
             style={{ width: LEFT_WIDTH, minWidth: LEFT_WIDTH }}
-          >
-            {format(windowStart, "MMMM yyyy")}
+          />
+          <div className="relative" style={{ width: days * COL_WIDTH }}>
+            {monthSegments.map((seg, i) => (
+              <div
+                key={i}
+                className="absolute top-0 flex h-8 items-center px-3 text-xs font-bold text-foreground"
+                style={{ left: seg.startIdx * COL_WIDTH, width: seg.span * COL_WIDTH }}
+              >
+                <span className="sticky left-[136px] whitespace-nowrap">
+                  {seg.label}
+                </span>
+              </div>
+            ))}
+            <div className="h-8" />
           </div>
+        </div>
+
+        {/* Day header */}
+        <div className="flex sticky top-8 z-30 bg-card border-b">
+          <div
+            className="sticky left-0 z-40 bg-card border-r"
+            style={{ width: LEFT_WIDTH, minWidth: LEFT_WIDTH }}
+          />
           {dayList.map((d, i) => (
             <div
               key={i}
