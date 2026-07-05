@@ -28,8 +28,6 @@ export function BookingBar({
   if (endIdx < 0 || startIdx > days - 1) return null;
 
   const spanDays = endIdx - startIdx + 1;
-  const totalDays = Math.max(1, rawEndIdx - rawStartIdx + 1);
-  const dailyRate = booking.amount / totalDays;
 
   // Center the line over the booked day columns (start at mid of first day,
   // end at mid of last day) — Turo-style connecting line between dots.
