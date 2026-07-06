@@ -34,6 +34,7 @@ import {
   getTripExpensesTotal,
 } from "@/lib/expenseMatching";
 import { cn } from "@/lib/utils";
+import { useWorkspace } from "@/hooks/useWorkspace";
 
 interface CarSummary {
   id: string;
