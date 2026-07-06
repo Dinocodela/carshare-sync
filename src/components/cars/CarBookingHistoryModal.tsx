@@ -106,14 +106,15 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
     let pending = 0;
     for (const e of filtered) {
       const g = Number(e.gross_earnings ?? e.amount ?? 0);
-      const n = getNetEarningAmount(Number(e.amount ?? 0), e.trip_id, expenses);
+      const n = getShare(e);
       gross += g;
       net += n;
       if (e.payment_status === "paid") paid += n;
       else pending += n;
     }
     return { gross, net, paid, pending, count: filtered.length };
-  }, [filtered, expenses]);
+  }, [filtered, expenses, isHost]);
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
