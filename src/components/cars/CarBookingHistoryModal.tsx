@@ -73,8 +73,20 @@ const parseDbDate = (d?: string | null) => {
 
 export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
   const { earnings, expenses, loading, error } = useCarBookings(open ? car?.id ?? null : null);
+  const { activeWorkspace } = useWorkspace();
+  const isHost = activeWorkspace === "host";
   const [range, setRange] = useState<RangeKey>("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  // Party's actual take-home for an earning: net after trip expenses, then the
+  // profit split (hosts keep the management fee, clients keep their share).
+  const getShare = (e: any) => {
+    const net = getNetEarningAmount(Number(e.amount ?? 0), e.trip_id, expenses);
+    const pct = isHost
+      ? Number(e.host_profit_percentage) || 30
+      : Number(e.client_profit_percentage) || 70;
+    return (net * pct) / 100;
+  };
 
   const filtered = useMemo(() => {
     if (range === "all") return earnings;
