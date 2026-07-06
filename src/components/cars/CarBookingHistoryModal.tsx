@@ -34,6 +34,7 @@ import {
   getTripExpensesTotal,
 } from "@/lib/expenseMatching";
 import { cn } from "@/lib/utils";
+import { useWorkspace } from "@/hooks/useWorkspace";
 
 interface CarSummary {
   id: string;
@@ -72,8 +73,20 @@ const parseDbDate = (d?: string | null) => {
 
 export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
   const { earnings, expenses, loading, error } = useCarBookings(open ? car?.id ?? null : null);
+  const { activeWorkspace } = useWorkspace();
+  const isHost = activeWorkspace === "host";
   const [range, setRange] = useState<RangeKey>("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  // Party's actual take-home for an earning: net after trip expenses, then the
+  // profit split (hosts keep the management fee, clients keep their share).
+  const getShare = (e: any) => {
+    const net = getNetEarningAmount(Number(e.amount ?? 0), e.trip_id, expenses);
+    const pct = isHost
+      ? Number(e.host_profit_percentage) || 30
+      : Number(e.client_profit_percentage) || 70;
+    return (net * pct) / 100;
+  };
 
   const filtered = useMemo(() => {
     if (range === "all") return earnings;
@@ -93,14 +106,15 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
     let pending = 0;
     for (const e of filtered) {
       const g = Number(e.gross_earnings ?? e.amount ?? 0);
-      const n = getNetEarningAmount(Number(e.amount ?? 0), e.trip_id, expenses);
+      const n = getShare(e);
       gross += g;
       net += n;
       if (e.payment_status === "paid") paid += n;
       else pending += n;
     }
     return { gross, net, paid, pending, count: filtered.length };
-  }, [filtered, expenses]);
+  }, [filtered, expenses, isHost]);
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -167,7 +181,7 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
           <div className="px-6 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
             <SummaryChip label="Trips" value={String(totals.count)} />
             <SummaryChip label="Gross" value={fmtMoney(totals.gross)} />
-            <SummaryChip label="Net" value={fmtMoney(totals.net)} accent />
+            <SummaryChip label={isHost ? "Mgmt fee" : "Earnings"} value={fmtMoney(totals.net)} accent />
             <SummaryChip
               label="Paid / Pending"
               value={`${fmtMoney(totals.paid)} · ${fmtMoney(totals.pending)}`}
@@ -202,6 +216,10 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
               const end = parseDbDate(e.earning_period_end);
               const tripExpensesTotal = getTripExpensesTotal(e.trip_id, expenses);
               const net = getNetEarningAmount(Number(e.amount ?? 0), e.trip_id, expenses);
+              const share = getShare(e);
+              const pct = isHost
+                ? Number(e.host_profit_percentage) || 30
+                : Number(e.client_profit_percentage) || 70;
               const tripExpenses = e.trip_id
                 ? expenses.filter((x) => x.trip_id === e.trip_id)
                 : [];
@@ -259,7 +277,7 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
                       </div>
                       <div className="text-[11px] text-muted-foreground">gross</div>
                       <div className="text-xs font-medium text-emerald-600 mt-1">
-                        {fmtMoney(net)} net
+                        {fmtMoney(share)} {isHost ? "mgmt fee" : "you earn"}
                       </div>
                       <ChevronDown
                         className={cn(
@@ -273,12 +291,18 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
                     <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-border/60">
                       <Stat label="Gross" value={fmtMoney(Number(e.gross_earnings ?? e.amount ?? 0))} />
                       <Stat label="Trip expenses" value={fmtMoney(tripExpensesTotal)} />
-                      <Stat label="Net" value={fmtMoney(net)} accent />
+                      <Stat label="Net after expenses" value={fmtMoney(net)} />
+                      <Stat
+                        label={isHost ? `Management fee (${pct}%)` : `Your share (${pct}%)`}
+                        value={fmtMoney(share)}
+                        accent
+                      />
                       <Stat
                         label="Date paid"
                         value={datePaid ? format(datePaid, "MMM d, yyyy") : "—"}
                       />
                     </div>
+
 
                     {tripExpenses.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-border/60">
