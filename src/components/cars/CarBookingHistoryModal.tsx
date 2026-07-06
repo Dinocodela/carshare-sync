@@ -181,7 +181,7 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
           <div className="px-6 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
             <SummaryChip label="Trips" value={String(totals.count)} />
             <SummaryChip label="Gross" value={fmtMoney(totals.gross)} />
-            <SummaryChip label="Net" value={fmtMoney(totals.net)} accent />
+            <SummaryChip label={isHost ? "Mgmt fee" : "Earnings"} value={fmtMoney(totals.net)} accent />
             <SummaryChip
               label="Paid / Pending"
               value={`${fmtMoney(totals.paid)} · ${fmtMoney(totals.pending)}`}
