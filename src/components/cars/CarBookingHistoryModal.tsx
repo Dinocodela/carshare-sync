@@ -277,7 +277,7 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
                       </div>
                       <div className="text-[11px] text-muted-foreground">gross</div>
                       <div className="text-xs font-medium text-emerald-600 mt-1">
-                        {fmtMoney(net)} net
+                        {fmtMoney(share)} {isHost ? "mgmt fee" : "you earn"}
                       </div>
                       <ChevronDown
                         className={cn(
