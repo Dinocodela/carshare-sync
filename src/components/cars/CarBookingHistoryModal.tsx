@@ -291,12 +291,18 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
                     <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-border/60">
                       <Stat label="Gross" value={fmtMoney(Number(e.gross_earnings ?? e.amount ?? 0))} />
                       <Stat label="Trip expenses" value={fmtMoney(tripExpensesTotal)} />
-                      <Stat label="Net" value={fmtMoney(net)} accent />
+                      <Stat label="Net after expenses" value={fmtMoney(net)} />
+                      <Stat
+                        label={isHost ? `Management fee (${pct}%)` : `Your share (${pct}%)`}
+                        value={fmtMoney(share)}
+                        accent
+                      />
                       <Stat
                         label="Date paid"
                         value={datePaid ? format(datePaid, "MMM d, yyyy") : "—"}
                       />
                     </div>
+
 
                     {tripExpenses.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-border/60">
