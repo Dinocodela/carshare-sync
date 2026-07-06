@@ -216,6 +216,10 @@ export function CarBookingHistoryModal({ car, open, onOpenChange }: Props) {
               const end = parseDbDate(e.earning_period_end);
               const tripExpensesTotal = getTripExpensesTotal(e.trip_id, expenses);
               const net = getNetEarningAmount(Number(e.amount ?? 0), e.trip_id, expenses);
+              const share = getShare(e);
+              const pct = isHost
+                ? Number(e.host_profit_percentage) || 30
+                : Number(e.client_profit_percentage) || 70;
               const tripExpenses = e.trip_id
                 ? expenses.filter((x) => x.trip_id === e.trip_id)
                 : [];
