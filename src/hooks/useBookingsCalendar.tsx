@@ -101,9 +101,10 @@ export function useBookingsCalendar(windowStart: Date, windowEnd: Date) {
           const { data: earnings, error: eErr } = await supabase
             .from("host_earnings")
             .select(
-              "id, car_id, trip_id, guest_name, amount, client_profit_percentage, host_profit_percentage, earning_period_start, earning_period_end"
+              "id, car_id, trip_id, guest_name, amount, payment_status, client_profit_percentage, host_profit_percentage, earning_period_start, earning_period_end"
             )
             .in("car_id", carIds)
+            .not("payment_status", "ilike", "cancelled")
             .lte("earning_period_start", endISO)
             .gte("earning_period_end", startISO);
           if (eErr) throw eErr;
