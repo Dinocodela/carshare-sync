@@ -3,19 +3,24 @@ import { Link, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, ShieldCheck, Truck } from "lucide-react";
-import { useShopifyProduct } from "@/hooks/useShopifyProducts";
+import { ArrowLeft, Check, Loader2, ShieldCheck, Truck } from "lucide-react";
+import { useShopifyProduct, useShopifyProducts } from "@/hooks/useShopifyProducts";
 import { useCartSync } from "@/hooks/useCartSync";
 import { useCartStore } from "@/stores/cartStore";
 import { trackViewItem } from "@/lib/shopify/tracking";
 import { CartDrawer } from "@/components/shop/CartDrawer";
+import { RelatedProducts } from "@/components/shop/RelatedProducts";
+import { ShopBottomNav } from "@/components/shop/ShopBottomNav";
 
 export default function ProductDetail() {
   useCartSync();
   const { handle } = useParams<{ handle: string }>();
   const { data: product, isLoading } = useShopifyProduct(handle);
+  const { data: allProducts } = useShopifyProducts();
   const addItem = useCartStore((s) => s.addItem);
   const isAdding = useCartStore((s) => s.isLoading);
+  const [justAdded, setJustAdded] = useState(false);
+
 
   const variants = product?.node.variants.edges ?? [];
   const [variantId, setVariantId] = useState<string | null>(null);
