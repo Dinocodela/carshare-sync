@@ -357,6 +357,8 @@ export default function AdminManageAccounts() {
                     className="flex-1 h-10 rounded-xl text-xs font-medium border-border/60 hover:border-destructive/30 hover:text-destructive"
                     disabled={processing === u.user_id}
                     onClick={() => {
+                      setRejectReason("");
+                      setCustomReason("");
                       setConfirmUser({ id: u.user_id, email: u.email });
                       setConfirmOpen(true);
                     }}
