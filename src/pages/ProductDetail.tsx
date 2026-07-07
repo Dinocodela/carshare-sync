@@ -204,9 +204,8 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
-
-      <ShopBottomNav />
     </div>
   );
 }
+
 
