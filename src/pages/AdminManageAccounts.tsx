@@ -39,6 +39,15 @@ type PendingUser = {
   requested_at: string;
 };
 
+const REJECT_REASONS = [
+  "Suspected spam or fake account",
+  "Incomplete or invalid information",
+  "Unable to verify identity",
+  "Duplicate account",
+  "Does not meet eligibility requirements",
+  "Other",
+];
+
 export default function AdminManageAccounts() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -53,6 +62,8 @@ export default function AdminManageAccounts() {
     id: string;
     email?: string | null;
   } | null>(null);
+  const [rejectReason, setRejectReason] = useState<string>("");
+  const [customReason, setCustomReason] = useState<string>("");
 
   useEffect(() => {
     setMounted(true);
@@ -108,11 +119,18 @@ export default function AdminManageAccounts() {
 
   async function confirmReject() {
     if (!confirmUser) return;
+    const finalReason =
+      rejectReason === "Other" ? customReason.trim() : rejectReason;
     setProcessing(confirmUser.id);
     try {
       const { error } = await supabase.functions.invoke(
         "admin-reject-account",
-        { body: { userId: confirmUser.id || undefined } }
+        {
+          body: {
+            userId: confirmUser.id || undefined,
+            reason: finalReason || undefined,
+          },
+        }
       );
       if (error) throw error;
       setItems((prev) => prev.filter((x) => x.user_id !== confirmUser.id));
@@ -127,8 +145,11 @@ export default function AdminManageAccounts() {
       setProcessing(null);
       setConfirmOpen(false);
       setConfirmUser(null);
+      setRejectReason("");
+      setCustomReason("");
     }
   }
+
 
   function formatDate(iso: string) {
     try {
@@ -336,6 +357,8 @@ export default function AdminManageAccounts() {
                     className="flex-1 h-10 rounded-xl text-xs font-medium border-border/60 hover:border-destructive/30 hover:text-destructive"
                     disabled={processing === u.user_id}
                     onClick={() => {
+                      setRejectReason("");
+                      setCustomReason("");
                       setConfirmUser({ id: u.user_id, email: u.email });
                       setConfirmOpen(true);
                     }}
@@ -378,7 +401,43 @@ export default function AdminManageAccounts() {
             </DialogDescription>
           </DialogHeader>
 
+          {/* Reason selection */}
+          <div className="space-y-2 text-left">
+            <label className="text-xs font-medium text-foreground">
+              Reason for rejection
+            </label>
+            <div className="space-y-1.5">
+              {REJECT_REASONS.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRejectReason(r)}
+                  className={`w-full text-left text-xs rounded-lg border px-3 py-2 transition-colors ${
+                    rejectReason === r
+                      ? "border-destructive/50 bg-destructive/10 text-foreground"
+                      : "border-border/60 text-muted-foreground hover:border-destructive/30"
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+            {rejectReason === "Other" && (
+              <textarea
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                placeholder="Enter a reason…"
+                rows={2}
+                className="w-full text-xs rounded-lg border border-border/60 bg-background px-3 py-2 focus:outline-none focus:ring-1 focus:ring-destructive/40"
+              />
+            )}
+            <p className="text-[10px] text-muted-foreground">
+              This reason is emailed to the user and shown on their account page.
+            </p>
+          </div>
+
           <Separator className="my-1" />
+
 
           <DialogFooter className="gap-2 sm:justify-between">
             <Button
@@ -391,7 +450,11 @@ export default function AdminManageAccounts() {
             <Button
               variant="destructive"
               onClick={confirmReject}
-              disabled={processing === confirmUser?.id}
+              disabled={
+                processing === confirmUser?.id ||
+                !rejectReason ||
+                (rejectReason === "Other" && !customReason.trim())
+              }
               className="flex-1 h-10 rounded-xl text-xs font-semibold"
             >
               {processing === confirmUser?.id ? "Rejecting…" : "Yes, Reject"}

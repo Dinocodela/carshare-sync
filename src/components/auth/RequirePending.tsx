@@ -9,6 +9,8 @@ export default function RequirePending() {
 
   if (authLoading || profileLoading) return <></>;
   if (!user) return <Navigate to="/" replace />;
+  if (profile?.account_status === "rejected")
+    return <Navigate to="/account-rejected" replace />;
   // only allow exactly pending
   if (profile?.account_status !== "pending")
     return <Navigate to="/dashboard" replace />;
