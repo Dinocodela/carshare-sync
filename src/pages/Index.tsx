@@ -237,9 +237,10 @@ const Index = () => {
                         className="text-primary font-medium hover:underline"
                         onClick={() => setPanel("register-client")}
                       >
-                        Create an account
+                        Create a client account
                       </button>
                     </div>
+
                   </form>
                 </div>
               )}
