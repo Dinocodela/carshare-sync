@@ -10,7 +10,7 @@ import { useCartStore } from "@/stores/cartStore";
 import { trackViewItem } from "@/lib/shopify/tracking";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { RelatedProducts } from "@/components/shop/RelatedProducts";
-import { ShopBottomNav } from "@/components/shop/ShopBottomNav";
+
 
 export default function ProductDetail() {
   useCartSync();
