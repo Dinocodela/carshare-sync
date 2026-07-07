@@ -1,34 +1,43 @@
-## Goal
-Fix the numbers on the `/calendar` booking bars. Instead of a raw per-day rate (`amount / days`), each bar should show the **booking total** of the relevant party's share, computed **after expenses**:
+# Teslys Shop — Dropshipping Storefront Plan
 
-- **Client workspace** → the client's rental earnings for that booking
-- **Host workspace** → the management fee (host's ~30% share) for that booking
+Goal: sell Tesla-related accessories as a standalone storefront on your existing Teslys site, with dropshipping so you never buy or hold inventory, and full ad-conversion tracking for Google + Meta.
 
-## Data model (already available)
-`host_earnings` rows carry `amount`, `client_profit_percentage`, and `host_profit_percentage`. Matched trip expenses live in `host_expenses` (joined by `trip_id`), the same source `TripDetail.tsx` and the analytics hooks use. Net share formula (matches the app's standard rule in `src/lib/expenseMatching.ts`):
+## How dropshipping works here (no merch to buy)
+Shopify is the engine: it holds the product catalog, cart, checkout, and orders. A dropshipping supplier app (DSers/AliExpress, Zendrop, or Spocket) connects to Shopify. When a customer buys, the order is auto-forwarded to the supplier who ships directly to the buyer. You never touch inventory. Supplier app connection is a one-time setup you do inside Shopify's admin (I'll guide you), and product importing/order routing is automated after that.
 
-```text
-net   = amount - sum(matched trip expenses)
-share = net × (split % / 100)
-  client view → split % = client_profit_percentage (fallback 70)
-  host view   → split % = host_profit_percentage   (fallback 30)
-```
+## Phase 1 — Enable Shopify (new store)
+- Create a new Shopify development store (free while we build; you claim it later for a 30-day trial, paid plan needed only to go live and sell).
+- After creation, offer the claim step (you can skip and keep building).
 
-## Changes
+## Phase 2 — Product catalog
+Seed the catalog with your Tesla accessory lineup:
+- Phone mount, USB-C fast charger, MagSafe car charger, backseat phone/tablet holder
+- Trunk organizer, travel cable organizer, center console organizer, cup holder organizer, car trash bin
+- Neck pillows, windshield/glass-roof sunshade
+- All-weather floor mats, trunk/frunk mats, seat-back protectors, door sill protectors
+- Screen protector, mud flaps, wheel/rim protectors
 
-### 1. `src/hooks/useBookingsCalendar.tsx`
-- Extend the `host_earnings` select to also pull `client_profit_percentage` and `host_profit_percentage`.
-- After loading bookings, fetch `host_expenses` (`trip_id, amount, toll_cost, delivery_cost, carwash_cost, ev_charge_cost`) for the `trip_id`s in the window and sum them per trip (reuse `getTripExpensesTotal` from `src/lib/expenseMatching.ts`).
-- Compute a new `displayAmount` per booking:
-  - `net = amount - tripExpenses`
-  - pick the percentage based on `activeWorkspace` (`host` → host %, else client %), with the fallbacks above
-  - `displayAmount = net × pct / 100`
-- Add `displayAmount: number` to the `CalendarBooking` interface and set it on each row. Keep raw `amount` for the tooltip.
+Each product gets title, description, price, images, and variants (e.g. Model 3/Y/S/X fitment where relevant). Products can be created via Shopify, then refined; dropshipping supplier apps can also push their own product data/images in.
 
-### 2. `src/components/calendar/BookingBar.tsx`
-- Replace the `$X/day` label with the **booking total** of `booking.displayAmount`, rendered as a rounded currency chip (e.g. `$420`).
-- Update the hover tooltip to describe the figure per role-agnostic wording (e.g. `Guest · $420`), keeping the Turo-style line + end dots unchanged.
+## Phase 3 — Standalone storefront in the app
+Build a dedicated shop experience linked from the main Teslys site:
+- `/shop` — product grid with category filters (charging, organization, protection, comfort, exterior)
+- `/shop/:handle` — product detail with images, variant selector, add-to-cart
+- Cart drawer + checkout handoff to Shopify's secure hosted checkout
+- Reuse existing Teslys design tokens/components for a consistent look; add a clear entry point (nav link / CTA) from the main site so your existing traffic flows to the shop.
 
-## Notes
-- No schema/RLS changes; `host_expenses` is already readable by both owners and hosts for their trips.
-- Bars for bookings with no matched `trip_id`/expenses simply use `net = amount` (expenses = 0).
+## Phase 4 — Ads + conversion tracking (Google & Meta)
+So your ad spend is measurable:
+- Meta Pixel + Conversions API events on product view, add-to-cart, initiate-checkout, purchase.
+- Google Ads / GA4 tag with the same funnel events + purchase conversion.
+- Reuse the existing UTM-capture pattern (already in the codebase) so campaign attribution persists into orders.
+- GTM is already integrated — I'll wire the shop events through it where possible.
+- Note: the most reliable purchase conversion fires from Shopify checkout; I'll set up the on-site funnel events and document the checkout-side conversion setup in your Shopify admin.
+
+## Technical notes
+- New store creation and the supplier/dropshipping app connection happen in Shopify's admin (steps I'll walk you through) — those can't be scripted from here.
+- Storefront pages are React and deploy with the rest of the app; you control when to publish them.
+- Physical-goods checkout, payments, shipping, and taxes are handled by Shopify + the supplier, not custom code.
+
+## First step on approval
+Enable Shopify (new store), then start seeding the product catalog and building the `/shop` pages.
