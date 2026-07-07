@@ -3,19 +3,24 @@ import { Link, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, ShieldCheck, Truck } from "lucide-react";
-import { useShopifyProduct } from "@/hooks/useShopifyProducts";
+import { ArrowLeft, Check, Loader2, ShieldCheck, Truck } from "lucide-react";
+import { useShopifyProduct, useShopifyProducts } from "@/hooks/useShopifyProducts";
 import { useCartSync } from "@/hooks/useCartSync";
 import { useCartStore } from "@/stores/cartStore";
 import { trackViewItem } from "@/lib/shopify/tracking";
 import { CartDrawer } from "@/components/shop/CartDrawer";
+import { RelatedProducts } from "@/components/shop/RelatedProducts";
+
 
 export default function ProductDetail() {
   useCartSync();
   const { handle } = useParams<{ handle: string }>();
   const { data: product, isLoading } = useShopifyProduct(handle);
+  const { data: allProducts } = useShopifyProducts();
   const addItem = useCartStore((s) => s.addItem);
   const isAdding = useCartStore((s) => s.isLoading);
+  const [justAdded, setJustAdded] = useState(false);
+
 
   const variants = product?.node.variants.edges ?? [];
   const [variantId, setVariantId] = useState<string | null>(null);
@@ -43,10 +48,12 @@ export default function ProductDetail() {
       quantity: 1,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1600);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <SEO
         title={product ? `${product.node.title} — Teslys Shop` : "Teslys Shop"}
         description={product?.node.description?.slice(0, 155) || "Premium Tesla accessories from Teslys."}
@@ -136,7 +143,15 @@ export default function ProductDetail() {
                 onClick={handleAddToCart}
                 disabled={isAdding || !selectedVariant?.availableForSale}
               >
-                {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : selectedVariant?.availableForSale ? "Add to Cart" : "Out of Stock"}
+                {isAdding ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : justAdded ? (
+                  <><Check className="h-4 w-4 mr-1" /> Added to Cart</>
+                ) : selectedVariant?.availableForSale ? (
+                  "Add to Cart"
+                ) : (
+                  "Out of Stock"
+                )}
               </Button>
 
               <div className="flex gap-6 text-sm text-muted-foreground mb-6">
@@ -150,7 +165,47 @@ export default function ProductDetail() {
             </div>
           </div>
         )}
+
+        {product && allProducts && (
+          <RelatedProducts
+            products={allProducts}
+            currentHandle={product.node.handle}
+            productType={product.node.productType}
+          />
+        )}
       </div>
+
+      {/* Sticky mobile Add to Cart */}
+      {product && (
+        <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-background/95 backdrop-blur border-t border-border/60 p-3 pb-safe-bottom">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{product.node.title}</p>
+              <p className="text-base font-bold">
+                {selectedVariant?.price.currencyCode} {parseFloat(selectedVariant?.price.amount || "0").toFixed(2)}
+              </p>
+            </div>
+            <Button
+              size="lg"
+              className="rounded-full px-6 shrink-0"
+              onClick={handleAddToCart}
+              disabled={isAdding || !selectedVariant?.availableForSale}
+            >
+              {isAdding ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : justAdded ? (
+                <Check className="h-5 w-5" />
+              ) : selectedVariant?.availableForSale ? (
+                "Add to Cart"
+              ) : (
+                "Sold Out"
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+
