@@ -39,6 +39,15 @@ type PendingUser = {
   requested_at: string;
 };
 
+const REJECT_REASONS = [
+  "Suspected spam or fake account",
+  "Incomplete or invalid information",
+  "Unable to verify identity",
+  "Duplicate account",
+  "Does not meet eligibility requirements",
+  "Other",
+];
+
 export default function AdminManageAccounts() {
   const { user } = useAuth();
   const { toast } = useToast();
