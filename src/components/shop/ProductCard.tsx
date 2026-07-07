@@ -46,17 +46,17 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
   return (
     <Link
       to={`/shop/${node.handle}`}
-      className="group relative bg-card border border-border/60 rounded-2xl overflow-hidden flex flex-col hover:border-primary/60 hover:shadow-elegant transition-all duration-300"
+      className="group relative bg-card border border-border rounded-xl overflow-hidden flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-300"
     >
-      <div className="relative aspect-square bg-muted/40 overflow-hidden">
+      <div className="relative aspect-[4/5] bg-muted/30 overflow-hidden">
         {image ? (
           <>
             <img
               src={image.url}
               alt={image.altText || node.title}
               loading="lazy"
-              width={600}
-              height={600}
+              width={400}
+              height={500}
               className={cn(
                 "absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
                 hoverImage && "group-hover:opacity-0",
@@ -67,15 +67,15 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
                 src={hoverImage.url}
                 alt={hoverImage.altText || node.title}
                 loading="lazy"
-                width={600}
-                height={600}
+                width={400}
+                height={500}
                 className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 transition-opacity duration-500 group-hover:opacity-100"
               />
             )}
           </>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <ShoppingCart className="h-10 w-10" />
+            <ShoppingCart className="h-8 w-8" />
           </div>
         )}
 
@@ -84,56 +84,39 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           type="button"
           onClick={handleWish}
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          className="absolute top-2.5 right-2.5 h-9 w-9 rounded-full bg-background/80 backdrop-blur flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
+          className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
         >
           <Heart
             className={cn(
-              "h-4 w-4 transition-colors",
+              "h-3.5 w-3.5 transition-colors",
               wishlisted ? "fill-destructive text-destructive" : "text-foreground",
             )}
           />
         </button>
-
-        {/* Quick add (desktop hover) */}
-        <div className="absolute inset-x-2.5 bottom-2.5 hidden sm:block opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-          <Button
-            size="sm"
-            className="w-full rounded-full"
-            onClick={handleAddToCart}
-            disabled={isLoading || !variant}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : added ? (
-              <><Check className="h-4 w-4 mr-1" /> Added</>
-            ) : (
-              <><ShoppingCart className="h-4 w-4 mr-1" /> Add to Cart</>
-            )}
-          </Button>
-        </div>
       </div>
 
-      <div className="p-3.5 sm:p-4 flex flex-col flex-1">
-        <h3 className="font-semibold text-sm sm:text-base leading-tight line-clamp-2">{node.title}</h3>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2 flex-1">{node.description}</p>
-        <div className="flex items-center justify-between mt-3">
-          <span className="text-base sm:text-lg font-bold">
+      <div className="p-3 flex flex-col flex-1">
+        <h3 className="font-medium text-[13px] sm:text-sm leading-snug line-clamp-2 min-h-[2.4em]">
+          {node.title}
+        </h3>
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-sm sm:text-base font-semibold tracking-tight">
             {price.currencyCode} {parseFloat(price.amount).toFixed(2)}
           </span>
-          {/* Compact add button (mobile within thumb reach) */}
           <Button
             size="icon"
-            className="h-10 w-10 rounded-full shrink-0 sm:hidden"
+            variant="secondary"
+            className="h-8 w-8 rounded-full shrink-0"
             aria-label="Add to cart"
             onClick={handleAddToCart}
             disabled={isLoading || !variant}
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : added ? (
-              <Check className="h-4 w-4 animate-scale-in" />
+              <Check className="h-3.5 w-3.5 text-primary animate-scale-in" />
             ) : (
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4" />
             )}
           </Button>
         </div>
