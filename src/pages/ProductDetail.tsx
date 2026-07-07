@@ -125,6 +125,11 @@ export default function ProductDetail() {
                 {selectedVariant?.price.currencyCode} {parseFloat(selectedVariant?.price.amount || "0").toFixed(2)}
               </p>
 
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-5 rounded-lg bg-muted/50 px-3 py-2 w-fit">
+                <Car className="h-4 w-4 text-primary shrink-0" />
+                Fits most Tesla Model 3 / Model Y
+              </div>
+
               {variants.length > 1 && (
                 <div className="mb-6">
                   <label className="text-sm font-medium mb-2 block">Options</label>
@@ -144,6 +149,32 @@ export default function ProductDetail() {
                 </div>
               )}
 
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-2 block">Quantity</label>
+                <div className="inline-flex items-center rounded-full border border-border">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full"
+                    aria-label="Decrease quantity"
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-10 text-center text-sm font-medium">{quantity}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full"
+                    aria-label="Increase quantity"
+                    onClick={() => setQuantity((q) => q + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
               <Button
                 size="lg"
                 className="w-full mb-4"
@@ -160,6 +191,7 @@ export default function ProductDetail() {
                   "Out of Stock"
                 )}
               </Button>
+
 
               <div className="flex gap-6 text-sm text-muted-foreground mb-6">
                 <span className="flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Fast shipping</span>
