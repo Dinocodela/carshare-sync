@@ -119,11 +119,18 @@ export default function AdminManageAccounts() {
 
   async function confirmReject() {
     if (!confirmUser) return;
+    const finalReason =
+      rejectReason === "Other" ? customReason.trim() : rejectReason;
     setProcessing(confirmUser.id);
     try {
       const { error } = await supabase.functions.invoke(
         "admin-reject-account",
-        { body: { userId: confirmUser.id || undefined } }
+        {
+          body: {
+            userId: confirmUser.id || undefined,
+            reason: finalReason || undefined,
+          },
+        }
       );
       if (error) throw error;
       setItems((prev) => prev.filter((x) => x.user_id !== confirmUser.id));
@@ -138,8 +145,11 @@ export default function AdminManageAccounts() {
       setProcessing(null);
       setConfirmOpen(false);
       setConfirmUser(null);
+      setRejectReason("");
+      setCustomReason("");
     }
   }
+
 
   function formatDate(iso: string) {
     try {
