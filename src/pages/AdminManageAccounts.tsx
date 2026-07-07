@@ -450,7 +450,11 @@ export default function AdminManageAccounts() {
             <Button
               variant="destructive"
               onClick={confirmReject}
-              disabled={processing === confirmUser?.id}
+              disabled={
+                processing === confirmUser?.id ||
+                !rejectReason ||
+                (rejectReason === "Other" && !customReason.trim())
+              }
               className="flex-1 h-10 rounded-xl text-xs font-semibold"
             >
               {processing === confirmUser?.id ? "Rejecting…" : "Yes, Reject"}
