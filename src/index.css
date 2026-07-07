@@ -247,6 +247,8 @@ body,
   }
   .pt-safe-top {
     padding-top: env(safe-area-inset-top);
+  }
+
   /* Hide scrollbar for horizontal category bars */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -255,7 +257,7 @@ body,
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-}
+
 
 
   /* Semantic utility classes (if needed outside Tailwind theme) */
