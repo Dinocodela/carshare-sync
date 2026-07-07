@@ -9,6 +9,9 @@ export default function RequireApproved() {
 
   if (authLoading || profileLoading) return <></>;
   if (!user) return <Navigate to="/" replace />;
+  if (profile?.account_status === "rejected") {
+    return <Navigate to="/account-rejected" replace />;
+  }
   if (profile?.account_status !== "approved") {
     return <Navigate to="/account-pending" replace />;
   }
