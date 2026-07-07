@@ -3,13 +3,14 @@ import { Link, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, Loader2, ShieldCheck, Truck } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Minus, Plus, ShieldCheck, Truck, Car } from "lucide-react";
 import { useShopifyProduct, useShopifyProducts } from "@/hooks/useShopifyProducts";
 import { useCartSync } from "@/hooks/useCartSync";
 import { useCartStore } from "@/stores/cartStore";
 import { trackViewItem } from "@/lib/shopify/tracking";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { RelatedProducts } from "@/components/shop/RelatedProducts";
+
 
 
 export default function ProductDetail() {
@@ -25,6 +26,7 @@ export default function ProductDetail() {
   const variants = product?.node.variants.edges ?? [];
   const [variantId, setVariantId] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   const selectedVariant = useMemo(
     () => variants.find((v) => v.node.id === variantId)?.node ?? variants[0]?.node,
@@ -45,12 +47,13 @@ export default function ProductDetail() {
       variantId: selectedVariant.id,
       variantTitle: selectedVariant.title,
       price: selectedVariant.price,
-      quantity: 1,
+      quantity,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1600);
   };
+
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
@@ -61,15 +64,19 @@ export default function ProductDetail() {
         ogType="product"
       />
 
-      <nav className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2"><Logo className="h-7 w-auto" /></Link>
+      <nav className="border-b border-border bg-background/90 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <Logo className="h-6 w-auto" />
+            <span className="text-sm font-semibold tracking-tight text-foreground">Teslys Shop</span>
+          </Link>
           <div className="flex items-center gap-3">
             <Link to="/shop" className="text-sm text-muted-foreground hover:text-foreground">Shop</Link>
             <CartDrawer />
           </div>
         </div>
       </nav>
+
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <Link to="/shop" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
@@ -118,6 +125,11 @@ export default function ProductDetail() {
                 {selectedVariant?.price.currencyCode} {parseFloat(selectedVariant?.price.amount || "0").toFixed(2)}
               </p>
 
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-5 rounded-lg bg-muted/50 px-3 py-2 w-fit">
+                <Car className="h-4 w-4 text-primary shrink-0" />
+                Fits most Tesla Model 3 / Model Y
+              </div>
+
               {variants.length > 1 && (
                 <div className="mb-6">
                   <label className="text-sm font-medium mb-2 block">Options</label>
@@ -137,6 +149,32 @@ export default function ProductDetail() {
                 </div>
               )}
 
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-2 block">Quantity</label>
+                <div className="inline-flex items-center rounded-full border border-border">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full"
+                    aria-label="Decrease quantity"
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-10 text-center text-sm font-medium">{quantity}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-full"
+                    aria-label="Increase quantity"
+                    onClick={() => setQuantity((q) => q + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
               <Button
                 size="lg"
                 className="w-full mb-4"
@@ -153,6 +191,7 @@ export default function ProductDetail() {
                   "Out of Stock"
                 )}
               </Button>
+
 
               <div className="flex gap-6 text-sm text-muted-foreground mb-6">
                 <span className="flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Fast shipping</span>
