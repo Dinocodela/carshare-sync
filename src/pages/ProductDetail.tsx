@@ -48,10 +48,12 @@ export default function ProductDetail() {
       quantity: 1,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1600);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <SEO
         title={product ? `${product.node.title} — Teslys Shop` : "Teslys Shop"}
         description={product?.node.description?.slice(0, 155) || "Premium Tesla accessories from Teslys."}
