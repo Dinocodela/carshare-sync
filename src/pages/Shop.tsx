@@ -101,7 +101,7 @@ export default function Shop() {
           height={1080}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-[#0B1220]/80" />
+        <div className="absolute inset-0 bg-[#0B1220]" />
         <div className="relative max-w-6xl mx-auto px-5 min-h-[380px] md:min-h-[460px] flex flex-col justify-end pb-10 pt-24 md:py-28 md:justify-center animate-fade-in">
 
           <h1 className="text-[36px] leading-[1.1] sm:text-5xl md:text-6xl font-bold tracking-tight mb-3 max-w-3xl text-white">
