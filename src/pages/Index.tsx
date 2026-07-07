@@ -284,10 +284,11 @@ const Index = () => {
             {/* Become a host (Turo-style application banner) */}
             {panel === "login" && (
 
-              <button
-                type="button"
-                onClick={() => setPanel("register-host")}
-                className="mt-4 w-full text-left rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-4 hover:border-primary/40 transition-colors group"
+              <a
+                href="https://www.eonrides.com/partners"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 w-full block text-left rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-4 hover:border-primary/40 transition-colors group"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -306,7 +307,8 @@ const Index = () => {
                   </div>
                   <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
                 </div>
-              </button>
+              </a>
+
             )}
 
             {/* Investor link */}
