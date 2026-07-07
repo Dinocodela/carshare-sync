@@ -5,31 +5,31 @@ import { useCartStore } from "@/stores/cartStore";
 import { cn } from "@/lib/utils";
 
 const itemClass =
-  "flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors";
+  "flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[10px] font-medium tracking-tight text-muted-foreground hover:text-foreground transition-colors";
 
 export function ShopBottomNav({ onCategories }: { onCategories?: () => void }) {
   const totalItems = useCartStore((s) => s.items.reduce((n, i) => n + i.quantity, 0));
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-50 h-16 bg-background/95 backdrop-blur border-t border-border/60 flex items-stretch px-2 pb-safe-bottom"
+      className="md:hidden fixed bottom-0 inset-x-0 z-50 h-14 bg-background/90 backdrop-blur-xl border-t border-border flex items-stretch px-1 pb-safe-bottom"
       aria-label="Shop navigation"
     >
       <Link to="/" className={itemClass}>
-        <Home className="h-5 w-5" />
+        <Home className="h-[18px] w-[18px]" />
         Home
       </Link>
       <button type="button" onClick={onCategories} className={itemClass}>
-        <LayoutGrid className="h-5 w-5" />
+        <LayoutGrid className="h-[18px] w-[18px]" />
         Categories
       </button>
       <CartDrawer
         trigger={
           <button type="button" className={cn(itemClass, "relative")}>
             <span className="relative">
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-[18px] w-[18px]" />
               {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center animate-cart-bounce">
+                <span className="absolute -top-1.5 -right-2 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-semibold flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
@@ -39,7 +39,7 @@ export function ShopBottomNav({ onCategories }: { onCategories?: () => void }) {
         }
       />
       <Link to="/login" className={itemClass}>
-        <User className="h-5 w-5" />
+        <User className="h-[18px] w-[18px]" />
         Account
       </Link>
     </nav>
