@@ -49,7 +49,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceRole>("host");
+  const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceRole>("client");
   const [availableRoles, setAvailableRoles] = useState<WorkspaceRoleRow[]>([]);
   const [landingSeen, setLandingSeen] = useState<Partial<Record<WorkspaceRole, boolean>>>({});
   const [loading, setLoading] = useState(true);
@@ -79,16 +79,36 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         supabase.from("user_roles").select("role,status").eq("user_id", user.id),
         supabase
           .from("profiles")
-          .select("active_workspace,landing_seen")
+          .select("active_workspace,landing_seen,is_super_admin")
           .eq("user_id", user.id)
           .maybeSingle(),
       ]);
 
       if (!alive) return;
       loadedForUserId.current = user.id;
-      setAvailableRoles((roles ?? []) as WorkspaceRoleRow[]);
-      if (profile?.active_workspace) {
-        setActiveWorkspace(profile.active_workspace as WorkspaceRole);
+
+      // The Host workspace is reserved for super-admins. Regular users only get
+      // access to Client and Investor, even though the signup trigger grants a
+      // (pending) host role in the database.
+      const isSuperAdmin = profile?.is_super_admin === true;
+      const filteredRoles = ((roles ?? []) as WorkspaceRoleRow[]).filter(
+        (r) => r.role !== "host" || isSuperAdmin
+      );
+      setAvailableRoles(filteredRoles);
+
+      // If the stored active workspace is no longer available (e.g. host for a
+      // non-admin), fall back to a role they can actually use.
+      const storedWorkspace = profile?.active_workspace as WorkspaceRole | undefined;
+      const canUseStored =
+        storedWorkspace && filteredRoles.some((r) => r.role === storedWorkspace);
+      if (canUseStored) {
+        setActiveWorkspace(storedWorkspace);
+      } else {
+        const fallback =
+          filteredRoles.find((r) => r.role === "client")?.role ??
+          filteredRoles[0]?.role ??
+          "client";
+        setActiveWorkspace(fallback);
       }
       setLandingSeen((profile?.landing_seen ?? {}) as Partial<Record<WorkspaceRole, boolean>>);
       setLoading(false);
