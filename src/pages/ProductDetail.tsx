@@ -64,15 +64,19 @@ export default function ProductDetail() {
         ogType="product"
       />
 
-      <nav className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2"><Logo className="h-7 w-auto" /></Link>
+      <nav className="border-b border-border bg-background/90 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <Logo className="h-6 w-auto" />
+            <span className="text-sm font-semibold tracking-tight text-foreground">Teslys Shop</span>
+          </Link>
           <div className="flex items-center gap-3">
             <Link to="/shop" className="text-sm text-muted-foreground hover:text-foreground">Shop</Link>
             <CartDrawer />
           </div>
         </div>
       </nav>
+
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <Link to="/shop" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
