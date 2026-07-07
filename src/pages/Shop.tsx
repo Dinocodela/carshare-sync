@@ -112,26 +112,27 @@ export default function Shop() {
           height={1080}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/40" />
         <div className="relative max-w-6xl mx-auto px-4 py-24 md:py-36 text-center animate-fade-in">
-          <span className="inline-block rounded-full bg-primary/15 border border-primary/30 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary mb-5">
+          <span className="inline-block rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-xs sm:text-sm font-medium text-white/90 mb-5 backdrop-blur">
             Teslys Shop
           </span>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 max-w-3xl mx-auto text-white">
             Elevate Your Tesla Experience
           </h1>
-          <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8">
+          <p className="text-base md:text-lg text-white/80 max-w-xl mx-auto mb-8">
             Premium accessories to upgrade, protect, and organize your Tesla — shipped straight to your door.
           </p>
           <Button size="lg" className="rounded-full px-8 shadow-glow" onClick={scrollToGrid}>
             Shop Featured Products
           </Button>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-xs sm:text-sm text-muted-foreground">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-xs sm:text-sm text-white/70">
             <span className="flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Fast shipping</span>
             <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Secure checkout</span>
             <span className="flex items-center gap-2"><Zap className="h-4 w-4 text-primary" /> Tesla-fit selection</span>
           </div>
         </div>
+
       </section>
 
       {/* Curated kits */}
