@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/logo";
-import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, Calculator, Briefcase, TrendingUp } from "lucide-react";
+import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, Calculator, Briefcase, TrendingUp, Car } from "lucide-react";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
@@ -237,9 +237,10 @@ const Index = () => {
                         className="text-primary font-medium hover:underline"
                         onClick={() => setPanel("register-client")}
                       >
-                        Create an account
+                        Create a client account
                       </button>
                     </div>
+
                   </form>
                 </div>
               )}
@@ -253,8 +254,36 @@ const Index = () => {
               )}
             </div>
 
+            {/* Become a client (owners who want us to host & manage their Tesla) */}
+            {panel === "login" && (
+              <button
+                type="button"
+                onClick={() => setPanel("register-client")}
+                className="mt-4 w-full text-left rounded-2xl bg-card/80 backdrop-blur-sm border border-primary/40 shadow-sm p-4 hover:border-primary/60 transition-colors group ring-1 ring-primary/10"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Car className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">List your Tesla as a client</span>
+                      <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        Free
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Create an account and we host & manage your car for you.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                </div>
+              </button>
+            )}
+
             {/* Become a host (Turo-style application banner) */}
             {panel === "login" && (
+
               <button
                 type="button"
                 onClick={() => setPanel("register-host")}

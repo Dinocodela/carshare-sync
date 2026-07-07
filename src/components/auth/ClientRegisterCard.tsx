@@ -140,8 +140,9 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
           account
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Join thousands of Tesla owners earning passive income
+          As a client, we host and manage your Tesla for you — you earn passive income while we handle the rest.
         </p>
+
       </div>
 
       {/* Form */}
