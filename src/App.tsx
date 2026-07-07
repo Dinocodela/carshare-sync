@@ -37,8 +37,10 @@ import RequireAuth from "@/components/auth/RequireAuth";
 import RequireApproved from "@/components/auth/RequireApproved";
 import RequireRole from "@/components/auth/RequireRole";
 import AccountPending from "@/pages/AccountPending";
+import AccountRejected from "@/pages/AccountRejected";
 import AdminManageAccounts from "./pages/AdminManageAccounts";
 import RequirePending from "./components/auth/RequirePending";
+import RequireRejected from "./components/auth/RequireRejected";
 import PushNavHandler from "./components/push/PushNavHandler";
 import { SubscriptionProvider } from "./hooks/useSubscription";
 import RequireSubscribed from "./components/auth/RequireSubscribed";
@@ -212,6 +214,11 @@ const App = () => (
                 {/* Pending */}
                 <Route element={<RequirePending />}>
                   <Route path="/account-pending" element={<AccountPending />} />
+                </Route>
+
+                {/* Rejected */}
+                <Route element={<RequireRejected />}>
+                  <Route path="/account-rejected" element={<AccountRejected />} />
                 </Route>
 
                 {/* Approved-only */}
