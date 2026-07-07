@@ -53,6 +53,8 @@ export default function AdminManageAccounts() {
     id: string;
     email?: string | null;
   } | null>(null);
+  const [rejectReason, setRejectReason] = useState<string>("");
+  const [customReason, setCustomReason] = useState<string>("");
 
   useEffect(() => {
     setMounted(true);
