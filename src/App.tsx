@@ -96,6 +96,8 @@ import InvestorVehicleDetail from "./pages/investor/InvestorVehicleDetail";
 import InvestorPayouts from "./pages/investor/InvestorPayouts";
 import InvestorPayoutSettings from "./pages/investor/InvestorPayoutSettings";
 import AdminInvestments from "./pages/admin/AdminInvestments";
+import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
 
 import { useEffect } from "react";
 
