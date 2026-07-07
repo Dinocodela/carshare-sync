@@ -399,7 +399,43 @@ export default function AdminManageAccounts() {
             </DialogDescription>
           </DialogHeader>
 
+          {/* Reason selection */}
+          <div className="space-y-2 text-left">
+            <label className="text-xs font-medium text-foreground">
+              Reason for rejection
+            </label>
+            <div className="space-y-1.5">
+              {REJECT_REASONS.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRejectReason(r)}
+                  className={`w-full text-left text-xs rounded-lg border px-3 py-2 transition-colors ${
+                    rejectReason === r
+                      ? "border-destructive/50 bg-destructive/10 text-foreground"
+                      : "border-border/60 text-muted-foreground hover:border-destructive/30"
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+            {rejectReason === "Other" && (
+              <textarea
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                placeholder="Enter a reason…"
+                rows={2}
+                className="w-full text-xs rounded-lg border border-border/60 bg-background px-3 py-2 focus:outline-none focus:ring-1 focus:ring-destructive/40"
+              />
+            )}
+            <p className="text-[10px] text-muted-foreground">
+              This reason is emailed to the user and shown on their account page.
+            </p>
+          </div>
+
           <Separator className="my-1" />
+
 
           <DialogFooter className="gap-2 sm:justify-between">
             <Button
