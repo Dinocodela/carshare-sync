@@ -198,6 +198,11 @@ const App = () => (
               {/* Investor landing page — public so prospects can view without an account */}
               <Route path="/welcome/investor" element={<WelcomeInvestor />} />
 
+              {/* Shop (public storefront) */}
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/shop/:handle" element={<ProductDetail />} />
+
+
               {/* Programmatic Model + City Pages */}
               <Route path="/:slug" element={<ModelCityPage />} />
 
