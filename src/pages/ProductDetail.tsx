@@ -26,6 +26,7 @@ export default function ProductDetail() {
   const variants = product?.node.variants.edges ?? [];
   const [variantId, setVariantId] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   const selectedVariant = useMemo(
     () => variants.find((v) => v.node.id === variantId)?.node ?? variants[0]?.node,
@@ -46,12 +47,13 @@ export default function ProductDetail() {
       variantId: selectedVariant.id,
       variantTitle: selectedVariant.title,
       price: selectedVariant.price,
-      quantity: 1,
+      quantity,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1600);
   };
+
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
