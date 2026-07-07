@@ -3,13 +3,14 @@ import { Link, useParams } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, Loader2, ShieldCheck, Truck } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Minus, Plus, ShieldCheck, Truck, Car } from "lucide-react";
 import { useShopifyProduct, useShopifyProducts } from "@/hooks/useShopifyProducts";
 import { useCartSync } from "@/hooks/useCartSync";
 import { useCartStore } from "@/stores/cartStore";
 import { trackViewItem } from "@/lib/shopify/tracking";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { RelatedProducts } from "@/components/shop/RelatedProducts";
+
 
 
 export default function ProductDetail() {
