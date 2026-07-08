@@ -163,8 +163,10 @@ export default function PrivacyPolicy() {
                 </p>
               </section>
 
-
+              <section>
+                <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">Children</h2>
                 <p className="text-sm text-foreground/85 leading-relaxed">
+
                   The Service is not intended for children under the age where
                   consent is required by law.
                 </p>
