@@ -144,11 +144,13 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ConsentProvider>
             <WorkspaceProvider>
             <AuthCallbackHandler />
             <PushNavHandler />
             <ScrollReset />
-            {/* REMOVED: AnalyticsConsentDialog */}
+            <ConsentManager />
+
             <Routes>
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
