@@ -15,10 +15,13 @@ const navSections = [
     title: "Legal",
     links: [
       { label: "Privacy Policy", to: "/privacy" },
-      { label: "Terms of Service", to: "/terms" },
-      { label: "SMS Consent", to: "/sms-consent" },
+      { label: "Cookie Policy", to: "/cookie-policy" },
+      { label: "Terms", to: "/terms" },
+      { label: "Privacy Center", to: "/privacy-center" },
+      { label: "Do Not Sell or Share", to: "/privacy-center" },
     ],
   },
+
   {
     title: "Support",
     links: [
