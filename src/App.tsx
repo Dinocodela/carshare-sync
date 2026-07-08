@@ -100,6 +100,11 @@ import InvestorPayoutSettings from "./pages/investor/InvestorPayoutSettings";
 import AdminInvestments from "./pages/admin/AdminInvestments";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
+import PrivacyCenter from "./pages/PrivacyCenter";
+import CookiePolicy from "./pages/CookiePolicy";
+import { ConsentProvider } from "@/hooks/useConsent";
+import { ConsentManager } from "@/components/consent/ConsentManager";
+
 
 import { useEffect } from "react";
 
@@ -139,11 +144,13 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ConsentProvider>
             <WorkspaceProvider>
             <AuthCallbackHandler />
             <PushNavHandler />
             <ScrollReset />
-            {/* REMOVED: AnalyticsConsentDialog */}
+            <ConsentManager />
+
             <Routes>
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
@@ -152,6 +159,9 @@ const App = () => (
               <Route path="/register/client" element={<Register />} />
               <Route path="/register/host" element={<Register />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/privacy-center" element={<PrivacyCenter />} />
+              <Route path="/cookie-policy" element={<CookiePolicy />} />
+
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/sms-consent" element={<SMSConsent />} />
@@ -293,7 +303,9 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             </WorkspaceProvider>
+            </ConsentProvider>
           </BrowserRouter>
+
         </TooltipProvider>
       </SubscriptionProvider>
     </AuthProvider>

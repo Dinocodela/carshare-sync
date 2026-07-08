@@ -115,8 +115,58 @@ export default function PrivacyPolicy() {
               </section>
 
               <section>
+                <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">Cookies, Analytics &amp; Advertising</h2>
+                <p className="text-sm text-foreground/85 leading-relaxed mb-3">
+                  We use cookies and similar technologies for essential
+                  functionality and, only with your consent, for analytics and
+                  marketing. Non-essential trackers (such as analytics and
+                  advertising pixels) do not load until you opt in. You can
+                  review and change your choices at any time in our{" "}
+                  <a className="text-primary underline underline-offset-4" href="/privacy-center">Privacy Center</a>{" "}
+                  or read the{" "}
+                  <a className="text-primary underline underline-offset-4" href="/cookie-policy">Cookie Policy</a>.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">Third-Party Providers</h2>
+                <p className="text-sm text-foreground/85 leading-relaxed">
+                  We share limited data with service providers who help us run the
+                  Service (e.g., hosting, payments, analytics, and communications).
+                  These providers process data on our behalf under contractual
+                  obligations and their own privacy policies.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">California Privacy Rights (CCPA/CPRA)</h2>
+                <p className="text-sm text-foreground/85 leading-relaxed">
+                  California residents have the right to know what personal
+                  information we collect, to request access or deletion, to
+                  correct inaccurate information, and to opt out of the sale or
+                  sharing of personal information. We do not sell your personal
+                  information for money. To exercise these rights, use{" "}
+                  <a className="text-primary underline underline-offset-4" href="/privacy-center">Do Not Sell or Share My Information</a>{" "}
+                  in the Privacy Center or email us. We will not discriminate
+                  against you for exercising your rights.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">GDPR Rights</h2>
+                <p className="text-sm text-foreground/85 leading-relaxed">
+                  If you are in the European Economic Area or the UK, you have the
+                  right to access, rectify, erase, restrict, or port your personal
+                  data, and to object to processing or withdraw consent at any
+                  time. Our legal bases include consent, contract performance, and
+                  legitimate interests. Contact us to exercise these rights.
+                </p>
+              </section>
+
+              <section>
                 <h2 className="text-xl font-bold text-foreground mb-4 tracking-tight">Children</h2>
                 <p className="text-sm text-foreground/85 leading-relaxed">
+
                   The Service is not intended for children under the age where
                   consent is required by law.
                 </p>
