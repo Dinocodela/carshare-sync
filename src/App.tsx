@@ -303,7 +303,9 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             </WorkspaceProvider>
+            </ConsentProvider>
           </BrowserRouter>
+
         </TooltipProvider>
       </SubscriptionProvider>
     </AuthProvider>
