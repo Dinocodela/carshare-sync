@@ -100,6 +100,11 @@ import InvestorPayoutSettings from "./pages/investor/InvestorPayoutSettings";
 import AdminInvestments from "./pages/admin/AdminInvestments";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
+import PrivacyCenter from "./pages/PrivacyCenter";
+import CookiePolicy from "./pages/CookiePolicy";
+import { ConsentProvider } from "@/hooks/useConsent";
+import { ConsentManager } from "@/components/consent/ConsentManager";
+
 
 import { useEffect } from "react";
 
