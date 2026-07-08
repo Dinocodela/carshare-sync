@@ -159,6 +159,9 @@ const App = () => (
               <Route path="/register/client" element={<Register />} />
               <Route path="/register/host" element={<Register />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/privacy-center" element={<PrivacyCenter />} />
+              <Route path="/cookie-policy" element={<CookiePolicy />} />
+
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/sms-consent" element={<SMSConsent />} />
