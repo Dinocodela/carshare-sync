@@ -1,29 +1,25 @@
 import { useEffect, useState } from "react";
-import { Check, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { categories, type ConsentCategory } from "@/config/consent.config";
 import { useConsent } from "@/hooks/useConsent";
-import {
-  ACCEPT_ALL,
-  REJECT_ALL,
-  type ConsentChoices,
-} from "@/lib/consent/storage";
+import { type ConsentChoices } from "@/lib/consent/storage";
 
 type EditableCategory = Exclude<ConsentCategory, "essential">;
 
 /**
- * Preferences modal. Radix Dialog provides focus trapping, ESC handling,
- * ARIA wiring, and keyboard navigation out of the box.
+ * Preferences modal (Ketch-style "purposes" layout). Radix Dialog provides
+ * focus trapping, ESC handling, ARIA wiring, and keyboard navigation.
  */
 export function PreferencesModal() {
   const {
@@ -36,10 +32,14 @@ export function PreferencesModal() {
   } = useConsent();
 
   const [draft, setDraft] = useState<ConsentChoices>(choices);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   // Sync draft to the latest saved choices whenever the modal opens.
   useEffect(() => {
-    if (showPreferences) setDraft(choices);
+    if (showPreferences) {
+      setDraft(choices);
+      setExpanded(null);
+    }
   }, [showPreferences, choices]);
 
   const toggle = (id: EditableCategory) =>
@@ -47,88 +47,128 @@ export function PreferencesModal() {
 
   return (
     <Dialog open={showPreferences} onOpenChange={(o) => !o && closePreferences()}>
-      <DialogContent className="max-w-lg rounded-3xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-xl rounded-3xl p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle className="text-xl">Privacy Preferences</DialogTitle>
-          <DialogDescription>
-            Choose which cookies and technologies you allow. You can change these
-            anytime in the Privacy Center.
-          </DialogDescription>
+          <DialogTitle className="text-2xl font-bold tracking-tight">
+            Your Privacy
+          </DialogTitle>
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+            Welcome! We're glad you're here and want you to know that we respect
+            your privacy and your right to control how we collect, use, and share
+            your personal data. Listed below are the purposes for which we process
+            your data—please indicate whether you consent to such processing. For
+            more information on our privacy practices, including legal bases and
+            our use of tracking technologies like cookies, please read our{" "}
+            <Link
+              to="/privacy-policy"
+              className="text-primary underline underline-offset-2 hover:opacity-80"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[50vh] px-6">
-          <div className="flex flex-col gap-3 pb-2">
+        <div className="flex items-center justify-between gap-4 px-6 pb-3">
+          <h3 className="text-lg font-bold text-foreground">Purposes</h3>
+          <div className="flex gap-2.5">
+            <Button
+              onClick={rejectAll}
+              className="rounded-full h-9 px-5"
+            >
+              Reject All
+            </Button>
+            <Button
+              variant="outline"
+              onClick={acceptAll}
+              className="rounded-full h-9 px-5"
+            >
+              Accept All
+            </Button>
+          </div>
+        </div>
+
+        <ScrollArea className="max-h-[45vh] px-6">
+          <div className="flex flex-col divide-y divide-border">
             {categories.map((cat) => {
               const isRequired = cat.required;
               const enabled = isRequired
                 ? true
                 : draft[cat.id as EditableCategory];
+              const isOpen = expanded === cat.id;
               return (
-                <div
-                  key={cat.id}
-                  className="rounded-2xl border border-border/60 bg-muted/30 p-4"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-foreground">
+                <div key={cat.id} className="py-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpanded((cur) => (cur === cat.id ? null : cat.id))
+                      }
+                      className="flex flex-1 items-start gap-2 text-left min-w-0"
+                      aria-expanded={isOpen}
+                    >
+                      <ChevronRight
+                        className={cn(
+                          "h-5 w-5 shrink-0 mt-0.5 text-muted-foreground transition-transform",
+                          isOpen && "rotate-90"
+                        )}
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-base font-bold text-foreground">
                           {cat.label}
-                        </h3>
-                        {isRequired && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                            <Lock className="h-2.5 w-2.5" /> Always on
+                        </span>
+                        {cat.legalBasis && (
+                          <span className="block text-xs text-muted-foreground">
+                            Legal Basis: {cat.legalBasis}
                           </span>
                         )}
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                      </span>
+                    </button>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isRequired && (
+                        <span className="text-sm font-medium text-foreground">
+                          Always Active
+                        </span>
+                      )}
+                      <Switch
+                        checked={enabled}
+                        disabled={isRequired}
+                        onCheckedChange={() =>
+                          !isRequired && toggle(cat.id as EditableCategory)
+                        }
+                        aria-label={`Toggle ${cat.label}`}
+                      />
+                    </div>
+                  </div>
+
+                  {isOpen && (
+                    <div className="mt-3 pl-7 pr-2 animate-fade-in">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         {cat.description}
                       </p>
                       {cat.examples && cat.examples.length > 0 && (
-                        <p className="mt-1.5 text-[11px] text-muted-foreground/70">
+                        <p className="mt-1.5 text-xs text-muted-foreground/70">
                           e.g. {cat.examples.join(", ")}
                         </p>
                       )}
                     </div>
-                    <Switch
-                      checked={enabled}
-                      disabled={isRequired}
-                      onCheckedChange={() =>
-                        !isRequired && toggle(cat.id as EditableCategory)
-                      }
-                      aria-label={`Toggle ${cat.label}`}
-                    />
-                  </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </ScrollArea>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2.5 px-6 py-5 border-t border-border/60 bg-background">
+        <div className="flex justify-end px-6 py-5 border-t border-border/60 bg-background">
           <Button
-            variant="ghost"
-            onClick={rejectAll}
-            className="rounded-full min-h-11 sm:mr-auto"
-          >
-            Reject All
-          </Button>
-          <Button
-            variant="outline"
             onClick={() => savePreferences(draft)}
-            className="rounded-full min-h-11"
+            className="rounded-full min-h-11 px-6 bg-gradient-primary border-0"
           >
-            <Check className="h-4 w-4" /> Save Preferences
+            Save Choices
           </Button>
-          <Button
-            onClick={acceptAll}
-            className="rounded-full min-h-11 bg-gradient-primary border-0"
-          >
-            Accept All
-          </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
-
-export { ACCEPT_ALL, REJECT_ALL };
