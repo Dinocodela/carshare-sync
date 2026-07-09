@@ -90,29 +90,33 @@ export const brand: BrandConfig = {
 
 export const categories: CategoryConfig[] = [
   {
-    id: "essential",
-    label: "Essential Cookies",
-    description:
-      "Required for login, security, navigation, and basic website functionality. These are always active.",
-    required: true,
-  },
-  {
     id: "analytics",
     label: "Analytics",
+    legalBasis: "Consent - Opt In",
     description: "Help us understand how visitors use our website.",
     examples: ["Google Analytics", "Plausible", "Mixpanel"],
   },
   {
     id: "marketing",
-    label: "Marketing",
+    label: "Behavioral Advertising",
+    legalBasis: "Consent - Opt In",
     description: "Used for personalized advertising and campaign performance.",
     examples: ["Meta Pixel", "Google Ads", "TikTok Pixel", "LinkedIn Insight"],
   },
   {
     id: "functional",
     label: "Functional",
+    legalBasis: "Consent - Opt In",
     description:
       "Enhances your experience with optional features like chat support and personalization.",
+  },
+  {
+    id: "essential",
+    label: "Essential Services",
+    legalBasis: "Disclosure",
+    description:
+      "Required for login, security, navigation, and basic website functionality. These are always active.",
+    required: true,
   },
 ];
 
