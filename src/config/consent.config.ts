@@ -33,6 +33,8 @@ export interface CategoryConfig {
   id: ConsentCategory;
   label: string;
   description: string;
+  /** Short legal-basis label shown under the category name. */
+  legalBasis?: string;
   examples?: string[];
   /** Essential can never be turned off. */
   required?: boolean;
