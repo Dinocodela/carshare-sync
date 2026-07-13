@@ -57,7 +57,7 @@ export function CoHostAgreementModal({
         .insert({
           user_id: user.id,
           car_id: carId,
-          agreement_version: "2025-v1",
+          agreement_version: "2025-v2",
           signer_name: signerName.trim(),
         });
 
