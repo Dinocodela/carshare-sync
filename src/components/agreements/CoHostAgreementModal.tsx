@@ -57,7 +57,7 @@ export function CoHostAgreementModal({
         .insert({
           user_id: user.id,
           car_id: carId,
-          agreement_version: "2025-v1",
+          agreement_version: "2025-v2",
           signer_name: signerName.trim(),
         });
 
@@ -186,9 +186,11 @@ export function CoHostAgreementModal({
               <h4 className="font-bold mt-6">EARNINGS AND PAYMENT</h4>
               <p className="text-sm">
                 Owner shall be entitled to receive their share of the gross rental revenue generated
-                from the rental. Teslys shall have the right to retain its Management Fee from the
-                monthly gross rental revenue. The gross rental revenue includes rental revenue,
-                unlimited mileage extras, late return fees, additional usage fees.
+                from the rental. Vehicles are listed on Eon and Turo using a 70/30 split, meaning the
+                platform (Eon or Turo) retains 30% of the gross rental revenue. In addition, Teslys
+                retains a Management Fee equal to 30% of the gross rental revenue for its management
+                services. The gross rental revenue includes rental revenue, unlimited mileage extras,
+                late return fees, and additional usage fees.
               </p>
               <p className="text-sm">
                 Gross rental revenue doesn't include cleaning fees, smoking fees, deep cleaning fees,
@@ -276,16 +278,16 @@ export function CoHostAgreementModal({
               {/* Claims */}
               <h4 className="font-bold mt-6">CLAIMS</h4>
               <p className="text-sm">
-                All Turo trips include coverage under Turo's Vehicle Protection Plan with a $2,500
-                deductible (90 plan). The owner agrees their vehicle will be covered by the "90
-                plan."
+                Teslys lists vehicles on Eon and Turo. Coverage and deductibles depend on the
+                platform the trip was booked through:
               </p>
               <ul className="text-sm space-y-1">
-                <li>For claims exceeding $2,500, Teslys covers the deductible upon resolution through Turo (not for total loss).</li>
-                <li>Claims below $2,500 may be settled directly with the guest to avoid the deductible.</li>
-                <li>If claim is less than $2,500, Teslys will partially cover up to $2,000 in case of Turo resolution.</li>
-                <li>Teslys covers the deductible only if the car is repaired at Teslys' partner facilities.</li>
+                <li><strong>Eon:</strong> In the event of an accident, the deductible is $0.</li>
+                <li><strong>Turo:</strong> In the event of an accident, the deductible is $250, which is covered by Teslys.</li>
+              </ul>
+              <ul className="text-sm space-y-1">
                 <li>Owner authorizes Teslys to handle the entire claim resolution process.</li>
+                <li>Teslys covers the deductible only if the vehicle is repaired at Teslys' partner facilities.</li>
                 <li>All documents and invoices related to claims can be provided upon written request to claims@Teslys.com.</li>
                 <li>If the vehicle is declared a total loss, Teslys will inform the Owner within 72 hours.</li>
               </ul>
