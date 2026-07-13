@@ -201,6 +201,7 @@ export default function WelcomeInvestor() {
       });
       if (error) throw error;
       setForm({ name: "", email: "", phone: "", amount: "", message: "" });
+      setCaptchaToken("");
       toast({
         title: "Inquiry submitted",
         description:
