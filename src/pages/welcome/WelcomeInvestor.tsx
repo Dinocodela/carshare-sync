@@ -161,6 +161,7 @@ export default function WelcomeInvestor() {
   // Inquiry form
   const [form, setForm] = useState({ name: "", email: "", phone: "", amount: "", message: "" });
   const [honeypot, setHoneypot] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth" });
