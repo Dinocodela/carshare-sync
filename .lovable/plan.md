@@ -1,44 +1,60 @@
-# Tesla Eligibility Criteria & Gating
+# Update Co-Host Agreement: Eon/Turo terms & management fee
 
-## Goal
-Stop wasted signups/submissions by clearly showing which Teslas we currently accept, and blocking ineligible cars at the Add Car step with a helpful message.
+Update the agreement text inside `src/components/agreements/CoHostAgreementModal.tsx`. Bump the `agreement_version` so new signatures are recorded against the revised terms.
 
-## Accepted vehicles (single source of truth)
-- Model X — 2022 and newer
-- Cybertruck — 2024 and newer
-- Model Y — 2026 and newer
-- Model 3 — 2026 and newer
-- Any other make/model, or a Tesla below the year cutoff → **not accepted right now**
+## 1. Rewrite the CLAIMS section (replace entirely)
 
-Limited spots due to high demand.
+Remove the old Turo "$2,500 deductible / 90 plan" language and replace with the current platform terms:
 
-## What we'll build
-
-### 1. Shared criteria config + checker (`src/lib/eligibility.ts`)
-- A single list of accepted `{ model, minYear }` rules and a `checkTeslaEligibility(make, model, year)` helper returning eligible/ineligible + reason.
-- Reused by both the display notice and the form validation so the rules live in one place.
-
-### 2. Upfront notice (before they invest time)
-Add a compact "Currently accepting" panel listing the accepted models/years + limited-availability note on:
-- **Get Started page** (`src/pages/GetStarted.tsx`) — placed near the hero/CTA so leads see it before registering.
-- **Add Car page** (`src/pages/AddCar.tsx`) — a banner at the top of the form.
-
-Copy example:
 ```text
-We're currently at limited capacity due to high demand.
-Right now we're only accepting:
-• Model X (2022 & newer)
-• Cybertruck (2024 & newer)
-• Model Y (2026 & newer)
-• Model 3 (2026 & newer)
+CLAIMS
+
+Teslys lists vehicles on Eon and Turo. Coverage and deductibles depend on the
+platform the trip was booked through:
+
+• Eon: In the event of an accident, the deductible is $0.
+• Turo: In the event of an accident, the deductible is $250, which is covered by Teslys.
+
+- Owner authorizes Teslys to handle the entire claim resolution process.
+- Teslys covers the deductible only if the vehicle is repaired at Teslys' partner facilities.
+- All documents and invoices related to claims can be provided upon written
+  request to claims@Teslys.com.
+- If the vehicle is declared a total loss, Teslys will inform the Owner within 72 hours.
+
+Owner bears full responsibility for claims if the vehicle was inoperable, lacked
+registration, or lacked insurance at the time of the incident. Teslys is not
+responsible for pre-existing damage or damage while in owner's possession.
 ```
 
-### 3. Enforce on submit (`src/pages/AddCar.tsx`)
-- On form submit, run `checkTeslaEligibility` on make/model/year **before** creating the car.
-- If ineligible, block the insert and show a clear message (toast + inline note) explaining the current criteria and that we're at capacity — the car is not saved and no further action is taken.
-- If eligible, continue with the existing create-car + agreement flow unchanged.
-- Make the Model field a select limited to the accepted Tesla models (Model X, Model Y, Model 3, Cybertruck) and default Make to "Tesla" to reduce invalid entries.
+## 2. Update EARNINGS AND PAYMENT (disclose the fees)
 
-## Out of scope / notes
-- No database changes and no new "waitlist" status — per your decision this is a clear "here's what we accept" message, not a stored waitlist.
-- Business logic stays minimal and confined to the eligibility helper + Add Car submit check.
+Clarify the two separate 30% deductions — the platform (Eon/Turo) keeps 30% of gross, and Teslys retains a separate 30% management fee:
+
+```text
+EARNINGS AND PAYMENT
+
+Owner shall be entitled to receive their share of the gross rental revenue
+generated from the rental. Vehicles are listed on Eon and Turo using a 70/30
+split, meaning the platform (Eon or Turo) retains 30% of the gross rental
+revenue. In addition, Teslys retains a Management Fee equal to 30% of the gross
+rental revenue for its management services. The gross rental revenue includes
+rental revenue, unlimited mileage extras, late return fees, and additional
+usage fees.
+
+Gross rental revenue doesn't include cleaning fees, smoking fees, deep cleaning
+fees, delivery fees, or other extras provided to guests. Owner's share shall be
+paid monthly and calculated within 10 days following the end of the calendar month.
+```
+
+## 3. Adjust related references
+
+- The **TICKETS AND FEES** paragraph currently says "during the reservations period" — leave wording as-is unless you want it updated (out of scope).
+- Fees table row "Claim Processing — resolved through Turo or EON" already references both platforms; no change needed.
+
+## 4. Version bump
+
+Change `agreement_version: "2025-v1"` to `"2025-v2"` in the `handleSign` insert so re-signed agreements reflect the updated terms.
+
+## Technical notes
+- All changes are confined to `src/components/agreements/CoHostAgreementModal.tsx` (JSX text content only, plus the version string). No schema, backend, or logic changes.
+- The confirmation about the 30% management fee is now explicitly disclosed in the EARNINGS AND PAYMENT section.

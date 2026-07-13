@@ -186,9 +186,11 @@ export function CoHostAgreementModal({
               <h4 className="font-bold mt-6">EARNINGS AND PAYMENT</h4>
               <p className="text-sm">
                 Owner shall be entitled to receive their share of the gross rental revenue generated
-                from the rental. Teslys shall have the right to retain its Management Fee from the
-                monthly gross rental revenue. The gross rental revenue includes rental revenue,
-                unlimited mileage extras, late return fees, additional usage fees.
+                from the rental. Vehicles are listed on Eon and Turo using a 70/30 split, meaning the
+                platform (Eon or Turo) retains 30% of the gross rental revenue. In addition, Teslys
+                retains a Management Fee equal to 30% of the gross rental revenue for its management
+                services. The gross rental revenue includes rental revenue, unlimited mileage extras,
+                late return fees, and additional usage fees.
               </p>
               <p className="text-sm">
                 Gross rental revenue doesn't include cleaning fees, smoking fees, deep cleaning fees,
