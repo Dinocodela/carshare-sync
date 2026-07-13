@@ -390,7 +390,7 @@ export default function AddCar() {
                     <FormItem>
                       <FormLabel>Make *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Toyota" {...field} />
+                        <Input placeholder="Tesla" readOnly {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -402,14 +402,26 @@ export default function AddCar() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Model *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Camry" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select model" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {ACCEPTED_MODELS.map((m) => (
+                            <SelectItem key={m} value={m}>
+                              {m}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <FormField
