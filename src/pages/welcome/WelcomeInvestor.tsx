@@ -159,6 +159,7 @@ export default function WelcomeInvestor() {
 
   // Inquiry form
   const [form, setForm] = useState({ name: "", email: "", phone: "", amount: "", message: "" });
+  const [honeypot, setHoneypot] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -184,6 +185,7 @@ export default function WelcomeInvestor() {
           amount: form.amount.trim(),
           message: form.message.trim() || null,
           userId: auth?.user?.id ?? null,
+          company_website: honeypot || undefined,
         },
       });
       if (error) throw error;
@@ -553,6 +555,17 @@ export default function WelcomeInvestor() {
           <Card>
             <CardContent className="p-6 md:p-8">
               <form onSubmit={submitInquiry} className="space-y-6">
+                {/* Honeypot: hidden from users, catches bots. */}
+                <input
+                  type="text"
+                  name="company_website"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute left-[-9999px] h-0 w-0 opacity-0"
+                />
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="name">

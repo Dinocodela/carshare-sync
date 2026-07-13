@@ -14,6 +14,12 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
+
+    // Honeypot: bots fill hidden fields; real users leave them empty.
+    if (body?.company_website) {
+      return jsonResponse({ success: true, id: crypto.randomUUID() });
+    }
+
     const name = String(body?.name ?? "").trim();
     const email = String(body?.email ?? "").trim();
     const phone = body?.phone ? String(body.phone).trim() : null;
@@ -34,6 +40,22 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Rate limit: max 5 submissions per IP per 10 minutes.
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("cf-connecting-ip") ||
+      "unknown";
+    const { data: allowed, error: rlErr } = await supabase.rpc(
+      "check_and_record_rate_limit",
+      { p_bucket: "investor-inquiry", p_identifier: ip, p_max: 5, p_window_seconds: 600 }
+    );
+    if (rlErr) {
+      console.error("Rate limit check failed:", rlErr);
+    } else if (allowed === false) {
+      return jsonResponse({ error: "Too many requests. Please try again later." }, 429);
+    }
+
 
     // Save the inquiry
     const { data: inserted, error: insErr } = await supabase
