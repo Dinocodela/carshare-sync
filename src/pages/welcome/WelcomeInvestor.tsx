@@ -185,6 +185,7 @@ export default function WelcomeInvestor() {
           amount: form.amount.trim(),
           message: form.message.trim() || null,
           userId: auth?.user?.id ?? null,
+          company_website: honeypot || undefined,
         },
       });
       if (error) throw error;
