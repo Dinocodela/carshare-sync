@@ -22,6 +22,22 @@ Deno.serve(async (req) => {
     const email = profile.email ?? user.email ?? "";
     const phone = profile.phone ?? "";
 
+    // Post to Slack via Incoming Webhook (best-effort; never blocks the response).
+    const slackWebhookUrl = Deno.env.get("SLACK_WEBHOOK_URL");
+    if (slackWebhookUrl) {
+      try {
+        await fetch(slackWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: `:wave: *New client request*\n*Name:* ${name}\n*Email:* ${email}\n*Phone:* ${phone || "—"}\n<https://teslys.app/admin/manage-accounts|Review account>`,
+          }),
+        });
+      } catch (e) {
+        console.warn("Slack webhook post failed:", e);
+      }
+    }
+
     const { data: admins } = await admin
       .from("profiles")
       .select("email")
