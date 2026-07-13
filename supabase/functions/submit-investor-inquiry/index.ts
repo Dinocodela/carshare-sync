@@ -73,10 +73,6 @@ Deno.serve(async (req) => {
     );
 
     // Rate limit: max 5 submissions per IP per 10 minutes.
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("cf-connecting-ip") ||
-      "unknown";
     const { data: allowed, error: rlErr } = await supabase.rpc(
       "check_and_record_rate_limit",
       { p_bucket: "investor-inquiry", p_identifier: ip, p_max: 5, p_window_seconds: 600 }
