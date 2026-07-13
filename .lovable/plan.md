@@ -1,43 +1,44 @@
-# Teslys Shop — Dropshipping Storefront Plan
+# Tesla Eligibility Criteria & Gating
 
-Goal: sell Tesla-related accessories as a standalone storefront on your existing Teslys site, with dropshipping so you never buy or hold inventory, and full ad-conversion tracking for Google + Meta.
+## Goal
+Stop wasted signups/submissions by clearly showing which Teslas we currently accept, and blocking ineligible cars at the Add Car step with a helpful message.
 
-## How dropshipping works here (no merch to buy)
-Shopify is the engine: it holds the product catalog, cart, checkout, and orders. A dropshipping supplier app (DSers/AliExpress, Zendrop, or Spocket) connects to Shopify. When a customer buys, the order is auto-forwarded to the supplier who ships directly to the buyer. You never touch inventory. Supplier app connection is a one-time setup you do inside Shopify's admin (I'll guide you), and product importing/order routing is automated after that.
+## Accepted vehicles (single source of truth)
+- Model X — 2022 and newer
+- Cybertruck — 2024 and newer
+- Model Y — 2026 and newer
+- Model 3 — 2026 and newer
+- Any other make/model, or a Tesla below the year cutoff → **not accepted right now**
 
-## Phase 1 — Enable Shopify (new store)
-- Create a new Shopify development store (free while we build; you claim it later for a 30-day trial, paid plan needed only to go live and sell).
-- After creation, offer the claim step (you can skip and keep building).
+Limited spots due to high demand.
 
-## Phase 2 — Product catalog
-Seed the catalog with your Tesla accessory lineup:
-- Phone mount, USB-C fast charger, MagSafe car charger, backseat phone/tablet holder
-- Trunk organizer, travel cable organizer, center console organizer, cup holder organizer, car trash bin
-- Neck pillows, windshield/glass-roof sunshade
-- All-weather floor mats, trunk/frunk mats, seat-back protectors, door sill protectors
-- Screen protector, mud flaps, wheel/rim protectors
+## What we'll build
 
-Each product gets title, description, price, images, and variants (e.g. Model 3/Y/S/X fitment where relevant). Products can be created via Shopify, then refined; dropshipping supplier apps can also push their own product data/images in.
+### 1. Shared criteria config + checker (`src/lib/eligibility.ts`)
+- A single list of accepted `{ model, minYear }` rules and a `checkTeslaEligibility(make, model, year)` helper returning eligible/ineligible + reason.
+- Reused by both the display notice and the form validation so the rules live in one place.
 
-## Phase 3 — Standalone storefront in the app
-Build a dedicated shop experience linked from the main Teslys site:
-- `/shop` — product grid with category filters (charging, organization, protection, comfort, exterior)
-- `/shop/:handle` — product detail with images, variant selector, add-to-cart
-- Cart drawer + checkout handoff to Shopify's secure hosted checkout
-- Reuse existing Teslys design tokens/components for a consistent look; add a clear entry point (nav link / CTA) from the main site so your existing traffic flows to the shop.
+### 2. Upfront notice (before they invest time)
+Add a compact "Currently accepting" panel listing the accepted models/years + limited-availability note on:
+- **Get Started page** (`src/pages/GetStarted.tsx`) — placed near the hero/CTA so leads see it before registering.
+- **Add Car page** (`src/pages/AddCar.tsx`) — a banner at the top of the form.
 
-## Phase 4 — Ads + conversion tracking (Google & Meta)
-So your ad spend is measurable:
-- Meta Pixel + Conversions API events on product view, add-to-cart, initiate-checkout, purchase.
-- Google Ads / GA4 tag with the same funnel events + purchase conversion.
-- Reuse the existing UTM-capture pattern (already in the codebase) so campaign attribution persists into orders.
-- GTM is already integrated — I'll wire the shop events through it where possible.
-- Note: the most reliable purchase conversion fires from Shopify checkout; I'll set up the on-site funnel events and document the checkout-side conversion setup in your Shopify admin.
+Copy example:
+```text
+We're currently at limited capacity due to high demand.
+Right now we're only accepting:
+• Model X (2022 & newer)
+• Cybertruck (2024 & newer)
+• Model Y (2026 & newer)
+• Model 3 (2026 & newer)
+```
 
-## Technical notes
-- New store creation and the supplier/dropshipping app connection happen in Shopify's admin (steps I'll walk you through) — those can't be scripted from here.
-- Storefront pages are React and deploy with the rest of the app; you control when to publish them.
-- Physical-goods checkout, payments, shipping, and taxes are handled by Shopify + the supplier, not custom code.
+### 3. Enforce on submit (`src/pages/AddCar.tsx`)
+- On form submit, run `checkTeslaEligibility` on make/model/year **before** creating the car.
+- If ineligible, block the insert and show a clear message (toast + inline note) explaining the current criteria and that we're at capacity — the car is not saved and no further action is taken.
+- If eligible, continue with the existing create-car + agreement flow unchanged.
+- Make the Model field a select limited to the accepted Tesla models (Model X, Model Y, Model 3, Cybertruck) and default Make to "Tesla" to reduce invalid entries.
 
-## First step on approval
-Enable Shopify (new store), then start seeding the product catalog and building the `/shop` pages.
+## Out of scope / notes
+- No database changes and no new "waitlist" status — per your decision this is a clear "here's what we accept" message, not a stored waitlist.
+- Business logic stays minimal and confined to the eligibility helper + Add Car submit check.
