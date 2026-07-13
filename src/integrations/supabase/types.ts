@@ -1970,6 +1970,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_events: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: string
+          identifier: string
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          id?: string
+          identifier: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          identifier?: string
+        }
+        Relationships: []
+      }
       requests: {
         Row: {
           car_id: string
@@ -2383,6 +2404,15 @@ export type Database = {
     Functions: {
       accept_hosting_request: { Args: { p_request_id: string }; Returns: Json }
       auto_select_winner: { Args: { p_test_id: string }; Returns: Json }
+      check_and_record_rate_limit: {
+        Args: {
+          p_bucket: string
+          p_identifier: string
+          p_max: number
+          p_window_seconds: number
+        }
+        Returns: boolean
+      }
       get_car_earnings_summary: {
         Args: { p_car_id: string }
         Returns: {
