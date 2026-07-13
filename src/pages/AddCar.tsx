@@ -319,6 +319,38 @@ export default function AddCar() {
           </div>
         </div>
 
+        {/* Eligibility Notice */}
+        <div
+          style={fadeIn(1)}
+          className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="rounded-lg bg-amber-500/15 p-1.5">
+              <Sparkles className="h-4 w-4 text-amber-600" />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">
+              Currently Accepting — Limited Spots
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            Due to very high demand, we have limited capacity right now. We're only
+            accepting these Teslas:
+          </p>
+          <ul className="grid sm:grid-cols-2 gap-2">
+            {ELIGIBILITY_ITEMS.map((item) => (
+              <li
+                key={item}
+                className="flex items-center gap-2 text-sm text-foreground"
+              >
+                <CheckCircle className="h-4 w-4 text-amber-600 shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+
+
         {/* Step Indicator */}
         <div style={fadeIn(1)} className="flex items-center justify-between gap-1 px-1">
           {steps.map((step, i) => (
