@@ -36,16 +36,43 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Input too long." }, 400);
     }
 
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    // CAPTCHA: verify Cloudflare Turnstile token (only when configured).
+    const turnstileSecret = Deno.env.get("TURNSTILE_SECRET_KEY");
+    if (turnstileSecret) {
+      const token = body?.turnstileToken ? String(body.turnstileToken) : "";
+      if (!token) {
+        return jsonResponse({ error: "Verification required." }, 400);
+      }
+      const verifyRes = await fetch(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            secret: turnstileSecret,
+            response: token,
+            remoteip: ip,
+          }),
+        }
+      );
+      const verify = await verifyRes.json().catch(() => ({ success: false }));
+      if (!verify?.success) {
+        console.warn("Turnstile verification failed:", verify?.["error-codes"]);
+        return jsonResponse({ error: "Verification failed. Please try again." }, 400);
+      }
+    }
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
     // Rate limit: max 5 submissions per IP per 10 minutes.
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("cf-connecting-ip") ||
-      "unknown";
     const { data: allowed, error: rlErr } = await supabase.rpc(
       "check_and_record_rate_limit",
       { p_bucket: "investor-inquiry", p_identifier: ip, p_max: 5, p_window_seconds: 600 }

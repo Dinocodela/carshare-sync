@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { Turnstile, isTurnstileEnabled } from "@/components/Turnstile";
 import {
   Accordion,
   AccordionContent,
@@ -160,6 +161,7 @@ export default function WelcomeInvestor() {
   // Inquiry form
   const [form, setForm] = useState({ name: "", email: "", phone: "", amount: "", message: "" });
   const [honeypot, setHoneypot] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -170,6 +172,14 @@ export default function WelcomeInvestor() {
       toast({
         title: "Missing information",
         description: "Please fill in your name, email, and interested investment amount.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (isTurnstileEnabled && !captchaToken) {
+      toast({
+        title: "Verification required",
+        description: "Please complete the verification challenge before submitting.",
         variant: "destructive",
       });
       return;
@@ -186,10 +196,12 @@ export default function WelcomeInvestor() {
           message: form.message.trim() || null,
           userId: auth?.user?.id ?? null,
           company_website: honeypot || undefined,
+          turnstileToken: captchaToken || undefined,
         },
       });
       if (error) throw error;
       setForm({ name: "", email: "", phone: "", amount: "", message: "" });
+      setCaptchaToken("");
       toast({
         title: "Inquiry submitted",
         description:
@@ -626,6 +638,9 @@ export default function WelcomeInvestor() {
                     rows={4}
                   />
                 </div>
+                {isTurnstileEnabled && (
+                  <Turnstile onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
+                )}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <Button type="submit" size="lg" disabled={submitting}>
                     {submitting ? "Submitting..." : "Submit Inquiry"}
