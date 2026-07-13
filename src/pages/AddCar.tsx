@@ -101,7 +101,7 @@ export default function AddCar() {
   const form = useForm<CarFormData>({
     resolver: zodResolver(carSchema),
     defaultValues: {
-      make: "",
+      make: "Tesla",
       model: "",
       year: new Date().getFullYear(),
       mileage: 0,
@@ -184,6 +184,20 @@ export default function AddCar() {
 
   const onSubmit = async (data: CarFormData) => {
     if (!user) return;
+
+    // Enforce current hosting eligibility criteria before creating anything.
+    const eligibility = checkTeslaEligibility(data.make, data.model, data.year);
+    if (!eligibility.eligible) {
+      toast({
+        title: "This vehicle isn't eligible right now",
+        description:
+          eligibility.reason ||
+          `We're currently only accepting: ${ELIGIBILITY_ITEMS.join(", ")}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (selectedImages.length === 0) {
       toast({
         title: "Images Required",
