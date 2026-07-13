@@ -637,6 +637,9 @@ export default function WelcomeInvestor() {
                     rows={4}
                   />
                 </div>
+                {isTurnstileEnabled && (
+                  <Turnstile onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
+                )}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <Button type="submit" size="lg" disabled={submitting}>
                     {submitting ? "Submitting..." : "Submit Inquiry"}
