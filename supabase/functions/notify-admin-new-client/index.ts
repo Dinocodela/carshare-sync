@@ -1,26 +1,21 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { corsHeaders, jsonResponse, requireAuth } from "../_shared/require-auth.ts";
+import { corsHeaders, jsonResponse } from "../_shared/require-auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  const authResult = await requireAuth(req);
-  if ("error" in authResult) return authResult.error;
-  const { user, admin } = authResult;
-
   try {
-    const { data: profile, error: profileErr } = await admin
-      .from("profiles")
-      .select("first_name, last_name, email, phone, role")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const body = await req.json().catch(() => ({}));
+    const name = (body.clientName ?? "").toString().trim() || "New Client";
+    const email = (body.clientEmail ?? "").toString().trim();
+    const phone = (body.clientPhone ?? "").toString().trim();
 
-    if (profileErr || !profile) return jsonResponse({ error: "Profile not found" }, 404);
-    if (profile.role !== "client") return jsonResponse({ error: "Forbidden" }, 403);
+    if (!email) return jsonResponse({ error: "clientEmail is required" }, 400);
 
-    const name = `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || "New Client";
-    const email = profile.email ?? user.email ?? "";
-    const phone = profile.phone ?? "";
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
 
     // Post to Slack via Incoming Webhook (best-effort; never blocks the response).
     const slackWebhookUrl = Deno.env.get("SLACK_WEBHOOK_URL");
@@ -45,16 +40,11 @@ Deno.serve(async (req) => {
       .not("email", "is", null);
 
     const adminEmails = (admins ?? []).map((a: any) => a.email).filter(Boolean) as string[];
-    if (adminEmails.length === 0) return jsonResponse({ error: "No admin emails found" }, 400);
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
+    if (adminEmails.length === 0) return jsonResponse({ success: true, sent: 0 });
 
     const results = await Promise.allSettled(
       adminEmails.map((to) =>
-        supabase.functions.invoke("send-transactional-email", {
+        admin.functions.invoke("send-transactional-email", {
           body: {
             templateName: "admin-notification",
             recipientEmail: to,
