@@ -555,6 +555,17 @@ export default function WelcomeInvestor() {
           <Card>
             <CardContent className="p-6 md:p-8">
               <form onSubmit={submitInquiry} className="space-y-6">
+                {/* Honeypot: hidden from users, catches bots. */}
+                <input
+                  type="text"
+                  name="company_website"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute left-[-9999px] h-0 w-0 opacity-0"
+                />
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="name">
