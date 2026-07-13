@@ -4,6 +4,7 @@ import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
 import { DollarSign, Shield, Sparkles, CheckCircle2 } from "lucide-react";
+import { ELIGIBILITY_ITEMS } from "@/lib/eligibility";
 
 export default function GetStarted() {
   const [searchParams] = useSearchParams();
