@@ -44,6 +44,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useCameraCapture } from "@/hooks/useCameraCapture";
 import { formatCarName } from "@/lib/carName";
+import {
+  ACCEPTED_MODELS,
+  ELIGIBILITY_ITEMS,
+  checkTeslaEligibility,
+} from "@/lib/eligibility";
 
 const carSchema = z.object({
   make: z.string().min(1, "Make is required"),
@@ -96,7 +101,7 @@ export default function AddCar() {
   const form = useForm<CarFormData>({
     resolver: zodResolver(carSchema),
     defaultValues: {
-      make: "",
+      make: "Tesla",
       model: "",
       year: new Date().getFullYear(),
       mileage: 0,
@@ -179,6 +184,20 @@ export default function AddCar() {
 
   const onSubmit = async (data: CarFormData) => {
     if (!user) return;
+
+    // Enforce current hosting eligibility criteria before creating anything.
+    const eligibility = checkTeslaEligibility(data.make, data.model, data.year);
+    if (!eligibility.eligible) {
+      toast({
+        title: "This vehicle isn't eligible right now",
+        description:
+          eligibility.reason ||
+          `We're currently only accepting: ${ELIGIBILITY_ITEMS.join(", ")}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (selectedImages.length === 0) {
       toast({
         title: "Images Required",
@@ -300,6 +319,38 @@ export default function AddCar() {
           </div>
         </div>
 
+        {/* Eligibility Notice */}
+        <div
+          style={fadeIn(1)}
+          className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="rounded-lg bg-amber-500/15 p-1.5">
+              <Sparkles className="h-4 w-4 text-amber-600" />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">
+              Currently Accepting — Limited Spots
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            Due to very high demand, we have limited capacity right now. We're only
+            accepting these Teslas:
+          </p>
+          <ul className="grid sm:grid-cols-2 gap-2">
+            {ELIGIBILITY_ITEMS.map((item) => (
+              <li
+                key={item}
+                className="flex items-center gap-2 text-sm text-foreground"
+              >
+                <CheckCircle className="h-4 w-4 text-amber-600 shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+
+
         {/* Step Indicator */}
         <div style={fadeIn(1)} className="flex items-center justify-between gap-1 px-1">
           {steps.map((step, i) => (
@@ -339,7 +390,7 @@ export default function AddCar() {
                     <FormItem>
                       <FormLabel>Make *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Toyota" {...field} />
+                        <Input placeholder="Tesla" readOnly {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -351,14 +402,26 @@ export default function AddCar() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Model *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Camry" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select model" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {ACCEPTED_MODELS.map((m) => (
+                            <SelectItem key={m} value={m}>
+                              {m}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <FormField

@@ -4,6 +4,7 @@ import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
 import { DollarSign, Shield, Sparkles, CheckCircle2 } from "lucide-react";
+import { ELIGIBILITY_ITEMS } from "@/lib/eligibility";
 
 export default function GetStarted() {
   const [searchParams] = useSearchParams();
@@ -98,7 +99,30 @@ export default function GetStarted() {
                 No credit card required · Start earning in days
               </p>
             </div>
+
+            {/* Eligibility notice */}
+            <div className="mt-8 mx-auto max-w-xl rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 text-left">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-5 w-5 text-amber-600" />
+                <h2 className="text-base font-bold text-foreground">
+                  Currently Accepting — Limited Spots
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Due to very high demand, we have limited capacity right now. Before you
+                sign up, please note we're only accepting these Teslas:
+              </p>
+              <ul className="grid sm:grid-cols-2 gap-2">
+                {ELIGIBILITY_ITEMS.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm text-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-amber-600 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
+
         </section>
 
         {/* Value props */}
