@@ -278,16 +278,16 @@ export function CoHostAgreementModal({
               {/* Claims */}
               <h4 className="font-bold mt-6">CLAIMS</h4>
               <p className="text-sm">
-                All Turo trips include coverage under Turo's Vehicle Protection Plan with a $2,500
-                deductible (90 plan). The owner agrees their vehicle will be covered by the "90
-                plan."
+                Teslys lists vehicles on Eon and Turo. Coverage and deductibles depend on the
+                platform the trip was booked through:
               </p>
               <ul className="text-sm space-y-1">
-                <li>For claims exceeding $2,500, Teslys covers the deductible upon resolution through Turo (not for total loss).</li>
-                <li>Claims below $2,500 may be settled directly with the guest to avoid the deductible.</li>
-                <li>If claim is less than $2,500, Teslys will partially cover up to $2,000 in case of Turo resolution.</li>
-                <li>Teslys covers the deductible only if the car is repaired at Teslys' partner facilities.</li>
+                <li><strong>Eon:</strong> In the event of an accident, the deductible is $0.</li>
+                <li><strong>Turo:</strong> In the event of an accident, the deductible is $250, which is covered by Teslys.</li>
+              </ul>
+              <ul className="text-sm space-y-1">
                 <li>Owner authorizes Teslys to handle the entire claim resolution process.</li>
+                <li>Teslys covers the deductible only if the vehicle is repaired at Teslys' partner facilities.</li>
                 <li>All documents and invoices related to claims can be provided upon written request to claims@Teslys.com.</li>
                 <li>If the vehicle is declared a total loss, Teslys will inform the Owner within 72 hours.</li>
               </ul>
