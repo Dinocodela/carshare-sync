@@ -174,6 +174,14 @@ export default function WelcomeInvestor() {
       });
       return;
     }
+    if (isTurnstileEnabled && !captchaToken) {
+      toast({
+        title: "Verification required",
+        description: "Please complete the verification challenge before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
     setSubmitting(true);
     try {
       const { data: auth } = await supabase.auth.getUser();
@@ -186,6 +194,7 @@ export default function WelcomeInvestor() {
           message: form.message.trim() || null,
           userId: auth?.user?.id ?? null,
           company_website: honeypot || undefined,
+          turnstileToken: captchaToken || undefined,
         },
       });
       if (error) throw error;
