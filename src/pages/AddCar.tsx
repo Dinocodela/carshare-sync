@@ -44,6 +44,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useCameraCapture } from "@/hooks/useCameraCapture";
 import { formatCarName } from "@/lib/carName";
+import {
+  ACCEPTED_MODELS,
+  ELIGIBILITY_ITEMS,
+  checkTeslaEligibility,
+} from "@/lib/eligibility";
 
 const carSchema = z.object({
   make: z.string().min(1, "Make is required"),
