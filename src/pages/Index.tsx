@@ -15,7 +15,7 @@ import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
 import HostRegisterCard from "@/components/auth/HostRegisterCard";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
-import { RentATeslaLink } from "@/components/RentATeslaLink";
+
 import { ReadReviewsLink } from "@/components/ReadReviewsLink";
 import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { IntentChooser } from "@/components/landing/IntentChooser";
