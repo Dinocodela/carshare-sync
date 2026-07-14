@@ -15,9 +15,10 @@ import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
 import HostRegisterCard from "@/components/auth/HostRegisterCard";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
-import { RentATeslaLink } from "@/components/RentATeslaLink";
+
 import { ReadReviewsLink } from "@/components/ReadReviewsLink";
 import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
+import { IntentChooser } from "@/components/landing/IntentChooser";
 
 type Panel = "login" | "register-client" | "register-host";
 
@@ -27,6 +28,13 @@ const Index = () => {
   const navigate = useNavigate();
 
   const [panel, setPanel] = useState<Panel>("login");
+  const [showAuth, setShowAuth] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("teslys_intent") === "manage";
+    } catch {
+      return false;
+    }
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -106,7 +114,7 @@ const Index = () => {
       <StructuredData type="software" />
       <StructuredData type="localbusiness" />
 
-      <RentATeslaLink />
+      
       <main className="min-h-screen pt-safe-top bg-gradient-hero overflow-y-auto">
         <div className="flex flex-col items-center p-4 pb-0">
           <div className="w-full max-w-xl">
@@ -147,7 +155,30 @@ const Index = () => {
               </p>
             </div>
 
+            {!showAuth && (
+              <div
+                className="transition-all duration-500 delay-500 ease-out"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateY(0)" : "translateY(15px)",
+                }}
+              >
+                <IntentChooser onChooseManage={() => setShowAuth(true)} />
+                <div className="text-center mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAuth(true)}
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Already have an account?{" "}
+                    <span className="text-primary font-medium">Sign in</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Login / Register Panel */}
+            {showAuth && (
             <div
               className="transition-all duration-500 delay-500 ease-out"
               style={{
@@ -155,7 +186,7 @@ const Index = () => {
                 transform: visible ? "translateY(0)" : "translateY(15px)",
               }}
             >
-              {panel === "login" && (
+              {showAuth && panel === "login" && (
                 <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-5">
                   <h2 className="text-lg font-bold text-foreground mb-1">
                     Sign in to{" "}
@@ -253,9 +284,27 @@ const Index = () => {
                 <HostRegisterCard onBackToLogin={() => setPanel("login")} />
               )}
             </div>
+            )}
+
+            {showAuth && (
+              <div className="text-center mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { localStorage.removeItem("teslys_intent"); } catch {}
+                    setShowAuth(false);
+                    setPanel("login");
+                  }}
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  ← Back to options
+                </button>
+              </div>
+            )}
+
 
             {/* Become a client (owners who want us to host & manage their Tesla) */}
-            {panel === "login" && (
+            {showAuth && panel === "login" && (
               <button
                 type="button"
                 onClick={() => setPanel("register-client")}
@@ -282,7 +331,7 @@ const Index = () => {
             )}
 
             {/* Become a host (Turo-style application banner) */}
-            {panel === "login" && (
+            {showAuth && panel === "login" && (
 
               <a
                 href="https://www.eonrides.com/partners"
@@ -312,7 +361,7 @@ const Index = () => {
             )}
 
             {/* Investor link */}
-            {panel === "login" && (
+            {showAuth && panel === "login" && (
               <Link
                 to="/welcome/investor"
                 className="mt-3 w-full flex items-center gap-3 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm p-4 hover:border-primary/40 transition-colors group"

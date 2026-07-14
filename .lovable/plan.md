@@ -1,60 +1,60 @@
-# Update Co-Host Agreement: Eon/Turo terms & management fee
 
-Update the agreement text inside `src/components/agreements/CoHostAgreementModal.tsx`. Bump the `agreement_version` so new signatures are recorded against the revised terms.
+## Goal
+Stop losing rental leads on teslys.app. Right now the landing page pushes visitors toward "sign in" and "list your Tesla," and the only rental affordance is a tiny top-right pill. We'll make Rent a Tesla a first-class, unmissable choice on the landing hero.
 
-## 1. Rewrite the CLAIMS section (replace entirely)
+## Approach: Two-card intent gate above the fold
 
-Remove the old Turo "$2,500 deductible / 90 plan" language and replace with the current platform terms:
-
-```text
-CLAIMS
-
-Teslys lists vehicles on Eon and Turo. Coverage and deductibles depend on the
-platform the trip was booked through:
-
-• Eon: In the event of an accident, the deductible is $0.
-• Turo: In the event of an accident, the deductible is $250, which is covered by Teslys.
-
-- Owner authorizes Teslys to handle the entire claim resolution process.
-- Teslys covers the deductible only if the vehicle is repaired at Teslys' partner facilities.
-- All documents and invoices related to claims can be provided upon written
-  request to claims@Teslys.com.
-- If the vehicle is declared a total loss, Teslys will inform the Owner within 72 hours.
-
-Owner bears full responsibility for claims if the vehicle was inoperable, lacked
-registration, or lacked insurance at the time of the incident. Teslys is not
-responsible for pre-existing damage or damage while in owner's possession.
-```
-
-## 2. Update EARNINGS AND PAYMENT (disclose the fees)
-
-Clarify the two separate 30% deductions — the platform (Eon/Turo) keeps 30% of gross, and Teslys retains a separate 30% management fee:
+Replace the current single-purpose hero (Logo + "Welcome to Teslys" + login form) with an intent chooser that appears first, on both web and native.
 
 ```text
-EARNINGS AND PAYMENT
-
-Owner shall be entitled to receive their share of the gross rental revenue
-generated from the rental. Vehicles are listed on Eon and Turo using a 70/30
-split, meaning the platform (Eon or Turo) retains 30% of the gross rental
-revenue. In addition, Teslys retains a Management Fee equal to 30% of the gross
-rental revenue for its management services. The gross rental revenue includes
-rental revenue, unlimited mileage extras, late return fees, and additional
-usage fees.
-
-Gross rental revenue doesn't include cleaning fees, smoking fees, deep cleaning
-fees, delivery fees, or other extras provided to guests. Owner's share shall be
-paid monthly and calculated within 10 days following the end of the calendar month.
+┌───────────────────────────────────┐
+│           Teslys logo             │
+│  What brings you to Teslys?       │
+├──────────────┬────────────────────┤
+│  🚗 Rent     │  🔑 List / Manage  │
+│  a Tesla     │  my Tesla          │
+│              │                    │
+│  Book a      │  Earn passive      │
+│  Tesla by    │  income — we       │
+│  the day     │  handle rentals,   │
+│  or month.   │  cleaning, guests. │
+│              │                    │
+│  [Rent now →]│  [Get started →]   │
+└──────────────┴────────────────────┘
+   Already have an account? Sign in
 ```
 
-## 3. Adjust related references
+### Behavior
+- **Rent a Tesla card** → opens `https://app.eonrides.com` in a new tab (web) / external browser (native via `@capacitor/browser` or `window.open`).
+- **List/Manage card** → reveals the existing login + client register panel (current `panel` state machine) inline below, or scrolls to it.
+- **"Already have an account? Sign in"** link → collapses cards and shows the login form for returning users, so we don't add friction for them.
+- Persist the choice in `localStorage` (`teslys_intent`) so returning visitors on the same device skip straight to their side. Add a small "Not you? Switch" link to reset.
 
-- The **TICKETS AND FEES** paragraph currently says "during the reservations period" — leave wording as-is unless you want it updated (out of scope).
-- Fees table row "Claim Processing — resolved through Turo or EON" already references both platforms; no change needed.
+### Secondary cleanup on the same page
+- Remove the "Rent A Tesla" floating pill in the top-right — it's now redundant and was being missed anyway. Keep it only on interior pages where the hero cards aren't present.
+- Keep the existing "Become a host" and "Invest in our fleet" cards, but push them below the fold so the two primary intents dominate.
+- Keep the Earnings Calculator CTA and trust indicators as-is.
 
-## 4. Version bump
+### Scope
+- **Web**: `src/pages/Index.tsx` — restructure the hero.
+- **Native (Capacitor)**: same file, same UI. The Rent card uses `Browser.open({ url })` from `@capacitor/browser` when `Capacitor.isNativePlatform()` is true, otherwise `window.open`.
+- **Component**: new `src/components/landing/IntentChooser.tsx` to keep `Index.tsx` clean.
+- **Analytics**: fire an event on each card click (`landing_intent_selected` with `rent` | `manage`) via existing `src/analytics/events.ts` so we can measure lift.
 
-Change `agreement_version: "2025-v1"` to `"2025-v2"` in the `handleSign` insert so re-signed agreements reflect the updated terms.
+### Copy (draft)
+- Headline: **"What brings you to Teslys?"**
+- Rent card: **"Rent a Tesla"** — "Book a Tesla by the day, week, or month. Delivered ready to drive."
+- Manage card: **"List & earn from my Tesla"** — "Turn your Tesla into passive income. We handle rentals, cleaning, and guest support."
 
-## Technical notes
-- All changes are confined to `src/components/agreements/CoHostAgreementModal.tsx` (JSX text content only, plus the version string). No schema, backend, or logic changes.
-- The confirmation about the 30% management fee is now explicitly disclosed in the EARNINGS AND PAYMENT section.
+### Visual direction
+- Two equal-height cards, mobile-stacked / desktop side-by-side.
+- Distinct accent per card (Rent = electric blue accent, Manage = existing primary green) so they read as two clearly separate paths, not variations of the same product.
+- Large icon, bold title, one-line value prop, primary CTA button. Same card language as the existing "Become a host" cards so it fits the design system.
+
+## Non-goals
+- No changes to auth, registration flow, or backend.
+- No first-visit modal (rejected in favor of persistent hero cards — no dismissal friction, always visible).
+- No changes to the mobile app native shell beyond the landing screen.
+
+## Follow-up (not in this change)
+- After 1–2 weeks, review analytics on `landing_intent_selected` vs. client register completions to confirm rental leads are being captured.
