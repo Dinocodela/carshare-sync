@@ -18,6 +18,7 @@ import { StructuredData } from "@/components/StructuredData";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
 import { ReadReviewsLink } from "@/components/ReadReviewsLink";
 import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
+import { IntentChooser } from "@/components/landing/IntentChooser";
 
 type Panel = "login" | "register-client" | "register-host";
 
