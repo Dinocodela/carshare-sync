@@ -114,7 +114,7 @@ const Index = () => {
       <StructuredData type="software" />
       <StructuredData type="localbusiness" />
 
-      <RentATeslaLink />
+      
       <main className="min-h-screen pt-safe-top bg-gradient-hero overflow-y-auto">
         <div className="flex flex-col items-center p-4 pb-0">
           <div className="w-full max-w-xl">
