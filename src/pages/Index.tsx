@@ -155,7 +155,30 @@ const Index = () => {
               </p>
             </div>
 
+            {!showAuth && (
+              <div
+                className="transition-all duration-500 delay-500 ease-out"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateY(0)" : "translateY(15px)",
+                }}
+              >
+                <IntentChooser onChooseManage={() => setShowAuth(true)} />
+                <div className="text-center mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAuth(true)}
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Already have an account?{" "}
+                    <span className="text-primary font-medium">Sign in</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Login / Register Panel */}
+            {showAuth && (
             <div
               className="transition-all duration-500 delay-500 ease-out"
               style={{
