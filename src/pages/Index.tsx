@@ -28,6 +28,13 @@ const Index = () => {
   const navigate = useNavigate();
 
   const [panel, setPanel] = useState<Panel>("login");
+  const [showAuth, setShowAuth] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("teslys_intent") === "manage";
+    } catch {
+      return false;
+    }
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
