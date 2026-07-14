@@ -186,7 +186,7 @@ const Index = () => {
                 transform: visible ? "translateY(0)" : "translateY(15px)",
               }}
             >
-              {panel === "login" && (
+              {showAuth && panel === "login" && (
                 <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-5">
                   <h2 className="text-lg font-bold text-foreground mb-1">
                     Sign in to{" "}
@@ -304,7 +304,7 @@ const Index = () => {
 
 
             {/* Become a client (owners who want us to host & manage their Tesla) */}
-            {panel === "login" && (
+            {showAuth && panel === "login" && (
               <button
                 type="button"
                 onClick={() => setPanel("register-client")}
@@ -331,7 +331,7 @@ const Index = () => {
             )}
 
             {/* Become a host (Turo-style application banner) */}
-            {panel === "login" && (
+            {showAuth && panel === "login" && (
 
               <a
                 href="https://www.eonrides.com/partners"
@@ -361,7 +361,7 @@ const Index = () => {
             )}
 
             {/* Investor link */}
-            {panel === "login" && (
+            {showAuth && panel === "login" && (
               <Link
                 to="/welcome/investor"
                 className="mt-3 w-full flex items-center gap-3 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm p-4 hover:border-primary/40 transition-colors group"
