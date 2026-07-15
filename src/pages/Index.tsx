@@ -151,7 +151,7 @@ const Index = () => {
       <StructuredData type="localbusiness" />
 
       <main
-        className="min-h-screen pt-safe-top"
+        className="min-h-screen"
         style={{ background: C.pageCream, color: C.headline, fontFamily: SANS }}
       >
         {/* Constrained mobile-first container */}
@@ -223,7 +223,7 @@ const Index = () => {
             {/* Hero content — centered */}
             <div
               className="relative h-full flex flex-col items-center"
-              style={{ paddingTop: 46 }}
+              style={{ paddingTop: 12 }}
             >
               {/* Logo */}
               <div style={{ width: 78, height: 78 }} className="flex items-center justify-center">
