@@ -808,11 +808,12 @@ const Index = () => {
                       src={googlePlayBadge}
                       alt="Get it on Google Play"
                       style={{
-                        width: "116%",
-                        height: "116%",
+                        width: "132%",
+                        height: "132%",
                         objectFit: "contain",
                         display: "block",
-                        transform: "translateY(0)",
+                        transform: "scale(1.15)",
+                        transformOrigin: "center",
                       }}
                     />
                   </a>
