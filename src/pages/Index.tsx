@@ -929,7 +929,7 @@ const Index = () => {
                         color={C.teal}
                         fill="#E7F1EF"
                       />
-                      Verified Host
+                      {activeTestimonial.badge}
                     </span>
                   </div>
                 </div>
