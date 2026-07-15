@@ -953,34 +953,30 @@ const Index = () => {
               </div>
 
               <div
-                aria-hidden
                 className="absolute bottom-[7px] left-1/2 flex -translate-x-1/2 items-center"
                 style={{ gap: 5 }}
               >
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: 999,
-                    background: C.teal,
-                  }}
-                />
-                <span
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: 999,
-                    background: C.border,
-                  }}
-                />
-                <span
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: 999,
-                    background: C.border,
-                  }}
-                />
+                {testimonials.map((t, i) => {
+                  const active = i === testimonialIdx;
+                  return (
+                    <button
+                      key={t.name}
+                      type="button"
+                      aria-label={`Show testimonial ${i + 1}`}
+                      aria-current={active}
+                      onClick={() => setTestimonialIdx(i)}
+                      style={{
+                        width: active ? 6 : 5,
+                        height: active ? 6 : 5,
+                        borderRadius: 999,
+                        background: active ? C.teal : C.border,
+                        padding: 0,
+                        border: 0,
+                        cursor: "pointer",
+                      }}
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>
