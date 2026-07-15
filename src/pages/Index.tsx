@@ -119,6 +119,24 @@ const Index = () => {
         <div className="flex flex-col items-center p-4 pb-0">
           <div className="w-full max-w-xl">
 
+            {showAuth && (
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { localStorage.removeItem("teslys_intent"); } catch {}
+                    setShowAuth(false);
+                    setPanel("login");
+                  }}
+                  className="inline-flex items-center gap-1 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary hover:border-primary/40 transition-colors"
+                  aria-label="Back to options"
+                >
+                  <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                  Back
+                </button>
+              </div>
+            )}
+
             {/* Hero Section */}
             <div className="text-center pt-6 pb-4">
               <div
@@ -286,21 +304,6 @@ const Index = () => {
             </div>
             )}
 
-            {showAuth && (
-              <div className="text-center mt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    try { localStorage.removeItem("teslys_intent"); } catch {}
-                    setShowAuth(false);
-                    setPanel("login");
-                  }}
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
-                >
-                  ← Back to options
-                </button>
-              </div>
-            )}
 
 
             {/* Become a client (owners who want us to host & manage their Tesla) */}
