@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Capacitor } from "@capacitor/core";
@@ -84,6 +84,32 @@ const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
+
+  const testimonials = useMemo(
+    () => [
+      {
+        quote:
+          "Teslys made renting my Model Y effortless. The service is truly first-class.",
+        name: "Michael R.",
+        badge: "Verified Host",
+      },
+      {
+        quote:
+          "Passive income without lifting a finger. My Model 3 pays for itself every month.",
+        name: "Priya S.",
+        badge: "Verified Host",
+      },
+      {
+        quote:
+          "Concierge delivery to my hotel — the most seamless Tesla experience in LA.",
+        name: "Daniel K.",
+        badge: "Verified Guest",
+      },
+    ],
+    []
+  );
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const activeTestimonial = testimonials[testimonialIdx];
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
@@ -451,10 +477,10 @@ const Index = () => {
                 loading="eager"
                 className="absolute z-10 pointer-events-none"
                 style={{
-                  width: "65%",
+                  width: "58%",
                   maxWidth: "none",
-                  right: -12,
-                  bottom: 38,
+                  right: 6,
+                  bottom: 42,
                   objectFit: "contain",
                   filter: "drop-shadow(0 18px 20px rgba(0,0,0,0.42))",
                 }}
@@ -568,10 +594,10 @@ const Index = () => {
                 loading="lazy"
                 className="absolute z-10 pointer-events-none"
                 style={{
-                  width: "63%",
+                  width: "52%",
                   maxWidth: "none",
-                  right: -42,
-                  bottom: -7,
+                  right: 8,
+                  bottom: 8,
                   objectFit: "contain",
                 }}
               />
@@ -848,8 +874,7 @@ const Index = () => {
                         color: C.headline,
                       }}
                     >
-                      Teslys made renting my Model Y effortless. The service is
-                      truly first-class.
+                      {activeTestimonial.quote}
                     </p>
                   </div>
 
@@ -885,7 +910,7 @@ const Index = () => {
                         color: C.headline,
                       }}
                     >
-                      — Michael R.
+                      — {activeTestimonial.name}
                     </span>
                     <span
                       className="inline-flex items-center"
@@ -904,7 +929,7 @@ const Index = () => {
                         color={C.teal}
                         fill="#E7F1EF"
                       />
-                      Verified Host
+                      {activeTestimonial.badge}
                     </span>
                   </div>
                 </div>
@@ -928,34 +953,30 @@ const Index = () => {
               </div>
 
               <div
-                aria-hidden
                 className="absolute bottom-[7px] left-1/2 flex -translate-x-1/2 items-center"
                 style={{ gap: 5 }}
               >
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: 999,
-                    background: C.teal,
-                  }}
-                />
-                <span
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: 999,
-                    background: C.border,
-                  }}
-                />
-                <span
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: 999,
-                    background: C.border,
-                  }}
-                />
+                {testimonials.map((t, i) => {
+                  const active = i === testimonialIdx;
+                  return (
+                    <button
+                      key={t.name}
+                      type="button"
+                      aria-label={`Show testimonial ${i + 1}`}
+                      aria-current={active}
+                      onClick={() => setTestimonialIdx(i)}
+                      style={{
+                        width: active ? 6 : 5,
+                        height: active ? 6 : 5,
+                        borderRadius: 999,
+                        background: active ? C.teal : C.border,
+                        padding: 0,
+                        border: 0,
+                        cursor: "pointer",
+                      }}
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -1047,13 +1068,24 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Download Teslys on the App Store"
-                    className="block"
+                    className="flex items-center justify-center"
+                    style={{
+                      width: 132,
+                      height: 40,
+                      background: "#000",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                    }}
                   >
                     <img
                       src={appStoreBadge}
                       alt="Download on the App Store"
-                      className="h-auto w-full"
-                      style={{ maxHeight: 34, objectFit: "contain" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
                     />
                   </a>
 
@@ -1062,13 +1094,24 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Get Teslys on Google Play"
-                    className="block"
+                    className="flex items-center justify-center"
+                    style={{
+                      width: 132,
+                      height: 40,
+                      background: "#000",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                    }}
                   >
                     <img
                       src={googlePlayBadge}
                       alt="Get it on Google Play"
-                      className="h-auto w-full"
-                      style={{ maxHeight: 34, objectFit: "contain" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
                     />
                   </a>
                 </div>
