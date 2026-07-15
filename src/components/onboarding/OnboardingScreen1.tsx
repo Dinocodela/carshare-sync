@@ -1,108 +1,198 @@
-import { DollarSign, TrendingUp, Zap } from "lucide-react";
+import { DollarSign, TrendingUp, Zap, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { C, SERIF, SANS } from "@/components/luxury/tokens";
+import { DiamondDivider } from "@/components/luxury/DiamondDivider";
+
+const FEATURES = [
+  {
+    icon: TrendingUp,
+    title: "$1,500 – $3,500 / month",
+    desc: "Per vehicle, consistently paid",
+  },
+  {
+    icon: Zap,
+    title: "Zero effort required",
+    desc: "We handle every operational detail",
+  },
+  {
+    icon: DollarSign,
+    title: "You keep full ownership",
+    desc: "Your car, your asset, our concierge",
+  },
+];
 
 export function OnboardingScreen1() {
   const [visible, setVisible] = useState(false);
-  const [showFeatures, setShowFeatures] = useState(false);
+  const [showRows, setShowRows] = useState(false);
 
   useEffect(() => {
     setVisible(true);
-    const t = setTimeout(() => setShowFeatures(true), 400);
+    const t = setTimeout(() => setShowRows(true), 350);
     return () => clearTimeout(t);
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full px-6 py-8 sm:py-12 text-center relative">
-      {/* Animated background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-20 blur-[100px] transition-all duration-[2000ms]"
-          style={{
-            background: "radial-gradient(circle, hsl(var(--primary)), hsl(var(--accent)), transparent)",
-            transform: visible ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.3)",
-          }}
-        />
-      </div>
-
-      {/* Icon with animated rings */}
+    <div
+      className="flex flex-col items-center min-h-full px-6 pt-6 pb-8 text-center relative"
+      style={{ fontFamily: SANS, color: C.headline }}
+    >
+      {/* Icon chip */}
       <div
-        className="mb-5 sm:mb-8 relative transition-all duration-700 ease-out"
+        className="relative transition-all duration-700 ease-out"
         style={{
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.8)",
+          transform: visible ? "translateY(0)" : "translateY(16px)",
         }}
       >
-        {/* Outer ring pulse */}
-        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-primary/20 animate-[ping_3s_ease-out_infinite]" />
-        <div className="absolute inset-0 w-20 h-20 rounded-full border border-primary/10 animate-[ping_3s_ease-out_1s_infinite]" />
-        {/* Icon circle */}
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
-          <DollarSign className="w-9 h-9 text-primary drop-shadow-lg" strokeWidth={2.5} />
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width: 76,
+            height: 76,
+            borderRadius: "50%",
+            background: C.tealSoft,
+            border: `1px solid ${C.borderSoft}`,
+            boxShadow: "0 12px 30px rgba(3,37,44,0.06)",
+          }}
+        >
+          <Sparkles
+            size={30}
+            strokeWidth={1.5}
+            style={{ color: C.tealDark }}
+          />
         </div>
       </div>
 
-      {/* Heading */}
-      <h1
-        className="text-3xl font-extrabold mb-3 text-foreground leading-tight tracking-tight transition-all duration-700 delay-150 ease-out"
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(20px)",
-        }}
-      >
-        Your Tesla Earns
-        <br />
-        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          While You Sleep
-        </span>
-      </h1>
-
+      {/* Chapter label */}
       <p
-        className="text-base text-muted-foreground mb-8 max-w-xs transition-all duration-700 delay-300 ease-out"
+        className="transition-all duration-700 delay-100 ease-out"
         style={{
+          marginTop: 22,
+          fontFamily: SANS,
+          fontSize: 10,
+          letterSpacing: "0.28em",
+          textTransform: "uppercase",
+          color: C.gold,
+          fontWeight: 600,
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Turn your idle Tesla into a reliable passive income stream — zero effort, zero stress.
+        The Teslys Promise
       </p>
 
-      {/* Feature cards */}
-      <div className="space-y-3 w-full max-w-sm">
-        {[
-          {
-            icon: TrendingUp,
-            title: "Earn $1,500–$3,500/mo",
-            desc: "Per vehicle, consistently",
-            delay: 0,
-          },
-          {
-            icon: Zap,
-            title: "Zero Effort Required",
-            desc: "We handle literally everything",
-            delay: 100,
-          },
-          {
-            icon: DollarSign,
-            title: "Keep Full Ownership",
-            desc: "Your car, your asset, our management",
-            delay: 200,
-          },
-        ].map(({ icon: Icon, title, desc, delay }, i) => (
+      {/* Headline */}
+      <h1
+        className="transition-all duration-700 delay-150 ease-out"
+        style={{
+          marginTop: 10,
+          fontFamily: SERIF,
+          fontSize: 38,
+          lineHeight: "42px",
+          fontWeight: 500,
+          letterSpacing: "-0.015em",
+          color: C.headline,
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(14px)",
+          maxWidth: 320,
+        }}
+      >
+        Your Tesla earns
+        <br />
+        <em
+          style={{
+            fontStyle: "italic",
+            color: C.teal,
+            fontWeight: 500,
+          }}
+        >
+          while you sleep.
+        </em>
+      </h1>
+
+      {/* Body */}
+      <p
+        className="transition-all duration-700 delay-300 ease-out"
+        style={{
+          marginTop: 14,
+          fontFamily: SANS,
+          fontSize: 14.5,
+          lineHeight: "22px",
+          color: C.body,
+          maxWidth: 300,
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(14px)",
+        }}
+      >
+        Turn your idle Tesla into a reliable, hands-off income stream — managed
+        end-to-end by our concierge team.
+      </p>
+
+      <div style={{ marginTop: 22, width: "100%" }}>
+        <DiamondDivider tone="light" />
+      </div>
+
+      {/* Feature rows */}
+      <div
+        style={{
+          marginTop: 22,
+          width: "100%",
+          maxWidth: 360,
+          background: C.warmWhite,
+          border: `1px solid ${C.border}`,
+          borderRadius: 20,
+          padding: "6px 18px",
+          boxShadow: "0 18px 40px rgba(3,37,44,0.06)",
+        }}
+      >
+        {FEATURES.map(({ icon: Icon, title, desc }, i) => (
           <div
             key={i}
-            className="flex items-center gap-4 p-3.5 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm transition-all duration-500 ease-out hover:shadow-md hover:border-primary/20"
+            className="flex items-center gap-3.5 transition-all duration-500 ease-out"
             style={{
-              opacity: showFeatures ? 1 : 0,
-              transform: showFeatures ? "translateX(0)" : "translateX(-20px)",
-              transitionDelay: `${delay}ms`,
+              padding: "14px 0",
+              borderBottom:
+                i < FEATURES.length - 1 ? `1px solid ${C.borderSoft}` : "none",
+              opacity: showRows ? 1 : 0,
+              transform: showRows ? "translateX(0)" : "translateX(-14px)",
+              transitionDelay: `${i * 90}ms`,
             }}
           >
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Icon className="w-5 h-5 text-primary" />
+            <div
+              className="flex items-center justify-center shrink-0"
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+                background: C.tealSoft,
+                border: `1px solid ${C.borderSoft}`,
+              }}
+            >
+              <Icon size={17} strokeWidth={1.6} style={{ color: C.tealDark }} />
             </div>
-            <div className="text-left">
-              <h3 className="font-semibold text-sm text-foreground">{title}</h3>
-              <p className="text-xs text-muted-foreground">{desc}</p>
+            <div className="text-left flex-1 min-w-0">
+              <h3
+                style={{
+                  fontFamily: SERIF,
+                  fontSize: 16,
+                  lineHeight: "20px",
+                  fontWeight: 500,
+                  color: C.headline,
+                  letterSpacing: "-0.005em",
+                }}
+              >
+                {title}
+              </h3>
+              <p
+                style={{
+                  marginTop: 2,
+                  fontFamily: SANS,
+                  fontSize: 12.5,
+                  lineHeight: "17px",
+                  color: C.body,
+                }}
+              >
+                {desc}
+              </p>
             </div>
           </div>
         ))}
