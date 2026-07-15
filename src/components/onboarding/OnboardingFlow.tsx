@@ -1,15 +1,16 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
-import { Logo } from "@/components/ui/logo";
+import { ArrowRight } from "lucide-react";
 import { RentATeslaLink } from "@/components/RentATeslaLink";
+import { C, SERIF, SANS } from "@/components/luxury/tokens";
 import { OnboardingScreen1 } from "./OnboardingScreen1";
 import { OnboardingScreen2 } from "./OnboardingScreen2";
 import { OnboardingScreen3 } from "./OnboardingScreen3";
 
 function WhatsAppBubble() {
-  const message = encodeURIComponent("Hi Teslys, I'm interested in learning more about hosting my Tesla.");
+  const message = encodeURIComponent(
+    "Hi Teslys, I'm interested in learning more about hosting my Tesla."
+  );
   return (
     <a
       href={`https://wa.me/13106990473?text=${message}`}
@@ -48,7 +49,7 @@ export function OnboardingFlow() {
       setTimeout(() => {
         setCurrentScreen(index);
         setAnimating(false);
-      }, 250);
+      }, 220);
     },
     [currentScreen, animating]
   );
@@ -66,7 +67,11 @@ export function OnboardingFlow() {
     navigate("/");
   };
 
-  // Swipe support
+  const handleSkip = () => {
+    localStorage.setItem("hasSeenOnboarding", "true");
+    navigate("/");
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -80,12 +85,72 @@ export function OnboardingFlow() {
   };
 
   const ScreenComponent = SCREENS[currentScreen];
+  const isLast = currentScreen === SCREENS.length - 1;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-hero relative overflow-hidden">
+    <div
+      className="min-h-screen flex flex-col relative overflow-hidden"
+      style={{ background: C.pageCream, fontFamily: SANS, color: C.headline }}
+    >
       <RentATeslaLink />
 
-      {/* Screen content with transitions */}
+      {/* Soft ambient teal glow (single, restrained) */}
+      <div
+        aria-hidden
+        className="absolute pointer-events-none"
+        style={{
+          top: "-160px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 520,
+          height: 520,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(7,139,142,0.10) 0%, rgba(7,139,142,0) 70%)",
+          filter: "blur(20px)",
+        }}
+      />
+
+      {/* Top bar: step counter + skip */}
+      <div
+        className="relative z-10 flex items-center justify-between px-6"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 18px)" }}
+      >
+        <span
+          style={{
+            fontFamily: SANS,
+            fontSize: 11,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: C.gold,
+            fontWeight: 600,
+          }}
+        >
+          {String(currentScreen + 1).padStart(2, "0")}
+          <span style={{ color: C.divider, margin: "0 6px" }}>/</span>
+          {String(SCREENS.length).padStart(2, "0")}
+        </span>
+        {!isLast && (
+          <button
+            type="button"
+            onClick={handleSkip}
+            style={{
+              fontFamily: SANS,
+              fontSize: 12,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: C.muted,
+              fontWeight: 500,
+              padding: "6px 4px",
+            }}
+            aria-label="Skip onboarding"
+          >
+            Skip
+          </button>
+        )}
+      </div>
+
+      {/* Screen content */}
       <div
         className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center"
         onTouchStart={handleTouchStart}
@@ -98,8 +163,8 @@ export function OnboardingFlow() {
             opacity: animating ? 0 : 1,
             transform: animating
               ? direction === "left"
-                ? "translateX(-30px)"
-                : "translateX(30px)"
+                ? "translateX(-24px)"
+                : "translateX(24px)"
               : "translateX(0)",
           }}
         >
@@ -108,54 +173,72 @@ export function OnboardingFlow() {
       </div>
 
       {/* Bottom section */}
-      <div className="relative z-10 pb-8 px-6 space-y-5">
-        {/* Progress indicator */}
-        <div className="flex justify-center gap-2">
-          {SCREENS.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => goTo(index)}
-              className="relative h-2 rounded-full transition-all duration-500 cursor-pointer overflow-hidden"
-              style={{ width: index === currentScreen ? 32 : 8 }}
-              aria-label={`Go to screen ${index + 1}`}
-            >
-              <div
-                className="absolute inset-0 rounded-full transition-colors duration-300"
+      <div
+        className="relative z-10 px-6"
+        style={{
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 26px)",
+          paddingTop: 18,
+        }}
+      >
+        {/* Progress dots */}
+        <div className="flex justify-center items-center gap-2 mb-5">
+          {SCREENS.map((_, index) => {
+            const active = index === currentScreen;
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => goTo(index)}
+                aria-label={`Go to screen ${index + 1}`}
+                className="transition-all duration-500"
                 style={{
-                  backgroundColor:
-                    index === currentScreen
-                      ? "hsl(var(--primary))"
-                      : "hsl(var(--muted-foreground) / 0.25)",
+                  height: 6,
+                  width: active ? 28 : 6,
+                  borderRadius: 999,
+                  background: active ? C.teal : C.divider,
+                  opacity: active ? 1 : 0.55,
                 }}
               />
-              {/* Active fill animation */}
-              {index === currentScreen && (
-                <div
-                  className="absolute inset-0 rounded-full bg-primary/50 origin-left"
-                  style={{
-                    animation: "progressFill 4s linear forwards",
-                  }}
-                />
-              )}
-            </button>
-          ))}
+            );
+          })}
         </div>
 
-        {/* CTA */}
-        <Button
+        {/* CTA — luxury teal gradient pill */}
+        <button
+          type="button"
           onClick={handleNext}
-          size="lg"
-          className="w-full max-w-sm mx-auto flex gap-2 rounded-xl h-12 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+          className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+          style={{
+            display: "flex",
+            height: 54,
+            borderRadius: 999,
+            background: "linear-gradient(135deg, #056F73 0%, #07989B 100%)",
+            color: "#fff",
+            fontFamily: SERIF,
+            fontSize: 19,
+            fontWeight: 500,
+            letterSpacing: "-0.01em",
+            boxShadow: "0 12px 28px rgba(0,92,96,0.22)",
+          }}
         >
-          {currentScreen === SCREENS.length - 1 ? "Get Started" : "Continue"}
-          <ChevronRight className="w-5 h-5" />
-        </Button>
+          <span>{isLast ? "Enter Teslys" : "Continue"}</span>
+          <ArrowRight size={19} strokeWidth={1.75} />
+        </button>
 
         {/* Trust text on last screen */}
-        {currentScreen === SCREENS.length - 1 && (
-          <p className="text-center text-[11px] text-muted-foreground animate-fade-in">
-            Trusted by Tesla owners across the US 🇺🇸
+        {isLast && (
+          <p
+            className="text-center animate-fade-in"
+            style={{
+              marginTop: 12,
+              fontFamily: SANS,
+              fontSize: 11,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: C.muted,
+            }}
+          >
+            Trusted by Tesla owners across the US
           </p>
         )}
       </div>
@@ -163,10 +246,6 @@ export function OnboardingFlow() {
       <WhatsAppBubble />
 
       <style>{`
-        @keyframes progressFill {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
-        }
         @keyframes bounceIn {
           0% { opacity: 0; transform: scale(0.3) translateY(20px); }
           50% { opacity: 1; transform: scale(1.05) translateY(-5px); }
