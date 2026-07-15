@@ -221,7 +221,7 @@ const Index = () => {
               onClick={() => navigate(-1)}
               className="absolute z-20 flex items-center justify-center"
               style={{
-                top: "max(14px, env(safe-area-inset-top))",
+                top: "calc(env(safe-area-inset-top, 0px) + 6px)",
                 left: 18,
                 width: 44,
                 height: 44,
@@ -240,7 +240,7 @@ const Index = () => {
             <div
               className="absolute z-20"
               style={{
-                top: "max(14px, env(safe-area-inset-top))",
+                top: "calc(env(safe-area-inset-top, 0px) + 6px)",
                 right: 18,
               }}
             >

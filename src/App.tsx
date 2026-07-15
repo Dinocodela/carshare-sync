@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import Support from "@/pages/Support";
 import {
@@ -155,6 +156,7 @@ const App = () => (
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/register/client" element={<Register />} />
               <Route path="/register/host" element={<Register />} />
