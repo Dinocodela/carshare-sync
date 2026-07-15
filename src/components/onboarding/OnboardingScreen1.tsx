@@ -1,202 +1,307 @@
-import { DollarSign, TrendingUp, Zap, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  BarChart3,
+  CalendarDays,
+  ChevronRight,
+  Headphones,
+  KeyRound,
+} from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import { C, SERIF, SANS } from "@/components/luxury/tokens";
 import { DiamondDivider } from "@/components/luxury/DiamondDivider";
+import teslaCutout from "@/assets/tesla-black-cutout.png.asset.json";
 
 const FEATURES = [
   {
-    icon: TrendingUp,
-    title: "Earnings vary by vehicle",
-    desc: "Results depend on demand, availability, pricing, location, and operating costs.",
+    icon: Headphones,
+    title: "Hosting support",
+    description:
+      "We help coordinate the rental experience from inquiry to return.",
   },
   {
-    icon: Zap,
-    title: "Flexible availability",
-    desc: "Choose when your Tesla may be available, subject to program and booking requirements.",
+    icon: BarChart3,
+    title: "Owner visibility",
+    description: "Track activity, trips, and vehicle details in the app.",
   },
   {
-    icon: DollarSign,
-    title: "You retain ownership",
-    desc: "Your vehicle remains your asset while Teslys coordinates approved management services.",
+    icon: CalendarDays,
+    title: "Flexible control",
+    description:
+      "You decide when your Tesla is available and review the details before you continue.",
   },
 ];
 
 export function OnboardingScreen1() {
   const [visible, setVisible] = useState(false);
-  const [showRows, setShowRows] = useState(false);
+  const [showCards, setShowCards] = useState(false);
 
   useEffect(() => {
     setVisible(true);
-    const t = setTimeout(() => setShowRows(true), 350);
-    return () => clearTimeout(t);
+    const timer = window.setTimeout(() => setShowCards(true), 280);
+    return () => window.clearTimeout(timer);
   }, []);
 
   return (
-    <div
-      className="flex flex-col items-center min-h-full px-6 pt-6 pb-8 text-center relative"
-      style={{ fontFamily: SANS, color: C.headline }}
+    <section
+      className="relative flex min-h-full w-full flex-col items-center overflow-hidden px-5 pb-5 text-center"
+      style={{
+        paddingTop: 14,
+        fontFamily: SANS,
+        color: C.headline,
+        background: C.pageCream,
+      }}
     >
-      {/* Icon chip */}
+      {/* Quiet editorial background shapes */}
       <div
-        className="relative transition-all duration-700 ease-out"
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at 12% 64%, rgba(105,205,208,0.10), transparent 31%), radial-gradient(circle at 90% 55%, rgba(181,146,81,0.07), transparent 28%)",
+        }}
+      />
+
+      {/* Brand */}
+      <div
+        className="relative z-10 flex flex-col items-center transition-all duration-700 ease-out"
         style={{
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(16px)",
+          transform: visible ? "translateY(0)" : "translateY(12px)",
         }}
       >
+        <div className="flex h-[66px] w-[66px] items-center justify-center">
+          <Logo size="lg" linked={false} />
+        </div>
         <div
-          className="flex items-center justify-center"
           style={{
-            width: 76,
-            height: 76,
-            borderRadius: "50%",
-            background: C.tealSoft,
-            border: `1px solid ${C.borderSoft}`,
-            boxShadow: "0 12px 30px rgba(3,37,44,0.06)",
+            marginTop: 5,
+            paddingLeft: "0.39em",
+            fontFamily: SERIF,
+            fontSize: 23,
+            lineHeight: "27px",
+            fontWeight: 500,
+            letterSpacing: "0.39em",
+            color: C.headline,
           }}
         >
-          <Sparkles
-            size={30}
-            strokeWidth={1.5}
-            style={{ color: C.tealDark }}
-          />
+          TESLYS
         </div>
       </div>
 
-      {/* Chapter label */}
-      <p
-        className="transition-all duration-700 delay-100 ease-out"
+      {/* Hero product composition */}
+      <div
+        className="relative z-10 mt-4 w-full max-w-[370px] transition-all duration-700 delay-100 ease-out"
         style={{
-          marginTop: 22,
-          fontFamily: SANS,
-          fontSize: 10,
-          letterSpacing: "0.28em",
-          textTransform: "uppercase",
-          color: C.gold,
-          fontWeight: 600,
+          height: 235,
           opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.97)",
         }}
       >
-        How Teslys Works
-      </p>
-
-      {/* Headline */}
-      <h1
-        className="transition-all duration-700 delay-150 ease-out"
-        style={{
-          marginTop: 10,
-          fontFamily: SERIF,
-          fontSize: 38,
-          lineHeight: "42px",
-          fontWeight: 500,
-          letterSpacing: "-0.015em",
-          color: C.headline,
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(14px)",
-          maxWidth: 320,
-        }}
-      >
-        Put your Tesla
-        <br />
-        <em
+        <div
+          aria-hidden
+          className="absolute inset-x-2 bottom-1 top-0 overflow-hidden rounded-[34px]"
           style={{
-            fontStyle: "italic",
-            color: C.teal,
-            fontWeight: 500,
+            background:
+              "linear-gradient(180deg, rgba(255,253,249,0.88) 0%, rgba(247,241,232,0.94) 100%)",
+            border: `1px solid ${C.borderSoft}`,
+            boxShadow: "0 24px 55px rgba(55,41,25,0.08)",
           }}
         >
-          to work when available.
-        </em>
-      </h1>
+          <div
+            className="absolute left-1/2 top-[18px] h-[196px] w-[178px] -translate-x-1/2 rounded-t-[90px] border"
+            style={{ borderColor: "rgba(181,146,81,0.18)" }}
+          />
+          <div
+            className="absolute left-1/2 top-[34px] h-[180px] w-[144px] -translate-x-1/2 rounded-t-[72px] border"
+            style={{ borderColor: "rgba(181,146,81,0.12)" }}
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 h-[78px]"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255,253,249,0), rgba(255,253,249,0.96))",
+            }}
+          />
+        </div>
 
-      {/* Body */}
-      <p
-        className="transition-all duration-700 delay-300 ease-out"
-        style={{
-          marginTop: 14,
-          fontFamily: SANS,
-          fontSize: 14.5,
-          lineHeight: "22px",
-          color: C.body,
-          maxWidth: 300,
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(14px)",
-        }}
-      >
-        Teslys helps eligible owners make their vehicles available for managed
-        rentals while retaining ownership of the car.
-      </p>
+        <img
+          src={teslaCutout.url}
+          alt="Black Tesla"
+          className="pointer-events-none absolute bottom-[23px] left-[18px] z-10 w-[68%] max-w-none object-contain"
+          style={{ filter: "drop-shadow(0 18px 18px rgba(3,37,44,0.20))" }}
+        />
 
-      <div style={{ marginTop: 22, width: "100%" }}>
-        <DiamondDivider tone="light" />
+        {/* Phone mockup kept in code so text remains crisp and responsive */}
+        <div
+          aria-hidden
+          className="absolute bottom-[17px] right-[31px] z-20 h-[174px] w-[98px] rotate-[3deg] overflow-hidden rounded-[20px] border-[3px]"
+          style={{
+            borderColor: "#9F7D44",
+            background: "linear-gradient(165deg, #082E35 0%, #031C22 100%)",
+            boxShadow: "0 18px 30px rgba(3,37,44,0.28)",
+          }}
+        >
+          <div className="mx-auto mt-[7px] h-[4px] w-[27px] rounded-full bg-white/25" />
+          <div className="px-[8px] pt-[10px] text-left">
+            <div className="h-[5px] w-[36px] rounded-full bg-white/65" />
+            <div className="mt-[10px] flex items-center justify-between">
+              <div className="h-[4px] w-[24px] rounded-full bg-white/25" />
+              <div className="h-[11px] w-[11px] rounded-full bg-[#B59251]" />
+            </div>
+            <div className="mt-[8px] grid grid-cols-5 gap-[3px]">
+              {Array.from({ length: 15 }).map((_, index) => (
+                <span
+                  key={index}
+                  className="block h-[4px] rounded-[2px]"
+                  style={{
+                    background:
+                      index === 8 ? C.gold : "rgba(255,255,255,0.16)",
+                  }}
+                />
+              ))}
+            </div>
+            <div className="mt-[11px] space-y-[6px]">
+              {["72%", "87%", "64%"].map((width) => (
+                <div
+                  key={width}
+                  className="rounded-[6px] border border-white/10 bg-white/[0.04] p-[5px]"
+                >
+                  <div className="h-[3px] rounded-full bg-white/45" style={{ width }} />
+                  <div className="mt-[4px] h-[3px] w-[48%] rounded-full bg-white/15" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div
+          aria-hidden
+          className="absolute bottom-[14px] right-[11px] z-30 flex h-[52px] w-[52px] items-center justify-center rounded-[14px]"
+          style={{
+            background: C.darkTeal,
+            border: `1px solid ${C.goldBorder}`,
+            boxShadow: "0 12px 22px rgba(3,37,44,0.18)",
+          }}
+        >
+          <KeyRound size={24} strokeWidth={1.55} color={C.gold} />
+        </div>
       </div>
 
-      {/* Feature rows */}
+      {/* Copy */}
       <div
+        className="relative z-10 transition-all duration-700 delay-200 ease-out"
         style={{
-          marginTop: 22,
-          width: "100%",
-          maxWidth: 360,
-          background: C.warmWhite,
-          border: `1px solid ${C.border}`,
-          borderRadius: 20,
-          padding: "6px 18px",
-          boxShadow: "0 18px 40px rgba(3,37,44,0.06)",
+          marginTop: 17,
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(12px)",
         }}
       >
-        {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+        <h1
+          style={{
+            margin: 0,
+            fontFamily: SERIF,
+            fontSize: "clamp(37px, 10.5vw, 44px)",
+            lineHeight: 0.98,
+            fontWeight: 500,
+            letterSpacing: "-0.035em",
+            color: C.headline,
+          }}
+        >
+          List with confidence
+        </h1>
+        <p
+          style={{
+            margin: "17px auto 0",
+            maxWidth: 344,
+            fontFamily: SANS,
+            fontSize: 14.5,
+            lineHeight: "22px",
+            fontWeight: 400,
+            color: C.body,
+          }}
+        >
+          Teslys helps Tesla owners manage bookings, guest communication, and
+          day-to-day hosting in one place.
+        </p>
+        <div style={{ marginTop: 19 }}>
+          <DiamondDivider tone="light" />
+        </div>
+      </div>
+
+      {/* Feature cards */}
+      <div className="relative z-10 mt-5 flex w-full max-w-[370px] flex-col gap-3">
+        {FEATURES.map(({ icon: Icon, title, description }, index) => (
           <div
-            key={i}
-            className="flex items-center gap-3.5 transition-all duration-500 ease-out"
+            key={title}
+            className="flex items-center rounded-[20px] text-left transition-all duration-500 ease-out"
             style={{
-              padding: "14px 0",
-              borderBottom:
-                i < FEATURES.length - 1 ? `1px solid ${C.borderSoft}` : "none",
-              opacity: showRows ? 1 : 0,
-              transform: showRows ? "translateX(0)" : "translateX(-14px)",
-              transitionDelay: `${i * 90}ms`,
+              minHeight: 92,
+              padding: "14px 14px 14px 13px",
+              gap: 13,
+              background: "rgba(255,253,249,0.92)",
+              border: `1px solid ${C.border}`,
+              boxShadow: "0 12px 28px rgba(55,41,25,0.055)",
+              opacity: showCards ? 1 : 0,
+              transform: showCards ? "translateY(0)" : "translateY(12px)",
+              transitionDelay: `${index * 80}ms`,
             }}
           >
             <div
-              className="flex items-center justify-center shrink-0"
+              className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full"
               style={{
-                width: 38,
-                height: 38,
-                borderRadius: "50%",
-                background: C.tealSoft,
-                border: `1px solid ${C.borderSoft}`,
+                background: C.warmWhite,
+                border: `1px solid ${C.goldBorder}`,
               }}
             >
-              <Icon size={17} strokeWidth={1.6} style={{ color: C.tealDark }} />
+              <Icon size={23} strokeWidth={1.45} color={C.teal} />
             </div>
-            <div className="text-left flex-1 min-w-0">
-              <h3
+            <div className="min-w-0 flex-1">
+              <h2
                 style={{
+                  margin: 0,
                   fontFamily: SERIF,
-                  fontSize: 16,
-                  lineHeight: "20px",
+                  fontSize: 20,
+                  lineHeight: "23px",
                   fontWeight: 500,
                   color: C.headline,
-                  letterSpacing: "-0.005em",
                 }}
               >
                 {title}
-              </h3>
+              </h2>
               <p
                 style={{
-                  marginTop: 2,
+                  margin: "3px 0 0",
                   fontFamily: SANS,
                   fontSize: 12.5,
                   lineHeight: "17px",
                   color: C.body,
                 }}
               >
-                {desc}
+                {description}
               </p>
             </div>
+            <ChevronRight
+              className="shrink-0"
+              size={19}
+              strokeWidth={1.45}
+              color={C.gold}
+            />
           </div>
         ))}
       </div>
-    </div>
+
+      <p
+        className="relative z-10"
+        style={{
+          margin: "17px 0 0",
+          fontFamily: SANS,
+          fontSize: 10.5,
+          lineHeight: "15px",
+          color: C.muted,
+        }}
+      >
+        Features and availability may vary by market and vehicle.
+      </p>
+    </section>
   );
 }
