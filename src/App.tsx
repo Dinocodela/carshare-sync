@@ -156,6 +156,7 @@ const App = () => (
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/register/client" element={<Register />} />
               <Route path="/register/host" element={<Register />} />
