@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Capacitor } from "@capacitor/core";
@@ -27,90 +27,61 @@ import heroBg from "@/assets/teslys-luxury-home-hero.webp.asset.json";
 import teslaCutout from "@/assets/tesla-black-cutout.png.asset.json";
 import keyFob from "@/assets/teslys-key-fob.webp.asset.json";
 
+import {
+  DiamondDivider,
+  LuxuryCard,
+  PillButton,
+  TrustBadge,
+  GoogleReviewCard,
+  C,
+  SERIF,
+  SANS,
+  type Testimonial,
+} from "@/components/luxury";
+
 const RENT_URL = "https://app.eonrides.com";
 const APP_STORE_URL = "https://apps.apple.com/us/app/teslys/id6748548283";
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.app.teslys";
 const GOOGLE_REVIEWS_URL = "https://share.google/MRaxALqJbjqYHlRn4";
 
-const SERIF = '"Cormorant Garamond", ui-serif, Georgia, serif';
-const SANS = '"Manrope", ui-sans-serif, system-ui, sans-serif';
+const TESTIMONIALS: Testimonial[] = [
+  {
+    quote:
+      "Twelve days of the most joyful relaxed stress free driving with Tesla’s FSD providing flawless execution, I literally didn’t drive myself. Model Y drives like a dream, so smooth and lots of space. Highly recommended, rented from Walter via Eon. I will be back!",
+    name: "Christian Eyde Moeller",
+    source: "Google Review",
+  },
+  {
+    quote:
+      "Renting from Walter was a breeze. The car drove like a dream, and the pick-up / drop-off for the car was a seamless and easy experience. Can't recommend highly enough!",
+    name: "Alex Ross",
+    source: "Google Review",
+  },
+  {
+    quote:
+      "Teslys took care of my car really well while allowing me to generate income when not using it, would recommend 100%",
+    name: "T A",
+    source: "Google Review",
+  },
+];
 
-// Palette (locked "Luxury Concierge" spec)
-const C = {
-  pageCream: "#FBF8F2",
-  warmWhite: "#FFFDF9",
-  softCream: "#F7F1E8",
-  headline: "#071C27",
-  body: "#52616D",
-  muted: "#7C8790",
-  darkTeal: "#03252C",
-  darkTealEnd: "#061C23",
-  teal: "#078B8E",
-  tealDark: "#056F73",
-  tealLight: "#69CDD0",
-  tealSoft: "#EAF6F5",
-  gold: "#B59251",
-  goldBorder: "#D8C39C",
-  goldBackground: "rgba(255,253,249,0.76)",
-  border: "#E6DCCF",
-  borderSoft: "#E9E4DC",
-  divider: "#C9C8C2",
-};
+const TRUST_ITEMS = [
+  { icon: ShieldCheck, title: "Fully Insured", sub: "Your Tesla is protected" },
+  { icon: ConciergeBell, title: "Concierge Support", sub: "We handle everything" },
+  { icon: Star, title: "Top Rated Hosts", sub: "5-star experiences" },
+];
 
-function DiamondDivider({ tone = "light" }: { tone?: "light" | "dark" }) {
-  const line = tone === "light" ? C.divider : "rgba(255,255,255,0.35)";
-  const diamond = tone === "light" ? C.teal : "#C6A15B";
-
-  return (
-    <div className="flex items-center justify-center" aria-hidden>
-      <span style={{ height: 1, width: 42, background: line }} />
-      <span style={{ width: 12 }} />
-      <span
-        style={{
-          width: 9,
-          height: 9,
-          background: diamond,
-          transform: "rotate(45deg)",
-          display: "inline-block",
-        }}
-      />
-      <span style={{ width: 12 }} />
-      <span style={{ height: 1, width: 42, background: line }} />
-    </div>
-  );
-}
+// Uniform footprint for the two store badges. Google Play PNG has extra
+// transparent padding, so we compensate by scaling its inner <img> only
+// (the outer wrapper stays 132x40 to keep the grid aligned).
+const BADGE_W = 132;
+const BADGE_H = 40;
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
-
-  const testimonials = useMemo(
-    () => [
-      {
-        quote:
-          "Twelve days of the most joyful relaxed stress free driving with Tesla’s FSD providing flawless execution, I literally didn’t drive myself. Model Y drives like a dream, so smooth and lots of space. Highly recommended, rented from Walter via Eon. I will be back!",
-        name: "Christian Eyde Moeller",
-        source: "Google Review",
-      },
-      {
-        quote:
-          "Renting from Walter was a breeze. The car drove like a dream, and the pick-up / drop-off for the car was a seamless and easy experience. Can't recommend highly enough!",
-        name: "Alex Ross",
-        source: "Google Review",
-      },
-      {
-        quote:
-          "Teslys took care of my car really well while allowing me to generate income when not using it, would recommend 100%",
-        name: "T A",
-        source: "Google Review",
-      },
-    ],
-    [],
-  );
-  const [testimonialIdx, setTestimonialIdx] = useState(0);
-  const activeTestimonial = testimonials[testimonialIdx];
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
@@ -124,7 +95,6 @@ const Index = () => {
       StatusBar.setBackgroundColor({ color: C.pageCream });
       ScreenOrientation.lock({ orientation: "portrait" });
     }
-
     return () => {
       if (isNative) {
         StatusBar.setBackgroundColor({ color: "#aef1be" });
@@ -132,14 +102,6 @@ const Index = () => {
       }
     };
   }, [isNative]);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setTestimonialIdx((current) => (current + 1) % testimonials.length);
-    }, 7000);
-
-    return () => window.clearInterval(interval);
-  }, [testimonials.length]);
 
   const handleRent = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -162,13 +124,11 @@ const Index = () => {
         /* fallthrough */
       }
     }
-
     window.open(RENT_URL, "_blank", "noopener,noreferrer");
   };
 
   const handleGoogleReviews = async (e: React.MouseEvent) => {
     e.preventDefault();
-
     if (Capacitor.isNativePlatform()) {
       try {
         await Browser.open({ url: GOOGLE_REVIEWS_URL });
@@ -177,7 +137,6 @@ const Index = () => {
         /* fallthrough */
       }
     }
-
     window.open(GOOGLE_REVIEWS_URL, "_blank", "noopener,noreferrer");
   };
 
@@ -234,7 +193,6 @@ const Index = () => {
               style={{ objectPosition: "72% center" }}
             />
 
-            {/* Warm readability overlay. Keep above image and below all content. */}
             <div
               aria-hidden
               className="absolute inset-0 pointer-events-none"
@@ -257,7 +215,6 @@ const Index = () => {
               }}
             />
 
-            {/* Back + returning member navigation */}
             <button
               type="button"
               aria-label="Go back"
@@ -321,7 +278,6 @@ const Index = () => {
               </Link>
             </div>
 
-            {/* Hero content */}
             <div
               className="relative z-10 flex h-full flex-col items-center px-[22px] text-center"
               style={{ paddingTop: 24 }}
@@ -404,33 +360,22 @@ const Index = () => {
             }}
           >
             {/* RENTAL */}
-            <article
-              onClick={handleRent}
+            <LuxuryCard
+              as="article"
+              variant="dark"
               role="link"
               tabIndex={0}
               aria-label="Explore Tesla rentals"
+              onClick={handleRent}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   handleRent(e as unknown as React.MouseEvent);
                 }
               }}
-              className="relative cursor-pointer overflow-hidden"
               style={{
                 height: 300,
-                borderRadius: 26,
                 padding: "24px 24px 22px",
-                background: `
-                  radial-gradient(
-                    circle at 86% 68%,
-                    rgba(7,139,142,0.34) 0%,
-                    rgba(7,139,142,0.08) 38%,
-                    transparent 62%
-                  ),
-                  linear-gradient(150deg, ${C.darkTeal} 0%, ${C.darkTealEnd} 100%)
-                `,
-                color: "#fff",
-                border: "1px solid rgba(105,205,208,0.18)",
-                boxShadow: "0 22px 54px -20px rgba(3,37,44,0.48)",
+                cursor: "pointer",
               }}
             >
               <div
@@ -525,45 +470,25 @@ const Index = () => {
               />
 
               <div className="absolute z-30" style={{ left: 24, bottom: 22 }}>
-                <span
-                  className="inline-flex items-center justify-between"
-                  style={{
-                    width: 188,
-                    height: 54,
-                    paddingLeft: 21,
-                    paddingRight: 21,
-                    borderRadius: 14,
-                    background:
-                      "linear-gradient(135deg, #056F73 0%, #07989B 100%)",
-                    color: "#fff",
-                    fontFamily: SERIF,
-                    fontSize: 19,
-                    lineHeight: "22px",
-                    fontWeight: 500,
-                    letterSpacing: "-0.01em",
-                    boxShadow: "0 10px 24px rgba(0,92,96,0.24)",
-                  }}
-                >
+                <PillButton width={188} height={54} fontSize={19}>
                   Explore Rentals
-                  <ArrowRight size={20} strokeWidth={1.75} />
-                </span>
+                </PillButton>
               </div>
-            </article>
+            </LuxuryCard>
 
             {/* MANAGEMENT */}
-            <Link
-              to="/register/client"
-              aria-label="Start earning by listing your Tesla"
-              className="relative block overflow-hidden"
-              style={{
-                height: 272,
-                borderRadius: 26,
-                padding: "22px 24px 20px",
-                background: C.warmWhite,
-                border: `1px solid ${C.border}`,
-                boxShadow: "0 16px 38px rgba(55,41,25,0.08)",
-              }}
+            <LuxuryCard
+              as="article"
+              variant="light"
+              style={{ height: 272, padding: "22px 24px 20px" }}
             >
+              <Link
+                to="/register/client"
+                aria-label="Start earning by listing your Tesla"
+                className="absolute inset-0 z-40"
+                style={{ borderRadius: 26 }}
+              />
+
               <div
                 className="relative z-20 flex items-center"
                 style={{ gap: 18 }}
@@ -626,54 +551,49 @@ const Index = () => {
                 cleaning, and guests.
               </p>
 
-              <img
-                src={keyFob.url}
-                alt="Teslys branded key fob"
-                loading="lazy"
+              {/* Key-fob image: warm-white wrapper matches the card, and a
+                  soft radial mask feathers the left/top/bottom edges so the
+                  asset's rectangular background dissolves into the card. */}
+              <div
+                aria-hidden
                 className="absolute z-10 pointer-events-none"
                 style={{
-                  width: "68%",
-                  maxWidth: "none",
                   right: -50,
                   bottom: -7,
-                  objectFit: "contain",
+                  width: "68%",
+                  height: 200,
+                  background: C.warmWhite,
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 78% 92% at 78% 62%, black 42%, rgba(0,0,0,0.65) 62%, transparent 88%)",
+                  maskImage:
+                    "radial-gradient(ellipse 78% 92% at 78% 62%, black 42%, rgba(0,0,0,0.65) 62%, transparent 88%)",
                 }}
-              />
+              >
+                <img
+                  src={keyFob.url}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full"
+                  style={{
+                    objectFit: "contain",
+                    objectPosition: "right bottom",
+                    filter:
+                      "drop-shadow(0 10px 18px rgba(55,41,25,0.18)) contrast(1.02)",
+                  }}
+                />
+              </div>
 
               <div className="absolute z-30" style={{ left: 24, bottom: 20 }}>
-                <span
-                  className="inline-flex items-center justify-between"
-                  style={{
-                    width: 188,
-                    height: 52,
-                    paddingLeft: 21,
-                    paddingRight: 21,
-                    borderRadius: 14,
-                    background:
-                      "linear-gradient(135deg, #056F73 0%, #07989B 100%)",
-                    color: "#fff",
-                    fontFamily: SERIF,
-                    fontSize: 19,
-                    lineHeight: "22px",
-                    fontWeight: 500,
-                    letterSpacing: "-0.01em",
-                    boxShadow: "0 9px 22px rgba(0,92,96,0.20)",
-                  }}
-                >
+                <PillButton width={188} height={52} fontSize={19}>
                   Start Earning
-                  <ArrowRight size={20} strokeWidth={1.75} />
-                </span>
+                </PillButton>
               </div>
-            </Link>
+            </LuxuryCard>
           </section>
 
           {/* CALCULATOR */}
           <section
-            style={{
-              marginTop: 24,
-              paddingLeft: 22,
-              paddingRight: 22,
-            }}
+            style={{ marginTop: 24, paddingLeft: 22, paddingRight: 22 }}
           >
             <Link
               to="/earnings-calculator"
@@ -749,235 +669,29 @@ const Index = () => {
 
           {/* TRUST ROW */}
           <section
-            style={{
-              marginTop: 24,
-              paddingLeft: 22,
-              paddingRight: 22,
-            }}
+            style={{ marginTop: 24, paddingLeft: 22, paddingRight: 22 }}
           >
             <div className="grid grid-cols-3" style={{ minHeight: 78 }}>
-              {[
-                {
-                  Icon: ShieldCheck,
-                  title: "Fully Insured",
-                  sub: "Your Tesla is protected",
-                },
-                {
-                  Icon: ConciergeBell,
-                  title: "Concierge Support",
-                  sub: "We handle everything",
-                },
-                {
-                  Icon: Star,
-                  title: "Top Rated Hosts",
-                  sub: "5-star experiences",
-                },
-              ].map(({ Icon, title, sub }, index) => (
-                <div
+              {TRUST_ITEMS.map(({ icon, title, sub }, index) => (
+                <TrustBadge
                   key={title}
-                  className="relative flex flex-col items-center text-center"
-                  style={{ padding: "0 6px" }}
-                >
-                  {index > 0 && (
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-[8px]"
-                      style={{
-                        width: 1,
-                        height: 54,
-                        background: C.border,
-                      }}
-                    />
-                  )}
-
-                  <Icon size={27} strokeWidth={1.45} color={C.tealDark} />
-
-                  <div
-                    style={{
-                      marginTop: 7,
-                      fontFamily: SERIF,
-                      fontSize: 12,
-                      lineHeight: "14px",
-                      fontWeight: 600,
-                      color: C.headline,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {title}
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: 2,
-                      fontFamily: SANS,
-                      fontSize: 9,
-                      lineHeight: "12px",
-                      color: C.muted,
-                    }}
-                  >
-                    {sub}
-                  </div>
-                </div>
+                  icon={icon}
+                  title={title}
+                  sub={sub}
+                  showDivider={index > 0}
+                />
               ))}
             </div>
           </section>
 
           {/* GOOGLE REVIEWS */}
           <section
-            style={{
-              marginTop: 22,
-              paddingLeft: 22,
-              paddingRight: 22,
-            }}
+            style={{ marginTop: 22, paddingLeft: 22, paddingRight: 22 }}
           >
-            <div
-              className="relative overflow-hidden"
-              style={{
-                minHeight: 250,
-                borderRadius: 24,
-                background: C.warmWhite,
-                border: `1px solid ${C.border}`,
-                padding: "20px 20px 18px",
-                boxShadow: "0 18px 48px rgba(3,37,44,0.08)",
-              }}
-            >
-              <div
-                className="flex items-center justify-between"
-                style={{ gap: 12 }}
-              >
-                <div>
-                  <div className="flex items-center" style={{ gap: 3 }}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        size={15}
-                        color={C.gold}
-                        fill={C.gold}
-                        strokeWidth={0}
-                      />
-                    ))}
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 6,
-                      fontFamily: SANS,
-                      fontSize: 11,
-                      lineHeight: "16px",
-                      color: C.muted,
-                    }}
-                  >
-                    5.0 on Google · 55 reviews
-                  </div>
-                </div>
-
-                <span
-                  aria-hidden
-                  style={{
-                    fontFamily: SERIF,
-                    fontSize: 48,
-                    lineHeight: "38px",
-                    color: C.teal,
-                    opacity: 0.9,
-                  }}
-                >
-                  &ldquo;
-                </span>
-              </div>
-
-              <div aria-live="polite" style={{ marginTop: 16 }}>
-                <p
-                  style={{
-                    margin: 0,
-                    minHeight: 94,
-                    fontFamily: SERIF,
-                    fontSize: 17,
-                    lineHeight: "23px",
-                    fontStyle: "italic",
-                    color: C.headline,
-                  }}
-                >
-                  {activeTestimonial.quote}
-                </p>
-
-                <div style={{ marginTop: 14 }}>
-                  <div
-                    style={{
-                      fontFamily: SERIF,
-                      fontSize: 15,
-                      lineHeight: "19px",
-                      fontWeight: 600,
-                      color: C.headline,
-                    }}
-                  >
-                    — {activeTestimonial.name}
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 2,
-                      fontFamily: SANS,
-                      fontSize: 10,
-                      lineHeight: "14px",
-                      color: C.muted,
-                    }}
-                  >
-                    {activeTestimonial.source}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="flex items-center justify-center"
-                style={{ gap: 7, marginTop: 14 }}
-              >
-                {testimonials.map((testimonial, index) => {
-                  const active = index === testimonialIdx;
-                  return (
-                    <button
-                      key={testimonial.name}
-                      type="button"
-                      aria-label={`Show review ${index + 1}`}
-                      aria-current={active}
-                      onClick={() => setTestimonialIdx(index)}
-                      style={{
-                        width: active ? 18 : 6,
-                        height: 6,
-                        borderRadius: 999,
-                        border: 0,
-                        padding: 0,
-                        cursor: "pointer",
-                        background: active ? C.teal : C.border,
-                        transition: "width 180ms ease, background 180ms ease",
-                      }}
-                    />
-                  );
-                })}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGoogleReviews}
-                className="flex w-full items-center justify-center"
-                style={{
-                  gap: 8,
-                  marginTop: 14,
-                  paddingTop: 14,
-                  borderTop: `1px solid ${C.borderSoft}`,
-                  borderRight: 0,
-                  borderBottom: 0,
-                  borderLeft: 0,
-                  background: "transparent",
-                  color: C.tealDark,
-                  fontFamily: SANS,
-                  fontSize: 12,
-                  lineHeight: "18px",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                View all Google Reviews
-                <ArrowRight size={15} strokeWidth={1.8} />
-              </button>
-            </div>
+            <GoogleReviewCard
+              testimonials={TESTIMONIALS}
+              onViewAll={handleGoogleReviews}
+            />
           </section>
 
           {/* APP PROMO */}
@@ -1010,10 +724,7 @@ const Index = () => {
             >
               <div
                 className="relative grid items-center"
-                style={{
-                  gridTemplateColumns: "1.45fr 1fr",
-                  gap: 12,
-                }}
+                style={{ gridTemplateColumns: "1.45fr 1fr", gap: 12 }}
               >
                 <div className="flex min-w-0 items-center" style={{ gap: 12 }}>
                   <div
@@ -1058,6 +769,9 @@ const Index = () => {
                   </div>
                 </div>
 
+                {/* Store badges: identical 132x40 wrappers; inner PNG for
+                    Google Play is scaled to compensate for its transparent
+                    padding, so both artworks visually fill the same frame. */}
                 <div
                   className="flex flex-col items-stretch justify-center"
                   style={{ gap: 7 }}
@@ -1067,13 +781,18 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Download Teslys on the App Store"
-                    className="block"
+                    className="flex items-center justify-center overflow-hidden"
+                    style={{ width: BADGE_W, height: BADGE_H }}
                   >
                     <img
                       src={appStoreBadge}
                       alt="Download on the App Store"
-                      className="h-auto w-full"
-                      style={{ maxHeight: 34, objectFit: "contain" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
                     />
                   </a>
 
@@ -1082,13 +801,19 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Get Teslys on Google Play"
-                    className="block"
+                    className="flex items-center justify-center overflow-hidden"
+                    style={{ width: BADGE_W, height: BADGE_H }}
                   >
                     <img
                       src={googlePlayBadge}
                       alt="Get it on Google Play"
-                      className="h-auto w-full"
-                      style={{ maxHeight: 34, objectFit: "contain" }}
+                      style={{
+                        width: "116%",
+                        height: "116%",
+                        objectFit: "contain",
+                        display: "block",
+                        transform: "translateY(0)",
+                      }}
                     />
                   </a>
                 </div>
