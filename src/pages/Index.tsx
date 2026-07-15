@@ -151,7 +151,7 @@ const Index = () => {
       <StructuredData type="localbusiness" />
 
       <main
-        className="min-h-screen pt-safe-top"
+        className="min-h-screen"
         style={{ background: C.pageCream, color: C.headline, fontFamily: SANS }}
       >
         {/* Constrained mobile-first container */}
