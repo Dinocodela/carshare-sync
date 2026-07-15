@@ -910,7 +910,7 @@ const Index = () => {
                         color: C.headline,
                       }}
                     >
-                      — Michael R.
+                      — {activeTestimonial.name}
                     </span>
                     <span
                       className="inline-flex items-center"
