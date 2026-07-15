@@ -808,12 +808,15 @@ const Index = () => {
                       src={googlePlayBadge}
                       alt="Get it on Google Play"
                       style={{
-                        width: "132%",
-                        height: "132%",
-                        objectFit: "contain",
+                        // The Google Play PNG has ~12.7% horizontal and ~32.8%
+                        // vertical transparent padding baked in. We upscale the
+                        // <img> so the opaque artwork exactly fills the shared
+                        // 132x40 wrapper (overflow:hidden crops the padding).
+                        width: 151.2,
+                        height: 59.5,
+                        objectFit: "fill",
                         display: "block",
-                        transform: "scale(1.15)",
-                        transformOrigin: "center",
+                        flexShrink: 0,
                       }}
                     />
                   </a>
