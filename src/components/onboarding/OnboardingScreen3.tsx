@@ -78,7 +78,7 @@ export function OnboardingScreen3() {
           opacity: visible ? 1 : 0,
         }}
       >
-        Welcome to Teslys
+        Track Your Vehicle
       </p>
 
       <h1
