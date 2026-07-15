@@ -1068,13 +1068,24 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Download Teslys on the App Store"
-                    className="block"
+                    className="flex items-center justify-center"
+                    style={{
+                      width: 132,
+                      height: 40,
+                      background: "#000",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                    }}
                   >
                     <img
                       src={appStoreBadge}
                       alt="Download on the App Store"
-                      className="h-auto w-full"
-                      style={{ maxHeight: 34, objectFit: "contain" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
                     />
                   </a>
 
@@ -1083,13 +1094,24 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Get Teslys on Google Play"
-                    className="block"
+                    className="flex items-center justify-center"
+                    style={{
+                      width: 132,
+                      height: 40,
+                      background: "#000",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                    }}
                   >
                     <img
                       src={googlePlayBadge}
                       alt="Get it on Google Play"
-                      className="h-auto w-full"
-                      style={{ maxHeight: 34, objectFit: "contain" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
                     />
                   </a>
                 </div>
