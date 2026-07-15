@@ -6,18 +6,18 @@ import { DiamondDivider } from "@/components/luxury/DiamondDivider";
 const FEATURES = [
   {
     icon: Users,
-    title: "No guest calls, ever",
-    desc: "We screen and communicate with every renter",
+    title: "Guest coordination",
+    desc: "We can help manage approved guest communication and trip logistics.",
   },
   {
     icon: Wrench,
-    title: "White-glove care",
-    desc: "Detailing, maintenance and inspections handled",
+    title: "Vehicle-care support",
+    desc: "Available services may include cleaning, inspections, charging, and maintenance coordination.",
   },
   {
     icon: Shield,
-    title: "Fully insured",
-    desc: "Comprehensive coverage, complete peace of mind",
+    title: "Protection depends on the trip",
+    desc: "Coverage, exclusions, deductibles, and eligibility vary by platform, provider, vehicle, and booking.",
   },
 ];
 
@@ -76,7 +76,7 @@ export function OnboardingScreen2() {
           opacity: visible ? 1 : 0,
         }}
       >
-        The Concierge Difference
+        Managed Support
       </p>
 
       <h1
@@ -94,7 +94,7 @@ export function OnboardingScreen2() {
           maxWidth: 330,
         }}
       >
-        We manage
+        Less day-to-day
         <br />
         <em
           style={{
@@ -103,7 +103,7 @@ export function OnboardingScreen2() {
             fontWeight: 500,
           }}
         >
-          every last detail.
+          work for owners.
         </em>
       </h1>
 
@@ -120,8 +120,9 @@ export function OnboardingScreen2() {
           transform: visible ? "translateY(0)" : "translateY(14px)",
         }}
       >
-        Guest screening, maintenance, insurance — you don't touch a thing. We
-        run it like a five-star hotel.
+        Depending on the selected service and local availability, Teslys may
+        coordinate guest communication, cleaning, inspections, and maintenance
+        support.
       </p>
 
       <div style={{ marginTop: 22, width: "100%" }}>

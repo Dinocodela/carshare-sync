@@ -238,7 +238,7 @@ export function OnboardingFlow() {
               color: C.muted,
             }}
           >
-            Trusted by Tesla owners across the US
+            Availability and services vary by location
           </p>
         )}
       </div>
