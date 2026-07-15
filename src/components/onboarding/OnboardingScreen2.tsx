@@ -94,7 +94,7 @@ export function OnboardingScreen2() {
           maxWidth: 330,
         }}
       >
-        We manage
+        Less day-to-day
         <br />
         <em
           style={{
@@ -103,7 +103,7 @@ export function OnboardingScreen2() {
             fontWeight: 500,
           }}
         >
-          every last detail.
+          work for owners.
         </em>
       </h1>
 
