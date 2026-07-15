@@ -6,18 +6,18 @@ import { DiamondDivider } from "@/components/luxury/DiamondDivider";
 const FEATURES = [
   {
     icon: Users,
-    title: "No guest calls, ever",
-    desc: "We screen and communicate with every renter",
+    title: "Guest coordination",
+    desc: "We can help manage approved guest communication and trip logistics.",
   },
   {
     icon: Wrench,
-    title: "White-glove care",
-    desc: "Detailing, maintenance and inspections handled",
+    title: "Vehicle-care support",
+    desc: "Available services may include cleaning, inspections, charging, and maintenance coordination.",
   },
   {
     icon: Shield,
-    title: "Fully insured",
-    desc: "Comprehensive coverage, complete peace of mind",
+    title: "Protection depends on the trip",
+    desc: "Coverage, exclusions, deductibles, and eligibility vary by platform, provider, vehicle, and booking.",
   },
 ];
 
