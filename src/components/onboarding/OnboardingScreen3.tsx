@@ -122,8 +122,8 @@ export function OnboardingScreen3() {
           transform: visible ? "translateY(0)" : "translateY(14px)",
         }}
       >
-        Reliable deposits, transparent reporting, and a concierge team on call —
-        all inside your Teslys app.
+        View available booking, vehicle, expense, and earnings information in
+        one place. Data timing and availability may vary.
       </p>
 
       <div style={{ marginTop: 22, width: "100%" }}>
