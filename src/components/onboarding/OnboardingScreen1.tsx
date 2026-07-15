@@ -123,8 +123,8 @@ export function OnboardingScreen1() {
           transform: visible ? "translateY(0)" : "translateY(14px)",
         }}
       >
-        Turn your idle Tesla into a reliable, hands-off income stream — managed
-        end-to-end by our concierge team.
+        Teslys helps eligible owners make their vehicles available for managed
+        rentals while retaining ownership of the car.
       </p>
 
       <div style={{ marginTop: 22, width: "100%" }}>
