@@ -77,7 +77,7 @@ export function OnboardingScreen1() {
           opacity: visible ? 1 : 0,
         }}
       >
-        The Teslys Promise
+        How Teslys Works
       </p>
 
       {/* Headline */}
