@@ -477,10 +477,10 @@ const Index = () => {
                 loading="eager"
                 className="absolute z-10 pointer-events-none"
                 style={{
-                  width: "65%",
+                  width: "58%",
                   maxWidth: "none",
-                  right: -12,
-                  bottom: 38,
+                  right: 6,
+                  bottom: 42,
                   objectFit: "contain",
                   filter: "drop-shadow(0 18px 20px rgba(0,0,0,0.42))",
                 }}
