@@ -286,21 +286,6 @@ const Index = () => {
             </div>
             )}
 
-            {showAuth && (
-              <div className="text-center mt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    try { localStorage.removeItem("teslys_intent"); } catch {}
-                    setShowAuth(false);
-                    setPanel("login");
-                  }}
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
-                >
-                  ← Back to options
-                </button>
-              </div>
-            )}
 
 
             {/* Become a client (owners who want us to host & manage their Tesla) */}
