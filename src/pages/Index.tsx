@@ -6,6 +6,7 @@ import { Browser } from "@capacitor/browser";
 import { StatusBar } from "@capacitor/status-bar";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
 import {
+  ArrowLeft,
   ArrowRight,
   CarFront,
   KeyRound,
@@ -14,7 +15,6 @@ import {
   ShieldCheck,
   ConciergeBell,
   Star,
-  CheckCircle2,
   Gem,
 } from "lucide-react";
 
@@ -26,11 +26,12 @@ import googlePlayBadge from "@/assets/google-play-badge.png";
 import heroBg from "@/assets/teslys-luxury-home-hero.webp.asset.json";
 import teslaCutout from "@/assets/tesla-black-cutout.png.asset.json";
 import keyFob from "@/assets/teslys-key-fob.webp.asset.json";
-import testimonialProperty from "@/assets/teslys-testimonial-property.webp.asset.json";
 
 const RENT_URL = "https://app.eonrides.com";
 const APP_STORE_URL = "https://apps.apple.com/us/app/teslys/id6748548283";
-const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.app.teslys";
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.app.teslys";
+const GOOGLE_REVIEWS_URL = "https://share.google/MRaxALqJbjqYHlRn4";
 
 const SERIF = '"Cormorant Garamond", ui-serif, Georgia, serif';
 const SANS = '"Manrope", ui-sans-serif, system-ui, sans-serif';
@@ -89,24 +90,24 @@ const Index = () => {
     () => [
       {
         quote:
-          "Teslys made renting my Model Y effortless. The service is truly first-class.",
-        name: "Michael R.",
-        badge: "Verified Host",
+          "Twelve days of the most joyful relaxed stress free driving with Tesla’s FSD providing flawless execution, I literally didn’t drive myself. Model Y drives like a dream, so smooth and lots of space. Highly recommended, rented from Walter via Eon. I will be back!",
+        name: "Christian Eyde Moeller",
+        source: "Google Review",
       },
       {
         quote:
-          "Passive income without lifting a finger. My Model 3 pays for itself every month.",
-        name: "Priya S.",
-        badge: "Verified Host",
+          "Renting from Walter was a breeze. The car drove like a dream, and the pick-up / drop-off for the car was a seamless and easy experience. Can't recommend highly enough!",
+        name: "Alex Ross",
+        source: "Google Review",
       },
       {
         quote:
-          "Concierge delivery to my hotel — the most seamless Tesla experience in LA.",
-        name: "Daniel K.",
-        badge: "Verified Guest",
+          "Teslys took care of my car really well while allowing me to generate income when not using it, would recommend 100%",
+        name: "T A",
+        source: "Google Review",
       },
     ],
-    []
+    [],
   );
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const activeTestimonial = testimonials[testimonialIdx];
@@ -132,6 +133,14 @@ const Index = () => {
     };
   }, [isNative]);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setTestimonialIdx((current) => (current + 1) % testimonials.length);
+    }, 7000);
+
+    return () => window.clearInterval(interval);
+  }, [testimonials.length]);
+
   const handleRent = async (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -155,6 +164,21 @@ const Index = () => {
     }
 
     window.open(RENT_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const handleGoogleReviews = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Browser.open({ url: GOOGLE_REVIEWS_URL });
+        return;
+      } catch {
+        /* fallthrough */
+      }
+    }
+
+    window.open(GOOGLE_REVIEWS_URL, "_blank", "noopener,noreferrer");
   };
 
   if (loading) {
@@ -201,10 +225,7 @@ const Index = () => {
           style={{ maxWidth: 430 }}
         >
           {/* HERO */}
-          <section
-            className="relative overflow-hidden"
-            style={{ height: 452 }}
-          >
+          <section className="relative overflow-hidden" style={{ height: 500 }}>
             <img
               src={heroBg.url}
               alt=""
@@ -236,7 +257,29 @@ const Index = () => {
               }}
             />
 
-            {/* VIP badge */}
+            {/* Back + returning member navigation */}
+            <button
+              type="button"
+              aria-label="Go back"
+              onClick={() => navigate(-1)}
+              className="absolute z-20 flex items-center justify-center"
+              style={{
+                top: "max(14px, env(safe-area-inset-top))",
+                left: 18,
+                width: 44,
+                height: 44,
+                borderRadius: 9999,
+                background: "rgba(255,253,249,0.82)",
+                border: `1px solid ${C.border}`,
+                color: C.headline,
+                backdropFilter: "blur(7px)",
+                WebkitBackdropFilter: "blur(7px)",
+                boxShadow: "0 6px 20px rgba(55,41,25,0.08)",
+              }}
+            >
+              <ArrowLeft size={21} strokeWidth={1.7} />
+            </button>
+
             <div
               className="absolute z-20"
               style={{
@@ -245,36 +288,35 @@ const Index = () => {
               }}
             >
               <Link
-                to="/how-it-works"
-                aria-label="Learn about the VIP experience"
+                to="/login"
+                aria-label="Sign in to Teslys"
                 className="inline-flex items-center"
                 style={{
-                  height: 40,
-                  paddingLeft: 14,
-                  paddingRight: 14,
+                  height: 44,
+                  paddingLeft: 15,
+                  paddingRight: 17,
                   gap: 8,
                   borderRadius: 9999,
                   background: C.goldBackground,
                   border: `1px solid ${C.goldBorder}`,
-                  backdropFilter: "blur(6px)",
-                  WebkitBackdropFilter: "blur(6px)",
-                  boxShadow: "0 5px 18px rgba(71,52,25,0.05)",
+                  backdropFilter: "blur(7px)",
+                  WebkitBackdropFilter: "blur(7px)",
+                  boxShadow: "0 6px 20px rgba(71,52,25,0.07)",
                 }}
               >
-                <Crown size={15} strokeWidth={1.6} color={C.gold} />
+                <Crown size={17} strokeWidth={1.6} color={C.gold} />
                 <span
                   style={{
                     fontFamily: SERIF,
-                    fontSize: 11,
-                    lineHeight: "14px",
+                    fontSize: 16,
+                    lineHeight: "20px",
                     fontWeight: 600,
-                    letterSpacing: "0.12em",
-                    color: "#6C5731",
-                    textTransform: "uppercase",
+                    letterSpacing: "-0.01em",
+                    color: C.headline,
                     whiteSpace: "nowrap",
                   }}
                 >
-                  VIP Experience
+                  Sign in
                 </span>
               </Link>
             </div>
@@ -282,11 +324,11 @@ const Index = () => {
             {/* Hero content */}
             <div
               className="relative z-10 flex h-full flex-col items-center px-[22px] text-center"
-              style={{ paddingTop: 18 }}
+              style={{ paddingTop: 24 }}
             >
               <div
                 className="flex items-center justify-center"
-                style={{ width: 76, height: 76 }}
+                style={{ width: 82, height: 82 }}
               >
                 <Logo size="lg" linked />
               </div>
@@ -308,7 +350,7 @@ const Index = () => {
 
               <h1
                 style={{
-                  marginTop: 30,
+                  marginTop: 36,
                   marginBottom: 0,
                   maxWidth: 356,
                   fontFamily: SERIF,
@@ -420,11 +462,7 @@ const Index = () => {
                     border: "1px solid rgba(105,205,208,0.48)",
                   }}
                 >
-                  <CarFront
-                    size={26}
-                    strokeWidth={1.65}
-                    color={C.tealLight}
-                  />
+                  <CarFront size={26} strokeWidth={1.65} color={C.tealLight} />
                 </div>
 
                 <div style={{ paddingTop: 2 }}>
@@ -477,10 +515,10 @@ const Index = () => {
                 loading="eager"
                 className="absolute z-10 pointer-events-none"
                 style={{
-                  width: "58%",
+                  width: "67%",
                   maxWidth: "none",
-                  right: 6,
-                  bottom: 42,
+                  right: -14,
+                  bottom: 36,
                   objectFit: "contain",
                   filter: "drop-shadow(0 18px 20px rgba(0,0,0,0.42))",
                 }}
@@ -584,8 +622,8 @@ const Index = () => {
                   color: C.body,
                 }}
               >
-                Turn your Tesla into passive income. We handle rentals, cleaning,
-                and guests.
+                Turn your Tesla into passive income. We handle rentals,
+                cleaning, and guests.
               </p>
 
               <img
@@ -594,10 +632,10 @@ const Index = () => {
                 loading="lazy"
                 className="absolute z-10 pointer-events-none"
                 style={{
-                  width: "52%",
+                  width: "68%",
                   maxWidth: "none",
-                  right: 8,
-                  bottom: 8,
+                  right: -50,
+                  bottom: -7,
                   objectFit: "contain",
                 }}
               />
@@ -629,41 +667,10 @@ const Index = () => {
             </Link>
           </section>
 
-          {/* SIGN IN */}
-          <div
-            className="text-center"
-            style={{
-              marginTop: 18,
-              paddingLeft: 22,
-              paddingRight: 22,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: SANS,
-                fontSize: 12,
-                lineHeight: "18px",
-                color: C.muted,
-              }}
-            >
-              Already a member?{" "}
-              <Link
-                to="/login"
-                style={{
-                  color: C.tealDark,
-                  fontWeight: 600,
-                  textDecoration: "none",
-                }}
-              >
-                Sign in
-              </Link>
-            </span>
-          </div>
-
           {/* CALCULATOR */}
           <section
             style={{
-              marginTop: 27,
+              marginTop: 24,
               paddingLeft: 22,
               paddingRight: 22,
             }}
@@ -748,10 +755,7 @@ const Index = () => {
               paddingRight: 22,
             }}
           >
-            <div
-              className="grid grid-cols-3"
-              style={{ minHeight: 78 }}
-            >
+            <div className="grid grid-cols-3" style={{ minHeight: 78 }}>
               {[
                 {
                   Icon: ShieldCheck,
@@ -786,11 +790,7 @@ const Index = () => {
                     />
                   )}
 
-                  <Icon
-                    size={27}
-                    strokeWidth={1.45}
-                    color={C.tealDark}
-                  />
+                  <Icon size={27} strokeWidth={1.45} color={C.tealDark} />
 
                   <div
                     style={{
@@ -822,10 +822,10 @@ const Index = () => {
             </div>
           </section>
 
-          {/* TESTIMONIAL */}
+          {/* GOOGLE REVIEWS */}
           <section
             style={{
-              marginTop: 20,
+              marginTop: 22,
               paddingLeft: 22,
               paddingRight: 22,
             }}
@@ -833,151 +833,150 @@ const Index = () => {
             <div
               className="relative overflow-hidden"
               style={{
-                minHeight: 176,
-                borderRadius: 23,
+                minHeight: 250,
+                borderRadius: 24,
                 background: C.warmWhite,
                 border: `1px solid ${C.border}`,
-                padding: "17px 16px 22px",
-                boxShadow: "0 16px 42px rgba(3,37,44,0.07)",
+                padding: "20px 20px 18px",
+                boxShadow: "0 18px 48px rgba(3,37,44,0.08)",
               }}
             >
               <div
-                className="grid items-stretch"
-                style={{
-                  gridTemplateColumns: "1.43fr 1fr",
-                  gap: 12,
-                }}
+                className="flex items-center justify-between"
+                style={{ gap: 12 }}
               >
-                <div className="min-w-0">
-                  <div className="flex items-start" style={{ gap: 7 }}>
-                    <span
-                      aria-hidden
-                      style={{
-                        flexShrink: 0,
-                        fontFamily: SERIF,
-                        fontSize: 38,
-                        lineHeight: "30px",
-                        color: C.teal,
-                        marginTop: -2,
-                      }}
-                    >
-                      &ldquo;
-                    </span>
-
-                    <p
-                      style={{
-                        margin: 0,
-                        fontFamily: SERIF,
-                        fontSize: 15,
-                        lineHeight: "19px",
-                        fontStyle: "italic",
-                        color: C.headline,
-                      }}
-                    >
-                      {activeTestimonial.quote}
-                    </p>
-                  </div>
-
-                  <div
-                    className="flex items-center"
-                    style={{ gap: 3, marginTop: 10, paddingLeft: 35 }}
-                  >
+                <div>
+                  <div className="flex items-center" style={{ gap: 3 }}>
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        size={13}
-                        color={C.teal}
-                        fill={C.teal}
+                        size={15}
+                        color={C.gold}
+                        fill={C.gold}
                         strokeWidth={0}
                       />
                     ))}
                   </div>
-
                   <div
-                    className="flex flex-wrap items-center"
                     style={{
-                      gap: 7,
-                      marginTop: 9,
-                      paddingLeft: 35,
+                      marginTop: 6,
                       fontFamily: SANS,
+                      fontSize: 11,
+                      lineHeight: "16px",
+                      color: C.muted,
                     }}
                   >
-                    <span
-                      style={{
-                        fontFamily: SERIF,
-                        fontSize: 13,
-                        fontWeight: 500,
-                        color: C.headline,
-                      }}
-                    >
-                      — {activeTestimonial.name}
-                    </span>
-                    <span
-                      className="inline-flex items-center"
-                      style={{
-                        gap: 3,
-                        fontSize: 9,
-                        lineHeight: "12px",
-                        color: C.tealDark,
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      <CheckCircle2
-                        size={12}
-                        strokeWidth={2}
-                        color={C.teal}
-                        fill="#E7F1EF"
-                      />
-                      {activeTestimonial.badge}
-                    </span>
+                    5.0 on Google · 55 reviews
                   </div>
                 </div>
 
-                <div
-                  className="overflow-hidden self-end"
+                <span
+                  aria-hidden
                   style={{
-                    height: 106,
-                    borderRadius: 16,
-                    background: C.softCream,
-                    border: `1px solid ${C.border}`,
+                    fontFamily: SERIF,
+                    fontSize: 48,
+                    lineHeight: "38px",
+                    color: C.teal,
+                    opacity: 0.9,
                   }}
                 >
-                  <img
-                    src={testimonialProperty.url}
-                    alt="Luxury property at dusk with Tesla"
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
+                  &ldquo;
+                </span>
+              </div>
+
+              <div aria-live="polite" style={{ marginTop: 16 }}>
+                <p
+                  style={{
+                    margin: 0,
+                    minHeight: 94,
+                    fontFamily: SERIF,
+                    fontSize: 17,
+                    lineHeight: "23px",
+                    fontStyle: "italic",
+                    color: C.headline,
+                  }}
+                >
+                  {activeTestimonial.quote}
+                </p>
+
+                <div style={{ marginTop: 14 }}>
+                  <div
+                    style={{
+                      fontFamily: SERIF,
+                      fontSize: 15,
+                      lineHeight: "19px",
+                      fontWeight: 600,
+                      color: C.headline,
+                    }}
+                  >
+                    — {activeTestimonial.name}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 2,
+                      fontFamily: SANS,
+                      fontSize: 10,
+                      lineHeight: "14px",
+                      color: C.muted,
+                    }}
+                  >
+                    {activeTestimonial.source}
+                  </div>
                 </div>
               </div>
 
               <div
-                className="absolute bottom-[7px] left-1/2 flex -translate-x-1/2 items-center"
-                style={{ gap: 5 }}
+                className="flex items-center justify-center"
+                style={{ gap: 7, marginTop: 14 }}
               >
-                {testimonials.map((t, i) => {
-                  const active = i === testimonialIdx;
+                {testimonials.map((testimonial, index) => {
+                  const active = index === testimonialIdx;
                   return (
                     <button
-                      key={t.name}
+                      key={testimonial.name}
                       type="button"
-                      aria-label={`Show testimonial ${i + 1}`}
+                      aria-label={`Show review ${index + 1}`}
                       aria-current={active}
-                      onClick={() => setTestimonialIdx(i)}
+                      onClick={() => setTestimonialIdx(index)}
                       style={{
-                        width: active ? 6 : 5,
-                        height: active ? 6 : 5,
+                        width: active ? 18 : 6,
+                        height: 6,
                         borderRadius: 999,
-                        background: active ? C.teal : C.border,
-                        padding: 0,
                         border: 0,
+                        padding: 0,
                         cursor: "pointer",
+                        background: active ? C.teal : C.border,
+                        transition: "width 180ms ease, background 180ms ease",
                       }}
                     />
                   );
                 })}
               </div>
+
+              <button
+                type="button"
+                onClick={handleGoogleReviews}
+                className="flex w-full items-center justify-center"
+                style={{
+                  gap: 8,
+                  marginTop: 14,
+                  paddingTop: 14,
+                  borderTop: `1px solid ${C.borderSoft}`,
+                  borderRight: 0,
+                  borderBottom: 0,
+                  borderLeft: 0,
+                  background: "transparent",
+                  color: C.tealDark,
+                  fontFamily: SANS,
+                  fontSize: 12,
+                  lineHeight: "18px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                View all Google Reviews
+                <ArrowRight size={15} strokeWidth={1.8} />
+              </button>
             </div>
           </section>
 
@@ -1068,24 +1067,13 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Download Teslys on the App Store"
-                    className="flex items-center justify-center"
-                    style={{
-                      width: 132,
-                      height: 40,
-                      background: "#000",
-                      borderRadius: 8,
-                      overflow: "hidden",
-                    }}
+                    className="block"
                   >
                     <img
                       src={appStoreBadge}
                       alt="Download on the App Store"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        display: "block",
-                      }}
+                      className="h-auto w-full"
+                      style={{ maxHeight: 34, objectFit: "contain" }}
                     />
                   </a>
 
@@ -1094,24 +1082,13 @@ const Index = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Get Teslys on Google Play"
-                    className="flex items-center justify-center"
-                    style={{
-                      width: 132,
-                      height: 40,
-                      background: "#000",
-                      borderRadius: 8,
-                      overflow: "hidden",
-                    }}
+                    className="block"
                   >
                     <img
                       src={googlePlayBadge}
                       alt="Get it on Google Play"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        display: "block",
-                      }}
+                      className="h-auto w-full"
+                      style={{ maxHeight: 34, objectFit: "contain" }}
                     />
                   </a>
                 </div>
