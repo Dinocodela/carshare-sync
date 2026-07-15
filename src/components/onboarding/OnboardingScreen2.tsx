@@ -120,8 +120,9 @@ export function OnboardingScreen2() {
           transform: visible ? "translateY(0)" : "translateY(14px)",
         }}
       >
-        Guest screening, maintenance, insurance — you don't touch a thing. We
-        run it like a five-star hotel.
+        Depending on the selected service and local availability, Teslys may
+        coordinate guest communication, cleaning, inspections, and maintenance
+        support.
       </p>
 
       <div style={{ marginTop: 22, width: "100%" }}>
