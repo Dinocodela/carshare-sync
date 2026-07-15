@@ -96,7 +96,7 @@ export function OnboardingScreen3() {
           maxWidth: 330,
         }}
       >
-        Paid like
+        Stay informed
         <br />
         <em
           style={{
@@ -105,7 +105,7 @@ export function OnboardingScreen3() {
             fontWeight: 500,
           }}
         >
-          clockwork.
+          through the Teslys app.
         </em>
       </h1>
 
