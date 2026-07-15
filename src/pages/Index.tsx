@@ -1,45 +1,71 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Logo } from "@/components/ui/logo";
-import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, Calculator, Briefcase, TrendingUp, Car } from "lucide-react";
-import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
+import { StatusBar } from "@capacitor/status-bar";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
+import {
+  ArrowRight,
+  Car,
+  KeyRound,
+  Calculator,
+  Crown,
+  Shield,
+  Sparkles,
+  Star,
+  CheckCircle2,
+  Quote,
+} from "lucide-react";
 
-import ClientRegisterCard from "@/components/auth/ClientRegisterCard";
-import HostRegisterCard from "@/components/auth/HostRegisterCard";
+import { Logo } from "@/components/ui/logo";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
+import appStoreBadge from "@/assets/app-store-badge.svg";
+import googlePlayBadge from "@/assets/google-play-badge.png";
+// TODO: replace with final luxury photography assets
+import heroCarPlaceholder from "@/assets/investor-hero.jpg";
+import listTeslaPlaceholder from "@/assets/teslys-logo-clean.png";
+import testimonialPlaceholder from "@/assets/investor-hero.jpg";
 
-import { ReadReviewsLink } from "@/components/ReadReviewsLink";
-import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
-import { IntentChooser } from "@/components/landing/IntentChooser";
+const RENT_URL = "https://app.eonrides.com";
+const APP_STORE_URL = "https://apps.apple.com/us/app/teslys/id6748548283"; // TODO: verify final iOS URL
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.app.teslys"; // TODO: verify final Android URL
 
-type Panel = "login" | "register-client" | "register-host";
+// ---------------------------------------------------------------------------
+// Small building blocks (local to this page)
+// ---------------------------------------------------------------------------
+
+function DiamondDivider() {
+  return (
+    <div className="flex items-center justify-center gap-4 my-6" aria-hidden>
+      <span className="h-px w-16 sm:w-24 bg-[#E8E1D3]" />
+      <svg width="10" height="10" viewBox="0 0 10 10" className="text-[#C6A15B]">
+        <path d="M5 0 L10 5 L5 10 L0 5 Z" fill="currentColor" />
+      </svg>
+      <span className="h-px w-16 sm:w-24 bg-[#E8E1D3]" />
+    </div>
+  );
+}
+
+function VipBadge() {
+  return (
+    <Link
+      to="/how-it-works"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[#C6A15B]/40 bg-white/70 backdrop-blur-sm px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0E3D3A] shadow-sm hover:border-[#C6A15B] transition-colors"
+      aria-label="Learn about the Teslys VIP experience"
+    >
+      <Crown className="w-3.5 h-3.5 text-[#C6A15B]" />
+      VIP Experience
+    </Link>
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 const Index = () => {
-  const { user, loading, signIn } = useAuth();
-  const { toast } = useToast();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
-
-  const [panel, setPanel] = useState<Panel>("login");
-  const [showAuth, setShowAuth] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem("teslys_intent") === "manage";
-    } catch {
-      return false;
-    }
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [visible, setVisible] = useState(false);
   const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
 
   useEffect(() => {
@@ -50,12 +76,8 @@ const Index = () => {
   }, [navigate, user, loading]);
 
   useEffect(() => {
-    setVisible(true);
-  }, []);
-
-  useEffect(() => {
     if (isNative) {
-      StatusBar.setBackgroundColor({ color: "#000000" });
+      StatusBar.setBackgroundColor({ color: "#F7F2E9" });
       ScreenOrientation.lock({ orientation: "portrait" });
     }
     return () => {
@@ -66,37 +88,35 @@ const Index = () => {
     };
   }, [isNative]);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const handleRent = async (e: React.MouseEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     try {
-      const { error } = await signIn(email.trim(), password);
-      if (error) {
-        toast({
-          title: "Sign in failed",
-          description: error.message ?? "Please check your credentials.",
-        });
-        return;
+      const w = window as unknown as { dataLayer?: unknown[] };
+      if (Array.isArray(w.dataLayer)) {
+        w.dataLayer.push({ event: "landing_intent_selected", intent: "rent" });
       }
-      navigate("/dashboard");
-    } catch (err: any) {
-      toast({
-        title: "Unexpected error",
-        description: err?.message ?? "Please try again.",
-      });
-    } finally {
-      setSubmitting(false);
+      localStorage.setItem("teslys_intent", "rent");
+    } catch {
+      /* no-op */
     }
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Browser.open({ url: RENT_URL });
+        return;
+      } catch {
+        /* fallthrough */
+      }
+    }
+    window.open(RENT_URL, "_blank", "noopener,noreferrer");
   };
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-gradient-hero">
-        <div className="text-lg text-muted-foreground">Loading...</div>
+      <div className="h-full flex items-center justify-center bg-[#F7F2E9]">
+        <div className="text-sm text-[#5C6B67]">Loading…</div>
       </div>
     );
   }
-
   if (user) return <Navigate to="/dashboard" replace />;
 
   return (
@@ -114,319 +134,310 @@ const Index = () => {
       <StructuredData type="software" />
       <StructuredData type="localbusiness" />
 
-      
-      <main className="min-h-screen pt-safe-top bg-gradient-hero overflow-y-auto">
-        <div className="flex flex-col items-center p-4 pb-0">
-          <div className="w-full max-w-xl">
-
-            {showAuth && (
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    try { localStorage.removeItem("teslys_intent"); } catch {}
-                    setShowAuth(false);
-                    setPanel("login");
-                  }}
-                  className="inline-flex items-center gap-1 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm px-3 py-1.5 text-xs font-medium text-foreground hover:text-primary hover:border-primary/40 transition-colors"
-                  aria-label="Back to options"
-                >
-                  <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                  Back
-                </button>
-              </div>
-            )}
-
-            {/* Hero Section */}
-            <div className="text-center pt-6 pb-4">
-              <div
-                className="flex justify-center mb-5 transition-all duration-700 ease-out"
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "translateY(0) scale(1)" : "translateY(20px) scale(0.8)",
-                }}
-              >
-                <Logo size="xl" linked />
-              </div>
-
-              <h1
-                className="text-xl font-bold text-foreground mb-2 transition-all duration-700 delay-150 ease-out"
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "translateY(0)" : "translateY(15px)",
-                }}
-              >
-                Welcome to{" "}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Teslys
-                </span>
-              </h1>
-
-              <p
-                className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto transition-all duration-700 delay-300 ease-out"
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "translateY(0)" : "translateY(15px)",
-                }}
-              >
-                List your Tesla and earn passive income — we handle the rest. One login for your cars, hosting, and investments.
-              </p>
+      <main
+        className="min-h-screen pt-safe-top bg-[#F7F2E9] text-[#17211F] font-[Inter,ui-sans-serif,system-ui]"
+        style={{ fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif" }}
+      >
+        <div className="mx-auto w-full max-w-6xl px-5 sm:px-8 lg:px-12 pb-[env(safe-area-inset-bottom)]">
+          {/* HEADER */}
+          <header className="relative pt-6 sm:pt-8">
+            <div className="absolute right-0 top-6 sm:top-8">
+              <VipBadge />
             </div>
-
-            {!showAuth && (
+            <div className="flex flex-col items-center gap-3">
+              <Logo size="lg" linked />
               <div
-                className="transition-all duration-500 delay-500 ease-out"
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "translateY(0)" : "translateY(15px)",
-                }}
+                className="text-[15px] sm:text-base font-medium text-[#0E3D3A]"
+                style={{ letterSpacing: "0.32em" }}
               >
-                <IntentChooser onChooseManage={() => setShowAuth(true)} />
-                <div className="text-center mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAuth(true)}
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Already have an account?{" "}
-                    <span className="text-primary font-medium">Sign in</span>
-                  </button>
-                </div>
+                TESLYS
               </div>
-            )}
+            </div>
+          </header>
 
-            {/* Login / Register Panel */}
-            {showAuth && (
-            <div
-              className="transition-all duration-500 delay-500 ease-out"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(15px)",
-              }}
+          {/* HERO */}
+          <section className="text-center pt-10 sm:pt-14 pb-2">
+            <h1
+              className="text-4xl sm:text-5xl md:text-6xl leading-[1.05] tracking-tight text-[#17211F]"
+              style={{ fontFamily: "'Playfair Display', ui-serif, Georgia, serif" }}
             >
-              {showAuth && panel === "login" && (
-                <div className="rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-5">
-                  <h2 className="text-lg font-bold text-foreground mb-1">
-                    Sign in to{" "}
-                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      your account
-                    </span>
-                  </h2>
-                  <p className="text-xs text-muted-foreground mb-5">
-                    Track your vehicles, earnings, and manage your Teslas in one place
-                  </p>
+              Choose Your{" "}
+              <span className="text-[#0E3D3A] italic">Teslys Experience</span>
+            </h1>
+            <DiamondDivider />
+            <p className="mx-auto max-w-2xl text-sm sm:text-base text-[#5C6B67] leading-relaxed">
+              Premium Teslas. Exceptional service. Extraordinary income.
+            </p>
+          </section>
 
-                  <form onSubmit={onSubmit} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="email" className="text-xs font-medium text-foreground">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                        <Input
-                          id="email"
-                          type="email"
-                          inputMode="email"
-                          autoComplete="email"
-                          placeholder="you@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className="h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg pl-9"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="password" className="text-xs font-medium text-foreground">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                        <Input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          autoComplete="current-password"
-                          placeholder="••••••••"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          className="h-11 bg-background/50 border-border/60 focus:border-primary/50 rounded-lg pl-9 pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
-                      disabled={submitting}
-                    >
-                      {submitting ? (
-                        "Signing in…"
-                      ) : (
-                        <span className="inline-flex items-center gap-2">
-                          Continue <ArrowRight className="w-4 h-4" />
-                        </span>
-                      )}
-                    </Button>
-
-                    <div className="text-center">
-                      <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                        Forgot password?
-                      </Link>
-                    </div>
-
-                    <div className="text-center text-xs text-muted-foreground">
-                      New here?{" "}
-                      <button
-                        type="button"
-                        className="text-primary font-medium hover:underline"
-                        onClick={() => setPanel("register-client")}
-                      >
-                        Create a client account
-                      </button>
-                    </div>
-
-                  </form>
-                </div>
-              )}
-
-              {panel === "register-client" && (
-                <ClientRegisterCard onBackToLogin={() => setPanel("login")} />
-              )}
-
-              {panel === "register-host" && (
-                <HostRegisterCard onBackToLogin={() => setPanel("login")} />
-              )}
-            </div>
-            )}
-
-
-
-            {/* Become a client (owners who want us to host & manage their Tesla) */}
-            {showAuth && panel === "login" && (
-              <button
-                type="button"
-                onClick={() => setPanel("register-client")}
-                className="mt-4 w-full text-left rounded-2xl bg-card/80 backdrop-blur-sm border border-primary/40 shadow-sm p-4 hover:border-primary/60 transition-colors group ring-1 ring-primary/10"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Car className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">List your Tesla as a client</span>
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        Free
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Create an account and we host & manage your car for you.
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
-                </div>
-              </button>
-            )}
-
-            {/* Become a host (Turo-style application banner) */}
-            {showAuth && panel === "login" && (
-
-              <a
-                href="https://www.eonrides.com/partners"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 w-full block text-left rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm p-4 hover:border-primary/40 transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Briefcase className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">Become a host</span>
-                      <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        Apply
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Manage Tesla fleets for owners. Approved by our team.
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
-                </div>
-              </a>
-
-            )}
-
-            {/* Investor link */}
-            {showAuth && panel === "login" && (
-              <Link
-                to="/welcome/investor"
-                className="mt-3 w-full flex items-center gap-3 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-sm p-4 hover:border-primary/40 transition-colors group"
-              >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                </div>
+          {/* CHOICE CARDS */}
+          <section className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Rent a Tesla — dark card */}
+            <a
+              href="/tesla-rental-near-me"
+              onClick={handleRent}
+              className="group relative overflow-hidden rounded-3xl bg-[#0E3D3A] text-white p-8 sm:p-10 shadow-[0_20px_60px_rgba(14,61,58,0.18)] hover:shadow-[0_28px_70px_rgba(14,61,58,0.28)] transition-shadow"
+            >
+              <div
+                aria-hidden
+                className="absolute -top-24 -right-24 h-72 w-72 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(27,110,102,0.55), rgba(27,110,102,0) 70%)",
+                }}
+              />
+              <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-8">
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm font-semibold text-foreground">Invest in our fleet</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Earn returns by investing in Tesla fleet vehicles.
-                  </p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
-              </Link>
-            )}
-
-            {/* Earnings Calculator CTA */}
-            <div className="mt-6 mb-2 text-center">
-              <Link to="/earnings-calculator">
-                <Button variant="outline" size="sm" className="rounded-full text-xs border-primary/40 text-primary hover:bg-primary/5">
-                  <Calculator className="w-3.5 h-3.5 mr-1.5" />
-                  Calculate Your Earnings
-                </Button>
-              </Link>
-            </div>
-
-            {/* Trust Indicators */}
-            <div
-              className="flex justify-center gap-6 mt-4 mb-2 transition-all duration-700 delay-700 ease-out"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(10px)",
-              }}
-            >
-              {[
-                { icon: Shield, label: "Fully Insured" },
-                { icon: Star, label: "Top Rated" },
-                { icon: Users, label: "Trusted Hosts" },
-              ].map(({ icon: Icon, label }) => (
-                <div key={label} className="flex flex-col items-center gap-1">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-primary" />
+                  <div className="w-12 h-12 rounded-full bg-white/8 border border-white/15 flex items-center justify-center mb-6 backdrop-blur-sm">
+                    <Car className="w-5 h-5 text-white" strokeWidth={1.5} />
                   </div>
-                  <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
+                  <h2
+                    className="text-3xl sm:text-4xl leading-tight text-white"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    Rent a Tesla
+                  </h2>
+                  <div className="mt-3 h-px w-14 bg-[#C6A15B]/80" />
+                  <p className="mt-5 text-sm sm:text-[15px] text-white/75 leading-relaxed max-w-sm">
+                    Premium Teslas, delivered to you. By the day, week, or month.
+                  </p>
+                  <span className="mt-7 inline-flex items-center gap-2 rounded-full bg-white text-[#0E3D3A] px-5 py-2.5 text-sm font-semibold shadow-sm group-hover:gap-3 transition-all">
+                    Explore Rentals
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+                {/* Image slot — TODO: replace with a hero shot of a black Tesla at golden hour */}
+                <div className="w-full sm:w-56 md:w-64 shrink-0 rounded-2xl overflow-hidden aspect-[4/3] sm:aspect-square bg-white/5 ring-1 ring-white/10">
+                  <img
+                    src={heroCarPlaceholder}
+                    alt="Black Tesla ready for delivery"
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                    loading="eager"
+                  />
+                </div>
+              </div>
+            </a>
+
+            {/* List my Tesla — light card */}
+            <Link
+              to="/register/client"
+              className="group relative overflow-hidden rounded-3xl bg-[#FFFDF9] p-8 sm:p-10 border border-[#E8E1D3] shadow-[0_20px_60px_rgba(14,61,58,0.08)] hover:shadow-[0_28px_70px_rgba(14,61,58,0.14)] transition-shadow"
+            >
+              <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-8">
+                <div className="flex-1 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-[#1B6E66]/10 border border-[#1B6E66]/15 flex items-center justify-center mb-6">
+                    <KeyRound className="w-5 h-5 text-[#1B6E66]" strokeWidth={1.5} />
+                  </div>
+                  <h2
+                    className="text-3xl sm:text-4xl leading-tight text-[#17211F]"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    List my Tesla
+                  </h2>
+                  <div className="mt-3 h-px w-14 bg-[#1B6E66]" />
+                  <p className="mt-5 text-sm sm:text-[15px] text-[#5C6B67] leading-relaxed max-w-sm">
+                    Turn your Tesla into passive income. We handle rentals, cleaning,
+                    and guests.{" "}
+                    <span className="text-[#0E3D3A] font-semibold" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      Owners average $1,200–$1,900/mo.
+                    </span>
+                  </p>
+                  <span className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#0E3D3A] text-white px-5 py-2.5 text-sm font-semibold shadow-sm group-hover:gap-3 transition-all">
+                    Start Earning
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+                {/* Image slot — TODO: replace with a close-up photo of a Tesla key fob on a marble surface */}
+                <div className="w-full sm:w-56 md:w-64 shrink-0 rounded-2xl overflow-hidden aspect-[4/3] sm:aspect-square bg-[#F7F2E9] ring-1 ring-[#E8E1D3] flex items-center justify-center">
+                  <img
+                    src={listTeslaPlaceholder}
+                    alt="Tesla key fob"
+                    className="w-2/3 h-2/3 object-contain opacity-90"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </Link>
+          </section>
+
+          {/* Sign-in shortcut */}
+          <div className="mt-6 text-center">
+            <span className="text-xs text-[#5C6B67]">
+              Already a member?{" "}
+              <Link to="/login" className="font-semibold text-[#0E3D3A] hover:underline">
+                Sign in
+              </Link>
+            </span>
+          </div>
+
+          {/* CALCULATOR BANNER */}
+          <section className="mt-14">
+            <Link
+              to="/earnings-calculator"
+              className="group flex items-center gap-5 rounded-3xl bg-[#1B6E66]/[0.06] border border-[#1B6E66]/15 px-6 sm:px-8 py-6 sm:py-7 hover:bg-[#1B6E66]/[0.09] transition-colors"
+            >
+              <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shrink-0 ring-1 ring-[#1B6E66]/15">
+                <Calculator className="w-6 h-6 text-[#1B6E66]" strokeWidth={1.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3
+                  className="text-xl sm:text-2xl text-[#17211F] leading-tight"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  Calculate Your Earnings
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-[#5C6B67]">
+                  See your potential income in minutes.
+                </p>
+              </div>
+              <div className="w-11 h-11 rounded-full bg-[#0E3D3A] text-white flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform">
+                <ArrowRight className="w-4 h-4" />
+              </div>
+            </Link>
+          </section>
+
+          {/* TRUST BADGES */}
+          <section className="mt-14">
+            <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-[#E8E1D3]">
+              {[
+                {
+                  icon: Shield,
+                  title: "Fully Insured",
+                  sub: "Your Tesla is protected",
+                },
+                {
+                  icon: Sparkles,
+                  title: "Concierge Support",
+                  sub: "We handle everything",
+                },
+                {
+                  icon: Star,
+                  title: "Top Rated Hosts",
+                  sub: "5-star experiences",
+                },
+              ].map(({ icon: Icon, title, sub }) => (
+                <div
+                  key={title}
+                  className="flex items-center gap-4 px-2 md:px-8 py-4 md:py-2"
+                >
+                  <div className="w-11 h-11 rounded-full bg-[#1B6E66]/10 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-[#1B6E66]" strokeWidth={1.5} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-[#17211F]">
+                      {title}
+                    </div>
+                    <div className="text-xs text-[#5C6B67]">{sub}</div>
+                  </div>
                 </div>
               ))}
             </div>
+          </section>
 
-            {/* Reviews link (web + native) */}
-            <ReadReviewsLink />
-
-            {/* Web-only: App Store badges */}
-            {!isNative && (
-              <div className="mt-4 mb-4">
-                <AppStoreBadges heading="Get the mobile app" size="small" />
+          {/* TESTIMONIAL */}
+          <section className="mt-14">
+            <div className="rounded-3xl bg-[#FFFDF9] border border-[#E8E1D3] p-8 sm:p-10 shadow-[0_20px_60px_rgba(14,61,58,0.06)]">
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 md:gap-10 items-center">
+                <div>
+                  <Quote
+                    className="w-10 h-10 text-[#0E3D3A]/70 -ml-1"
+                    strokeWidth={1.25}
+                    style={{ transform: "scaleX(-1)" }}
+                  />
+                  <p
+                    className="mt-4 text-2xl sm:text-3xl leading-snug text-[#17211F] italic"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    Teslys made renting my Model Y effortless. The service is truly
+                    first-class.
+                  </p>
+                  <div className="mt-5 flex items-center gap-1.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className="w-4 h-4 text-[#1B6E66]"
+                        fill="currentColor"
+                        strokeWidth={0}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center gap-3 text-sm text-[#5C6B67]">
+                    <span className="font-semibold text-[#17211F]">— Michael R.</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#1B6E66]/10 text-[#0E3D3A] px-2.5 py-1 text-[11px] font-semibold">
+                      <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+                      Verified Host
+                    </span>
+                  </div>
+                </div>
+                {/* TODO: replace with a real portrait of the reviewer */}
+                <div className="w-full md:w-52 aspect-square rounded-2xl overflow-hidden bg-[#F7F2E9] ring-1 ring-[#E8E1D3]">
+                  <img
+                    src={testimonialPlaceholder}
+                    alt="Verified Teslys host portrait"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </div>
-            )}
-          </div>
+              <div className="mt-8 flex items-center justify-center gap-2">
+                <span className="h-1.5 w-6 rounded-full bg-[#0E3D3A]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#E8E1D3]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#E8E1D3]" />
+              </div>
+            </div>
+          </section>
+
+          {/* APP PROMO BAND */}
+          <section className="mt-14 mb-16">
+            <div className="relative overflow-hidden rounded-3xl bg-[#0E3D3A] text-white p-8 sm:p-10">
+              <div
+                aria-hidden
+                className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(27,110,102,0.5), rgba(27,110,102,0) 70%)",
+                }}
+              />
+              <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div>
+                  <h3
+                    className="text-3xl sm:text-4xl text-white leading-tight"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    The Teslys App
+                  </h3>
+                  <div className="mt-3 h-px w-14 bg-[#C6A15B]" />
+                  <p className="mt-4 text-sm sm:text-base text-white/75 max-w-md">
+                    Manage, earn, and elevate your Tesla experience.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <a
+                    href={APP_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Download Teslys on the App Store"
+                    className="inline-block hover:opacity-90 transition-opacity"
+                  >
+                    <img src={appStoreBadge} alt="Download on the App Store" className="h-12" />
+                  </a>
+                  <a
+                    href={PLAY_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Get Teslys on Google Play"
+                    className="inline-block hover:opacity-90 transition-opacity"
+                  >
+                    <img src={googlePlayBadge} alt="Get it on Google Play" className="h-12" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </>
   );
 };
+
 export default Index;
