@@ -96,7 +96,7 @@ export function OnboardingScreen1() {
           maxWidth: 320,
         }}
       >
-        Your Tesla earns
+        Put your Tesla
         <br />
         <em
           style={{
@@ -105,7 +105,7 @@ export function OnboardingScreen1() {
             fontWeight: 500,
           }}
         >
-          while you sleep.
+          to work when available.
         </em>
       </h1>
 
