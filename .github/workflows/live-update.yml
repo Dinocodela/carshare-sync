@@ -1,0 +1,116 @@
+name: Live Update (Capgo self-hosted)
+
+# Publishes a new OTA bundle to Supabase Storage on every push to main.
+#
+# latest.json (in the private `live-bundles` bucket) is the single source of
+# truth for the OTA version — we read it, bump the patch, build, zip, and
+# publish. No package.json change, no git commit/push back to the repo.
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_URL                -> https://texsltzecmvqprdjxtnh.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY   -> service_role key (bypasses storage RLS)
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/**'
+      - 'supabase/**'
+      - 'android/**'
+      - 'ios/**'
+      - '**/*.md'
+  workflow_dispatch:
+
+concurrency:
+  group: live-update
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BUCKET: live-bundles
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compute next version from latest.json
+        id: ver
+        run: |
+          set -euo pipefail
+          RESP=$(curl -sS \
+            -H "Authorization: Bearer ${SERVICE_KEY}" \
+            -H "apikey: ${SERVICE_KEY}" \
+            "${SUPABASE_URL}/storage/v1/object/${BUCKET}/latest.json" || true)
+          CUR=$(printf '%s' "$RESP" | jq -r '.version // empty' 2>/dev/null || true)
+          if [ -z "${CUR}" ]; then
+            NEXT="1.0.0"
+          else
+            NEXT=$(printf '%s' "$CUR" | awk -F. '{printf "%d.%d.%d", $1, $2, $3 + 1}')
+          fi
+          echo "current=${CUR:-none}" >> "$GITHUB_OUTPUT"
+          echo "next=${NEXT}" >> "$GITHUB_OUTPUT"
+          echo "Publishing OTA version ${NEXT} (previous: ${CUR:-none})"
+
+      - name: Build web bundle
+        run: npm run build
+
+      - name: Zip bundle (index.html at zip root)
+        id: zip
+        run: |
+          set -euo pipefail
+          test -f dist/index.html || { echo "dist/index.html missing"; exit 1; }
+          ( cd dist && zip -r -X -q ../bundle.zip . )
+          SUM=$(sha256sum bundle.zip | awk '{print $1}')
+          echo "checksum=${SUM}" >> "$GITHUB_OUTPUT"
+          echo "Bundle sha256: ${SUM}"
+
+      - name: Upload bundle zip
+        run: |
+          set -euo pipefail
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer ${SERVICE_KEY}" \
+            -H "apikey: ${SERVICE_KEY}" \
+            -H "Content-Type: application/zip" \
+            -H "x-upsert: true" \
+            --data-binary @bundle.zip \
+            "${SUPABASE_URL}/storage/v1/object/${BUCKET}/${{ steps.ver.outputs.next }}.zip"
+
+      - name: Publish latest.json
+        run: |
+          set -euo pipefail
+          RELEASED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          jq -n \
+            --arg version "${{ steps.ver.outputs.next }}" \
+            --arg path "${{ steps.ver.outputs.next }}.zip" \
+            --arg checksum "${{ steps.zip.outputs.checksum }}" \
+            --arg releasedAt "$RELEASED_AT" \
+            --arg commit "${GITHUB_SHA}" \
+            '{version:$version, path:$path, checksum:$checksum, releasedAt:$releasedAt, commit:$commit}' \
+            > latest.json
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer ${SERVICE_KEY}" \
+            -H "apikey: ${SERVICE_KEY}" \
+            -H "Content-Type: application/json" \
+            -H "x-upsert: true" \
+            --data-binary @latest.json \
+            "${SUPABASE_URL}/storage/v1/object/${BUCKET}/latest.json"
+
+      - name: Summary
+        run: |
+          {
+            echo "### Live update published 🚀"
+            echo ""
+            echo "- **Version:** ${{ steps.ver.outputs.next }} (was ${{ steps.ver.outputs.current }})"
+            echo "- **Checksum:** \`${{ steps.zip.outputs.checksum }}\`"
+            echo "- **Commit:** \`${GITHUB_SHA}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

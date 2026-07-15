@@ -37,6 +37,18 @@ const config: CapacitorConfig = {
 		Camera: {
 			permissions: ["camera", "photos"],
 		},
+
+		// Capgo self-hosted live updates. The plugin POSTs the current bundle
+		// info to `updateUrl` (our Supabase edge function), which answers with
+		// the latest bundle when one is newer. Stats are disabled (empty
+		// statsUrl) since we don't run Capgo cloud.
+		CapacitorUpdater: {
+			updateUrl: "https://texsltzecmvqprdjxtnh.supabase.co/functions/v1/live-update",
+			statsUrl: "",
+			autoUpdate: true,
+			resetWhenUpdate: true,
+			appReadyTimeout: 10000,
+		},
 	},
 
 	ios: {

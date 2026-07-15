@@ -33,8 +33,6 @@ project_id = "texsltzecmvqprdjxtnh"
     verify_jwt = false
   [functions.admin-reject-account]
     verify_jwt = false
-  [functions.notify-admin-new-host]
-    verify_jwt = false
   [functions.analytics-assistant]
     verify_jwt = true
   [functions.assign-host]
@@ -82,6 +80,8 @@ project_id = "texsltzecmvqprdjxtnh"
   [functions.notify-admin-new-host]
     verify_jwt = true
   [functions.submit-investor-inquiry]
+    verify_jwt = false
+  [functions.live-update]
     verify_jwt = false
 
 [storage]
