@@ -76,7 +76,7 @@ export function OnboardingScreen2() {
           opacity: visible ? 1 : 0,
         }}
       >
-        The Concierge Difference
+        Managed Support
       </p>
 
       <h1
