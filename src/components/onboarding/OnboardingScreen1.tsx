@@ -6,18 +6,18 @@ import { DiamondDivider } from "@/components/luxury/DiamondDivider";
 const FEATURES = [
   {
     icon: TrendingUp,
-    title: "$1,500 – $3,500 / month",
-    desc: "Per vehicle, consistently paid",
+    title: "Earnings vary by vehicle",
+    desc: "Results depend on demand, availability, pricing, location, and operating costs.",
   },
   {
     icon: Zap,
-    title: "Zero effort required",
-    desc: "We handle every operational detail",
+    title: "Flexible availability",
+    desc: "Choose when your Tesla may be available, subject to program and booking requirements.",
   },
   {
     icon: DollarSign,
-    title: "You keep full ownership",
-    desc: "Your car, your asset, our concierge",
+    title: "You retain ownership",
+    desc: "Your vehicle remains your asset while Teslys coordinates approved management services.",
   },
 ];
 
