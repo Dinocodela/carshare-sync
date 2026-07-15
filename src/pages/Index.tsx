@@ -874,8 +874,7 @@ const Index = () => {
                         color: C.headline,
                       }}
                     >
-                      Teslys made renting my Model Y effortless. The service is
-                      truly first-class.
+                      {activeTestimonial.quote}
                     </p>
                   </div>
 
