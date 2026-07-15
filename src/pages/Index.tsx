@@ -594,10 +594,10 @@ const Index = () => {
                 loading="lazy"
                 className="absolute z-10 pointer-events-none"
                 style={{
-                  width: "63%",
+                  width: "52%",
                   maxWidth: "none",
-                  right: -42,
-                  bottom: -7,
+                  right: 8,
+                  bottom: 8,
                   objectFit: "contain",
                 }}
               />
