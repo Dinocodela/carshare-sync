@@ -7,18 +7,18 @@ import { DiamondDivider } from "@/components/luxury/DiamondDivider";
 const FEATURES = [
   {
     icon: CircleDollarSign,
-    title: "Bi-monthly deposits",
-    desc: "Reliable payouts on the 1st and 15th",
+    title: "Earnings and payment records",
+    desc: "Review recorded earnings and payment status when available.",
   },
   {
     icon: LineChart,
-    title: "Live earnings dashboard",
-    desc: "Real-time performance for every vehicle",
+    title: "Vehicle activity",
+    desc: "Follow booking and vehicle information provided through the platform.",
   },
   {
     icon: BarChart3,
-    title: "Nothing to lose",
-    desc: "Free to start — you earn before we do",
+    title: "Clearer recordkeeping",
+    desc: "Keep key operating details organized without promising specific financial results.",
   },
 ];
 
