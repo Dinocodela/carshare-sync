@@ -85,6 +85,32 @@ const Index = () => {
   const navigate = useNavigate();
   const isNative = useMemo(() => Capacitor.isNativePlatform(), []);
 
+  const testimonials = useMemo(
+    () => [
+      {
+        quote:
+          "Teslys made renting my Model Y effortless. The service is truly first-class.",
+        name: "Michael R.",
+        badge: "Verified Host",
+      },
+      {
+        quote:
+          "Passive income without lifting a finger. My Model 3 pays for itself every month.",
+        name: "Priya S.",
+        badge: "Verified Host",
+      },
+      {
+        quote:
+          "Concierge delivery to my hotel — the most seamless Tesla experience in LA.",
+        name: "Daniel K.",
+        badge: "Verified Guest",
+      },
+    ],
+    []
+  );
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const activeTestimonial = testimonials[testimonialIdx];
+
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
     if (!hasSeenOnboarding && !user && !loading) {
