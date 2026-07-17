@@ -408,6 +408,8 @@ export default function Trips() {
                   license_plate: car.license_plate,
                   location: car.location,
                   images: car.images,
+                  vin_number: car.vin_number ?? null,
+                  nickname: car.nickname ?? null,
                 }
               : null,
           };
