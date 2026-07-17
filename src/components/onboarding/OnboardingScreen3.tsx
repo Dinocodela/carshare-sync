@@ -1,15 +1,35 @@
-import { Calendar, CircleDollarSign, BarChart3, Star } from "lucide-react";
+import { CircleDollarSign, BarChart3, LineChart, Crown } from "lucide-react";
 import { AppStoreBadges } from "@/components/ui/AppStoreBadges";
 import { useEffect, useState } from "react";
+import { C, SERIF, SANS } from "@/components/luxury/tokens";
+import { DiamondDivider } from "@/components/luxury/DiamondDivider";
+
+const FEATURES = [
+  {
+    icon: CircleDollarSign,
+    title: "Earnings and payment records",
+    desc: "Review recorded earnings and payment status when available.",
+  },
+  {
+    icon: LineChart,
+    title: "Vehicle activity",
+    desc: "Follow booking and vehicle information provided through the platform.",
+  },
+  {
+    icon: BarChart3,
+    title: "Clearer recordkeeping",
+    desc: "Keep key operating details organized without promising specific financial results.",
+  },
+];
 
 export function OnboardingScreen3() {
   const [visible, setVisible] = useState(false);
-  const [showCards, setShowCards] = useState(false);
+  const [showRows, setShowRows] = useState(false);
   const [showBadges, setShowBadges] = useState(false);
 
   useEffect(() => {
     setVisible(true);
-    const t1 = setTimeout(() => setShowCards(true), 400);
+    const t1 = setTimeout(() => setShowRows(true), 350);
     const t2 = setTimeout(() => setShowBadges(true), 900);
     return () => {
       clearTimeout(t1);
@@ -18,93 +38,159 @@ export function OnboardingScreen3() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full px-6 py-8 sm:py-12 text-center relative">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-15 blur-[100px] transition-all duration-[2000ms]"
-          style={{
-            background: "radial-gradient(circle, hsl(var(--accent)), hsl(var(--primary)), transparent)",
-            transform: visible ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.3)",
-          }}
-        />
-      </div>
-
-      {/* Icon */}
+    <div
+      className="flex flex-col items-center min-h-full px-6 pt-6 pb-8 text-center relative"
+      style={{ fontFamily: SANS, color: C.headline }}
+    >
+      {/* Icon chip — dark teal on this final screen for emphasis */}
       <div
-        className="mb-5 sm:mb-8 relative transition-all duration-700 ease-out"
+        className="relative transition-all duration-700 ease-out"
         style={{
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.8)",
+          transform: visible ? "translateY(0)" : "translateY(16px)",
         }}
       >
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
-          <Calendar className="w-9 h-9 text-primary drop-shadow-lg" strokeWidth={2.5} />
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width: 76,
+            height: 76,
+            borderRadius: "50%",
+            background: `linear-gradient(135deg, ${C.darkTeal} 0%, ${C.darkTealEnd} 100%)`,
+            border: `1px solid ${C.borderSoft}`,
+            boxShadow: "0 14px 30px rgba(3,37,44,0.24)",
+          }}
+        >
+          <Crown size={28} strokeWidth={1.5} style={{ color: C.gold }} />
         </div>
       </div>
 
-      {/* Heading */}
-      <h1
-        className="text-3xl font-extrabold mb-3 text-foreground leading-tight tracking-tight transition-all duration-700 delay-150 ease-out"
+      <p
+        className="transition-all duration-700 delay-100 ease-out"
         style={{
+          marginTop: 22,
+          fontFamily: SANS,
+          fontSize: 10,
+          letterSpacing: "0.28em",
+          textTransform: "uppercase",
+          color: C.gold,
+          fontWeight: 600,
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Paid Like
+        Track Your Vehicle
+      </p>
+
+      <h1
+        className="transition-all duration-700 delay-150 ease-out"
+        style={{
+          marginTop: 10,
+          fontFamily: SERIF,
+          fontSize: 38,
+          lineHeight: "42px",
+          fontWeight: 500,
+          letterSpacing: "-0.015em",
+          color: C.headline,
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(14px)",
+          maxWidth: 330,
+        }}
+      >
+        Stay informed
         <br />
-        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          Clockwork
-        </span>
+        <em
+          style={{
+            fontStyle: "italic",
+            color: C.teal,
+            fontWeight: 500,
+          }}
+        >
+          through the Teslys app.
+        </em>
       </h1>
 
       <p
-        className="text-base text-muted-foreground mb-6 max-w-xs transition-all duration-700 delay-300 ease-out"
+        className="transition-all duration-700 delay-300 ease-out"
         style={{
+          marginTop: 14,
+          fontFamily: SANS,
+          fontSize: 14.5,
+          lineHeight: "22px",
+          color: C.body,
+          maxWidth: 300,
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(20px)",
+          transform: visible ? "translateY(0)" : "translateY(14px)",
         }}
       >
-        Reliable deposits on the 1st & 15th. Track everything in real-time.
+        View available booking, vehicle, expense, and earnings information in
+        one place. Data timing and availability may vary.
       </p>
 
-      {/* Feature cards */}
-      <div className="space-y-3 w-full max-w-sm mb-4">
-        {[
-          {
-            icon: CircleDollarSign,
-            title: "Bi-Monthly Deposits",
-            desc: "Automatic payments, always on time",
-            delay: 0,
-          },
-          {
-            icon: BarChart3,
-            title: "Live Earnings Dashboard",
-            desc: "Real-time tracking per vehicle",
-            delay: 100,
-          },
-          {
-            icon: Star,
-            title: "Nothing to Lose",
-            desc: "Everything to gain — start free today",
-            delay: 200,
-          },
-        ].map(({ icon: Icon, title, desc, delay }, i) => (
+      <div style={{ marginTop: 22, width: "100%" }}>
+        <DiamondDivider tone="light" />
+      </div>
+
+      <div
+        style={{
+          marginTop: 22,
+          width: "100%",
+          maxWidth: 360,
+          background: C.warmWhite,
+          border: `1px solid ${C.border}`,
+          borderRadius: 20,
+          padding: "6px 18px",
+          boxShadow: "0 18px 40px rgba(3,37,44,0.06)",
+        }}
+      >
+        {FEATURES.map(({ icon: Icon, title, desc }, i) => (
           <div
             key={i}
-            className="flex items-center gap-4 p-3.5 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm transition-all duration-500 ease-out hover:shadow-md hover:border-primary/20"
+            className="flex items-center gap-3.5 transition-all duration-500 ease-out"
             style={{
-              opacity: showCards ? 1 : 0,
-              transform: showCards ? "translateX(0)" : "translateX(-20px)",
-              transitionDelay: `${delay}ms`,
+              padding: "14px 0",
+              borderBottom:
+                i < FEATURES.length - 1 ? `1px solid ${C.borderSoft}` : "none",
+              opacity: showRows ? 1 : 0,
+              transform: showRows ? "translateX(0)" : "translateX(-14px)",
+              transitionDelay: `${i * 90}ms`,
             }}
           >
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Icon className="w-5 h-5 text-primary" />
+            <div
+              className="flex items-center justify-center shrink-0"
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+                background: C.tealSoft,
+                border: `1px solid ${C.borderSoft}`,
+              }}
+            >
+              <Icon size={17} strokeWidth={1.6} style={{ color: C.tealDark }} />
             </div>
-            <div className="text-left">
-              <h3 className="font-semibold text-sm text-foreground">{title}</h3>
-              <p className="text-xs text-muted-foreground">{desc}</p>
+            <div className="text-left flex-1 min-w-0">
+              <h3
+                style={{
+                  fontFamily: SERIF,
+                  fontSize: 16,
+                  lineHeight: "20px",
+                  fontWeight: 500,
+                  color: C.headline,
+                  letterSpacing: "-0.005em",
+                }}
+              >
+                {title}
+              </h3>
+              <p
+                style={{
+                  marginTop: 2,
+                  fontFamily: SANS,
+                  fontSize: 12.5,
+                  lineHeight: "17px",
+                  color: C.body,
+                }}
+              >
+                {desc}
+              </p>
             </div>
           </div>
         ))}
@@ -114,11 +200,12 @@ export function OnboardingScreen3() {
       <div
         className="transition-all duration-700 ease-out"
         style={{
+          marginTop: 22,
           opacity: showBadges ? 1 : 0,
-          transform: showBadges ? "translateY(0)" : "translateY(15px)",
+          transform: showBadges ? "translateY(0)" : "translateY(12px)",
         }}
       >
-        <AppStoreBadges heading="Or download our mobile app" size="small" />
+        <AppStoreBadges heading="Or download the Teslys app" size="small" />
       </div>
     </div>
   );
