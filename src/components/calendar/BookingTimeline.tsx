@@ -101,6 +101,56 @@ export function BookingTimeline({
     return map;
   }, [bookings]);
 
+  const blocksByCar = useMemo(() => {
+    const map = new Map<string, CarBlock[]>();
+    blocks.forEach((b) => {
+      const arr = map.get(b.car_id) || [];
+      arr.push(b);
+      map.set(b.car_id, arr);
+    });
+    return map;
+  }, [blocks]);
+
+  // Drag-to-select state
+  const [drag, setDrag] = useState<{
+    carId: string;
+    startIdx: number;
+    endIdx: number;
+  } | null>(null);
+  const dragRef = useRef(drag);
+  dragRef.current = drag;
+
+  const handleCellDown = (car: CalendarCar, idx: number) => {
+    setDrag({ carId: car.id, startIdx: idx, endIdx: idx });
+  };
+  const handleCellEnter = (car: CalendarCar, idx: number) => {
+    if (!drag || drag.carId !== car.id) return;
+    setDrag({ ...drag, endIdx: idx });
+  };
+  const finishDrag = useCallback(
+    (car: CalendarCar) => {
+      const d = dragRef.current;
+      if (!d || d.carId !== car.id) return;
+      const [a, b] = d.startIdx <= d.endIdx ? [d.startIdx, d.endIdx] : [d.endIdx, d.startIdx];
+      const startDate = addDays(windowStart, a);
+      const endDate = addDays(windowStart, b);
+      setDrag(null);
+      onRangeSelected(car, startDate, endDate);
+    },
+    [windowStart, onRangeSelected]
+  );
+
+  // Cancel drag if user releases outside the grid
+  useEffect(() => {
+    const cancel = () => setDrag(null);
+    window.addEventListener("pointerup", cancel);
+    window.addEventListener("pointercancel", cancel);
+    return () => {
+      window.removeEventListener("pointerup", cancel);
+      window.removeEventListener("pointercancel", cancel);
+    };
+  }, []);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
