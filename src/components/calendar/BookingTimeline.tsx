@@ -3,16 +3,21 @@ import { addDays, format, isToday, isWeekend, isSameMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatCarName } from "@/lib/carName";
 import { CalendarCar, CalendarBooking } from "@/hooks/useBookingsCalendar";
+import { CarBlock } from "@/hooks/useCarBlocks";
 import { BookingBar } from "./BookingBar";
+import { BlockBar } from "./BlockBar";
 import { Car as CarIcon, EyeOff, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BookingTimelineProps {
   cars: CalendarCar[];
   bookings: CalendarBooking[];
+  blocks: CarBlock[];
   windowStart: Date;
   days: number;
   toDate: (s: string) => Date;
+  onRangeSelected: (car: CalendarCar, startDate: Date, endDate: Date) => void;
+  onBlockClick: (car: CalendarCar, block: CarBlock) => void;
 }
 
 const COL_WIDTH = 52;
