@@ -2840,6 +2840,23 @@ export default function HostCarManagement() {
                             />
                             <FormField
                               control={expenseForm.control}
+                              name="notes"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Notes (Optional)</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Add notes for this expense..."
+                                      rows={3}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={expenseForm.control}
                               name="expense_date"
                               render={({ field }) => (
                                 <FormItem>
