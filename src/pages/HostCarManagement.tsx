@@ -170,6 +170,7 @@ interface Expense {
   toll_cost?: number;
   total_expenses?: number;
   description: string | null;
+  notes?: string | null;
   expense_date: string;
   receipt_url: string | null;
   receipt_urls?: string[];
