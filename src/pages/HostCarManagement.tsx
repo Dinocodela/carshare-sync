@@ -1990,6 +1990,7 @@ export default function HostCarManagement() {
       daily_rate:
         earning.daily_rate != null ? String(earning.daily_rate) : "",
       nights: earning.nights != null ? String(earning.nights) : "",
+      notes: (earning as any).notes || "",
     });
     setEarningDialogOpen(true);
   };
