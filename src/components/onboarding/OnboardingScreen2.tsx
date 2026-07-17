@@ -55,10 +55,10 @@ export function OnboardingScreen2() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        We Manage
+        We Handle
         <br />
         <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          100% of Operations
+          the Operations
         </span>
       </h1>
 
@@ -69,7 +69,7 @@ export function OnboardingScreen2() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Guest screening, maintenance, insurance — you don't touch a thing.
+        Guest screening, maintenance coordination, and platform insurance handled through our partners.
       </p>
 
       {/* Trust cards */}
@@ -77,20 +77,20 @@ export function OnboardingScreen2() {
         {[
           {
             icon: Users,
-            title: "No Guest Calls, Ever",
-            desc: "We screen & communicate with all renters",
+            title: "We Talk to Guests",
+            desc: "Screening and communication handled for you",
             delay: 0,
           },
           {
             icon: Wrench,
-            title: "Professional Care",
-            desc: "Cleaning, maintenance, and inspections handled",
+            title: "Care Coordination",
+            desc: "Cleaning, maintenance, and inspections arranged",
             delay: 100,
           },
           {
             icon: Shield,
-            title: "Fully Insured",
-            desc: "Comprehensive coverage for total peace of mind",
+            title: "Platform Insurance",
+            desc: "Coverage provided through Turo and Eon during eligible rentals",
             delay: 200,
           },
         ].map(({ icon: Icon, title, desc, delay }, i) => (
