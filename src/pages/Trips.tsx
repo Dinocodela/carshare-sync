@@ -365,7 +365,7 @@ export default function Trips() {
           if (carIds.length > 0) {
             const { data: carRows } = await supabase
               .from("cars")
-              .select("id, make, model, year, license_plate, location, images")
+              .select("id, make, model, year, license_plate, location, images, vin_number, nickname")
               .in("id", carIds);
             (carRows || []).forEach((c: any) => {
               carsById[c.id] = c;
