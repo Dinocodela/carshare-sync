@@ -213,6 +213,47 @@ export type Database = {
           },
         ]
       }
+      car_blocks: {
+        Row: {
+          car_id: string
+          created_at: string
+          created_by: string
+          end_at: string
+          id: string
+          notes: string | null
+          start_at: string
+          updated_at: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          created_by: string
+          end_at: string
+          id?: string
+          notes?: string | null
+          start_at: string
+          updated_at?: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          created_by?: string
+          end_at?: string
+          id?: string
+          notes?: string | null
+          start_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_blocks_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cars: {
         Row: {
           client_id: string | null
@@ -2646,6 +2687,10 @@ export type Database = {
             }
             Returns: Json
           }
+      user_can_access_car: {
+        Args: { _car_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       investment_payout_method: "ach" | "wire" | "check" | "zelle" | "other"

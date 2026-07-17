@@ -3,16 +3,21 @@ import { addDays, format, isToday, isWeekend, isSameMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatCarName } from "@/lib/carName";
 import { CalendarCar, CalendarBooking } from "@/hooks/useBookingsCalendar";
+import { CarBlock } from "@/hooks/useCarBlocks";
 import { BookingBar } from "./BookingBar";
+import { BlockBar } from "./BlockBar";
 import { Car as CarIcon, EyeOff, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BookingTimelineProps {
   cars: CalendarCar[];
   bookings: CalendarBooking[];
+  blocks: CarBlock[];
   windowStart: Date;
   days: number;
   toDate: (s: string) => Date;
+  onRangeSelected: (car: CalendarCar, startDate: Date, endDate: Date) => void;
+  onBlockClick: (car: CalendarCar, block: CarBlock) => void;
 }
 
 const COL_WIDTH = 52;
@@ -34,9 +39,12 @@ function loadHidden(): string[] {
 export function BookingTimeline({
   cars,
   bookings,
+  blocks,
   windowStart,
   days,
   toDate,
+  onRangeSelected,
+  onBlockClick,
 }: BookingTimelineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hiddenIds, setHiddenIds] = useState<string[]>(() => loadHidden());
@@ -92,6 +100,56 @@ export function BookingTimeline({
     });
     return map;
   }, [bookings]);
+
+  const blocksByCar = useMemo(() => {
+    const map = new Map<string, CarBlock[]>();
+    blocks.forEach((b) => {
+      const arr = map.get(b.car_id) || [];
+      arr.push(b);
+      map.set(b.car_id, arr);
+    });
+    return map;
+  }, [blocks]);
+
+  // Drag-to-select state
+  const [drag, setDrag] = useState<{
+    carId: string;
+    startIdx: number;
+    endIdx: number;
+  } | null>(null);
+  const dragRef = useRef(drag);
+  dragRef.current = drag;
+
+  const handleCellDown = (car: CalendarCar, idx: number) => {
+    setDrag({ carId: car.id, startIdx: idx, endIdx: idx });
+  };
+  const handleCellEnter = (car: CalendarCar, idx: number) => {
+    if (!drag || drag.carId !== car.id) return;
+    setDrag({ ...drag, endIdx: idx });
+  };
+  const finishDrag = useCallback(
+    (car: CalendarCar) => {
+      const d = dragRef.current;
+      if (!d || d.carId !== car.id) return;
+      const [a, b] = d.startIdx <= d.endIdx ? [d.startIdx, d.endIdx] : [d.endIdx, d.startIdx];
+      const startDate = addDays(windowStart, a);
+      const endDate = addDays(windowStart, b);
+      setDrag(null);
+      onRangeSelected(car, startDate, endDate);
+    },
+    [windowStart, onRangeSelected]
+  );
+
+  // Cancel drag if user releases outside the grid
+  useEffect(() => {
+    const cancel = () => setDrag(null);
+    window.addEventListener("pointerup", cancel);
+    window.addEventListener("pointercancel", cancel);
+    return () => {
+      window.removeEventListener("pointerup", cancel);
+      window.removeEventListener("pointercancel", cancel);
+    };
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -239,22 +297,48 @@ export function BookingTimeline({
 
                 {/* Day grid + booking bars */}
                 <div
-                  className="relative"
+                  className="relative select-none"
                   style={{ width: days * COL_WIDTH, minWidth: days * COL_WIDTH }}
+                  onPointerUp={() => finishDrag(car)}
+                  onPointerLeave={() => {
+                    if (dragRef.current?.carId === car.id) finishDrag(car);
+                  }}
                 >
                   <div className="absolute inset-0 flex">
-                    {dayList.map((d, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "border-r last:border-r-0",
-                          isWeekend(d) && "bg-muted/30",
-                          isToday(d) && "bg-primary/5"
-                        )}
-                        style={{ width: COL_WIDTH, minWidth: COL_WIDTH }}
-                      />
-                    ))}
+                    {dayList.map((d, i) => {
+                      const isDragging =
+                        drag?.carId === car.id &&
+                        i >= Math.min(drag.startIdx, drag.endIdx) &&
+                        i <= Math.max(drag.startIdx, drag.endIdx);
+                      return (
+                        <div
+                          key={i}
+                          className={cn(
+                            "border-r last:border-r-0 cursor-crosshair",
+                            isWeekend(d) && "bg-muted/30",
+                            isToday(d) && "bg-primary/5",
+                            isDragging && "bg-primary/20"
+                          )}
+                          style={{ width: COL_WIDTH, minWidth: COL_WIDTH }}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            handleCellDown(car, i);
+                          }}
+                          onPointerEnter={() => handleCellEnter(car, i)}
+                        />
+                      );
+                    })}
                   </div>
+                  {(blocksByCar.get(car.id) || []).map((b) => (
+                    <BlockBar
+                      key={b.id}
+                      block={b}
+                      windowStart={windowStart}
+                      days={days}
+                      colWidth={COL_WIDTH}
+                      onClick={(blk) => onBlockClick(car, blk)}
+                    />
+                  ))}
                   {carBookings.map((b) => (
                     <BookingBar
                       key={b.id}

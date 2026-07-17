@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   startOfMonth,
   endOfMonth,
@@ -11,10 +11,14 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SEO } from "@/components/SEO";
 import { useWorkspace } from "@/hooks/useWorkspace";
-import { useBookingsCalendar } from "@/hooks/useBookingsCalendar";
+import { useBookingsCalendar, CalendarCar } from "@/hooks/useBookingsCalendar";
+import { useCarBlocks, CarBlock } from "@/hooks/useCarBlocks";
 import { BookingTimeline } from "@/components/calendar/BookingTimeline";
+import {
+  BlockAvailabilityDialog,
+  BlockDialogState,
+} from "@/components/calendar/BlockAvailabilityDialog";
 
-// Continuous rolling window: 1 month back → 12 months ahead.
 const MONTHS_BACK = 1;
 const MONTHS_AHEAD = 12;
 
@@ -35,6 +39,31 @@ export default function BookingCalendar() {
     windowStart,
     windowEnd
   );
+  const carIds = useMemo(() => cars.map((c) => c.id), [cars]);
+  const { blocks, createBlock, deleteBlock } = useCarBlocks(
+    carIds,
+    windowStart,
+    windowEnd
+  );
+
+  const [dialogState, setDialogState] = useState<BlockDialogState | null>(null);
+
+  const handleRangeSelected = (
+    car: CalendarCar,
+    startDate: Date,
+    endDate: Date
+  ) => {
+    setDialogState({ car, startDate, endDate, existing: null });
+  };
+
+  const handleBlockClick = (car: CalendarCar, block: CarBlock) => {
+    setDialogState({
+      car,
+      startDate: new Date(block.start_at),
+      endDate: new Date(block.end_at),
+      existing: block,
+    });
+  };
 
   return (
     <DashboardLayout>
@@ -51,8 +80,8 @@ export default function BookingCalendar() {
             </h1>
             <p className="text-sm text-muted-foreground">
               {activeWorkspace === "host"
-                ? "Bookings across the cars you host — scroll sideways to move through the months"
-                : "Bookings across your vehicles — scroll sideways to move through the months"}
+                ? "Bookings across the cars you host — drag on a row to block dates."
+                : "Bookings across your vehicles — drag on a row to block dates when you need the car back."}
             </p>
           </div>
 
@@ -76,12 +105,22 @@ export default function BookingCalendar() {
             <BookingTimeline
               cars={cars}
               bookings={bookings}
+              blocks={blocks}
               windowStart={windowStart}
               days={days}
               toDate={toDate}
+              onRangeSelected={handleRangeSelected}
+              onBlockClick={handleBlockClick}
             />
           )}
         </div>
+
+        <BlockAvailabilityDialog
+          state={dialogState}
+          onClose={() => setDialogState(null)}
+          onCreate={createBlock}
+          onDelete={deleteBlock}
+        />
       </PageContainer>
     </DashboardLayout>
   );
