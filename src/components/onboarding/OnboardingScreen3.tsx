@@ -51,10 +51,10 @@ export function OnboardingScreen3() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Paid Like
+        Clear, Trackable
         <br />
         <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          Clockwork
+          Payouts
         </span>
       </h1>
 
@@ -65,7 +65,7 @@ export function OnboardingScreen3() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Reliable deposits on the 1st & 15th. Track everything in real-time.
+        Scheduled payouts on the 1st & 15th when earnings are available. Track everything in real time.
       </p>
 
       {/* Feature cards */}
@@ -73,20 +73,20 @@ export function OnboardingScreen3() {
         {[
           {
             icon: CircleDollarSign,
-            title: "Bi-Monthly Deposits",
-            desc: "Automatic payments, always on time",
+            title: "Bi-Monthly Payouts",
+            desc: "Issued on schedule when funds have cleared",
             delay: 0,
           },
           {
             icon: BarChart3,
             title: "Live Earnings Dashboard",
-            desc: "Real-time tracking per vehicle",
+            desc: "Track performance per vehicle",
             delay: 100,
           },
           {
             icon: Star,
-            title: "Nothing to Lose",
-            desc: "Everything to gain — start free today",
+            title: "No Sign-Up Fee",
+            desc: "Free to apply — subject to approval",
             delay: 200,
           },
         ].map(({ icon: Icon, title, desc, delay }, i) => (
