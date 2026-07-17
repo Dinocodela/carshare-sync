@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const blockId = typeof body?.block_id === 'string' ? body.block_id : null;
+    const removed = body?.removed === true;
     if (!blockId) {
       return new Response(JSON.stringify({ error: 'block_id required' }), {
         status: 400,
@@ -100,8 +101,9 @@ Deno.serve(async (req) => {
         timeZone: 'America/Los_Angeles',
       });
 
+    const header = removed ? '🔓 *Car block removed*' : '🔒 *Car blocked*';
     const text =
-      `🔒 *Car blocked* — ${carName} · plate *${plate}*\n` +
+      `${header} — ${carName} · plate *${plate}*\n` +
       `${fmt(block.start_at)}  →  ${fmt(block.end_at)}\n` +
       `By ${who} (${role})\n` +
       `Notes: ${block.notes ? block.notes : '—'}`;

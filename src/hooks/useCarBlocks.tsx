@@ -88,6 +88,14 @@ export function useCarBlocks(
 
   const deleteBlock = useCallback(
     async (id: string) => {
+      // Notify Slack BEFORE deletion so the edge function can still read the row.
+      try {
+        await supabase.functions.invoke("notify-car-block", {
+          body: { block_id: id, removed: true },
+        });
+      } catch (e) {
+        console.warn("notify-car-block (removed) invoke failed", e);
+      }
       const { error } = await supabase
         .from("car_blocks" as any)
         .delete()
