@@ -20,6 +20,8 @@ export default {
       extend: {
         fontFamily: {
           sans: ['Inter', 'system-ui', 'sans-serif'],
+          serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          display: ['"Playfair Display"', 'Georgia', 'serif'],
         },
         colors: {
 					border: 'hsl(var(--border))',
@@ -29,7 +31,8 @@ export default {
 					foreground: 'hsl(var(--foreground))',
 					primary: {
 						DEFAULT: 'hsl(var(--primary))',
-						foreground: 'hsl(var(--primary-foreground))'
+						foreground: 'hsl(var(--primary-foreground))',
+						glow: 'hsl(var(--primary-glow))'
 					},
 					secondary: {
 						DEFAULT: 'hsl(var(--secondary))',
@@ -73,6 +76,15 @@ export default {
 						DEFAULT: 'hsl(var(--warning))',
 						foreground: 'hsl(var(--warning-foreground))'
 					},
+					/* Luxury Concierge brand tokens */
+					ivory: 'hsl(var(--ivory))',
+					porcelain: 'hsl(var(--porcelain))',
+					'teal-deep': 'hsl(var(--teal-deep))',
+					teal: 'hsl(var(--teal))',
+					gold: 'hsl(var(--gold))',
+					ink: 'hsl(var(--ink))',
+					hairline: 'hsl(var(--hairline))',
+					/* Legacy names remapped to new palette */
 					navy: {
 						DEFAULT: 'hsl(var(--navy))',
 						foreground: 'hsl(var(--navy-foreground))'
@@ -94,6 +106,7 @@ export default {
 						foreground: 'hsl(var(--teal-dark-foreground, 0 0% 100%))'
 					}
 				},
+
 				spacing: {
 					'safe-top': 'env(safe-area-inset-top)',
 					'safe-bottom': 'env(safe-area-inset-bottom)',
