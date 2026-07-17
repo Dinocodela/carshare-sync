@@ -1673,6 +1673,7 @@ export default function HostCarManagement() {
       delivery_cost: expense.delivery_cost || 0,
       toll_cost: expense.toll_cost || 0,
       description: expense.description || "",
+      notes: (expense as any).notes || "",
       expense_date: expense.expense_date,
     });
     setExpenseDialogOpen(true);
