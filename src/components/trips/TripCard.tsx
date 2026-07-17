@@ -25,6 +25,8 @@ export interface TripCardData {
     license_plate: string | null;
     location: string | null;
     images: string[] | null;
+    vin_number?: string | null;
+    nickname?: string | null;
   } | null;
 }
 
