@@ -101,8 +101,9 @@ Deno.serve(async (req) => {
         timeZone: 'America/Los_Angeles',
       });
 
+    const header = removed ? '🔓 *Car block removed*' : '🔒 *Car blocked*';
     const text =
-      `🔒 *Car blocked* — ${carName} · plate *${plate}*\n` +
+      `${header} — ${carName} · plate *${plate}*\n` +
       `${fmt(block.start_at)}  →  ${fmt(block.end_at)}\n` +
       `By ${who} (${role})\n` +
       `Notes: ${block.notes ? block.notes : '—'}`;
