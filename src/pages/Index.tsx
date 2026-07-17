@@ -247,26 +247,21 @@ const Index = () => {
               <Link
                 to="/login"
                 aria-label="Sign in to Teslys"
-                className="inline-flex items-center"
+                className="inline-flex items-center h-8 sm:h-9 pl-2.5 pr-3 sm:pl-3 sm:pr-3.5 gap-1.5"
                 style={{
-                  height: 44,
-                  paddingLeft: 15,
-                  paddingRight: 17,
-                  gap: 8,
                   borderRadius: 9999,
                   background: C.goldBackground,
                   border: `1px solid ${C.goldBorder}`,
                   backdropFilter: "blur(7px)",
                   WebkitBackdropFilter: "blur(7px)",
-                  boxShadow: "0 6px 20px rgba(71,52,25,0.07)",
+                  boxShadow: "0 4px 14px rgba(71,52,25,0.06)",
                 }}
               >
-                <Crown size={17} strokeWidth={1.6} color={C.gold} />
+                <Crown size={13} strokeWidth={1.6} color={C.gold} />
                 <span
+                  className="text-[12px] sm:text-[13px] leading-none"
                   style={{
                     fontFamily: SERIF,
-                    fontSize: 16,
-                    lineHeight: "20px",
                     fontWeight: 600,
                     letterSpacing: "-0.01em",
                     color: C.headline,
