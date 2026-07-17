@@ -581,6 +581,7 @@ export default function HostCarManagement() {
     defaultValues: {
       amount: 0,
       description: "",
+      notes: "",
       expense_date: new Date().toISOString().split("T")[0],
     },
   });
