@@ -49,10 +49,10 @@ export function OnboardingScreen1() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Your Tesla Earns
+        Put Your Tesla
         <br />
         <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          While You Sleep
+          to Work
         </span>
       </h1>
 
@@ -63,7 +63,7 @@ export function OnboardingScreen1() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Turn your idle Tesla into a reliable passive income stream — zero effort, zero stress.
+        Turn your idle Tesla into a potential income opportunity — we handle the day-to-day.
       </p>
 
       {/* Feature cards */}
