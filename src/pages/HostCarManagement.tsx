@@ -5949,6 +5949,13 @@ export default function HostCarManagement() {
                               <div className="text-[10px] text-muted-foreground">{relatedExpenses.length} related expense(s)</div>
                             )}
 
+                            {earning.notes && (
+                              <div className="rounded-xl border border-border/40 bg-muted/30 px-3 py-2">
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Notes</p>
+                                <p className="text-xs text-foreground whitespace-pre-wrap line-clamp-3">{earning.notes}</p>
+                              </div>
+                            )}
+
                           </div>
                         </div>
                       );
