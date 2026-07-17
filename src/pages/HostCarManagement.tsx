@@ -204,6 +204,7 @@ interface Earning {
   delivery_address?: string;
   daily_rate?: number | null;
   nights?: number | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }
