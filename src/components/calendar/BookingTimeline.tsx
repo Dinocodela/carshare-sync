@@ -39,9 +39,12 @@ function loadHidden(): string[] {
 export function BookingTimeline({
   cars,
   bookings,
+  blocks,
   windowStart,
   days,
   toDate,
+  onRangeSelected,
+  onBlockClick,
 }: BookingTimelineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hiddenIds, setHiddenIds] = useState<string[]>(() => loadHidden());
