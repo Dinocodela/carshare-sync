@@ -126,25 +126,6 @@ body,
     --shadow-card: 0 4px 20px -4px hsl(180 50% 50% / 0.08);
     --shadow-glow: 0 0 40px hsl(185 100% 50% / 0.3);
     --shadow-navy: 0 12px 35px -8px hsl(220 85% 15% / 0.4);
-
-    /* Teslys Luxury Concierge v1 tokens (hex; values match src/components/luxury/tokens.ts) */
-    --luxury-page-cream: #FBF8F2;
-    --luxury-warm-white: #FFFDF9;
-    --luxury-soft-cream: #F7F1E8;
-    --luxury-headline: #071C27;
-    --luxury-body: #52616D;
-    --luxury-muted: #7C8790;
-    --luxury-dark-teal: #03252C;
-    --luxury-dark-teal-end: #061C23;
-    --luxury-teal: #078B8E;
-    --luxury-teal-dark: #056F73;
-    --luxury-teal-light: #69CDD0;
-    --luxury-teal-soft: #EAF6F5;
-    --luxury-gold: #B59251;
-    --luxury-gold-border: #D8C39C;
-    --luxury-border: #E6DCCF;
-    --luxury-border-soft: #E9E4DC;
-    --luxury-divider: #C9C8C2;
   }
 
   .dark {
