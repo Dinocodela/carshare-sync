@@ -71,20 +71,20 @@ export function OnboardingScreen1() {
         {[
           {
             icon: TrendingUp,
-            title: "Earn $1,500–$3,500/mo",
-            desc: "Per vehicle, consistently",
+            title: "Earning Potential",
+            desc: "Based on host results; actual earnings vary",
             delay: 0,
           },
           {
             icon: Zap,
-            title: "Zero Effort Required",
-            desc: "We handle literally everything",
+            title: "Hands-Off Management",
+            desc: "We handle listings, guests, and operations",
             delay: 100,
           },
           {
             icon: DollarSign,
-            title: "Keep Full Ownership",
-            desc: "Your car, your asset, our management",
+            title: "You Stay the Owner",
+            desc: "Your car, your title — we manage the rest",
             delay: 200,
           },
         ].map(({ icon: Icon, title, desc, delay }, i) => (
