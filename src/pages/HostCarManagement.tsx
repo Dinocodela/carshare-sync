@@ -1750,6 +1750,7 @@ export default function HostCarManagement() {
           values.nights && values.nights.trim() !== ""
             ? Number(values.nights)
             : null,
+        notes: values.notes || null,
       };
 
       const guestContact = {
