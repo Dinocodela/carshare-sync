@@ -232,7 +232,7 @@ export function BlockAvailabilityDialog({
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={handleDelete}
+                onClick={() => setConfirmOpen(true)}
                 disabled={deleting}
                 className="text-destructive hover:text-destructive"
               >
