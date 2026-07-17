@@ -1,26 +1,37 @@
-## What's happening
+## Add notes to Earnings & Expenses
 
-- The preview (`id-preview--...lovable.app`) renders `src/pages/Index.tsx` at `/` — the current "Welcome to Teslys" screen with the Rent a Tesla / List my Tesla intent cards. This is the correct, up-to-date homepage.
-- teslys.app (the published production domain) is still serving an older build — the luxury "Choose Your Teslys Experience / VIP EXPERIENCE / Explore Rentals" design in your screenshot. That markup no longer exists anywhere in the codebase (verified: zero matches for "VIP EXPERIENCE", "Choose Your Teslys", or "Explore Rentals" in `src/`, `public/`, or `index.html`).
-- Conclusion: this isn't a code bug. The production site is a stale publish — the recent Index redesign (intent chooser, back button, etc.) hasn't been pushed to teslys.app yet.
+Today `host_earnings` has no notes field and `host_expenses` only has a generic `description` (not surfaced as "Notes"). Neither the earnings card nor the expenses card shows notes on the summary view. This plan adds a real notes field to both and surfaces it on the card before the ⋯ menu.
 
-## The fix
+### 1. Database
+Migration:
+- `ALTER TABLE public.host_earnings ADD COLUMN notes text;`
+- `ALTER TABLE public.host_expenses ADD COLUMN notes text;` (kept separate from the legacy `description` column so nothing else breaks)
 
-Republish the project. That will promote the current preview build (with the intent chooser homepage) to teslys.app and www.teslys.app, replacing the old luxury landing page.
+No RLS changes needed — existing host-scoped policies cover new columns.
 
-No code changes are needed. No routes, components, or copy will be modified.
+### 2. Edge functions
+- `supabase/functions/create-host-earning/index.ts`: accept optional `notes` in payload; include in insert/update builders.
+- `supabase/functions/create-host-expense/index.ts`: accept optional `notes`; include in insert/update builders.
 
-## Steps
+### 3. Forms (Host Car Management)
+In `src/pages/HostCarManagement.tsx`:
+- Extend `earningSchema` and `expenseSchema` with `notes: z.string().max(1000).optional()`.
+- Add a "Notes" textarea (optional) at the bottom of the earning dialog and the expense dialog.
+- Wire default values from the row being edited; pass `notes` through to the edge function calls.
 
-1. Click **Publish** from the top of the Lovable editor (or I can trigger it — say the word).
-2. Hard-refresh teslys.app once publish completes (Cmd/Ctrl+Shift+R) to clear any cached HTML/service worker.
-3. Verify `https://teslys.app/` shows the same "Welcome to Teslys" + Rent/List cards screen as the preview.
+### 4. Cards (visible before ⋯ menu)
+- Earnings card in the Earnings tab: if `notes` is set, render a small block under the existing meta rows — muted label "Notes", clamped to 2 lines with `line-clamp-2`, full text visible in the edit dialog.
+- Expenses card in the Expenses tab: same treatment.
+- Style: `text-xs text-muted-foreground` label + `text-sm text-foreground` body, respects the Luxury Concierge tokens (no hardcoded colors).
 
-## If it still shows the old page after publishing
+### 5. Types
+`src/integrations/supabase/types.ts` regenerates automatically after the migration; the new `notes` fields become typed. Local `Earning` / `Expense` interfaces in `HostCarManagement.tsx` get a `notes?: string | null` field.
 
-Likely culprits, in order:
-- **Service worker cache** (`public/sw.js` is registered). Unregister it in DevTools → Application → Service Workers, then reload.
-- **CDN edge cache** — usually clears within a minute or two of publish.
-- **Custom domain routing** — if `teslys.app` is pointed somewhere other than the Lovable published URL, we'd need to check DNS. The Lovable-managed URLs (`teslysapp.lovable.app`, `teslys.app`, `www.teslys.app`) are all configured, so this is unlikely but worth confirming if publish alone doesn't fix it.
+### Out of scope
+- Client-side visibility of host notes (notes stay host-only, matching existing RLS on host_earnings/host_expenses).
+- Editing notes inline on the card (still done via the existing edit dialog).
+- Migrating existing `host_expenses.description` values into the new `notes` column.
 
-Want me to go ahead and publish?
+### Technical notes
+- Paginated fetchers (`get_host_earnings_page`, `get_host_expenses_page`) use `SELECT *`, so `notes` flows through with no RPC change.
+- No changes to Claims, Analytics, or client-facing screens.
