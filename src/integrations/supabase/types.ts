@@ -928,6 +928,7 @@ export type Database = {
           id: string
           net_amount: number
           nights: number | null
+          notes: string | null
           payment_date: string | null
           payment_source: string | null
           payment_status: string
@@ -958,6 +959,7 @@ export type Database = {
           id?: string
           net_amount: number
           nights?: number | null
+          notes?: string | null
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
@@ -988,6 +990,7 @@ export type Database = {
           id?: string
           net_amount?: number
           nights?: number | null
+          notes?: string | null
           payment_date?: string | null
           payment_source?: string | null
           payment_status?: string
@@ -1060,6 +1063,7 @@ export type Database = {
           guest_name: string | null
           host_id: string
           id: string
+          notes: string | null
           receipt_url: string | null
           receipt_urls: string[] | null
           toll_cost: number | null
@@ -1080,6 +1084,7 @@ export type Database = {
           guest_name?: string | null
           host_id: string
           id?: string
+          notes?: string | null
           receipt_url?: string | null
           receipt_urls?: string[] | null
           toll_cost?: number | null
@@ -1100,6 +1105,7 @@ export type Database = {
           guest_name?: string | null
           host_id?: string
           id?: string
+          notes?: string | null
           receipt_url?: string | null
           receipt_urls?: string[] | null
           toll_cost?: number | null
