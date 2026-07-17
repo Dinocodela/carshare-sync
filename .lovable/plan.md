@@ -1,37 +1,64 @@
-## Add notes to Earnings & Expenses
+## Goal
+Let clients and hosts manually block dates on any car they can see in the calendar (like Turo's "Block availability"), and post a Slack notification whenever a block is created.
 
-Today `host_earnings` has no notes field and `host_expenses` only has a generic `description` (not surfaced as "Notes"). Neither the earnings card nor the expenses card shows notes on the summary view. This plan adds a real notes field to both and surfaces it on the card before the ⋯ menu.
+## UX (inspired by the Turo video)
+On `/calendar` (`BookingTimeline`):
+- Click-drag across empty cells on a car row to select a date range, OR click a single day.
+- A bottom sheet / dialog opens titled **Block availability** with:
+  - Start date + start time (default 09:00)
+  - End date + end time (default 18:00)
+  - Optional Notes (e.g. "Maintenance", "Owner using car") — 200 char max
+  - **Block dates** primary button (teal, per design system)
+- Existing blocks render on the row as a distinct bar (dark gray with diagonal-stripe pattern + lock icon), visually different from the teal booking bars.
+- Tapping an existing block opens a small popover with the range, notes, and a **Remove block** button (with confirm).
+- Blocks are ignored by earnings/booking logic — they are purely a visual/scheduling signal (matches user's phrasing "block it in the calendar").
 
-### 1. Database
-Migration:
-- `ALTER TABLE public.host_earnings ADD COLUMN notes text;`
-- `ALTER TABLE public.host_expenses ADD COLUMN notes text;` (kept separate from the legacy `description` column so nothing else breaks)
+## Access
+- Both hosts (on their hosted cars) and clients (on cars they own OR have `shared_access` to) can create/remove blocks — same visibility rules the calendar already uses.
+- RLS: creator can update/delete their own block; host of the car and client(s) with access can view all blocks on that car.
 
-No RLS changes needed — existing host-scoped policies cover new columns.
+## Data model (new table)
+`public.car_blocks`
+- `id uuid pk`
+- `car_id uuid` → `cars.id` (cascade)
+- `created_by uuid` (auth user)
+- `start_at timestamptz`
+- `end_at timestamptz` (must be > start_at, trigger validation)
+- `notes text` nullable
+- `created_at`, `updated_at` timestamptz + update trigger
+- Grants to `authenticated` (select/insert/update/delete) and `service_role`, plus RLS policies scoped via existing `car_access` / `cars.host_id` / `cars.client_id` and a `has_role(..,'admin')` bypass.
 
-### 2. Edge functions
-- `supabase/functions/create-host-earning/index.ts`: accept optional `notes` in payload; include in insert/update builders.
-- `supabase/functions/create-host-expense/index.ts`: accept optional `notes`; include in insert/update builders.
+## Slack notification
+Reuse the existing `SLACK_WEBHOOK_URL` secret (already used by `notify-admin-new-client`).
+New edge function `notify-car-block` (verify_jwt = false, JWT validated in code) called from the client after a successful insert. Payload posted to Slack:
 
-### 3. Forms (Host Car Management)
-In `src/pages/HostCarManagement.tsx`:
-- Extend `earningSchema` and `expenseSchema` with `notes: z.string().max(1000).optional()`.
-- Add a "Notes" textarea (optional) at the bottom of the earning dialog and the expense dialog.
-- Wire default values from the row being edited; pass `notes` through to the edge function calls.
+> 🔒 *Car blocked* — {Make} {Model} · plate **{license_plate}** · nickname *{nickname}*
+> {start_at formatted} → {end_at formatted}  ({duration})
+> By {user display name} ({host / client})
+> Notes: {notes or "—"}
 
-### 4. Cards (visible before ⋯ menu)
-- Earnings card in the Earnings tab: if `notes` is set, render a small block under the existing meta rows — muted label "Notes", clamped to 2 lines with `line-clamp-2`, full text visible in the edit dialog.
-- Expenses card in the Expenses tab: same treatment.
-- Style: `text-xs text-muted-foreground` label + `text-sm text-foreground` body, respects the Luxury Concierge tokens (no hardcoded colors).
+Function fetches the car row with service role to include plate/nickname reliably. Best-effort: if webhook missing or fails, log and return 200 so the UI flow isn't broken.
 
-### 5. Types
-`src/integrations/supabase/types.ts` regenerates automatically after the migration; the new `notes` fields become typed. Local `Earning` / `Expense` interfaces in `HostCarManagement.tsx` get a `notes?: string | null` field.
+## Files to add / change
+**New**
+- Migration: `car_blocks` table + grants + RLS + updated_at trigger.
+- `supabase/functions/notify-car-block/index.ts`
+- `src/hooks/useCarBlocks.tsx` — fetch blocks in window + create/remove helpers.
+- `src/components/calendar/BlockBar.tsx` — striped block bar renderer.
+- `src/components/calendar/BlockAvailabilityDialog.tsx` — the create/edit sheet.
 
-### Out of scope
-- Client-side visibility of host notes (notes stay host-only, matching existing RLS on host_earnings/host_expenses).
-- Editing notes inline on the card (still done via the existing edit dialog).
-- Migrating existing `host_expenses.description` values into the new `notes` column.
+**Edited**
+- `src/components/calendar/BookingTimeline.tsx` — add pointer drag-selection on each car row's day grid, render `BlockBar`s alongside `BookingBar`s, open dialog on selection, popover on existing block click.
+- `src/hooks/useBookingsCalendar.tsx` — also return blocks (or leave separate hook — cleaner: separate `useCarBlocks`).
+- `src/pages/BookingCalendar.tsx` — pass blocks through / add subtle helper text "Drag on a row to block dates".
 
-### Technical notes
-- Paginated fetchers (`get_host_earnings_page`, `get_host_expenses_page`) use `SELECT *`, so `notes` flows through with no RPC change.
-- No changes to Claims, Analytics, or client-facing screens.
+## Technical details
+- Times stored UTC (`timestamptz`); UI displays in local time. Date-only interpretation is not enough because the Turo flow includes hours — we mirror that.
+- Drag selection: mousedown on a day cell captures `car_id + startIdx`; mousemove updates `endIdx`; mouseup opens dialog with prefilled dates (default 09:00 / 18:00). Touch handlers mirror the mouse events for mobile.
+- After successful `insert` into `car_blocks`, invoke `notify-car-block` via `supabase.functions.invoke` with the new block id — the function looks up car + user server-side (never trusting client-side plate/name).
+- Slack secret name reused: `SLACK_WEBHOOK_URL`. If not yet set for blocks specifically, we still use the same secret — no new secret needed.
+
+## Out of scope (ask if wanted later)
+- Recurring/weekly repeat (Turo's toggle) — can add later.
+- Hourly-only blocks tab — we cover it with start/end datetime already.
+- Blocking bookings from being created that overlap a block — currently the app has no runtime booking creation flow tied to this calendar, so no enforcement needed. Confirm if you want a warning surface.
