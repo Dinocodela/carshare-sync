@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Car as CarIcon, ChevronDown, Clock, Copy, MapPin, Truck, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useWorkspace } from "@/hooks/useWorkspace";
+import { formatCarName } from "@/lib/carName";
 
 export interface TripCardData {
   id: string;
@@ -24,6 +25,8 @@ export interface TripCardData {
     license_plate: string | null;
     location: string | null;
     images: string[] | null;
+    vin_number?: string | null;
+    nickname?: string | null;
   } | null;
 }
 
@@ -114,6 +117,7 @@ export function TripCard({ trip }: { trip: TripCardData }) {
   const carTitle = trip.car
     ? `${trip.car.make} ${trip.car.model} ${trip.car.year}`
     : "Vehicle";
+  const carIdName = trip.car ? formatCarName(trip.car) : null;
   const carImage = trip.car?.images?.[0];
   const isCancelled = trip.payment_status === "cancelled";
 
@@ -142,6 +146,11 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <h3 className="mt-2 truncate text-base font-bold text-foreground sm:mt-3 sm:text-xl">
               {carTitle}
             </h3>
+            {carIdName && carIdName !== carTitle && (
+              <p className="mt-0.5 truncate text-xs text-muted-foreground/80">
+                {carIdName}
+              </p>
+            )}
             <div className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground sm:text-sm">
               <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <span>

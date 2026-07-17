@@ -245,7 +245,7 @@ export default function Trips() {
         const opts = countOnly ? { count: "exact" as const } : undefined;
         const fields = countOnly
           ? "id"
-          : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id)";
+          : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id, vin_number, nickname)";
         const clientFields = countOnly
           ? "id"
           : "id, trip_id, guest_initials, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status";
@@ -365,7 +365,7 @@ export default function Trips() {
           if (carIds.length > 0) {
             const { data: carRows } = await supabase
               .from("cars")
-              .select("id, make, model, year, license_plate, location, images")
+              .select("id, make, model, year, license_plate, location, images, vin_number, nickname")
               .in("id", carIds);
             (carRows || []).forEach((c: any) => {
               carsById[c.id] = c;
@@ -408,6 +408,8 @@ export default function Trips() {
                   license_plate: car.license_plate,
                   location: car.location,
                   images: car.images,
+                  vin_number: car.vin_number ?? null,
+                  nickname: car.nickname ?? null,
                 }
               : null,
           };
