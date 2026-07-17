@@ -297,22 +297,48 @@ export function BookingTimeline({
 
                 {/* Day grid + booking bars */}
                 <div
-                  className="relative"
+                  className="relative select-none"
                   style={{ width: days * COL_WIDTH, minWidth: days * COL_WIDTH }}
+                  onPointerUp={() => finishDrag(car)}
+                  onPointerLeave={() => {
+                    if (dragRef.current?.carId === car.id) finishDrag(car);
+                  }}
                 >
                   <div className="absolute inset-0 flex">
-                    {dayList.map((d, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "border-r last:border-r-0",
-                          isWeekend(d) && "bg-muted/30",
-                          isToday(d) && "bg-primary/5"
-                        )}
-                        style={{ width: COL_WIDTH, minWidth: COL_WIDTH }}
-                      />
-                    ))}
+                    {dayList.map((d, i) => {
+                      const isDragging =
+                        drag?.carId === car.id &&
+                        i >= Math.min(drag.startIdx, drag.endIdx) &&
+                        i <= Math.max(drag.startIdx, drag.endIdx);
+                      return (
+                        <div
+                          key={i}
+                          className={cn(
+                            "border-r last:border-r-0 cursor-crosshair",
+                            isWeekend(d) && "bg-muted/30",
+                            isToday(d) && "bg-primary/5",
+                            isDragging && "bg-primary/20"
+                          )}
+                          style={{ width: COL_WIDTH, minWidth: COL_WIDTH }}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            handleCellDown(car, i);
+                          }}
+                          onPointerEnter={() => handleCellEnter(car, i)}
+                        />
+                      );
+                    })}
                   </div>
+                  {(blocksByCar.get(car.id) || []).map((b) => (
+                    <BlockBar
+                      key={b.id}
+                      block={b}
+                      windowStart={windowStart}
+                      days={days}
+                      colWidth={COL_WIDTH}
+                      onClick={(blk) => onBlockClick(car, blk)}
+                    />
+                  ))}
                   {carBookings.map((b) => (
                     <BookingBar
                       key={b.id}
