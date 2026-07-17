@@ -62,6 +62,7 @@ export function BlockAvailabilityDialog({
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const existing = state?.existing || null;
 
