@@ -55,10 +55,10 @@ export function OnboardingScreen2() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        We Manage
+        We Handle
         <br />
         <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          100% of Operations
+          the Operations
         </span>
       </h1>
 
@@ -69,7 +69,7 @@ export function OnboardingScreen2() {
           transform: visible ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        Guest screening, maintenance, insurance — you don't touch a thing.
+        Guest screening, maintenance coordination, and platform insurance handled through our partners.
       </p>
 
       {/* Trust cards */}
