@@ -5041,6 +5041,24 @@ export default function HostCarManagement() {
                                 )}
                               />
 
+                              <FormField
+                                control={earningForm.control}
+                                name="notes"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Notes (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea
+                                        placeholder="Add notes for this booking..."
+                                        rows={3}
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
