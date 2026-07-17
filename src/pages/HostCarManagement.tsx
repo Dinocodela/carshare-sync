@@ -287,6 +287,7 @@ const earningSchema = z.object({
   delivery_address: z.string().optional(),
   daily_rate: z.string().optional(),
   nights: z.string().optional(),
+  notes: z.string().max(1000, "Notes must be 1000 characters or less").optional(),
 });
 
 const claimSchema = z.object({
