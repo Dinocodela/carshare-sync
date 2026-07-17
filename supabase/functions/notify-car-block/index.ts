@@ -107,11 +107,19 @@ Deno.serve(async (req) => {
       `Notes: ${block.notes ? block.notes : '—'}`;
 
     try {
-      await fetch(webhook, {
+      const slackRes = await fetch(webhook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       });
+      const slackBody = await slackRes.text();
+      console.log('Slack response:', slackRes.status, slackBody);
+      if (!slackRes.ok) {
+        return new Response(
+          JSON.stringify({ ok: false, slack_status: slackRes.status, slack_body: slackBody }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
     } catch (e) {
       console.warn('Slack webhook post failed:', e);
     }
