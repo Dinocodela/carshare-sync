@@ -146,6 +146,11 @@ export function TripCard({ trip }: { trip: TripCardData }) {
             <h3 className="mt-2 truncate text-base font-bold text-foreground sm:mt-3 sm:text-xl">
               {carTitle}
             </h3>
+            {carIdName && carIdName !== carTitle && (
+              <p className="mt-0.5 truncate text-xs text-muted-foreground/80">
+                {carIdName}
+              </p>
+            )}
             <div className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground sm:text-sm">
               <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <span>
