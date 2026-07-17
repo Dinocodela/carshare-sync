@@ -1545,6 +1545,7 @@ export default function HostCarManagement() {
         delivery_cost: values.delivery_cost || 0,
         toll_cost: values.toll_cost || 0,
         description: values.description || null,
+        notes: values.notes || null,
         expense_date: values.expense_date,
       };
 
