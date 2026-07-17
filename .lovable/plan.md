@@ -1,60 +1,68 @@
+# Redesign Plan — Safe, Incremental Rollout
 
-## Goal
-Stop losing rental leads on teslys.app. Right now the landing page pushes visitors toward "sign in" and "list your Tesla," and the only rental affordance is a tiny top-right pill. We'll make Rent a Tesla a first-class, unmissable choice on the landing hero.
+## Why the last attempt got reverted
+Big multi-file UI edits touch layouts, auth panels, and routing in one shot. If any single piece feels wrong, the only clean escape is a revert — which wipes the good parts too. The fix is to **change one surface at a time**, behind stable tokens, so any single step can be tuned or rolled back without losing the rest.
 
-## Approach: Two-card intent gate above the fold
+## Guiding principles
+1. **Design tokens first, components second, pages third.** Never hand-tune colors inside components.
+2. **One page or section per turn.** No sweeping cross-page rewrites.
+3. **Functionality is frozen.** Routes, auth, Supabase queries, booking/payment flows stay untouched — this is purely visual/presentation work (matches the project's Luxury Concierge rule set already in memory).
+4. **Checkpoint after every step.** You approve each surface before we move to the next. That way a revert costs one step, not the whole redesign.
+5. **Reuse the existing design system.** `src/index.css` + `tailwind.config.ts` already define semantic HSL tokens — we extend those, we don't hardcode `bg-white`/`text-black` in components.
 
-Replace the current single-purpose hero (Logo + "Welcome to Teslys" + login form) with an intent chooser that appears first, on both web and native.
+## Phased rollout
 
-```text
-┌───────────────────────────────────┐
-│           Teslys logo             │
-│  What brings you to Teslys?       │
-├──────────────┬────────────────────┤
-│  🚗 Rent     │  🔑 List / Manage  │
-│  a Tesla     │  my Tesla          │
-│              │                    │
-│  Book a      │  Earn passive      │
-│  Tesla by    │  income — we       │
-│  the day     │  handle rentals,   │
-│  or month.   │  cleaning, guests. │
-│              │                    │
-│  [Rent now →]│  [Get started →]   │
-└──────────────┴────────────────────┘
-   Already have an account? Sign in
-```
+### Phase 0 — Lock the direction (no code)
+Pick the visual language once, in writing, so every later step conforms:
+- Confirm the "Luxury Concierge" palette already in project memory (ivory, porcelain, teal-deep, teal, gold, ink) is still the target — or swap it now.
+- Confirm serif display (Playfair) + Inter body, or change.
+- Confirm component shape language: rounded-3xl cards, pill buttons, hairline dividers, gold used sparingly.
 
-### Behavior
-- **Rent a Tesla card** → opens `https://app.eonrides.com` in a new tab (web) / external browser (native via `@capacitor/browser` or `window.open`).
-- **List/Manage card** → reveals the existing login + client register panel (current `panel` state machine) inline below, or scrolls to it.
-- **"Already have an account? Sign in"** link → collapses cards and shows the login form for returning users, so we don't add friction for them.
-- Persist the choice in `localStorage` (`teslys_intent`) so returning visitors on the same device skip straight to their side. Add a small "Not you? Switch" link to reset.
+Deliverable: a short written spec I keep referencing. Nothing shipped yet.
 
-### Secondary cleanup on the same page
-- Remove the "Rent A Tesla" floating pill in the top-right — it's now redundant and was being missed anyway. Keep it only on interior pages where the hero cards aren't present.
-- Keep the existing "Become a host" and "Invest in our fleet" cards, but push them below the fold so the two primary intents dominate.
-- Keep the Earnings Calculator CTA and trust indicators as-is.
+### Phase 1 — Foundation tokens
+Update **only** `src/index.css` and `tailwind.config.ts`:
+- Semantic HSL tokens for background, foreground, primary, secondary, accent, muted, border, card, popover — light + dark.
+- Gradient tokens (`--gradient-hero`, `--gradient-primary`), shadow tokens (`--shadow-elegant`, `--shadow-card`), radii.
+- Typography families wired through Tailwind `fontFamily`.
 
-### Scope
-- **Web**: `src/pages/Index.tsx` — restructure the hero.
-- **Native (Capacitor)**: same file, same UI. The Rent card uses `Browser.open({ url })` from `@capacitor/browser` when `Capacitor.isNativePlatform()` is true, otherwise `window.open`.
-- **Component**: new `src/components/landing/IntentChooser.tsx` to keep `Index.tsx` clean.
-- **Analytics**: fire an event on each card click (`landing_intent_selected` with `rent` | `manage`) via existing `src/analytics/events.ts` so we can measure lift.
+Nothing visually "redesigned" yet — but every existing page instantly picks up the new palette. Easy to tune, easy to revert (2 files).
 
-### Copy (draft)
-- Headline: **"What brings you to Teslys?"**
-- Rent card: **"Rent a Tesla"** — "Book a Tesla by the day, week, or month. Delivered ready to drive."
-- Manage card: **"List & earn from my Tesla"** — "Turn your Tesla into passive income. We handle rentals, cleaning, and guest support."
+### Phase 2 — Primitive components
+Restyle shadcn primitives via variants only: `Button`, `Card`, `Input`, `Badge`, `Dialog`, `Sheet`, `Tabs`. No page edits. Every screen that uses these gets a consistent lift.
 
-### Visual direction
-- Two equal-height cards, mobile-stacked / desktop side-by-side.
-- Distinct accent per card (Rent = electric blue accent, Manage = existing primary green) so they read as two clearly separate paths, not variations of the same product.
-- Large icon, bold title, one-line value prop, primary CTA button. Same card language as the existing "Become a host" cards so it fits the design system.
+### Phase 3 — Shared shells
+`DashboardLayout`, `AppSidebar`, `BottomNavBar`, `ScreenHeader`, `BreadcrumbNav`, `LegalFooter`. One at a time. These frame every authenticated page, so getting them right amplifies later work.
 
-## Non-goals
-- No changes to auth, registration flow, or backend.
-- No first-visit modal (rejected in favor of persistent hero cards — no dismissal friction, always visible).
-- No changes to the mobile app native shell beyond the landing screen.
+### Phase 4 — Public / marketing pages (one per turn)
+Priority order (highest traffic + conversion first):
+1. `Index` (landing) — including the intent chooser that just got reverted
+2. `HowItWorks`, `About`
+3. `EarningsCalculator`, `EarningsGuide`, `GetStarted`
+4. City pages template + Model pages template (edit the shared template, not 14 files)
+5. `Blog` + `BlogPost`
+6. `Shop` + `ProductDetail`
+7. Legal pages (`Privacy`, `Terms`, `FAQ`, `SMSConsent`, `DeleteAccount`)
 
-## Follow-up (not in this change)
-- After 1–2 weeks, review analytics on `landing_intent_selected` vs. client register completions to confirm rental leads are being captured.
+### Phase 5 — Authenticated app (one per turn)
+`Dashboard`, `Trips`/`TripDetail`, `BookingCalendar`, `MyCars`/`CarDetails`/`EditCar`, `HostCarManagement`/`HostRequests`/`HostingDetails`, `ClientAnalytics`/`HostAnalytics`, `Settings`, admin/investor screens.
+
+### Phase 6 — Polish pass
+Motion (respecting `prefers-reduced-motion`), empty states, loading skeletons, mobile safe-area audit (Capacitor iOS/Android), SEO components untouched but re-verified on every redesigned public page.
+
+## Safety rails on every step
+- Screenshot before + after (Playwright) so you can compare instead of relying on memory.
+- No route or data-layer changes in a UI turn — if a step needs logic changes, we split it.
+- Keep every existing link working (`/register/client`, `/register/host`, `/earnings-calculator`, city pages, etc.).
+- If a step feels wrong, we tune that step. A single-step revert is cheap; a full-project revert never happens again.
+
+## What I need from you to start
+1. Confirm the Luxury Concierge visual direction (palette + Playfair/Inter) is still the target, or tell me what to change.
+2. Green-light Phase 1 (tokens only) as the first turn. It's the lowest-risk change and unlocks everything else.
+
+## Technical notes
+- All tokens live in `src/index.css` as HSL, mirrored in `tailwind.config.ts` — components stay on semantic classes (`bg-background`, `text-foreground`, `bg-primary`, etc.).
+- shadcn variants via `cva` for any new visual variants (e.g. `Button variant="premium"`), never inline color classes.
+- Framer Motion for animation (already in stack), gated by `prefers-reduced-motion`.
+- SEO components (`SEO.tsx`, `StructuredData`) preserved verbatim on every redesigned public page.
+- Capacitor: safe-area insets (`pt-safe-top`, `pb-app-bottom`) preserved on every layout edit.
