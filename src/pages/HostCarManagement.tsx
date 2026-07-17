@@ -3663,6 +3663,13 @@ export default function HostCarManagement() {
                                 </div>
                               ) : null;
                             })()}
+
+                            {expense.notes && (
+                              <div className="ml-10 rounded-xl border border-border/40 bg-muted/30 px-3 py-2">
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Notes</p>
+                                <p className="text-xs text-foreground whitespace-pre-wrap line-clamp-3">{expense.notes}</p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Right: Total + Actions */}
