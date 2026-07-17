@@ -170,6 +170,7 @@ interface Expense {
   toll_cost?: number;
   total_expenses?: number;
   description: string | null;
+  notes?: string | null;
   expense_date: string;
   receipt_url: string | null;
   receipt_urls?: string[];
@@ -203,6 +204,7 @@ interface Earning {
   delivery_address?: string;
   daily_rate?: number | null;
   nights?: number | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -261,6 +263,7 @@ const expenseSchema = z.object({
   delivery_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
   toll_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
   description: z.string().optional(),
+  notes: z.string().max(1000, "Notes must be 1000 characters or less").optional(),
   expense_date: z.string().min(1, "Date is required"),
 });
 
@@ -286,6 +289,7 @@ const earningSchema = z.object({
   delivery_address: z.string().optional(),
   daily_rate: z.string().optional(),
   nights: z.string().optional(),
+  notes: z.string().max(1000, "Notes must be 1000 characters or less").optional(),
 });
 
 const claimSchema = z.object({
@@ -579,6 +583,7 @@ export default function HostCarManagement() {
     defaultValues: {
       amount: 0,
       description: "",
+      notes: "",
       expense_date: new Date().toISOString().split("T")[0],
     },
   });
@@ -606,6 +611,7 @@ export default function HostCarManagement() {
       delivery_address: "",
       daily_rate: "",
       nights: "",
+      notes: "",
     },
   });
 
@@ -1541,6 +1547,7 @@ export default function HostCarManagement() {
         delivery_cost: values.delivery_cost || 0,
         toll_cost: values.toll_cost || 0,
         description: values.description || null,
+        notes: values.notes || null,
         expense_date: values.expense_date,
       };
 
@@ -1669,6 +1676,7 @@ export default function HostCarManagement() {
       delivery_cost: expense.delivery_cost || 0,
       toll_cost: expense.toll_cost || 0,
       description: expense.description || "",
+      notes: (expense as any).notes || "",
       expense_date: expense.expense_date,
     });
     setExpenseDialogOpen(true);
@@ -1744,6 +1752,7 @@ export default function HostCarManagement() {
           values.nights && values.nights.trim() !== ""
             ? Number(values.nights)
             : null,
+        notes: values.notes || null,
       };
 
       const guestContact = {
@@ -1983,6 +1992,7 @@ export default function HostCarManagement() {
       daily_rate:
         earning.daily_rate != null ? String(earning.daily_rate) : "",
       nights: earning.nights != null ? String(earning.nights) : "",
+      notes: (earning as any).notes || "",
     });
     setEarningDialogOpen(true);
   };
@@ -2830,6 +2840,23 @@ export default function HostCarManagement() {
                             />
                             <FormField
                               control={expenseForm.control}
+                              name="notes"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Notes (Optional)</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Add notes for this expense..."
+                                      rows={3}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={expenseForm.control}
                               name="expense_date"
                               render={({ field }) => (
                                 <FormItem>
@@ -3289,6 +3316,23 @@ export default function HostCarManagement() {
                           />
                           <FormField
                             control={expenseForm.control}
+                            name="notes"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Notes (Optional)</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Add notes for this expense..."
+                                    rows={3}
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={expenseForm.control}
                             name="expense_date"
                             render={({ field }) => (
                               <FormItem>
@@ -3619,6 +3663,13 @@ export default function HostCarManagement() {
                                 </div>
                               ) : null;
                             })()}
+
+                            {expense.notes && (
+                              <div className="ml-10 rounded-xl border border-border/40 bg-muted/30 px-3 py-2">
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Notes</p>
+                                <p className="text-xs text-foreground whitespace-pre-wrap line-clamp-3">{expense.notes}</p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Right: Total + Actions */}
@@ -3963,6 +4014,24 @@ export default function HostCarManagement() {
                                     <FormControl>
                                       <Input
                                         placeholder="Where the car was delivered (separate from home base)"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={earningForm.control}
+                                name="notes"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Notes (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea
+                                        placeholder="Add notes for this booking..."
+                                        rows={3}
                                         {...field}
                                       />
                                     </FormControl>
@@ -4979,6 +5048,24 @@ export default function HostCarManagement() {
                                 )}
                               />
 
+                              <FormField
+                                control={earningForm.control}
+                                name="notes"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Notes (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea
+                                        placeholder="Add notes for this booking..."
+                                        rows={3}
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                   control={earningForm.control}
@@ -5860,6 +5947,13 @@ export default function HostCarManagement() {
                             {/* Related expenses count */}
                             {earning.trip_id && relatedExpenses.length > 0 && (
                               <div className="text-[10px] text-muted-foreground">{relatedExpenses.length} related expense(s)</div>
+                            )}
+
+                            {earning.notes && (
+                              <div className="rounded-xl border border-border/40 bg-muted/30 px-3 py-2">
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">Notes</p>
+                                <p className="text-xs text-foreground whitespace-pre-wrap line-clamp-3">{earning.notes}</p>
+                              </div>
                             )}
 
                           </div>
