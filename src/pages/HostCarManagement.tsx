@@ -261,6 +261,7 @@ const expenseSchema = z.object({
   delivery_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
   toll_cost: z.number().min(0, "Cost must be 0 or greater").optional(),
   description: z.string().optional(),
+  notes: z.string().max(1000, "Notes must be 1000 characters or less").optional(),
   expense_date: z.string().min(1, "Date is required"),
 });
 
