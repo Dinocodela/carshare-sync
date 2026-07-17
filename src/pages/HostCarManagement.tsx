@@ -609,6 +609,7 @@ export default function HostCarManagement() {
       delivery_address: "",
       daily_rate: "",
       nights: "",
+      notes: "",
     },
   });
 
