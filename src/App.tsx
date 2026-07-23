@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
+import RentOnboarding from "./pages/RentOnboarding";
 import Support from "@/pages/Support";
 import {
   initAppsFlyer,
@@ -154,6 +155,7 @@ const App = () => (
             <Routes>
               {/* Public */}
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/rent" element={<RentOnboarding />} />
               <Route path="/" element={<Index />} />
               <Route path="/register" element={<Register />} />
               <Route path="/register/client" element={<Register />} />
