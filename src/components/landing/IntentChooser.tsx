@@ -1,5 +1,4 @@
 import { Car, KeyRound, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 
@@ -24,24 +23,9 @@ function track(intent: "rent" | "manage") {
 }
 
 export function IntentChooser({ onChooseManage }: Props) {
-  const navigate = useNavigate();
-
   const handleRent = async (e: React.MouseEvent) => {
     e.preventDefault();
     track("rent");
-
-    // First-time visitors see the renter onboarding; repeat visitors go straight to booking.
-    let hasSeen = false;
-    try {
-      hasSeen = localStorage.getItem("hasSeenRentOnboarding") === "true";
-    } catch {
-      // ignore
-    }
-    if (!hasSeen) {
-      navigate("/rent");
-      return;
-    }
-
     if (Capacitor.isNativePlatform()) {
       try {
         await Browser.open({ url: RENT_URL });
