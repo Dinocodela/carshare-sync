@@ -48,3 +48,42 @@ export function getNetEarningAmount(
   const tripExpenses = getTripExpensesTotal(tripId, expenses);
   return earningAmount - tripExpenses;
 }
+
+/** Eon/platform commission retained before the host is paid. */
+export const PLATFORM_COMMISSION_RATE = 0.3;
+
+/**
+ * Client (or host) earnings derived from the platform `break_down` payload —
+ * mirrors the "How this is calculated" breakdown on the Trip Detail page:
+ *   subtotal (rental total + discounts) − 30% platform fee = net rental
+ *   net rental × client% = client share (remainder = management fee)
+ * Returns null when the row has no usable break_down.
+ */
+export function getEarningsFromBreakdown(
+  breakDown: unknown,
+  clientProfitPercentage: number | null,
+  isHost = false
+): number | null {
+  let bd: any = breakDown;
+  if (typeof bd === 'string') {
+    try {
+      bd = JSON.parse(bd);
+    } catch {
+      return null;
+    }
+  }
+  const items = Array.isArray(bd?.rental_prices)
+    ? bd.rental_prices
+        .map((p: any) => ({ rate: Number(p?.rate) || 0, count: Number(p?.count) || 0 }))
+        .filter((p: any) => p.count > 0)
+    : [];
+  if (items.length === 0) return null;
+
+  const grossRental = items.reduce((s: number, p: any) => s + p.rate * p.count, 0);
+  const subTotal =
+    grossRental + (Number(bd.weekly_discount) || 0) + (Number(bd.monthly_discount) || 0);
+  const rentalNet = subTotal - subTotal * PLATFORM_COMMISSION_RATE;
+  const clientShare = (rentalNet * (clientProfitPercentage ?? 70)) / 100;
+  return isHost ? rentalNet - clientShare : clientShare;
+}
+
