@@ -392,7 +392,12 @@ export default function Trips() {
             return_address: row.return_address || null,
             net_amount:
               row.amount != null
-                ? getClientShare(
+                ? getEarningsFromBreakdown(
+                    row.break_down,
+                    row.client_profit_percentage,
+                    isHostRole,
+                  ) ??
+                  getClientShare(
                     Number(row.amount),
                     row.client_profit_percentage,
                     row.trip_id,
