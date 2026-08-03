@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
-import { getClientShare } from "@/lib/expenseMatching";
+import { getClientShare, getEarningsFromBreakdown } from "@/lib/expenseMatching";
 import { formatCarName } from "@/lib/carName";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, ChevronLeft, ChevronRight, Search, X, SlidersHorizontal } from "lucide-react";
