@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
-import { getClientShare } from "@/lib/expenseMatching";
+import { getClientShare, getEarningsFromBreakdown } from "@/lib/expenseMatching";
 import { formatCarName } from "@/lib/carName";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, ChevronLeft, ChevronRight, Search, X, SlidersHorizontal } from "lucide-react";
@@ -245,10 +245,10 @@ export default function Trips() {
         const opts = countOnly ? { count: "exact" as const } : undefined;
         const fields = countOnly
           ? "id"
-          : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id, vin_number, nickname)";
+          : "id, trip_id, guest_name, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, break_down, client_profit_percentage, payment_status, cars!fk_host_earnings_car_id(make, model, year, license_plate, location, images, client_id, vin_number, nickname)";
         const clientFields = countOnly
           ? "id"
-          : "id, trip_id, guest_initials, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, client_profit_percentage, payment_status";
+          : "id, trip_id, guest_initials, earning_period_start, earning_period_end, pickup_address, return_address, delivery_address, car_id, host_id, amount, break_down, client_profit_percentage, payment_status";
 
         const q = isHostRole
           ? supabase.from("host_earnings").select(fields, opts)
@@ -392,7 +392,12 @@ export default function Trips() {
             return_address: row.return_address || null,
             net_amount:
               row.amount != null
-                ? getClientShare(
+                ? getEarningsFromBreakdown(
+                    row.break_down,
+                    row.client_profit_percentage,
+                    isHostRole,
+                  ) ??
+                  getClientShare(
                     Number(row.amount),
                     row.client_profit_percentage,
                     row.trip_id,
