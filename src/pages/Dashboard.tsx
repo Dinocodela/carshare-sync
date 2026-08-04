@@ -10,6 +10,14 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { supabase } from "@/integrations/supabase/client";
 import { getTripExpensesTotal } from "@/lib/expenseMatching";
+import { useClientDashboardStats } from "@/hooks/useClientDashboardStats";
+import {
+  PerformanceStrip,
+  EarningsTrend,
+  VehiclePerformance,
+  GrowthCard,
+  Milestones,
+} from "@/components/dashboard/OwnerInsights";
 import {
   Plus,
   Car,
@@ -538,6 +546,11 @@ export default function Dashboard() {
     8
   );
 
+  // Owner (client) performance numbers
+  const ownerStats = useClientDashboardStats(clientData?.cars, !isHost);
+
+
+
   if (!user || profileLoading || !profile) {
     return (
       <DashboardLayout>
@@ -613,17 +626,47 @@ export default function Dashboard() {
                   Fully insured · 24/7 support · Verified guests
                 </p>
               </div>
-              <div className="shrink-0 flex flex-col items-center">
-                <span className="text-3xl font-extrabold tracking-tight">
+              <div className="shrink-0 flex flex-col items-end text-right">
+                <span className="text-3xl font-extrabold tracking-tight tabular-nums">
                   ${earnings7d.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
                 <span className="text-[10px] opacity-75 font-medium">This month</span>
+                {!isHost && ownerStats.momPct !== null && (
+                  <span className="text-[10px] font-semibold mt-1 opacity-95">
+                    {ownerStats.momPct >= 0 ? "+" : ""}
+                    {Math.round(ownerStats.momPct)}% vs last month
+                  </span>
+                )}
+                {!isHost && ownerStats.lifetime > 0 && (
+                  <span className="text-[10px] opacity-75 mt-1 tabular-nums">
+                    {fmtMoney(ownerStats.lifetime)} lifetime
+                  </span>
+                )}
               </div>
+
             </div>
           </div>
 
+          {/* ─── Owner performance strip ─── */}
+          {!isHost && (
+            <div style={fadeIn(2)}>
+              <PerformanceStrip
+                stats={ownerStats}
+                onOpenAnalytics={() => navigate("/client-analytics")}
+              />
+            </div>
+          )}
+
+          {/* ─── Owner earnings trend ─── */}
+          {!isHost && (
+            <div style={fadeIn(3)}>
+              <EarningsTrend stats={ownerStats} />
+            </div>
+          )}
+
           {/* ─── Stat Cards ─── */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className={`grid grid-cols-3 gap-3 ${isHost ? "" : "hidden"}`}>
+
             {[
               {
                 label: isHost ? "Active" : "Vehicles",
@@ -713,6 +756,26 @@ export default function Dashboard() {
               )}
             </div>
           </div>
+
+          {/* ─── Owner: vehicle performance, milestones, growth ─── */}
+          {!isHost && (
+            <>
+              <div style={fadeIn(6)}>
+                <VehiclePerformance
+                  stats={ownerStats}
+                  onSelect={() => navigate("/client-analytics")}
+                />
+              </div>
+              <div style={fadeIn(6.5)}>
+                <Milestones stats={ownerStats} />
+              </div>
+              <div style={fadeIn(7)}>
+                <GrowthCard stats={ownerStats} onAddVehicle={() => navigate("/add-car")} />
+              </div>
+            </>
+          )}
+
+
 
           {/* ─── Bonzah Insurance (Host only) ─── */}
           {isHost && (
@@ -827,7 +890,12 @@ export default function Dashboard() {
                   ) : recentTrips.length === 0 ? (
                     <div className="p-6 text-center">
                       <Car className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">No current trips</p>
+                      <p className="text-sm text-muted-foreground">
+                        {isHost
+                          ? "No current trips"
+                          : "No trips right now — your car is listed and available to book."}
+                      </p>
+
                     </div>
                   ) : (
                     <ul className="divide-y divide-border/50">
@@ -1009,8 +1077,11 @@ export default function Dashboard() {
                     <div className="p-6 text-center">
                       <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        You're all caught up — nothing new!
+                        {!isHost && ownerStats.lifetime > 0
+                          ? `No payouts yet this month — ${fmtMoney(ownerStats.lifetime)} received to date.`
+                          : "You're all caught up — nothing new!"}
                       </p>
+
                     </div>
                   ) : (
                     <ul className="divide-y divide-border/50">
