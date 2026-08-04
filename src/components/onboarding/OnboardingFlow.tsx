@@ -156,6 +156,17 @@ export function OnboardingFlow() {
           <ChevronRight className="w-5 h-5" />
         </Button>
 
+        {/* Skip onboarding — placed under the CTA, away from the top-right Rent link */}
+        {currentScreen < SCREENS.length - 1 && (
+          <button
+            type="button"
+            onClick={handleComplete}
+            className="mx-auto block text-xs font-medium text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+          >
+            Skip for now
+          </button>
+        )}
+
         {/* Trust text on last screen */}
         {currentScreen === SCREENS.length - 1 && (
           <p className="text-center text-[11px] text-muted-foreground animate-fade-in">
