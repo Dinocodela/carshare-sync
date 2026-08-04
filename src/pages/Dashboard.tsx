@@ -647,8 +647,26 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* ─── Owner performance strip ─── */}
+          {!isHost && (
+            <div style={fadeIn(2)}>
+              <PerformanceStrip
+                stats={ownerStats}
+                onOpenAnalytics={() => navigate("/client-analytics")}
+              />
+            </div>
+          )}
+
+          {/* ─── Owner earnings trend ─── */}
+          {!isHost && (
+            <div style={fadeIn(3)}>
+              <EarningsTrend stats={ownerStats} />
+            </div>
+          )}
+
           {/* ─── Stat Cards ─── */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className={`grid grid-cols-3 gap-3 ${isHost ? "" : "hidden"}`}>
+
             {[
               {
                 label: isHost ? "Active" : "Vehicles",
