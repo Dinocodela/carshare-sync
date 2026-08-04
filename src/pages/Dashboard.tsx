@@ -890,7 +890,12 @@ export default function Dashboard() {
                   ) : recentTrips.length === 0 ? (
                     <div className="p-6 text-center">
                       <Car className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">No current trips</p>
+                      <p className="text-sm text-muted-foreground">
+                        {isHost
+                          ? "No current trips"
+                          : "No trips right now — your car is listed and available to book."}
+                      </p>
+
                     </div>
                   ) : (
                     <ul className="divide-y divide-border/50">
