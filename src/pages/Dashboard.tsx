@@ -1077,8 +1077,11 @@ export default function Dashboard() {
                     <div className="p-6 text-center">
                       <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        You're all caught up — nothing new!
+                        {!isHost && ownerStats.lifetime > 0
+                          ? `No payouts yet this month — ${fmtMoney(ownerStats.lifetime)} received to date.`
+                          : "You're all caught up — nothing new!"}
                       </p>
+
                     </div>
                   ) : (
                     <ul className="divide-y divide-border/50">
