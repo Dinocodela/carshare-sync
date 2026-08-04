@@ -201,16 +201,6 @@ const Index = () => {
 
                 <IntentChooser onChooseManage={() => setShowAuth(true)} />
 
-                <div className="text-center mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAuth(true)}
-                    className="text-sm font-semibold text-primary hover:underline underline-offset-4"
-                  >
-                    Already have an account? Sign in
-                  </button>
-                </div>
-
               </div>
             )}
 
