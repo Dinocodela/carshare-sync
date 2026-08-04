@@ -181,17 +181,36 @@ const Index = () => {
                   transform: visible ? "translateY(0)" : "translateY(15px)",
                 }}
               >
+                {/* Returning member sign-in — prominent, above the fold */}
+                <button
+                  type="button"
+                  onClick={() => setShowAuth(true)}
+                  className="group w-full mb-4 flex items-center justify-between gap-3 rounded-2xl border-2 border-primary/50 bg-primary/[0.06] px-4 py-3.5 shadow-sm hover:bg-primary/10 hover:border-primary hover:shadow-md active:scale-[0.99] transition-all"
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                      <LogIn className="w-4.5 h-4.5 text-primary" />
+                    </span>
+                    <span className="text-left">
+                      <span className="block text-sm font-bold text-foreground">Sign in to your account</span>
+                      <span className="block text-[11px] text-muted-foreground">Already a member? Access your dashboard</span>
+                    </span>
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-primary group-hover:translate-x-0.5 transition-transform" />
+                </button>
+
                 <IntentChooser onChooseManage={() => setShowAuth(true)} />
+
                 <div className="text-center mt-4">
                   <button
                     type="button"
                     onClick={() => setShowAuth(true)}
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm font-semibold text-primary hover:underline underline-offset-4"
                   >
-                    Already have an account?{" "}
-                    <span className="text-primary font-medium">Sign in</span>
+                    Already have an account? Sign in
                   </button>
                 </div>
+
               </div>
             )}
 
