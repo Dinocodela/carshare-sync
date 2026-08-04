@@ -626,12 +626,24 @@ export default function Dashboard() {
                   Fully insured · 24/7 support · Verified guests
                 </p>
               </div>
-              <div className="shrink-0 flex flex-col items-center">
-                <span className="text-3xl font-extrabold tracking-tight">
+              <div className="shrink-0 flex flex-col items-end text-right">
+                <span className="text-3xl font-extrabold tracking-tight tabular-nums">
                   ${earnings7d.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
                 <span className="text-[10px] opacity-75 font-medium">This month</span>
+                {!isHost && ownerStats.momPct !== null && (
+                  <span className="text-[10px] font-semibold mt-1 opacity-95">
+                    {ownerStats.momPct >= 0 ? "+" : ""}
+                    {Math.round(ownerStats.momPct)}% vs last month
+                  </span>
+                )}
+                {!isHost && ownerStats.lifetime > 0 && (
+                  <span className="text-[10px] opacity-75 mt-1 tabular-nums">
+                    {fmtMoney(ownerStats.lifetime)} lifetime
+                  </span>
+                )}
               </div>
+
             </div>
           </div>
 
