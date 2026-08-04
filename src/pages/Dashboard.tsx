@@ -10,6 +10,14 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { supabase } from "@/integrations/supabase/client";
 import { getTripExpensesTotal } from "@/lib/expenseMatching";
+import { useClientDashboardStats } from "@/hooks/useClientDashboardStats";
+import {
+  PerformanceStrip,
+  EarningsTrend,
+  VehiclePerformance,
+  GrowthCard,
+  Milestones,
+} from "@/components/dashboard/OwnerInsights";
 import {
   Plus,
   Car,
