@@ -757,6 +757,26 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* ─── Owner: vehicle performance, milestones, growth ─── */}
+          {!isHost && (
+            <>
+              <div style={fadeIn(6)}>
+                <VehiclePerformance
+                  stats={ownerStats}
+                  onSelect={() => navigate("/client-analytics")}
+                />
+              </div>
+              <div style={fadeIn(6.5)}>
+                <Milestones stats={ownerStats} />
+              </div>
+              <div style={fadeIn(7)}>
+                <GrowthCard stats={ownerStats} onAddVehicle={() => navigate("/add-car")} />
+              </div>
+            </>
+          )}
+
+
+
           {/* ─── Bonzah Insurance (Host only) ─── */}
           {isHost && (
             <div style={fadeIn(5.5)} className="rounded-2xl bg-primary/5 border border-primary/20 p-4">
