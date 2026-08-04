@@ -85,6 +85,19 @@ export function OnboardingFlow() {
     <div className="min-h-screen flex flex-col bg-gradient-hero relative overflow-hidden">
       <RentATeslaLink />
 
+      {/* Skip onboarding */}
+      {currentScreen < SCREENS.length - 1 && (
+        <button
+          type="button"
+          onClick={handleComplete}
+          className="absolute right-4 z-20 rounded-full bg-card/80 backdrop-blur-sm border border-border/60 px-3.5 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+          style={{ top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
+        >
+          Skip
+        </button>
+      )}
+
+
       {/* Screen content with transitions */}
       <div
         className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center"
