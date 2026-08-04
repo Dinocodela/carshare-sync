@@ -546,6 +546,11 @@ export default function Dashboard() {
     8
   );
 
+  // Owner (client) performance numbers
+  const ownerStats = useClientDashboardStats(clientData?.cars, !isHost);
+
+
+
   if (!user || profileLoading || !profile) {
     return (
       <DashboardLayout>
