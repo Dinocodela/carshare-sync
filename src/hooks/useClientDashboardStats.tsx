@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getTripExpensesTotal, getEarningsFromBreakdown } from "@/lib/expenseMatching";
-import { getActiveRentalDays, buildCustomDateRange } from "@/lib/analyticsDateRanges";
+import { getActiveRentalDays } from "@/lib/analyticsDateRanges";
 
 export interface MonthPoint {
   key: string; // YYYY-MM
@@ -171,17 +171,24 @@ export function useClientDashboardStats(cars: any[] | undefined, enabled: boolea
         }
       });
 
-      // Days rented this month (across all cars)
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      // Days rented attributed to this month's payouts (rental span may fall in a
+      // prior month — count the full trip so it never reads 0 while money shows).
       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      const range = buildCustomDateRange(monthStart, monthEnd);
       const daysInMonth = monthEnd.getDate();
-      const daysRentedThisMonth = getActiveRentalDays(earnings as any, range);
+      const inThisMonth = earnings.filter((r) => {
+        const ref = r.date_paid || r.earning_period_end || r.earning_period_start;
+        if (!ref) return false;
+        const d = toDate(ref);
+        return !isNaN(d.getTime()) && monthKey(d) === thisKey;
+      });
+      const daysRentedThisMonth = getActiveRentalDays(inThisMonth as any, null);
 
       const perCar: CarPerformance[] = (cars || []).map((c: any) => {
         const agg = byCar.get(c.id) || { month: 0, lifetime: 0, trips: 0 };
-        const carEarnings = earnings.filter((e) => e.car_id === c.id);
-        const days = getActiveRentalDays(carEarnings as any, range);
+        const days = getActiveRentalDays(
+          inThisMonth.filter((e) => e.car_id === c.id) as any,
+          null
+        );
         return {
           carId: c.id,
           label: `${c.year ?? ""} ${c.make ?? ""} ${c.model ?? ""}`.trim() || "Vehicle",
@@ -190,7 +197,7 @@ export function useClientDashboardStats(cars: any[] | undefined, enabled: boolea
           lifetime: agg.lifetime,
           trips: agg.trips,
           daysRented: days,
-          utilization: daysInMonth ? Math.round((days / daysInMonth) * 100) : 0,
+          utilization: daysInMonth ? Math.round((Math.min(days, daysInMonth) / daysInMonth) * 100) : 0,
         };
       });
 
@@ -208,7 +215,7 @@ export function useClientDashboardStats(cars: any[] | undefined, enabled: boolea
         ytd,
         lifetime,
         daysRentedThisMonth,
-        utilization: daysInMonth ? Math.round((daysRentedThisMonth / daysInMonth) * 100) : 0,
+        utilization: daysInMonth ? Math.round((Math.min(daysRentedThisMonth, daysInMonth) / daysInMonth) * 100) : 0,
         avgPerTrip: totalTrips ? lifetime / totalTrips : 0,
         totalTrips,
         bestMonth,
