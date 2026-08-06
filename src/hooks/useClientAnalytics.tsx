@@ -86,7 +86,7 @@ export interface CustomDateRange {
 
 export function useClientAnalytics(
   initialYear: number | null = new Date().getFullYear(),
-  initialMonth: number | null = new Date().getMonth() + 1,
+  initialMonth: number | null = null,
 ) {
   const { user } = useAuth();
   const { expenses: fixedExpenses, getFixedCostsForPeriod } = useClientCarExpenses();
