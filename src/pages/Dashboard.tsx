@@ -75,13 +75,6 @@ function payoutForEarning(e: any, role: string | null, expenses: any[]) {
   return (net * (e.client_profit_percentage || 70)) / 100;
 }
 
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
-
 function timeAgo(iso?: string) {
   if (!iso) return "";
   const now = new Date().getTime();
