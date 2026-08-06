@@ -9,7 +9,7 @@ import { useWorkspace } from "@/hooks/useWorkspace";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { supabase } from "@/integrations/supabase/client";
-import { getTripExpensesTotal } from "@/lib/expenseMatching";
+import { getTripExpensesTotal, getEarningsFromBreakdown } from "@/lib/expenseMatching";
 import { useClientDashboardStats } from "@/hooks/useClientDashboardStats";
 import {
   PerformanceStrip,
@@ -54,6 +54,25 @@ function useMounted() {
     return () => cancelAnimationFrame(t);
   }, []);
   return mounted;
+}
+
+/**
+ * Payout for one paid earning. Mirrors the Trip Detail breakdown:
+ * prefer the platform break_down (gross − 30% platform fee − management split),
+ * falling back to gross − matched trip expenses × split for legacy rows.
+ */
+function payoutForEarning(e: any, role: string | null, expenses: any[]) {
+  const isHost = role === "host";
+  const fromBreakdown = getEarningsFromBreakdown(
+    e.break_down,
+    isHost ? e.client_profit_percentage ?? 70 : e.client_profit_percentage,
+    isHost
+  );
+  if (fromBreakdown !== null) return fromBreakdown;
+  if (isHost) return ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
+  const tripExp = getTripExpensesTotal(e.trip_id, expenses);
+  const net = (e.amount || 0) - tripExp;
+  return (net * (e.client_profit_percentage || 70)) / 100;
 }
 
 function getGreeting() {
@@ -136,10 +155,10 @@ function useRecentActivity(
         const monthStartTs = `${monthStart}T00:00:00.000Z`;
         const nextMonthStartTs = `${nextMonthStart}T00:00:00.000Z`;
         const payoutFields =
-          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end";
+          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, guest_name, earning_period_start, earning_period_end, break_down";
         // Clients read from a privacy-safe view that excludes guest PII (no guest_name).
         const clientPayoutFields =
-          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, earning_period_start, earning_period_end";
+          "id, amount, trip_id, host_id, host_profit_percentage, client_profit_percentage, date_paid, payment_status, car_id, earning_period_start, earning_period_end, break_down";
         const earningsTable = role === "host" ? "host_earnings" : "client_visible_earnings";
         const earningsFields = role === "host" ? payoutFields : clientPayoutFields;
 
@@ -216,14 +235,7 @@ function useRecentActivity(
         earns.forEach((e) => {
           const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
           if (!ts) return;
-          let payout: number;
-          if (role === "host") {
-            payout = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
-          } else {
-            const tripExp = getTripExpensesTotal(e.trip_id, activityExpenses);
-            const net = (e.amount || 0) - tripExp;
-            payout = (net * (e.client_profit_percentage || 70)) / 100;
-          }
+          const payout = payoutForEarning(e, role, activityExpenses);
           const carInfo = allCars.find((c: any) => c.id === e.car_id);
           const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
           const guest = e.guest_name ? ` from ${e.guest_name}` : "";
@@ -272,14 +284,7 @@ function useRecentActivity(
               .forEach((e: any) => {
                 const ts = e.date_paid || e.earning_period_end || e.earning_period_start;
                 if (!ts) return;
-                let payout: number;
-                if (role === "host") {
-                  payout = ((e.amount || 0) * (e.host_profit_percentage || 30)) / 100;
-                } else {
-                  const tripExp = getTripExpensesTotal(e.trip_id, activityExpenses);
-                  const net = (e.amount || 0) - tripExp;
-                  payout = (net * (e.client_profit_percentage || 70)) / 100;
-                }
+                const payout = payoutForEarning(e, role, activityExpenses);
                 const carInfo = allCars.find((c: any) => c.id === e.car_id);
                 const carLabel = carInfo ? ` – ${carInfo.make} ${carInfo.model}` : "";
                 const guest = e.guest_name ? ` from ${e.guest_name}` : "";
