@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getTripExpensesTotal } from "@/lib/expenseMatching";
+import { getTripExpensesTotal, getEarningsFromBreakdown } from "@/lib/expenseMatching";
 import { getActiveRentalDays, buildCustomDateRange } from "@/lib/analyticsDateRanges";
 
 export interface MonthPoint {
@@ -63,6 +63,8 @@ const monthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).pad
 
 /** Owner take for a single paid earning row: (gross - matched trip expenses) x client split. */
 export function clientPayoutForEarning(row: any, expenses: any[]) {
+  const fromBreakdown = getEarningsFromBreakdown(row.break_down, row.client_profit_percentage);
+  if (fromBreakdown !== null) return fromBreakdown;
   const tripExp = getTripExpensesTotal(row.trip_id, expenses);
   const net = (Number(row.amount) || 0) - tripExp;
   return (net * (Number(row.client_profit_percentage) || 70)) / 100;
@@ -92,7 +94,7 @@ export function useClientDashboardStats(cars: any[] | undefined, enabled: boolea
         (supabase as any)
           .from("client_visible_earnings")
           .select(
-            "id, amount, trip_id, car_id, client_profit_percentage, payment_status, date_paid, earning_period_start, earning_period_end"
+            "id, amount, trip_id, car_id, client_profit_percentage, payment_status, date_paid, earning_period_start, earning_period_end, break_down"
           )
           .eq("payment_status", "paid")
           .in("car_id", carIds)
