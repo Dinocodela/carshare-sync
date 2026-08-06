@@ -590,14 +590,25 @@ export default function Dashboard() {
     <DashboardLayout>
       <PageContainer>
         <div className="space-y-6 pb-4">
-          {/* ─── Greeting ─── */}
-          <div style={fadeIn(0)} className="space-y-1">
-            <p className="text-sm text-muted-foreground font-medium">
-              {getGreeting()} 👋
-            </p>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              {displayName}
-            </h1>
+          {/* ─── Identity bar ─── */}
+          <div
+            style={fadeIn(0)}
+            className="flex items-center gap-3 rounded-2xl bg-card border border-border/60 px-4 py-3"
+          >
+            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
+              {(displayName || "?").trim().charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base font-semibold text-foreground tracking-tight truncate">
+                {displayName}
+              </h1>
+              <p className="text-[11px] text-muted-foreground">
+                {isHost ? "Host account" : "Owner account"}
+              </p>
+            </div>
+            <span className="text-[11px] text-muted-foreground shrink-0">
+              {new Date().toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+            </span>
           </div>
 
           {/* ─── Trust Banner ─── */}
