@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getTripExpensesTotal, getEarningsFromBreakdown } from "@/lib/expenseMatching";
-import { getActiveRentalDays, buildCustomDateRange } from "@/lib/analyticsDateRanges";
+import { getActiveRentalDays } from "@/lib/analyticsDateRanges";
 
 export interface MonthPoint {
   key: string; // YYYY-MM
@@ -215,7 +215,7 @@ export function useClientDashboardStats(cars: any[] | undefined, enabled: boolea
         ytd,
         lifetime,
         daysRentedThisMonth,
-        utilization: daysInMonth ? Math.round((daysRentedThisMonth / daysInMonth) * 100) : 0,
+        utilization: daysInMonth ? Math.round((Math.min(daysRentedThisMonth, daysInMonth) / daysInMonth) * 100) : 0,
         avgPerTrip: totalTrips ? lifetime / totalTrips : 0,
         totalTrips,
         bestMonth,
