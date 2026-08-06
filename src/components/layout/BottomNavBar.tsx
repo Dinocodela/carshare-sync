@@ -91,7 +91,7 @@ export function BottomNavBar() {
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Trips", url: "/trips", icon: RouteIcon },
       { title: "Add", url: "/add-car", icon: Plus, kind: "add" },
-      { title: "Analytics", url: "/client-analytics", icon: BarChart3 },
+      { title: "Calendar", url: "/calendar", icon: CalendarDays },
       moreItem,
     ],
     []
@@ -102,7 +102,7 @@ export function BottomNavBar() {
       { title: "Dashboard", url: "/dashboard", icon: Home },
       { title: "Trips", url: "/trips", icon: RouteIcon },
       { title: "Hosted", url: "/host-car-management#active", icon: Car },
-      { title: "Analytics", url: "/host-analytics", icon: BarChart3 },
+      { title: "Calendar", url: "/calendar", icon: CalendarDays },
       moreItem,
     ],
     []
