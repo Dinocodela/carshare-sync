@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/logo";
-import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, Calculator, Briefcase, TrendingUp, Car, LogIn } from "lucide-react";
+import { ArrowRight, Shield, Star, Users, Mail, Lock, Eye, EyeOff, Briefcase, TrendingUp, Car, LogIn, Calculator, Sparkles } from "lucide-react";
 import { StatusBar } from "@capacitor/status-bar";
 import { Capacitor } from "@capacitor/core";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
@@ -391,12 +391,18 @@ const Index = () => {
               </Link>
             )}
 
-            {/* Earnings Calculator CTA */}
-            <div className="mt-6 mb-2 text-center">
+            {/* Quick-action links: calculator + free wraps */}
+            <div className="mt-6 mb-2 flex flex-wrap justify-center gap-3">
               <Link to="/earnings-calculator">
                 <Button variant="outline" size="sm" className="rounded-full text-xs border-primary/40 text-primary hover:bg-primary/5">
                   <Calculator className="w-3.5 h-3.5 mr-1.5" />
                   Calculate Your Earnings
+                </Button>
+              </Link>
+              <Link to="/wraps">
+                <Button variant="outline" size="sm" className="rounded-full text-xs border-primary/40 text-primary hover:bg-primary/5">
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                  Free Tesla Wraps
                 </Button>
               </Link>
             </div>
