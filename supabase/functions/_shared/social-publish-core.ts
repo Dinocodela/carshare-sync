@@ -4,6 +4,7 @@ import { notifySlack, writeAudit } from "./social-admin.ts";
 
 export const GRAPH_VERSION = "v21.0";
 export const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_VERSION}`;
+export const PUBLIC_SITE_URL = "https://teslys.app";
 
 export interface PublishResult {
   ok: boolean;
