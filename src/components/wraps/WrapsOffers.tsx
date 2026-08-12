@@ -73,11 +73,11 @@ export function WrapsOffers({ source }: WrapsOffersProps) {
               car could earn.
             </p>
             <Link
-              to="/earnings-calculator"
+              to="/"
               onClick={() => track("host")}
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
-              Estimate earnings <ArrowRight className="h-3.5 w-3.5" />
+              Get started <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
