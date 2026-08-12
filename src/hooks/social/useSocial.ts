@@ -151,7 +151,10 @@ export function useSavePost() {
 
       if (id) {
         if (submit_for_review) payload.status = "needs_review";
-        const { error } = await supabase.from("social_posts").update(payload).eq("id", id);
+        const { error } = await supabase
+          .from("social_posts")
+          .update(payload as never)
+          .eq("id", id);
         if (error) throw error;
         return id;
       }
