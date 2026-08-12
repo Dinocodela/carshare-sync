@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Download, Sparkles, Upload, Wand2 } from "lucide-react";
+import { ArrowRight, ArrowUp, Download, Sparkles, Upload, Wand2 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
@@ -8,6 +8,7 @@ import { ModelTabs } from "@/components/wraps/ModelTabs";
 import { ModelComingSoon } from "@/components/wraps/ModelComingSoon";
 import { WrapsHeader } from "@/components/wraps/WrapsHeader";
 import { WrapsOffers } from "@/components/wraps/WrapsOffers";
+import { cn } from "@/lib/utils";
 import {
   COMPATIBILITY,
   DEFAULT_MODEL_KEY,
@@ -43,6 +44,7 @@ const steps = [
 
 export default function Wraps() {
   const [active, setActive] = useState<"All" | WrapCategory>("All");
+  const [showTopBtn, setShowTopBtn] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const modelParam = searchParams.get("model");
@@ -60,6 +62,34 @@ export default function Wraps() {
   useEffect(() => {
     setActive("All");
   }, [activeModel]);
+
+  // Show/hide back-to-top button based on scroll position
+  useEffect(() => {
+    const getScrollTop = () =>
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      window.scrollY ||
+      0;
+
+    const handleScroll = () => {
+      setShowTopBtn(getScrollTop() > 500);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    document.body.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.body.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    const root =
+      document.body.scrollTop > 0 ? document.body : document.documentElement;
+    root.scrollTo({ top: 0, behavior: "smooth" });
+    // Fallback for environments that scroll the window itself
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const selectModel = (key: TeslaModelKey) => {
     const next = new URLSearchParams(searchParams);
@@ -254,6 +284,19 @@ export default function Wraps() {
           </p>
         </section>
       </main>
+
+      {/* Back to top */}
+      <button
+        type="button"
+        onClick={scrollToTop}
+        aria-label="Back to top"
+        className={cn(
+          "fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-navy-foreground shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          showTopBtn ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
+        )}
+      >
+        <ArrowUp className="h-5 w-5" />
+      </button>
 
       <SiteFooter />
     </div>
