@@ -110,41 +110,40 @@ export function SiteFooter() {
               </div>
             </div>
 
-            {/* Nav columns */}
-            {navSections.map((section) => (
-              <div
-                key={section.title}
-                className="lg:col-span-2 flex flex-col gap-4"
-              >
-                <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-navy-foreground/30 mb-1">
-                  {section.title}
-                </h4>
-                <ul className="flex flex-col gap-3">
-                  {section.links.map((link) =>
-                    "to" in link && link.to ? (
-                      <li key={link.label}>
-                        <Link
-                          to={link.to}
-                          className="text-sm text-navy-foreground/60 hover:text-navy-foreground transition-colors duration-200"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    ) : (
-                      <li key={link.label}>
-                        <a
-                          href={(link as any).href}
-                          className="group inline-flex items-center gap-1.5 text-sm text-navy-foreground/60 hover:text-navy-foreground transition-colors duration-200"
-                        >
-                          {link.label}
-                          <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity" />
-                        </a>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            ))}
+            {/* Nav sections — links laid out horizontally per section */}
+            <div className="lg:col-span-7 flex flex-col gap-8">
+              {navSections.map((section) => (
+                <div key={section.title} className="flex flex-col gap-3">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-navy-foreground/30">
+                    {section.title}
+                  </h4>
+                  <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                    {section.links.map((link) =>
+                      "to" in link && link.to ? (
+                        <li key={link.label}>
+                          <Link
+                            to={link.to}
+                            className="text-sm text-navy-foreground/60 hover:text-navy-foreground transition-colors duration-200"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ) : (
+                        <li key={link.label}>
+                          <a
+                            href={(link as any).href}
+                            className="group inline-flex items-center gap-1.5 text-sm text-navy-foreground/60 hover:text-navy-foreground transition-colors duration-200"
+                          >
+                            {link.label}
+                            <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity" />
+                          </a>
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Divider */}
