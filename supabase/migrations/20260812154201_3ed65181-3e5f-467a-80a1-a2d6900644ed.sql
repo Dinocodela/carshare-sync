@@ -1,0 +1,2 @@
+DELETE FROM public.social_media_assets WHERE id = '244049f9-12fb-4654-a23b-47b83e283ef6';
+UPDATE public.social_posts SET format = 'image', status = 'approved', last_error = NULL WHERE id = '4088c69f-7fe3-47fa-aff1-45704dd27ba7';
