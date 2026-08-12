@@ -83,6 +83,22 @@ project_id = "texsltzecmvqprdjxtnh"
     verify_jwt = false
   [functions.live-update]
     verify_jwt = false
+  [functions.social-ig-oauth-start]
+    verify_jwt = false
+  [functions.social-ig-oauth-callback]
+    verify_jwt = false
+  [functions.social-token-refresh]
+    verify_jwt = false
+  [functions.social-publish]
+    verify_jwt = false
+  [functions.social-publish-worker]
+    verify_jwt = false
+  [functions.social-webhook]
+    verify_jwt = false
+  [functions.social-data-deletion]
+    verify_jwt = false
+  [functions.social-approve]
+    verify_jwt = false
 
 [storage]
   enabled = true
