@@ -44,6 +44,7 @@ const steps = [
 
 export default function Wraps() {
   const [active, setActive] = useState<"All" | WrapCategory>("All");
+  const [showTopBtn, setShowTopBtn] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const modelParam = searchParams.get("model");
@@ -61,6 +62,23 @@ export default function Wraps() {
   useEffect(() => {
     setActive("All");
   }, [activeModel]);
+
+  // Show/hide back-to-top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowTopBtn(window.scrollY > 500);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    trackWrapEvent("wrap_back_to_top_click", {
+      modelKey: activeModel,
+    });
+  };
 
   const selectModel = (key: TeslaModelKey) => {
     const next = new URLSearchParams(searchParams);
