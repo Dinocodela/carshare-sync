@@ -10,19 +10,17 @@ import { WrapsHeader } from "@/components/wraps/WrapsHeader";
 import { WrapsOffers } from "@/components/wraps/WrapsOffers";
 import { cn } from "@/lib/utils";
 import {
-  COMPATIBILITY,
   DEFAULT_MODEL_KEY,
   TeslaModelKey,
   WRAP_CATEGORIES,
   WRAP_DISCLOSURE,
   WrapCategory,
   getModelConfig,
-  getWrapsByModel,
   isTeslaModelKey,
-  wrapPreviewUrl,
-  wraps,
 } from "@/data/wraps";
+import { useWrapDesigns } from "@/hooks/useWrapDesigns";
 import { trackWrapEvent } from "@/lib/wrapAnalytics";
+
 
 const steps = [
   {
