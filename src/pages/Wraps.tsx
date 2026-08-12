@@ -65,8 +65,14 @@ export default function Wraps() {
 
   // Show/hide back-to-top button based on scroll position
   useEffect(() => {
+    const getScrollTop = () =>
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      window.scrollY ||
+      0;
+
     const handleScroll = () => {
-      setShowTopBtn(window.scrollY > 500);
+      setShowTopBtn(getScrollTop() > 500);
     };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -74,6 +80,10 @@ export default function Wraps() {
   }, []);
 
   const scrollToTop = () => {
+    const root =
+      document.body.scrollTop > 0 ? document.body : document.documentElement;
+    root.scrollTo({ top: 0, behavior: "smooth" });
+    // Fallback for environments that scroll the window itself
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
