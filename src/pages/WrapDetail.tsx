@@ -6,14 +6,11 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
 import { WrapsHeader } from "@/components/wraps/WrapsHeader";
 import { WrapsOffers } from "@/components/wraps/WrapsOffers";
-import {
-  WRAP_DISCLOSURE,
-  getRelatedWraps,
-  getWrapBySlug,
-  wrapImageUrl,
-  wrapPreviewUrl,
-} from "@/data/wraps";
+import { WRAP_DISCLOSURE } from "@/data/wraps";
+import { useWrapDesigns } from "@/hooks/useWrapDesigns";
+import { getRelatedCatalogWraps } from "@/lib/wrapCatalog";
 import { trackWrapEvent } from "@/lib/wrapAnalytics";
+
 
 const installSteps = [
   "In the Tesla mobile app (v4.59.0 or later), open Creations → Wrap → Upload and select the PNG.",
