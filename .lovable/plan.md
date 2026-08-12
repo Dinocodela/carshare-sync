@@ -67,6 +67,6 @@ Add these in Supabase (Edge Function secrets) — I will not enter any of them:
 
 Also needed in the Meta dashboard (not secrets): the webhook callback URL pointing at `social-webhook` with `comments` and `messages` subscriptions, and the data-deletion callback URL pointing at `social-data-deletion`.
 
-## Open question
+## Access scope (confirmed)
 
-Should non-super-admin hosts ever see any part of this (e.g. a read-only calendar), or is the whole module strictly super-admin only? The plan currently assumes strictly super-admin.
+Strictly super-admin only. No read-only access for non-super-admin hosts, clients, or investors — every table, RPC, edge function, route, and nav entry gates on `is_super`.
