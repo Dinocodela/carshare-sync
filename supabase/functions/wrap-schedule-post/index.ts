@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     storage_path: storagePath,
     kind: "image",
     mime_type: "image/jpeg",
-    bytes: bytes.byteLength,
+    bytes: bytesLength,
     position: 0,
     alt_text: `${design.title} digital Tesla wrap preview`,
     created_by: actor.id,
