@@ -122,6 +122,18 @@ export const wraps: Wrap[] = [
   },
   {
     ...base,
+    slug: "onyx",
+    filename: "Onyx.png",
+    previewFilename: "Onyx-preview-v1.jpg",
+    dimensions: "1024 × 1024 px",
+    fileSize: "709 KB",
+    title: "Onyx",
+    category: "Featured",
+    description:
+      "Gothic obsidian marble with smoked charcoal veining, brushed-silver hairlines and ornate blackletter ONYX lettering across the doors — dark, restrained and unmistakably premium.",
+  },
+  {
+
     slug: "neon-velocity",
     filename: "Neon_Velocity-v2.png",
     previewFilename: "Neon_Velocity-preview-v2.jpg",
