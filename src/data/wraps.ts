@@ -103,7 +103,7 @@ export const wraps: Wrap[] = [
     filename: "Neon_Velocity.png",
     previewFilename: "Neon_Velocity-preview-v1.jpg",
     dimensions: "1024 × 1024 px",
-    fileSize: "957 KB",
+    fileSize: "1.1 MB",
     title: "Neon Velocity",
     category: "Featured",
     description:
