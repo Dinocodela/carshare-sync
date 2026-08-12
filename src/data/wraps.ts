@@ -36,7 +36,13 @@ export const TESLA_MODELS: TeslaModelConfig[] = [
     templateNote:
       "2025+ Tesla Model Y Premium (Juniper), including 2026 Model Y Premium.",
   },
-  { key: "model-3", label: "Model 3", subtitle: "Coming soon", status: "coming-soon" },
+  {
+    key: "model-3",
+    label: "Model 3",
+    subtitle: "2026 Model 3",
+    status: "available",
+    templateNote: "2026 Tesla Model 3.",
+  },
   { key: "model-s", label: "Model S", subtitle: "Coming soon", status: "coming-soon" },
   { key: "model-x", label: "Model X", subtitle: "Coming soon", status: "coming-soon" },
   {
@@ -72,6 +78,9 @@ export interface Wrap {
 }
 
 export const WRAP_BASE_PATH = "/wraps/model-y-premium";
+export const MODEL_WRAP_BASE_PATHS: Partial<Record<TeslaModelKey, string>> = {
+  "model-3": "/wraps/model-3",
+};
 export const WRAP_PREVIEW_BASE_PATH = "/wraps/previews";
 export const WRAP_PLACEHOLDER = "/wraps/placeholder.svg";
 
@@ -97,6 +106,20 @@ const base = {
 };
 
 export const wraps: Wrap[] = [
+  {
+    price: "Free",
+    modelKey: "model-3",
+    compatibility: "2026 Tesla Model 3.",
+    slug: "sunset-boulevard",
+    filename: "Sunset_Boulevard.png",
+    previewFilename: "Sunset_Boulevard-preview-v1.jpg",
+    dimensions: "1024 × 1024 px",
+    fileSize: "1.5 MB",
+    title: "Sunset Boulevard",
+    category: "Featured",
+    description:
+      "Golden-hour Los Angeles poured over the bodywork — coral melting into peach, amber and deep violet with soft horizontal light bands. Built for the 2026 Model 3.",
+  },
   {
     ...base,
     slug: "neon-velocity",
@@ -280,7 +303,8 @@ export const wraps: Wrap[] = [
 ];
 
 /** Original downloadable Tesla Paint Shop PNG. */
-export const wrapImageUrl = (wrap: Wrap) => `${WRAP_BASE_PATH}/${wrap.filename}`;
+export const wrapImageUrl = (wrap: Wrap) =>
+  `${MODEL_WRAP_BASE_PATHS[wrap.modelKey] ?? WRAP_BASE_PATH}/${wrap.filename}`;
 
 /** Optimized concept preview JPG used across the site and social cards. */
 export const wrapPreviewUrl = (wrap: Wrap) =>
