@@ -391,12 +391,18 @@ const Index = () => {
               </Link>
             )}
 
-            {/* Earnings Calculator CTA */}
-            <div className="mt-6 mb-2 text-center">
+            {/* Quick-action links: calculator + free wraps */}
+            <div className="mt-6 mb-2 flex flex-wrap justify-center gap-3">
               <Link to="/earnings-calculator">
                 <Button variant="outline" size="sm" className="rounded-full text-xs border-primary/40 text-primary hover:bg-primary/5">
                   <Calculator className="w-3.5 h-3.5 mr-1.5" />
                   Calculate Your Earnings
+                </Button>
+              </Link>
+              <Link to="/wraps">
+                <Button variant="outline" size="sm" className="rounded-full text-xs border-primary/40 text-primary hover:bg-primary/5">
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                  Free Tesla Wraps
                 </Button>
               </Link>
             </div>
