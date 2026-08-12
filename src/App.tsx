@@ -218,6 +218,10 @@ const App = () => (
               <Route path="/shop/:handle" element={<ProductDetail />} />
 
 
+              {/* Free digital wraps (public) — must stay before the /:slug catch-all */}
+              <Route path="/wraps" element={<Wraps />} />
+              <Route path="/wraps/:slug" element={<WrapDetail />} />
+
               {/* Programmatic Model + City Pages */}
               <Route path="/:slug" element={<ModelCityPage />} />
 
