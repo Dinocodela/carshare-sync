@@ -44,14 +44,21 @@ export async function getConnectedAccount(admin: SupabaseClient) {
 }
 
 /** Short-lived signed URLs so Meta can fetch media from our private bucket. */
-async function signedMediaUrls(admin: SupabaseClient, postId: string) {
-  const { data: assets } = await admin
+async function signedMediaUrls(admin: SupabaseClient, postId: string, format?: string) {
+  const { data: allAssets } = await admin
     .from("social_media_assets")
     .select("*")
     .eq("post_id", postId)
     .order("position", { ascending: true });
 
-  if (!assets || assets.length === 0) return [];
+  // Only send media that matches the post format — a stray video on an image
+  // post makes Meta reject the container with "image format is not supported".
+  const wantVideo = format === "reel";
+  const assets = (allAssets ?? []).filter((a) =>
+    wantVideo ? a.kind === "video" : (a.kind ?? "image") === "image"
+  );
+
+  if (assets.length === 0) return [];
 
   const signed: { url: string; kind: string }[] = [];
   for (const asset of assets) {
