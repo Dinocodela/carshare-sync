@@ -23,6 +23,7 @@ import {
   Car,
   FileText,
   TrendingUp,
+  Instagram,
   BarChart3,
   ChevronRight,
   ChevronDown,
