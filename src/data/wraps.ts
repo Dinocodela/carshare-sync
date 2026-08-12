@@ -36,7 +36,13 @@ export const TESLA_MODELS: TeslaModelConfig[] = [
     templateNote:
       "2025+ Tesla Model Y Premium (Juniper), including 2026 Model Y Premium.",
   },
-  { key: "model-3", label: "Model 3", subtitle: "Coming soon", status: "coming-soon" },
+  {
+    key: "model-3",
+    label: "Model 3",
+    subtitle: "2026 Model 3",
+    status: "available",
+    templateNote: "2026 Tesla Model 3.",
+  },
   { key: "model-s", label: "Model S", subtitle: "Coming soon", status: "coming-soon" },
   { key: "model-x", label: "Model X", subtitle: "Coming soon", status: "coming-soon" },
   {
@@ -72,6 +78,9 @@ export interface Wrap {
 }
 
 export const WRAP_BASE_PATH = "/wraps/model-y-premium";
+export const MODEL_WRAP_BASE_PATHS: Partial<Record<TeslaModelKey, string>> = {
+  "model-3": "/wraps/model-3",
+};
 export const WRAP_PREVIEW_BASE_PATH = "/wraps/previews";
 export const WRAP_PLACEHOLDER = "/wraps/placeholder.svg";
 
