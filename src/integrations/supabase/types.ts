@@ -3085,6 +3085,69 @@ export type Database = {
           },
         ]
       }
+      wrap_designs: {
+        Row: {
+          category: string
+          compatibility: string
+          created_at: string
+          created_by: string | null
+          description: string
+          dimensions: string
+          file_size: string
+          id: string
+          model_key: string
+          png_path: string
+          preview_path: string | null
+          published: boolean
+          slug: string
+          sort_order: number
+          source_prompt: string | null
+          storage_kind: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          compatibility?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          dimensions?: string
+          file_size?: string
+          id?: string
+          model_key?: string
+          png_path: string
+          preview_path?: string | null
+          published?: boolean
+          slug: string
+          sort_order?: number
+          source_prompt?: string | null
+          storage_kind?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          compatibility?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          dimensions?: string
+          file_size?: string
+          id?: string
+          model_key?: string
+          png_path?: string
+          preview_path?: string | null
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          source_prompt?: string | null
+          storage_kind?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       client_visible_earnings: {
