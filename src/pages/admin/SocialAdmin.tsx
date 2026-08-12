@@ -7,6 +7,8 @@ import { SocialCalendar } from "@/components/social/SocialCalendar";
 import { SocialQueue } from "@/components/social/SocialQueue";
 import { SocialLeads } from "@/components/social/SocialLeads";
 import { SocialSettings } from "@/components/social/SocialSettings";
+import { SocialAuditLog } from "@/components/social/SocialAuditLog";
+import { PublishAttempts } from "@/components/social/PublishAttempts";
 
 export default function SocialAdmin() {
   const navigate = useNavigate();
@@ -25,10 +27,12 @@ export default function SocialAdmin() {
         </div>
 
         <Tabs defaultValue="queue">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
             <TabsTrigger value="queue">Queue</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
+            <TabsTrigger value="retries">Retries</TabsTrigger>
+            <TabsTrigger value="audit">Audit log</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           <TabsContent value="calendar" className="mt-4">
@@ -39,6 +43,12 @@ export default function SocialAdmin() {
           </TabsContent>
           <TabsContent value="leads" className="mt-4">
             <SocialLeads />
+          </TabsContent>
+          <TabsContent value="retries" className="mt-4">
+            <PublishAttempts />
+          </TabsContent>
+          <TabsContent value="audit" className="mt-4">
+            <SocialAuditLog />
           </TabsContent>
           <TabsContent value="settings" className="mt-4">
             <SocialSettings />
