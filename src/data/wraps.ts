@@ -107,6 +107,20 @@ const base = {
 
 export const wraps: Wrap[] = [
   {
+    price: "Free",
+    modelKey: "model-3",
+    compatibility: "2026 Tesla Model 3.",
+    slug: "sunset-boulevard",
+    filename: "Sunset_Boulevard.png",
+    previewFilename: "Sunset_Boulevard-preview-v1.jpg",
+    dimensions: "1024 × 1024 px",
+    fileSize: "1.5 MB",
+    title: "Sunset Boulevard",
+    category: "Featured",
+    description:
+      "Golden-hour Los Angeles poured over the bodywork — coral melting into peach, amber and deep violet with soft horizontal light bands. Built for the 2026 Model 3.",
+  },
+  {
     ...base,
     slug: "neon-velocity",
     filename: "Neon_Velocity-v2.png",
@@ -289,7 +303,8 @@ export const wraps: Wrap[] = [
 ];
 
 /** Original downloadable Tesla Paint Shop PNG. */
-export const wrapImageUrl = (wrap: Wrap) => `${WRAP_BASE_PATH}/${wrap.filename}`;
+export const wrapImageUrl = (wrap: Wrap) =>
+  `${MODEL_WRAP_BASE_PATHS[wrap.modelKey] ?? WRAP_BASE_PATH}/${wrap.filename}`;
 
 /** Optimized concept preview JPG used across the site and social cards. */
 export const wrapPreviewUrl = (wrap: Wrap) =>
