@@ -99,6 +99,8 @@ project_id = "texsltzecmvqprdjxtnh"
     verify_jwt = false
   [functions.social-approve]
     verify_jwt = false
+  [functions.submit-tesla-deal-lead]
+    verify_jwt = false
 
 [storage]
   enabled = true
