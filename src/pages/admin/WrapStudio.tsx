@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Sparkles, Upload, Wand2 } from "lucide-react";
+import { CalendarClock, Loader2, Sparkles, Upload, Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAllWrapDesigns } from "@/hooks/useWrapDesigns";
 import {
@@ -50,6 +50,12 @@ export default function WrapStudio() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Featured");
   const [published, setPublished] = useState(true);
+
+  const [scheduleDesignId, setScheduleDesignId] = useState("");
+  const [scheduleAt, setScheduleAt] = useState("");
+  const [scheduleCaption, setScheduleCaption] = useState("");
+  const [scheduling, setScheduling] = useState(false);
+
 
   const template = useMemo(() => getTemplate(templateKey), [templateKey]);
   const slug = slugify(title);
@@ -174,6 +180,39 @@ export default function WrapStudio() {
     if (error) return toast.error(error.message);
     await queryClient.invalidateQueries({ queryKey: ["wrap-designs"] });
   };
+
+  const storedDesigns = useMemo(
+    () => (designs ?? []).filter((d) => d.storage_kind === "storage" && d.preview_path),
+    [designs]
+  );
+
+  const onSchedule = async () => {
+    if (!scheduleDesignId) return toast.error("Pick a wrap to post");
+    if (!scheduleAt) return toast.error("Pick a date and time");
+    setScheduling(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("wrap-schedule-post", {
+        body: {
+          design_id: scheduleDesignId,
+          scheduled_at: new Date(scheduleAt).toISOString(),
+          caption: scheduleCaption.trim() || undefined,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success("Post scheduled", {
+        description: "It's approved and queued in Social → Calendar.",
+      });
+      setScheduleCaption("");
+      setScheduleAt("");
+    } catch (e) {
+      console.error(e);
+      toast.error(e instanceof Error ? e.message : "Could not schedule the post");
+    } finally {
+      setScheduling(false);
+    }
+  };
+
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
@@ -333,6 +372,72 @@ export default function WrapStudio() {
           </Button>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <CalendarClock className="h-4 w-4" />4 · Schedule to Instagram
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Wrap</Label>
+              <Select value={scheduleDesignId} onValueChange={setScheduleDesignId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pick a saved wrap" />
+                </SelectTrigger>
+                <SelectContent>
+                  {storedDesigns.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {storedDesigns.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Save a wrap above first — only Studio-created wraps have a
+                  postable preview image.
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sched-at">Date &amp; time (your local time)</Label>
+              <Input
+                id="sched-at"
+                type="datetime-local"
+                value={scheduleAt}
+                onChange={(e) => setScheduleAt(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sched-caption">Caption (optional)</Label>
+            <Textarea
+              id="sched-caption"
+              rows={4}
+              value={scheduleCaption}
+              onChange={(e) => setScheduleCaption(e.target.value)}
+              placeholder={`Leave blank to use the standard drop caption with the "WRAP" comment keyword and a link to the wrap page.`}
+            />
+          </div>
+          <Button onClick={onSchedule} disabled={scheduling}>
+            {scheduling ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <CalendarClock className="mr-2 h-4 w-4" />
+            )}
+            Schedule post
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Creates an approved, scheduled post in Social with the wrap preview
+            attached, the WRAP comment keyword, and a link to /wraps.
+          </p>
+        </CardContent>
+      </Card>
+
+
 
       <Card>
         <CardHeader>
