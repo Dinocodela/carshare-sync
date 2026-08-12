@@ -20,7 +20,9 @@ const installSteps = [
 
 export default function WrapDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const wrap = getWrapBySlug(slug);
+  const { wraps: allWraps } = useWrapDesigns();
+  const wrap = allWraps.find((w) => w.slug === slug);
+
 
   useEffect(() => {
     if (wrap) {
