@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.social_log_change() FROM PUBLIC, anon, authenticated;
