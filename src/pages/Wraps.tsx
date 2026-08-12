@@ -210,7 +210,7 @@ export default function Wraps() {
                   className="group block rounded-3xl bg-sand-card p-4 shadow-sm transition-transform duration-300 motion-safe:hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <WrapImage
-                    src={wrapPreviewUrl(wrap)}
+                    src={wrap.previewUrl}
                     alt={`${wrap.title} wrapped Tesla Model Y concept preview`}
                     className="aspect-[3/2]"
                     badge="Concept preview"
