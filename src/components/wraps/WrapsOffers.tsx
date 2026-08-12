@@ -23,7 +23,7 @@ export function WrapsOffers({ source }: WrapsOffersProps) {
 
   return (
     <section className="max-w-6xl mx-auto px-6" aria-label="More from Teslys">
-      <div className="rounded-3xl border border-border bg-card p-6 sm:p-10 shadow-sm">
+      <div className="rounded-3xl border border-sand-border bg-sand-card p-6 sm:p-10 shadow-sm">
         <div className="flex items-center gap-2 text-primary">
           <Sparkles className="h-4 w-4" />
           <span className="text-xs font-semibold uppercase tracking-[0.16em]">
@@ -40,7 +40,7 @@ export function WrapsOffers({ source }: WrapsOffersProps) {
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* Rent */}
-          <div className="flex flex-col rounded-2xl border border-border bg-background p-5">
+          <div className="flex flex-col rounded-2xl border border-sand-border bg-sand-card p-5">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
               <Car className="h-4 w-4 text-primary" />
             </span>
@@ -61,7 +61,7 @@ export function WrapsOffers({ source }: WrapsOffersProps) {
           </div>
 
           {/* Host */}
-          <div className="flex flex-col rounded-2xl border border-border bg-background p-5">
+          <div className="flex flex-col rounded-2xl border border-sand-border bg-sand-card p-5">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
               <PiggyBank className="h-4 w-4 text-primary" />
             </span>
@@ -82,7 +82,7 @@ export function WrapsOffers({ source }: WrapsOffersProps) {
           </div>
 
           {/* Referral */}
-          <div className="flex flex-col rounded-2xl border border-border bg-background p-5">
+          <div className="flex flex-col rounded-2xl border border-sand-border bg-sand-card p-5">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
               <Sparkles className="h-4 w-4 text-primary" />
             </span>
@@ -105,7 +105,7 @@ export function WrapsOffers({ source }: WrapsOffersProps) {
           </div>
 
           {/* Discount */}
-          <div className="flex flex-col rounded-2xl border border-border bg-background p-5">
+          <div className="flex flex-col rounded-2xl border border-sand-border bg-sand-card p-5">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
               <BadgePercent className="h-4 w-4 text-primary" />
             </span>

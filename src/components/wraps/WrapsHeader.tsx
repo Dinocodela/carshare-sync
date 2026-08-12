@@ -9,7 +9,7 @@ import { ArrowRight } from "lucide-react";
  */
 export function WrapsHeader() {
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+    <header className="sticky top-0 z-50 bg-sand/95 backdrop-blur border-b border-sand-border">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <Link to="/" aria-label="Teslys home" className="flex items-center">
           <Logo className="h-9 w-auto" />
