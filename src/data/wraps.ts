@@ -99,6 +99,18 @@ const base = {
 export const wraps: Wrap[] = [
   {
     ...base,
+    slug: "neon-velocity",
+    filename: "Neon_Velocity.png",
+    previewFilename: "Neon_Velocity-preview-v1.jpg",
+    dimensions: "1024 × 1024 px",
+    fileSize: "957 KB",
+    title: "Neon Velocity",
+    category: "Featured",
+    description:
+      "Satin-black bodywork slashed with cyan, magenta and electric-yellow speed lines — a track-inspired livery that makes your Tesla's on-screen visualization look built for motion.",
+  },
+  {
+    ...base,
     slug: "pacific-voltage",
     filename: "Pacific_Voltage.png",
     previewFilename: "Pacific_Voltage-preview-v1.jpg",
