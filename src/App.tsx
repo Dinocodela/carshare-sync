@@ -102,6 +102,8 @@ import SocialAdmin from "./pages/admin/SocialAdmin";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import PrivacyCenter from "./pages/PrivacyCenter";
+import Wraps from "./pages/Wraps";
+import WrapDetail from "./pages/WrapDetail";
 import CookiePolicy from "./pages/CookiePolicy";
 import { ConsentProvider } from "@/hooks/useConsent";
 import { ConsentManager } from "@/components/consent/ConsentManager";
@@ -215,6 +217,10 @@ const App = () => (
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/:handle" element={<ProductDetail />} />
 
+
+              {/* Free digital wraps (public) — must stay before the /:slug catch-all */}
+              <Route path="/wraps" element={<Wraps />} />
+              <Route path="/wraps/:slug" element={<WrapDetail />} />
 
               {/* Programmatic Model + City Pages */}
               <Route path="/:slug" element={<ModelCityPage />} />
