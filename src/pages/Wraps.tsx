@@ -105,16 +105,15 @@ export default function Wraps() {
               Make your Tesla <span className="text-primary">yours.</span>
             </h1>
             <p className="mt-5 mx-auto max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-              A curated collection of free digital wraps for the Tesla Paint Shop.
               These change how your car appears on your screen — they are not
               printable vinyl templates and nothing is applied to the physical
               vehicle.
             </p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              {hasWraps
-                ? `Compatible with ${COMPATIBILITY}`
-                : `${modelConfig.label} library coming soon. Every design will use Tesla's exact official template.`}
-            </p>
+            {!hasWraps && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                {`${modelConfig.label} library coming soon. Every design will use Tesla's exact official template.`}
+              </p>
+            )}
           </div>
         </section>
 
