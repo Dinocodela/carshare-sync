@@ -51,6 +51,12 @@ export default function WrapStudio() {
   const [category, setCategory] = useState("Featured");
   const [published, setPublished] = useState(true);
 
+  const [scheduleDesignId, setScheduleDesignId] = useState("");
+  const [scheduleAt, setScheduleAt] = useState("");
+  const [scheduleCaption, setScheduleCaption] = useState("");
+  const [scheduling, setScheduling] = useState(false);
+
+
   const template = useMemo(() => getTemplate(templateKey), [templateKey]);
   const slug = slugify(title);
 
