@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
 import { ModelTabs } from "@/components/wraps/ModelTabs";
 import { ModelComingSoon } from "@/components/wraps/ModelComingSoon";
+import { WrapsHeader } from "@/components/wraps/WrapsHeader";
+import { WrapsOffers } from "@/components/wraps/WrapsOffers";
 import {
   COMPATIBILITY,
   DEFAULT_MODEL_KEY,
@@ -88,6 +90,8 @@ export default function Wraps() {
         canonical="https://teslys.app/wraps"
         keywords="free tesla wraps, tesla paint shop wraps, model y juniper wrap, tesla creations wrap"
       />
+
+      <WrapsHeader />
 
       <main>
         {/* Hero */}
@@ -209,6 +213,11 @@ export default function Wraps() {
           </ul>
           )}
         </section>
+
+        {/* Offers */}
+        <div className="pb-16">
+          <WrapsOffers source="wraps-gallery" />
+        </div>
 
         {/* How it works */}
         <section className="px-6 pb-16">

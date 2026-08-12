@@ -4,6 +4,8 @@ import { ArrowLeft, Download, Info } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
+import { WrapsHeader } from "@/components/wraps/WrapsHeader";
+import { WrapsOffers } from "@/components/wraps/WrapsOffers";
 import {
   WRAP_DISCLOSURE,
   getRelatedWraps,
@@ -41,6 +43,7 @@ export default function WrapDetail() {
           canonical="https://teslys.app/wraps"
           noIndex
         />
+        <WrapsHeader />
         <main className="flex-1 px-6 py-24 text-center">
           <h1 className="font-bold tracking-tight text-4xl">Wrap not found</h1>
           <p className="mt-4 text-muted-foreground">
@@ -77,6 +80,8 @@ export default function WrapDetail() {
         canonical={`https://teslys.app/wraps/${wrap.slug}`}
         ogImage={`https://teslys.app${previewUrl}`}
       />
+
+      <WrapsHeader />
 
       <main className="pb-28 lg:pb-16">
         <div className="max-w-6xl mx-auto px-6 pt-10">
@@ -240,6 +245,10 @@ export default function WrapDetail() {
             </ul>
           </section>
         )}
+
+        <div className="mt-16">
+          <WrapsOffers source="wrap-detail" />
+        </div>
 
         <section className="max-w-3xl mx-auto px-6 mt-16">
           <p className="text-xs leading-relaxed text-muted-foreground">
