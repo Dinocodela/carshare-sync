@@ -2869,6 +2869,51 @@ export type Database = {
         }
         Relationships: []
       }
+      tesla_deal_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          model_interest: string | null
+          name: string
+          note: string | null
+          phone: string | null
+          source: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          model_interest?: string | null
+          name: string
+          note?: string | null
+          phone?: string | null
+          source?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          model_interest?: string | null
+          name?: string
+          note?: string | null
+          phone?: string | null
+          source?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           activated_at: string | null
