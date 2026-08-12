@@ -64,6 +64,28 @@ export function ApproveDialog({ open, onOpenChange, postIds, subject }: ApproveD
           </DialogDescription>
         </DialogHeader>
 
+        <div className="flex items-center justify-between rounded-md border px-3 py-2">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="chk-all"
+              checked={allChecked}
+              onCheckedChange={(value) =>
+                setChecked(
+                  value === true
+                    ? Object.fromEntries(COMPLIANCE_CHECKLIST.map((i) => [i.key, true]))
+                    : {},
+                )
+              }
+            />
+            <Label htmlFor="chk-all" className="text-sm font-medium">
+              Check all
+            </Label>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {COMPLIANCE_CHECKLIST.filter((i) => checked[i.key]).length}/{COMPLIANCE_CHECKLIST.length}
+          </span>
+        </div>
+
         <ScrollArea className="max-h-[45vh] pr-3">
           <div className="space-y-3">
             {COMPLIANCE_CHECKLIST.map((item) => (
