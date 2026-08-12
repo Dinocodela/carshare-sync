@@ -50,11 +50,16 @@ export default function Wraps() {
     ? modelParam
     : DEFAULT_MODEL_KEY;
   const modelConfig = getModelConfig(activeModel);
-  const modelWraps = useMemo(() => getWrapsByModel(activeModel), [activeModel]);
+  const { wraps: allWraps } = useWrapDesigns();
+  const modelWraps = useMemo(
+    () => allWraps.filter((w) => w.modelKey === activeModel),
+    [allWraps, activeModel]
+  );
 
   useEffect(() => {
-    trackWrapEvent("wrap_gallery_view", { count: wraps.length });
-  }, []);
+    trackWrapEvent("wrap_gallery_view", { count: allWraps.length });
+  }, [allWraps.length]);
+
 
   // Reset the secondary category filter whenever the model changes.
   useEffect(() => {
