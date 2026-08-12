@@ -548,6 +548,34 @@ export default function Dashboard() {
   // Owner (client) performance numbers
   const ownerStats = useClientDashboardStats(clientData?.cars, !isHost);
 
+  // Host: count of open claims (not paid, not closed)
+  const [openClaims, setOpenClaims] = useState(0);
+  useEffect(() => {
+    if (!isHost || !user?.id) {
+      setOpenClaims(0);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const carIds = (hostData?.cars || []).map((c: any) => c.id);
+      if (carIds.length === 0) {
+        if (!cancelled) setOpenClaims(0);
+        return;
+      }
+      const { count } = await (supabase as any)
+        .from("host_claims")
+        .select("id", { count: "exact", head: true })
+        .in("car_id", carIds)
+        .not("claim_status", "in", '("paid","closed","denied")');
+      if (!cancelled) setOpenClaims(count || 0);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isHost, user?.id, hostData?.cars]);
+
+
+
 
 
   if (!user || profileLoading || !profile) {
