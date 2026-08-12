@@ -375,6 +375,72 @@ export default function WrapStudio() {
 
       <Card>
         <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <CalendarClock className="h-4 w-4" />4 · Schedule to Instagram
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Wrap</Label>
+              <Select value={scheduleDesignId} onValueChange={setScheduleDesignId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pick a saved wrap" />
+                </SelectTrigger>
+                <SelectContent>
+                  {storedDesigns.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {storedDesigns.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Save a wrap above first — only Studio-created wraps have a
+                  postable preview image.
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sched-at">Date &amp; time (your local time)</Label>
+              <Input
+                id="sched-at"
+                type="datetime-local"
+                value={scheduleAt}
+                onChange={(e) => setScheduleAt(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sched-caption">Caption (optional)</Label>
+            <Textarea
+              id="sched-caption"
+              rows={4}
+              value={scheduleCaption}
+              onChange={(e) => setScheduleCaption(e.target.value)}
+              placeholder={`Leave blank to use the standard drop caption with the "WRAP" comment keyword and a link to the wrap page.`}
+            />
+          </div>
+          <Button onClick={onSchedule} disabled={scheduling}>
+            {scheduling ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <CalendarClock className="mr-2 h-4 w-4" />
+            )}
+            Schedule post
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Creates an approved, scheduled post in Social with the wrap preview
+            attached, the WRAP comment keyword, and a link to /wraps.
+          </p>
+        </CardContent>
+      </Card>
+
+
+
+      <Card>
+        <CardHeader>
           <CardTitle className="text-lg">Catalog</CardTitle>
         </CardHeader>
         <CardContent>
