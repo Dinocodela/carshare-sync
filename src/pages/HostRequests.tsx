@@ -58,15 +58,23 @@ export default function HostRequests() {
       return;
     }
 
-    // Check if user is a host
+    // Allow real hosts, users with the host workspace role, and super-admins
     const checkHostRole = async () => {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
+      const [profileRes, hostRoleRes, superRes] = await Promise.all([
+        supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
+        (supabase as any).rpc("has_workspace_role", {
+          _user_id: user.id,
+          _role: "host",
+        }),
+        (supabase as any).rpc("is_super", { uid: user.id }),
+      ]);
 
-      if (error || profile?.role !== "host") {
+      const allowed =
+        profileRes.data?.role === "host" ||
+        hostRoleRes.data === true ||
+        superRes.data === true;
+
+      if (!allowed) {
         toast({
           title: "Access Denied",
           description: "Only hosts can access this page.",
@@ -78,6 +86,7 @@ export default function HostRequests() {
 
       fetchRequests();
     };
+
 
     checkHostRole();
   }, [user, navigate]);

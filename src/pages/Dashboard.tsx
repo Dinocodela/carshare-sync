@@ -548,6 +548,34 @@ export default function Dashboard() {
   // Owner (client) performance numbers
   const ownerStats = useClientDashboardStats(clientData?.cars, !isHost);
 
+  // Host: count of open claims (not paid, not closed)
+  const [openClaims, setOpenClaims] = useState(0);
+  useEffect(() => {
+    if (!isHost || !user?.id) {
+      setOpenClaims(0);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const carIds = (hostData?.cars || []).map((c: any) => c.id);
+      if (carIds.length === 0) {
+        if (!cancelled) setOpenClaims(0);
+        return;
+      }
+      const { count } = await (supabase as any)
+        .from("host_claims")
+        .select("id", { count: "exact", head: true })
+        .in("car_id", carIds)
+        .not("claim_status", "in", '("paid","closed","denied")');
+      if (!cancelled) setOpenClaims(count || 0);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isHost, user?.id, hostData?.cars]);
+
+
+
 
 
   if (!user || profileLoading || !profile) {
@@ -675,31 +703,38 @@ export default function Dashboard() {
           )}
 
           {/* ─── Stat Cards ─── */}
-          <div className={`grid grid-cols-3 gap-3 ${isHost ? "" : "hidden"}`}>
+          <div
+            className={`grid gap-3 ${pendingReqs > 0 ? "grid-cols-3" : "grid-cols-2"} ${isHost ? "" : "hidden"}`}
+          >
 
             {[
               {
-                label: isHost ? "Active" : "Vehicles",
-                value: isHost ? activeCars : myVehicles,
+                label: "Hosted",
+                value: activeCars,
                 icon: Car,
-                onClick: () => navigate(isHost ? "/host-car-management" : "/my-cars"),
+                onClick: () => navigate("/host-car-management"),
                 accent: "bg-primary/10 text-primary",
               },
               {
-                label: "Requests",
-                value: pendingReqs,
-                icon: FileText,
-                onClick: () => navigate(isHost ? "/host-requests" : "/select-host"),
-                accent: "bg-amber-50 text-amber-600",
-              },
-              {
-                label: "Hosted",
-                value: activeCars,
-                icon: TrendingUp,
-                onClick: () => navigate(isHost ? "/host-analytics" : "/client-analytics"),
+                label: "Claims",
+                value: openClaims,
+                icon: Shield,
+                onClick: () => navigate("/host-car-management#claims"),
                 accent: "bg-emerald-50 text-emerald-600",
               },
+              ...(pendingReqs > 0
+                ? [
+                    {
+                      label: "Requests",
+                      value: pendingReqs,
+                      icon: FileText,
+                      onClick: () => navigate("/host-requests"),
+                      accent: "bg-amber-50 text-amber-600",
+                    },
+                  ]
+                : []),
             ].map((stat, i) => (
+
               <button
                 key={stat.label}
                 onClick={stat.onClick}
