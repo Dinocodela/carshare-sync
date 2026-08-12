@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Download, Sparkles, Upload, Wand2 } from "lucide-react";
+import { ArrowRight, ArrowUp, Download, Sparkles, Upload, Wand2 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
@@ -8,6 +8,7 @@ import { ModelTabs } from "@/components/wraps/ModelTabs";
 import { ModelComingSoon } from "@/components/wraps/ModelComingSoon";
 import { WrapsHeader } from "@/components/wraps/WrapsHeader";
 import { WrapsOffers } from "@/components/wraps/WrapsOffers";
+import { cn } from "@/lib/utils";
 import {
   COMPATIBILITY,
   DEFAULT_MODEL_KEY,
