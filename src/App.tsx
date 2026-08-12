@@ -102,6 +102,8 @@ import SocialAdmin from "./pages/admin/SocialAdmin";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import PrivacyCenter from "./pages/PrivacyCenter";
+import Wraps from "./pages/Wraps";
+import WrapDetail from "./pages/WrapDetail";
 import CookiePolicy from "./pages/CookiePolicy";
 import { ConsentProvider } from "@/hooks/useConsent";
 import { ConsentManager } from "@/components/consent/ConsentManager";
