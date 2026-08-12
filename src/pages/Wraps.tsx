@@ -109,11 +109,11 @@ export default function Wraps() {
               printable vinyl templates and nothing is applied to the physical
               vehicle.
             </p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              {hasWraps
-                ? ""
-                : `${modelConfig.label} library coming soon. Every design will use Tesla's exact official template.`}
-            </p>
+            {!hasWraps && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                {`${modelConfig.label} library coming soon. Every design will use Tesla's exact official template.`}
+              </p>
+            )}
           </div>
         </section>
 
