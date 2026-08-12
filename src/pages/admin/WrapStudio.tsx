@@ -181,6 +181,39 @@ export default function WrapStudio() {
     await queryClient.invalidateQueries({ queryKey: ["wrap-designs"] });
   };
 
+  const storedDesigns = useMemo(
+    () => (designs ?? []).filter((d) => d.storage_kind === "storage" && d.preview_path),
+    [designs]
+  );
+
+  const onSchedule = async () => {
+    if (!scheduleDesignId) return toast.error("Pick a wrap to post");
+    if (!scheduleAt) return toast.error("Pick a date and time");
+    setScheduling(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("wrap-schedule-post", {
+        body: {
+          design_id: scheduleDesignId,
+          scheduled_at: new Date(scheduleAt).toISOString(),
+          caption: scheduleCaption.trim() || undefined,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success("Post scheduled", {
+        description: "It's approved and queued in Social → Calendar.",
+      });
+      setScheduleCaption("");
+      setScheduleAt("");
+    } catch (e) {
+      console.error(e);
+      toast.error(e instanceof Error ? e.message : "Could not schedule the post");
+    } finally {
+      setScheduling(false);
+    }
+  };
+
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       <header>
