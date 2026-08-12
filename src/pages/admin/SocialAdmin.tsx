@@ -1,5 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,8 +12,36 @@ import { SocialSettings } from "@/components/social/SocialSettings";
 import { SocialAuditLog } from "@/components/social/SocialAuditLog";
 import { PublishAttempts } from "@/components/social/PublishAttempts";
 
+const IG_MESSAGES: Record<string, { title: string; description?: string; type: "success" | "error" }> = {
+  connected: { title: "Instagram connected", description: "Your Instagram account is now linked.", type: "success" },
+  missing_code: { title: "Instagram connection failed", description: "Authorization was cancelled or incomplete.", type: "error" },
+  invalid_state: { title: "Instagram connection failed", description: "The authorization link expired. Please try again.", type: "error" },
+  error: { title: "Instagram connection failed", type: "error" },
+};
+
 export default function SocialAdmin() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const igParam = searchParams.get("ig");
+  const [tab, setTab] = useState(igParam ? "settings" : "queue");
+
+  useEffect(() => {
+    if (!igParam) return;
+    const info = IG_MESSAGES[igParam] ?? {
+      title: "Instagram connection failed",
+      type: "error" as const,
+    };
+    const description = searchParams.get("message") ?? info.description;
+    if (info.type === "success") toast.success(info.title, { description });
+    else toast.error(info.title, { description });
+
+    setTab("settings");
+    const next = new URLSearchParams(searchParams);
+    next.delete("ig");
+    next.delete("message");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [igParam]);
 
   return (
     <DashboardLayout>
@@ -26,7 +56,7 @@ export default function SocialAdmin() {
           </p>
         </div>
 
-        <Tabs defaultValue="queue">
+        <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="flex-wrap">
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
             <TabsTrigger value="queue">Queue</TabsTrigger>
