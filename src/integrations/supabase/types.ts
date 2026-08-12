@@ -2173,6 +2173,702 @@ export type Database = {
           },
         ]
       }
+      social_accounts: {
+        Row: {
+          connected_by: string | null
+          created_at: string
+          expiry_warning_sent_at: string | null
+          facebook_page_id: string | null
+          id: string
+          ig_professional_account_id: string | null
+          ig_username: string | null
+          last_api_check_at: string | null
+          last_error: string | null
+          platform: string
+          scopes: string[]
+          status: Database["public"]["Enums"]["social_account_status"]
+          token_expires_at: string | null
+          token_last_refreshed_at: string | null
+          updated_at: string
+          webhook_status: string | null
+        }
+        Insert: {
+          connected_by?: string | null
+          created_at?: string
+          expiry_warning_sent_at?: string | null
+          facebook_page_id?: string | null
+          id?: string
+          ig_professional_account_id?: string | null
+          ig_username?: string | null
+          last_api_check_at?: string | null
+          last_error?: string | null
+          platform?: string
+          scopes?: string[]
+          status?: Database["public"]["Enums"]["social_account_status"]
+          token_expires_at?: string | null
+          token_last_refreshed_at?: string | null
+          updated_at?: string
+          webhook_status?: string | null
+        }
+        Update: {
+          connected_by?: string | null
+          created_at?: string
+          expiry_warning_sent_at?: string | null
+          facebook_page_id?: string | null
+          id?: string
+          ig_professional_account_id?: string | null
+          ig_username?: string | null
+          last_api_check_at?: string | null
+          last_error?: string | null
+          platform?: string
+          scopes?: string[]
+          status?: Database["public"]["Enums"]["social_account_status"]
+          token_expires_at?: string | null
+          token_last_refreshed_at?: string | null
+          updated_at?: string
+          webhook_status?: string | null
+        }
+        Relationships: []
+      }
+      social_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_user_id: string | null
+          after_state: Json | null
+          before_state: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      social_automation_settings: {
+        Row: {
+          allowed_days: string[]
+          allowed_end_time: string
+          allowed_start_time: string
+          auto_reply_cta_comments: boolean
+          auto_reply_faq: boolean
+          created_at: string
+          default_cta_keyword: string | null
+          default_destination_url: string | null
+          escalation_categories: string[]
+          id: string
+          max_feed_posts_per_day: number
+          mode: Database["public"]["Enums"]["social_automation_mode"]
+          timezone: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          allowed_days?: string[]
+          allowed_end_time?: string
+          allowed_start_time?: string
+          auto_reply_cta_comments?: boolean
+          auto_reply_faq?: boolean
+          created_at?: string
+          default_cta_keyword?: string | null
+          default_destination_url?: string | null
+          escalation_categories?: string[]
+          id?: string
+          max_feed_posts_per_day?: number
+          mode?: Database["public"]["Enums"]["social_automation_mode"]
+          timezone?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          allowed_days?: string[]
+          allowed_end_time?: string
+          allowed_start_time?: string
+          auto_reply_cta_comments?: boolean
+          auto_reply_faq?: boolean
+          created_at?: string
+          default_cta_keyword?: string | null
+          default_destination_url?: string | null
+          escalation_categories?: string[]
+          id?: string
+          max_feed_posts_per_day?: number
+          mode?: Database["public"]["Enums"]["social_automation_mode"]
+          timezone?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      social_deletion_requests: {
+        Row: {
+          completed_at: string | null
+          confirmation_code: string | null
+          created_at: string
+          deleted_interaction_count: number
+          deleted_lead_count: number
+          error_message: string | null
+          id: string
+          ig_scoped_user_id: string | null
+          kind: string
+          platform: string
+          signed_request_valid: boolean
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          confirmation_code?: string | null
+          created_at?: string
+          deleted_interaction_count?: number
+          deleted_lead_count?: number
+          error_message?: string | null
+          id?: string
+          ig_scoped_user_id?: string | null
+          kind?: string
+          platform?: string
+          signed_request_valid?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          confirmation_code?: string | null
+          created_at?: string
+          deleted_interaction_count?: number
+          deleted_lead_count?: number
+          error_message?: string | null
+          id?: string
+          ig_scoped_user_id?: string | null
+          kind?: string
+          platform?: string
+          signed_request_valid?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_interactions: {
+        Row: {
+          channel: string
+          created_at: string
+          direction: string
+          id: string
+          lead_id: string | null
+          message: string | null
+          post_id: string | null
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          lead_id?: string | null
+          message?: string | null
+          post_id?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          lead_id?: string | null
+          message?: string | null
+          post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "social_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_interactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_leads: {
+        Row: {
+          assigned_to: string | null
+          conversation_summary: string | null
+          created_at: string
+          cta_keyword: string | null
+          escalation_category: string | null
+          first_interaction_at: string | null
+          follow_up_due_at: string | null
+          id: string
+          ig_scoped_user_id: string | null
+          ig_username: string | null
+          last_interaction_at: string | null
+          order_id: string | null
+          source: Database["public"]["Enums"]["social_lead_source"]
+          stage: Database["public"]["Enums"]["social_lead_stage"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          conversation_summary?: string | null
+          created_at?: string
+          cta_keyword?: string | null
+          escalation_category?: string | null
+          first_interaction_at?: string | null
+          follow_up_due_at?: string | null
+          id?: string
+          ig_scoped_user_id?: string | null
+          ig_username?: string | null
+          last_interaction_at?: string | null
+          order_id?: string | null
+          source?: Database["public"]["Enums"]["social_lead_source"]
+          stage?: Database["public"]["Enums"]["social_lead_stage"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          conversation_summary?: string | null
+          created_at?: string
+          cta_keyword?: string | null
+          escalation_category?: string | null
+          first_interaction_at?: string | null
+          follow_up_due_at?: string | null
+          id?: string
+          ig_scoped_user_id?: string | null
+          ig_username?: string | null
+          last_interaction_at?: string | null
+          order_id?: string | null
+          source?: Database["public"]["Enums"]["social_lead_source"]
+          stage?: Database["public"]["Enums"]["social_lead_stage"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_media_assets: {
+        Row: {
+          alt_text: string | null
+          bytes: number | null
+          created_at: string
+          created_by: string | null
+          duration_seconds: number | null
+          height: number | null
+          id: string
+          kind: string
+          mime_type: string | null
+          position: number
+          post_id: string | null
+          storage_path: string
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          bytes?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_seconds?: number | null
+          height?: number | null
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          position?: number
+          post_id?: string | null
+          storage_path: string
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          bytes?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_seconds?: number | null
+          height?: number | null
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          position?: number
+          post_id?: string | null
+          storage_path?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_media_assets_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_oauth_states: {
+        Row: {
+          actor_email: string | null
+          actor_user_id: string | null
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          nonce: string
+          redirect_uri: string | null
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_user_id?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          nonce: string
+          redirect_uri?: string | null
+        }
+        Update: {
+          actor_email?: string | null
+          actor_user_id?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          nonce?: string
+          redirect_uri?: string | null
+        }
+        Relationships: []
+      }
+      social_post_approvals: {
+        Row: {
+          approved_at: string | null
+          approver_email: string | null
+          approver_user_id: string | null
+          checklist: Json
+          created_at: string
+          id: string
+          notes: string | null
+          post_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approver_email?: string | null
+          approver_user_id?: string | null
+          checklist?: Json
+          created_at?: string
+          id?: string
+          notes?: string | null
+          post_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approver_email?: string | null
+          approver_user_id?: string | null
+          checklist?: Json
+          created_at?: string
+          id?: string
+          notes?: string | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_post_approvals_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_posts: {
+        Row: {
+          ai_disclosure: boolean
+          approved_at: string | null
+          approver_user_id: string | null
+          campaign: string | null
+          caption: string
+          created_at: string
+          created_by: string | null
+          cta_keyword: string | null
+          destination_url: string | null
+          first_comment: string | null
+          format: Database["public"]["Enums"]["social_post_format"]
+          hashtags: string[]
+          id: string
+          ig_media_id: string | null
+          internal_notes: string | null
+          is_sample: boolean
+          last_error: string | null
+          owner_user_id: string | null
+          permalink: string | null
+          published_at: string | null
+          scheduled_at: string | null
+          status: Database["public"]["Enums"]["social_post_status"]
+          timezone: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_disclosure?: boolean
+          approved_at?: string | null
+          approver_user_id?: string | null
+          campaign?: string | null
+          caption?: string
+          created_at?: string
+          created_by?: string | null
+          cta_keyword?: string | null
+          destination_url?: string | null
+          first_comment?: string | null
+          format?: Database["public"]["Enums"]["social_post_format"]
+          hashtags?: string[]
+          id?: string
+          ig_media_id?: string | null
+          internal_notes?: string | null
+          is_sample?: boolean
+          last_error?: string | null
+          owner_user_id?: string | null
+          permalink?: string | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["social_post_status"]
+          timezone?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_disclosure?: boolean
+          approved_at?: string | null
+          approver_user_id?: string | null
+          campaign?: string | null
+          caption?: string
+          created_at?: string
+          created_by?: string | null
+          cta_keyword?: string | null
+          destination_url?: string | null
+          first_comment?: string | null
+          format?: Database["public"]["Enums"]["social_post_format"]
+          hashtags?: string[]
+          id?: string
+          ig_media_id?: string | null
+          internal_notes?: string | null
+          is_sample?: boolean
+          last_error?: string | null
+          owner_user_id?: string | null
+          permalink?: string | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["social_post_status"]
+          timezone?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_publish_attempts: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          idempotency_key: string
+          ig_container_id: string | null
+          ig_media_id: string | null
+          last_polled_at: string | null
+          permalink: string | null
+          post_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["social_publish_status"]
+          triggered_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key: string
+          ig_container_id?: string | null
+          ig_media_id?: string | null
+          last_polled_at?: string | null
+          permalink?: string | null
+          post_id: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["social_publish_status"]
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key?: string
+          ig_container_id?: string | null
+          ig_media_id?: string | null
+          last_polled_at?: string | null
+          permalink?: string | null
+          post_id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["social_publish_status"]
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_publish_attempts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_reply_templates: {
+        Row: {
+          active: boolean
+          body: string
+          channel: string
+          created_at: string
+          created_by: string | null
+          id: string
+          key: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          body: string
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_tokens: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          key_version: number
+          platform: string
+          scopes: string[]
+          token_ciphertext: string
+          token_iv: string
+          token_tag: string | null
+          token_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          key_version?: number
+          platform?: string
+          scopes?: string[]
+          token_ciphertext: string
+          token_iv: string
+          token_tag?: string | null
+          token_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          key_version?: number
+          platform?: string
+          scopes?: string[]
+          token_ciphertext?: string
+          token_iv?: string
+          token_tag?: string | null
+          token_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_webhook_events: {
+        Row: {
+          created_at: string
+          event_id: string | null
+          event_type: string | null
+          id: string
+          payload: Json
+          platform: string
+          processed: boolean
+          processing_error: string | null
+          received_at: string
+          signature_valid: boolean
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          payload?: Json
+          platform?: string
+          processed?: boolean
+          processing_error?: string | null
+          received_at?: string
+          signature_valid?: boolean
+        }
+        Update: {
+          created_at?: string
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          payload?: Json
+          platform?: string
+          processed?: boolean
+          processing_error?: string | null
+          received_at?: string
+          signature_valid?: boolean
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           activated_at: string | null
@@ -2643,6 +3339,10 @@ export type Database = {
       }
       is_super: { Args: { uid: string }; Returns: boolean }
       reject_hosting_request: { Args: { p_request_id: string }; Returns: Json }
+      social_can_schedule_at: {
+        Args: { p_exclude_post_id?: string; p_when: string }
+        Returns: Json
+      }
       update_user_profile:
         | {
             Args: {
@@ -2709,6 +3409,28 @@ export type Database = {
         | "active"
         | "sold"
         | "retired"
+      social_account_status: "disconnected" | "connected" | "expired" | "error"
+      social_automation_mode: "review_required" | "auto_publish_approved"
+      social_lead_source: "comment" | "dm" | "form"
+      social_lead_stage:
+        | "new"
+        | "contacted"
+        | "qualified"
+        | "checkout_started"
+        | "customer"
+        | "not_interested"
+        | "escalated"
+      social_post_format: "image" | "carousel" | "reel"
+      social_post_status:
+        | "draft"
+        | "needs_review"
+        | "approved"
+        | "scheduled"
+        | "publishing"
+        | "published"
+        | "failed"
+        | "canceled"
+      social_publish_status: "pending" | "succeeded" | "failed"
       workspace_role: "client" | "host" | "investor"
       workspace_role_status: "active" | "pending" | "suspended"
     }
@@ -2856,6 +3578,30 @@ export const Constants = {
         "sold",
         "retired",
       ],
+      social_account_status: ["disconnected", "connected", "expired", "error"],
+      social_automation_mode: ["review_required", "auto_publish_approved"],
+      social_lead_source: ["comment", "dm", "form"],
+      social_lead_stage: [
+        "new",
+        "contacted",
+        "qualified",
+        "checkout_started",
+        "customer",
+        "not_interested",
+        "escalated",
+      ],
+      social_post_format: ["image", "carousel", "reel"],
+      social_post_status: [
+        "draft",
+        "needs_review",
+        "approved",
+        "scheduled",
+        "publishing",
+        "published",
+        "failed",
+        "canceled",
+      ],
+      social_publish_status: ["pending", "succeeded", "failed"],
       workspace_role: ["client", "host", "investor"],
       workspace_role_status: ["active", "pending", "suspended"],
     },
