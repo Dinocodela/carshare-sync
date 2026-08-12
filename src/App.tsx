@@ -99,6 +99,8 @@ import InvestorPayouts from "./pages/investor/InvestorPayouts";
 import InvestorPayoutSettings from "./pages/investor/InvestorPayoutSettings";
 import AdminInvestments from "./pages/admin/AdminInvestments";
 import SocialAdmin from "./pages/admin/SocialAdmin";
+import WrapStudio from "./pages/admin/WrapStudio";
+
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import PrivacyCenter from "./pages/PrivacyCenter";
@@ -303,6 +305,8 @@ const App = () => (
                       />
                       <Route path="/admin/investments" element={<AdminInvestments />} />
                       <Route path="/admin/social" element={<SocialAdmin />} />
+                      <Route path="/admin/wraps" element={<WrapStudio />} />
+
                     </Route>
                   </Route>
                 </Route>

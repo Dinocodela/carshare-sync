@@ -10,19 +10,17 @@ import { WrapsHeader } from "@/components/wraps/WrapsHeader";
 import { WrapsOffers } from "@/components/wraps/WrapsOffers";
 import { cn } from "@/lib/utils";
 import {
-  COMPATIBILITY,
   DEFAULT_MODEL_KEY,
   TeslaModelKey,
   WRAP_CATEGORIES,
   WRAP_DISCLOSURE,
   WrapCategory,
   getModelConfig,
-  getWrapsByModel,
   isTeslaModelKey,
-  wrapPreviewUrl,
-  wraps,
 } from "@/data/wraps";
+import { useWrapDesigns } from "@/hooks/useWrapDesigns";
 import { trackWrapEvent } from "@/lib/wrapAnalytics";
+
 
 const steps = [
   {
@@ -52,11 +50,16 @@ export default function Wraps() {
     ? modelParam
     : DEFAULT_MODEL_KEY;
   const modelConfig = getModelConfig(activeModel);
-  const modelWraps = useMemo(() => getWrapsByModel(activeModel), [activeModel]);
+  const { wraps: allWraps } = useWrapDesigns();
+  const modelWraps = useMemo(
+    () => allWraps.filter((w) => w.modelKey === activeModel),
+    [allWraps, activeModel]
+  );
 
   useEffect(() => {
-    trackWrapEvent("wrap_gallery_view", { count: wraps.length });
-  }, []);
+    trackWrapEvent("wrap_gallery_view", { count: allWraps.length });
+  }, [allWraps.length]);
+
 
   // Reset the secondary category filter whenever the model changes.
   useEffect(() => {
@@ -207,7 +210,7 @@ export default function Wraps() {
                   className="group block rounded-3xl bg-sand-card p-4 shadow-sm transition-transform duration-300 motion-safe:hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <WrapImage
-                    src={wrapPreviewUrl(wrap)}
+                    src={wrap.previewUrl}
                     alt={`${wrap.title} wrapped Tesla Model Y concept preview`}
                     className="aspect-[3/2]"
                     badge="Concept preview"

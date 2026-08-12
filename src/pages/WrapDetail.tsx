@@ -6,14 +6,11 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
 import { WrapsHeader } from "@/components/wraps/WrapsHeader";
 import { WrapsOffers } from "@/components/wraps/WrapsOffers";
-import {
-  WRAP_DISCLOSURE,
-  getRelatedWraps,
-  getWrapBySlug,
-  wrapImageUrl,
-  wrapPreviewUrl,
-} from "@/data/wraps";
+import { WRAP_DISCLOSURE } from "@/data/wraps";
+import { useWrapDesigns } from "@/hooks/useWrapDesigns";
+import { getRelatedCatalogWraps } from "@/lib/wrapCatalog";
 import { trackWrapEvent } from "@/lib/wrapAnalytics";
+
 
 const installSteps = [
   "In the Tesla mobile app (v4.59.0 or later), open Creations → Wrap → Upload and select the PNG.",
@@ -23,7 +20,9 @@ const installSteps = [
 
 export default function WrapDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const wrap = getWrapBySlug(slug);
+  const { wraps: allWraps } = useWrapDesigns();
+  const wrap = allWraps.find((w) => w.slug === slug);
+
 
   useEffect(() => {
     if (wrap) {
@@ -61,9 +60,10 @@ export default function WrapDetail() {
     );
   }
 
-  const fileUrl = wrapImageUrl(wrap);
-  const previewUrl = wrapPreviewUrl(wrap);
-  const related = getRelatedWraps(wrap);
+  const fileUrl = wrap.imageUrl;
+  const previewUrl = wrap.previewUrl;
+  const related = getRelatedCatalogWraps(allWraps, wrap);
+
 
   const onDownload = () =>
     trackWrapEvent("wrap_download_click", {
@@ -76,9 +76,14 @@ export default function WrapDetail() {
     <div className="min-h-screen bg-sand text-foreground">
       <SEO
         title={`${wrap.title} — Free Tesla Wrap | Teslys`}
-        description={`${wrap.description} Free digital Tesla Paint Shop wrap for the 2025+ Model Y Premium (Juniper).`}
+        description={`${wrap.description} Free digital Tesla Paint Shop wrap. ${wrap.compatibility}`}
         canonical={`https://teslys.app/wraps/${wrap.slug}`}
-        ogImage={`https://teslys.app${previewUrl}`}
+        ogImage={
+          previewUrl.startsWith("http")
+            ? previewUrl
+            : `https://teslys.app${previewUrl}`
+        }
+
       />
 
       <WrapsHeader />
@@ -230,7 +235,7 @@ export default function WrapDetail() {
                     className="group block rounded-3xl bg-sand-card p-4 shadow-sm transition-transform motion-safe:hover:-translate-y-1"
                   >
                     <WrapImage
-                      src={wrapPreviewUrl(r)}
+                      src={r.previewUrl}
                       alt={`${r.title} wrapped Tesla Model Y concept preview`}
                       className="aspect-[3/2]"
                       badge="Concept preview"
