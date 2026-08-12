@@ -100,10 +100,10 @@ export const wraps: Wrap[] = [
   {
     ...base,
     slug: "neon-velocity",
-    filename: "Neon_Velocity.png",
-    previewFilename: "Neon_Velocity-preview-v1.jpg",
+    filename: "Neon_Velocity-v2.png",
+    previewFilename: "Neon_Velocity-preview-v2.jpg",
     dimensions: "1024 × 1024 px",
-    fileSize: "1.1 MB",
+    fileSize: "159 KB",
     title: "Neon Velocity",
     category: "Featured",
     description:
