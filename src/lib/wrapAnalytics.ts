@@ -12,7 +12,13 @@ export type WrapEvent =
   | "wrap_detail_view"
   | "wrap_download_click"
   | "wrap_install_guide_open"
-  | "wrap_model_tab_click";
+  | "wrap_model_tab_click"
+  | "wrap_offer_click"
+  | "tesla_deal_lead_submit";
+
+export function getWrapUtms(): Record<string, string> {
+  return utmPayload();
+}
 
 function utmPayload(): Record<string, string> {
   const payload: Record<string, string> = {};
