@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
 import { ModelTabs } from "@/components/wraps/ModelTabs";
 import { ModelComingSoon } from "@/components/wraps/ModelComingSoon";
+import { WrapsHeader } from "@/components/wraps/WrapsHeader";
+import { WrapsOffers } from "@/components/wraps/WrapsOffers";
 import {
   COMPATIBILITY,
   DEFAULT_MODEL_KEY,
@@ -81,7 +83,7 @@ export default function Wraps() {
   const hasWraps = modelWraps.length > 0;
 
   return (
-    <div className="min-h-screen bg-[#F7F2E9] text-[#17211F]">
+    <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="Free Tesla Wraps for Model Y Premium | Teslys"
         description="Download free digital Tesla Paint Shop wraps for the 2025+ Model Y Premium (Juniper). Original artwork, instant PNG downloads, no account required."
@@ -89,24 +91,26 @@ export default function Wraps() {
         keywords="free tesla wraps, tesla paint shop wraps, model y juniper wrap, tesla creations wrap"
       />
 
+      <WrapsHeader />
+
       <main>
         {/* Hero */}
         <section className="px-6 pt-16 pb-12 sm:pt-24 sm:pb-16">
           <div className="max-w-5xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D3] bg-[#FFFDF9] px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-[#1B6E66]">
-              <Sparkles className="w-3.5 h-3.5 text-[#C6A15B]" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
               Free digital wraps
             </span>
-            <h1 className="mt-6 font-serif text-4xl sm:text-6xl leading-[1.05] tracking-tight">
-              Make your Tesla <span className="text-[#1B6E66]">yours.</span>
+            <h1 className="mt-6 font-bold tracking-tight text-4xl sm:text-6xl leading-[1.05] tracking-tight">
+              Make your Tesla <span className="text-primary">yours.</span>
             </h1>
-            <p className="mt-5 mx-auto max-w-2xl text-base sm:text-lg text-[#5C6B67] leading-relaxed">
+            <p className="mt-5 mx-auto max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
               A curated collection of free digital wraps for the Tesla Paint Shop.
               These change how your car appears on your screen — they are not
               printable vinyl templates and nothing is applied to the physical
               vehicle.
             </p>
-            <p className="mt-3 text-sm text-[#5C6B67]">
+            <p className="mt-3 text-sm text-muted-foreground">
               {hasWraps
                 ? `Compatible with ${COMPATIBILITY}`
                 : `${modelConfig.label} library coming soon. Every design will use Tesla's exact official template.`}
@@ -135,8 +139,8 @@ export default function Wraps() {
                   aria-pressed={isActive}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-[#1B6E66] text-white"
-                      : "border border-[#E8E1D3] bg-[#FFFDF9] text-[#5C6B67] hover:text-[#0E3D3A]"
+                      ? "bg-primary text-navy-foreground"
+                      : "border border-border bg-card text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {cat}
@@ -171,7 +175,7 @@ export default function Wraps() {
                       category: wrap.category,
                     })
                   }
-                  className="group block rounded-3xl bg-[#FFFDF9] p-4 shadow-[0_20px_60px_rgba(14,61,58,0.08)] transition-transform duration-300 motion-safe:hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B6E66]"
+                  className="group block rounded-3xl bg-card p-4 shadow-sm transition-transform duration-300 motion-safe:hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <WrapImage
                     src={wrapPreviewUrl(wrap)}
@@ -182,23 +186,23 @@ export default function Wraps() {
                   />
                   <div className="px-2 pt-4 pb-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="rounded-full bg-[#1B6E66]/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#1B6E66]">
+                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
                         Free
                       </span>
-                      <span className="rounded-full border border-[#E8E1D3] px-2.5 py-1 text-[11px] text-[#5C6B67]">
+                      <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
                         {wrap.category}
                       </span>
                     </div>
-                    <h2 className="mt-3 font-serif text-2xl leading-tight">
+                    <h2 className="mt-3 font-bold tracking-tight text-2xl leading-tight">
                       {wrap.title}
                     </h2>
-                    <p className="mt-1 text-sm text-[#5C6B67] line-clamp-2">
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                       {wrap.description}
                     </p>
-                    <p className="mt-3 text-xs text-[#5C6B67]/80">
+                    <p className="mt-3 text-xs text-muted-foreground/80">
                       Model Y Premium (2025+ Juniper)
                     </p>
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#1B6E66]">
+                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
                       View wrap
                       <ArrowRight className="w-4 h-4 transition-transform motion-safe:group-hover:translate-x-0.5" />
                     </span>
@@ -210,26 +214,31 @@ export default function Wraps() {
           )}
         </section>
 
+        {/* Offers */}
+        <div className="pb-16">
+          <WrapsOffers source="wraps-gallery" />
+        </div>
+
         {/* How it works */}
         <section className="px-6 pb-16">
-          <div className="max-w-5xl mx-auto rounded-3xl bg-[#0E3D3A] p-8 sm:p-12 relative overflow-hidden">
+          <div className="max-w-5xl mx-auto rounded-3xl bg-navy p-8 sm:p-12 relative overflow-hidden">
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(27,110,102,0.35),transparent_60%)]"
             />
             <div className="relative">
-              <h2 className="font-serif text-3xl text-white">How it works</h2>
-              <span className="mt-3 block h-px w-16 bg-[#C6A15B]" />
+              <h2 className="font-bold tracking-tight text-3xl text-navy-foreground">How it works</h2>
+              <span className="mt-3 block h-px w-16 bg-primary" />
               <ol className="mt-8 grid gap-6 sm:grid-cols-3 list-none p-0">
                 {steps.map((step, i) => (
                   <li key={step.title} className="flex flex-col gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
-                      <step.icon className="h-4 w-4 text-white" />
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-navy-foreground/10">
+                      <step.icon className="h-4 w-4 text-navy-foreground" />
                     </span>
-                    <h3 className="font-serif text-xl text-white">
+                    <h3 className="font-bold tracking-tight text-xl text-navy-foreground">
                       {i + 1}. {step.title}
                     </h3>
-                    <p className="text-sm text-white/60 leading-relaxed">
+                    <p className="text-sm text-navy-foreground/60 leading-relaxed">
                       {step.body}
                     </p>
                   </li>
@@ -241,7 +250,7 @@ export default function Wraps() {
 
         {/* Disclosure */}
         <section className="px-6 pb-16">
-          <p className="max-w-3xl mx-auto text-xs leading-relaxed text-[#5C6B67]">
+          <p className="max-w-3xl mx-auto text-xs leading-relaxed text-muted-foreground">
             {WRAP_DISCLOSURE}
           </p>
         </section>

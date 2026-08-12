@@ -55,7 +55,7 @@ export function ModelTabs({ active, onChange }: ModelTabsProps) {
       ref={listRef}
       role="tablist"
       aria-label="Select a Tesla model"
-      className="flex gap-2 overflow-x-auto sm:overflow-visible sm:grid sm:grid-cols-5 rounded-3xl border border-[#E8E1D3] bg-[#FFFDF9] p-2 shadow-[0_20px_60px_rgba(14,61,58,0.06)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex gap-2 overflow-x-auto sm:overflow-visible sm:grid sm:grid-cols-5 rounded-3xl border border-border bg-card p-2 shadow-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {TESLA_MODELS.map((model, i) => {
         const isActive = model.key === active;
@@ -74,25 +74,25 @@ export function ModelTabs({ active, onChange }: ModelTabsProps) {
             type="button"
             onClick={() => onChange(model.key)}
             onKeyDown={(e) => onKeyDown(e, i)}
-            className={`shrink-0 min-w-[9.5rem] sm:min-w-0 rounded-2xl px-4 py-3 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B6E66] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFFDF9] ${
+            className={`shrink-0 min-w-[9.5rem] sm:min-w-0 rounded-2xl px-4 py-3 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
               isActive
-                ? "bg-[#0E3D3A] text-white shadow-[0_12px_30px_rgba(14,61,58,0.18)]"
-                : "text-[#17211F] hover:bg-[#F7F2E9]"
+                ? "bg-navy text-navy-foreground shadow-md"
+                : "text-foreground hover:bg-background"
             }`}
           >
             <span className="flex items-center gap-2">
-              <span className="font-serif text-lg leading-none whitespace-nowrap">
+              <span className="font-bold tracking-tight text-lg leading-none whitespace-nowrap">
                 {model.label}
               </span>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider tabular-nums ${
                   model.status === "available"
                     ? isActive
-                      ? "bg-[#C6A15B]/25 text-[#F7F2E9]"
-                      : "bg-[#1B6E66]/10 text-[#1B6E66]"
+                      ? "bg-primary/25 text-navy-foreground"
+                      : "bg-primary/10 text-primary"
                     : isActive
-                      ? "bg-white/10 text-white/70"
-                      : "bg-[#E8E1D3]/70 text-[#5C6B67]"
+                      ? "bg-navy-foreground/10 text-navy-foreground/70"
+                      : "bg-muted text-muted-foreground"
                 }`}
               >
                 {model.status === "available" ? count : "Soon"}
@@ -100,7 +100,7 @@ export function ModelTabs({ active, onChange }: ModelTabsProps) {
             </span>
             <span
               className={`mt-1 block text-[11px] whitespace-nowrap ${
-                isActive ? "text-white/60" : "text-[#5C6B67]"
+                isActive ? "text-navy-foreground/60" : "text-muted-foreground"
               }`}
             >
               {model.subtitle}

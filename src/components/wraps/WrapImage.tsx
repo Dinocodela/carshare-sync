@@ -18,7 +18,7 @@ export function WrapImage({ src, alt, className, priority, badge }: WrapImagePro
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl bg-[#0E3D3A] ${className ?? ""}`}
+      className={`relative overflow-hidden rounded-2xl bg-navy ${className ?? ""}`}
     >
       <div
         aria-hidden
@@ -34,10 +34,10 @@ export function WrapImage({ src, alt, className, priority, badge }: WrapImagePro
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"
+        className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-navy-foreground/10 rounded-2xl"
       />
       {badge && (
-        <span className="absolute bottom-3 left-3 z-20 rounded-full bg-[#0E3D3A]/75 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-white/90 backdrop-blur-sm">
+        <span className="absolute bottom-3 left-3 z-20 rounded-full bg-navy/75 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-navy-foreground/90 backdrop-blur-sm">
           {badge}
         </span>
       )}
