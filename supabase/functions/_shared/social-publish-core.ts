@@ -143,7 +143,7 @@ export async function publishPost(
 
   let media: { url: string; kind: string }[];
   try {
-    media = await signedMediaUrls(admin, postId);
+    media = await signedMediaUrls(admin, postId, post.format);
   } catch (e) {
     return { ok: false, reason: (e as Error).message, post_id: postId };
   }
