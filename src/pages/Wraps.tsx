@@ -75,9 +75,6 @@ export default function Wraps() {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    trackWrapEvent("wrap_back_to_top_click", {
-      modelKey: activeModel,
-    });
   };
 
   const selectModel = (key: TeslaModelKey) => {
