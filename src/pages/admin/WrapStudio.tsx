@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Sparkles, Upload, Wand2 } from "lucide-react";
+import { CalendarClock, Loader2, Sparkles, Upload, Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAllWrapDesigns } from "@/hooks/useWrapDesigns";
 import {
