@@ -27,7 +27,11 @@ export function WrapImage({ src, alt, className, priority, badge }: WrapImagePro
       <img
         src={source}
         alt={alt}
+        width={900}
+        height={600}
+        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
         loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "low"}
         decoding="async"
         onError={() => setSource(WRAP_PLACEHOLDER)}
         className="relative z-10 w-full h-full object-cover"
