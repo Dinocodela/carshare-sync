@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
   const state = url.searchParams.get("state");
   const admin = serviceClient();
 
-  if (!code || !state) return redirectTo("/admin/social/settings?ig=missing_code");
+  if (!code || !state) return redirectTo("/admin/social?ig=missing_code");
 
   // Validate + consume the CSRF nonce
   const { data: stateRow } = await admin
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     stateRow.consumed_at ||
     new Date(stateRow.expires_at).getTime() < Date.now()
   ) {
-    return redirectTo("/admin/social/settings?ig=invalid_state");
+    return redirectTo("/admin/social?ig=invalid_state");
   }
   await admin
     .from("social_oauth_states")
@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
       metadata: { ig_username: igUsername, page_id: page.id },
     });
 
-    return redirectTo("/admin/social/settings?ig=connected");
+    return redirectTo("/admin/social?ig=connected");
   } catch (e) {
     const message = (e as Error).message;
     console.error("oauth callback failed:", message);
@@ -144,6 +144,6 @@ Deno.serve(async (req) => {
       .from("social_accounts")
       .update({ status: "error", last_error: message })
       .eq("platform", "instagram");
-    return redirectTo(`/admin/social/settings?ig=error&message=${encodeURIComponent(message)}`);
+    return redirectTo(`/admin/social?ig=error&message=${encodeURIComponent(message)}`);
   }
 });
