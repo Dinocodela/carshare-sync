@@ -76,9 +76,14 @@ export default function WrapDetail() {
     <div className="min-h-screen bg-sand text-foreground">
       <SEO
         title={`${wrap.title} — Free Tesla Wrap | Teslys`}
-        description={`${wrap.description} Free digital Tesla Paint Shop wrap for the 2025+ Model Y Premium (Juniper).`}
+        description={`${wrap.description} Free digital Tesla Paint Shop wrap. ${wrap.compatibility}`}
         canonical={`https://teslys.app/wraps/${wrap.slug}`}
-        ogImage={`https://teslys.app${previewUrl}`}
+        ogImage={
+          previewUrl.startsWith("http")
+            ? previewUrl
+            : `https://teslys.app${previewUrl}`
+        }
+
       />
 
       <WrapsHeader />
