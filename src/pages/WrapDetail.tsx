@@ -60,9 +60,10 @@ export default function WrapDetail() {
     );
   }
 
-  const fileUrl = wrapImageUrl(wrap);
-  const previewUrl = wrapPreviewUrl(wrap);
-  const related = getRelatedWraps(wrap);
+  const fileUrl = wrap.imageUrl;
+  const previewUrl = wrap.previewUrl;
+  const related = getRelatedCatalogWraps(allWraps, wrap);
+
 
   const onDownload = () =>
     trackWrapEvent("wrap_download_click", {
