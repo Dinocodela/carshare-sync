@@ -303,6 +303,8 @@ const App = () => (
                       />
                       <Route path="/admin/investments" element={<AdminInvestments />} />
                       <Route path="/admin/social" element={<SocialAdmin />} />
+                      <Route path="/admin/wraps" element={<WrapStudio />} />
+
                     </Route>
                   </Route>
                 </Route>
