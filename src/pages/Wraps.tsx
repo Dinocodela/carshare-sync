@@ -83,7 +83,7 @@ export default function Wraps() {
   const hasWraps = modelWraps.length > 0;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-sand text-foreground">
       <SEO
         title="Free Tesla Wraps for Model Y Premium | Teslys"
         description="Download free digital Tesla Paint Shop wraps for the 2025+ Model Y Premium (Juniper). Original artwork, instant PNG downloads, no account required."
@@ -97,7 +97,7 @@ export default function Wraps() {
         {/* Hero */}
         <section className="px-6 pt-16 pb-12 sm:pt-24 sm:pb-16">
           <div className="max-w-5xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+            <span className="inline-flex items-center gap-2 rounded-full border border-sand-border bg-sand-card px-4 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-primary">
               <Sparkles className="w-3.5 h-3.5 text-primary" />
               Free digital wraps
             </span>
@@ -140,7 +140,7 @@ export default function Wraps() {
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-primary text-navy-foreground"
-                      : "border border-border bg-card text-muted-foreground hover:text-foreground"
+                      : "border border-sand-border bg-sand-card text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {cat}
@@ -175,7 +175,7 @@ export default function Wraps() {
                       category: wrap.category,
                     })
                   }
-                  className="group block rounded-3xl bg-card p-4 shadow-sm transition-transform duration-300 motion-safe:hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group block rounded-3xl bg-sand-card p-4 shadow-sm transition-transform duration-300 motion-safe:hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <WrapImage
                     src={wrapPreviewUrl(wrap)}
@@ -189,7 +189,7 @@ export default function Wraps() {
                       <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
                         Free
                       </span>
-                      <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                      <span className="rounded-full border border-sand-border px-2.5 py-1 text-[11px] text-muted-foreground">
                         {wrap.category}
                       </span>
                     </div>

@@ -36,7 +36,7 @@ export default function WrapDetail() {
 
   if (!wrap) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <div className="min-h-screen bg-sand text-foreground flex flex-col">
         <SEO
           title="Wrap not found | Teslys"
           description="This Teslys digital wrap could not be found. Browse the full free wrap collection."
@@ -73,7 +73,7 @@ export default function WrapDetail() {
     });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-sand text-foreground">
       <SEO
         title={`${wrap.title} — Free Tesla Wrap | Teslys`}
         description={`${wrap.description} Free digital Tesla Paint Shop wrap for the 2025+ Model Y Premium (Juniper).`}
@@ -114,7 +114,7 @@ export default function WrapDetail() {
               <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
                 Free
               </span>
-              <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+              <span className="rounded-full border border-sand-border px-2.5 py-1 text-[11px] text-muted-foreground">
                 {wrap.category}
               </span>
             </div>
@@ -126,13 +126,13 @@ export default function WrapDetail() {
             </p>
 
             <dl className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="rounded-2xl bg-card border border-border p-4">
+              <div className="rounded-2xl bg-sand-card border border-sand-border p-4">
                 <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
                   Compatibility
                 </dt>
                 <dd className="mt-1">{wrap.compatibility}</dd>
               </div>
-              <div className="rounded-2xl bg-card border border-border p-4">
+              <div className="rounded-2xl bg-sand-card border border-sand-border p-4">
                 <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
                   File
                 </dt>
@@ -227,7 +227,7 @@ export default function WrapDetail() {
                         source: "related",
                       })
                     }
-                    className="group block rounded-3xl bg-card p-4 shadow-sm transition-transform motion-safe:hover:-translate-y-1"
+                    className="group block rounded-3xl bg-sand-card p-4 shadow-sm transition-transform motion-safe:hover:-translate-y-1"
                   >
                     <WrapImage
                       src={wrapPreviewUrl(r)}
@@ -258,7 +258,7 @@ export default function WrapDetail() {
       </main>
 
       {/* Sticky mobile CTA */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-sand-border bg-sand-card/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <a
           href={fileUrl}
           download={wrap.filename}

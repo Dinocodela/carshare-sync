@@ -59,6 +59,10 @@ body,
     --teal-light-foreground: 220 85% 15%;
     --teal-dark: 175 70% 35%;
     --teal-dark-foreground: 0 0% 100%;
+    /* Warm sand palette (wraps landing pages) */
+    --sand: 38 47% 94%;
+    --sand-card: 40 60% 99%;
+    --sand-border: 41 38% 87%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -162,6 +166,9 @@ body,
     --teal-light-foreground: 220 15% 8%;
     --teal-dark: 175 70% 45%;
     --teal-dark-foreground: 220 15% 8%;
+    --sand: 38 47% 94%;
+    --sand-card: 40 60% 99%;
+    --sand-border: 41 38% 87%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;

@@ -77,6 +77,11 @@ export default {
 						DEFAULT: 'hsl(var(--navy))',
 						foreground: 'hsl(var(--navy-foreground))'
 					},
+					sand: {
+						DEFAULT: 'hsl(var(--sand))',
+						card: 'hsl(var(--sand-card))',
+						border: 'hsl(var(--sand-border))'
+					},
 					charcoal: {
 						DEFAULT: 'hsl(var(--charcoal))',
 						foreground: 'hsl(var(--charcoal-foreground))'
