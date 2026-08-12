@@ -1,5 +1,6 @@
 import { writeFileSync } from "fs";
 import { modelCityPages } from "../src/data/modelCityPages";
+import { wraps } from "../src/data/wraps";
 
 const BASE_URL = "https://teslys.app";
 const today = new Date().toISOString().split("T")[0];
@@ -61,8 +62,18 @@ const programmaticPages: SitemapEntry[] = modelCityPages.map((p) => ({
   priority: "0.8",
 }));
 
+const wrapPages: SitemapEntry[] = [
+  { loc: "/wraps", changefreq: "weekly", priority: "0.8" },
+  ...wraps.map((w) => ({
+    loc: `/wraps/${w.slug}`,
+    changefreq: "monthly",
+    priority: "0.7",
+  })),
+];
+
 const allPages = [
   ...staticPages,
+  ...wrapPages,
   ...intentPages,
   ...modelPages,
   ...cityPages,

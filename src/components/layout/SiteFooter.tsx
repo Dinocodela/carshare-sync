@@ -8,6 +8,7 @@ const navSections = [
     links: [
       { label: "How It Works", to: "/how-it-works" },
       { label: "Earnings Calculator", to: "/earnings-calculator" },
+      { label: "Free Tesla Wraps", to: "/wraps" },
       { label: "About", to: "/about" },
     ],
   },
