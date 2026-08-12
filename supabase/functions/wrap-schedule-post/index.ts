@@ -56,21 +56,27 @@ Deno.serve(async (req) => {
     .maybeSingle();
   if (designError) return jsonResponse({ error: designError.message }, 500);
   if (!design) return jsonResponse({ error: "Wrap design not found" }, 404);
-  if (!design.preview_path || design.storage_kind !== "storage") {
-    return jsonResponse({ error: "This wrap has no stored preview image to post" }, 400);
+  if (!design.preview_path) {
+    return jsonResponse({ error: "This wrap has no preview image to post" }, 400);
   }
 
-  // Copy the preview into the social media bucket
-  const download = await admin.storage.from("wraps").download(design.preview_path);
-  if (download.error || !download.data) {
-    return jsonResponse({ error: `Could not read wrap preview: ${download.error?.message}` }, 500);
+  // Storage-backed previews get copied into the private social bucket;
+  // static previews are already publicly served and can be referenced directly.
+  let storagePath = design.preview_path as string;
+  let bytesLength = 0;
+  if (design.storage_kind === "storage") {
+    const download = await admin.storage.from("wraps").download(design.preview_path);
+    if (download.error || !download.data) {
+      return jsonResponse({ error: `Could not read wrap preview: ${download.error?.message}` }, 500);
+    }
+    const bytes = new Uint8Array(await download.data.arrayBuffer());
+    bytesLength = bytes.byteLength;
+    storagePath = `wraps/${design.slug}-${Date.now()}.jpg`;
+    const upload = await admin.storage
+      .from("social-media")
+      .upload(storagePath, bytes, { contentType: "image/jpeg", upsert: true });
+    if (upload.error) return jsonResponse({ error: upload.error.message }, 500);
   }
-  const bytes = new Uint8Array(await download.data.arrayBuffer());
-  const storagePath = `wraps/${design.slug}-${Date.now()}.jpg`;
-  const upload = await admin.storage
-    .from("social-media")
-    .upload(storagePath, bytes, { contentType: "image/jpeg", upsert: true });
-  if (upload.error) return jsonResponse({ error: upload.error.message }, 500);
 
   const caption =
     body.caption?.trim() ||
@@ -117,7 +123,7 @@ Deno.serve(async (req) => {
     storage_path: storagePath,
     kind: "image",
     mime_type: "image/jpeg",
-    bytes: bytes.byteLength,
+    bytes: bytesLength,
     position: 0,
     alt_text: `${design.title} digital Tesla wrap preview`,
     created_by: actor.id,

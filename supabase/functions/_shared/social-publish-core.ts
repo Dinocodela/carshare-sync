@@ -4,6 +4,7 @@ import { notifySlack, writeAudit } from "./social-admin.ts";
 
 export const GRAPH_VERSION = "v21.0";
 export const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_VERSION}`;
+export const PUBLIC_SITE_URL = "https://teslys.app";
 
 export interface PublishResult {
   ok: boolean;
@@ -54,9 +55,18 @@ async function signedMediaUrls(admin: SupabaseClient, postId: string) {
 
   const signed: { url: string; kind: string }[] = [];
   for (const asset of assets) {
+    // Assets can point at a public URL (static site file) instead of the private bucket.
+    const path = asset.storage_path as string;
+    if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/")) {
+      signed.push({
+        url: path.startsWith("/") ? `${PUBLIC_SITE_URL}${path}` : path,
+        kind: asset.kind ?? "image",
+      });
+      continue;
+    }
     const { data, error } = await admin.storage
       .from("social-media")
-      .createSignedUrl(asset.storage_path, 60 * 30);
+      .createSignedUrl(path, 60 * 30);
     if (error || !data?.signedUrl) {
       throw new Error(`Could not sign media ${asset.storage_path}: ${error?.message}`);
     }
