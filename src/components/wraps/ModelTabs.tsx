@@ -77,7 +77,7 @@ export function ModelTabs({ active, onChange }: ModelTabsProps) {
             className={`shrink-0 min-w-[9.5rem] sm:min-w-0 rounded-2xl px-4 py-3 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
               isActive
                 ? "bg-navy text-navy-foreground shadow-md"
-                : "text-foreground hover:bg-sand-card"
+                : "text-foreground hover:bg-sand"
             }`}
           >
             <span className="flex items-center gap-2">

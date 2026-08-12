@@ -83,7 +83,7 @@ export default function Wraps() {
   const hasWraps = modelWraps.length > 0;
 
   return (
-    <div className="min-h-screen bg-sand-card text-foreground">
+    <div className="min-h-screen bg-sand text-foreground">
       <SEO
         title="Free Tesla Wraps for Model Y Premium | Teslys"
         description="Download free digital Tesla Paint Shop wraps for the 2025+ Model Y Premium (Juniper). Original artwork, instant PNG downloads, no account required."

@@ -36,7 +36,7 @@ export default function WrapDetail() {
 
   if (!wrap) {
     return (
-      <div className="min-h-screen bg-sand-card text-foreground flex flex-col">
+      <div className="min-h-screen bg-sand text-foreground flex flex-col">
         <SEO
           title="Wrap not found | Teslys"
           description="This Teslys digital wrap could not be found. Browse the full free wrap collection."
@@ -73,7 +73,7 @@ export default function WrapDetail() {
     });
 
   return (
-    <div className="min-h-screen bg-sand-card text-foreground">
+    <div className="min-h-screen bg-sand text-foreground">
       <SEO
         title={`${wrap.title} — Free Tesla Wrap | Teslys`}
         description={`${wrap.description} Free digital Tesla Paint Shop wrap for the 2025+ Model Y Premium (Juniper).`}
