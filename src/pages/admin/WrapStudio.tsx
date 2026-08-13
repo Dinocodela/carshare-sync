@@ -224,6 +224,8 @@ export default function WrapStudio() {
         </p>
       </header>
 
+      <WrapDropPanel />
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
