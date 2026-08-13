@@ -1,0 +1,1 @@
+update public.wrap_designs set preview_path = '/wraps/previews/Onyx-preview-v2.jpg', updated_at = now() where slug = 'onyx';
