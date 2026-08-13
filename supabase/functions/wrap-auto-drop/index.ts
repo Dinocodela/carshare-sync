@@ -21,7 +21,7 @@ import {
   serviceClient,
   writeAudit,
 } from "../_shared/social-admin.ts";
-import { Image } from "https://deno.land/x/imagescript@1.2.17/mod.ts";
+import { Jimp } from "https://esm.sh/jimp@1.6.0";
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import {
   WRAP_TEMPLATES,
