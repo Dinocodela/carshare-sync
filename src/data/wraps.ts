@@ -124,7 +124,7 @@ export const wraps: Wrap[] = [
     ...base,
     slug: "onyx",
     filename: "Onyx.png",
-    previewFilename: "Onyx-preview-v1.jpg",
+    previewFilename: "Onyx-preview-v2.jpg",
     dimensions: "1024 × 1024 px",
     fileSize: "709 KB",
     title: "Onyx",
