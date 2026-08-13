@@ -16,6 +16,7 @@ import {
   corsHeaders,
   jsonResponse,
   notifySlack,
+  isWorkerRequest,
   requireSuperAdmin,
   serviceClient,
   writeAudit,
@@ -526,8 +527,7 @@ Deno.serve(async (req) => {
 
   const body = await req.json().catch(() => ({} as Record<string, unknown>));
   const mode = typeof body.mode === "string" ? body.mode : "tick";
-  const workerSecret = Deno.env.get("SOCIAL_WORKER_SECRET");
-  const isWorker = !!workerSecret && req.headers.get("x-worker-secret") === workerSecret;
+  const isWorker = isWorkerRequest(req);
 
   let admin: SupabaseClient;
   let actorId: string | null = null;
