@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CalendarClock, Loader2, Sparkles, Upload, Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAllWrapDesigns } from "@/hooks/useWrapDesigns";
+import { WrapDropPanel } from "@/components/wraps/WrapDropPanel";
 import {
   DEFAULT_TEMPLATE_KEY,
   WRAP_TEMPLATES,
