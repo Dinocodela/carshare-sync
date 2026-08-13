@@ -46,12 +46,21 @@ export async function requireSuperAdmin(
 }
 
 /** Shared-secret guard for cron-triggered workers (no user JWT involved). */
-export function requireWorkerSecret(req: Request): Response | null {
-  const expected = Deno.env.get("SOCIAL_WORKER_SECRET");
-  if (!expected) return jsonResponse({ error: "Worker secret not configured" }, 500);
+export function isWorkerRequest(req: Request): boolean {
   const provided = req.headers.get("x-worker-secret");
-  if (provided !== expected) return jsonResponse({ error: "Unauthorized" }, 401);
-  return null;
+  if (!provided) return false;
+  const accepted = [
+    Deno.env.get("SOCIAL_WORKER_SECRET"),
+    Deno.env.get("WRAP_WORKER_SECRET"),
+  ].filter(Boolean) as string[];
+  return accepted.includes(provided);
+}
+
+export function requireWorkerSecret(req: Request): Response | null {
+  const configured =
+    Deno.env.get("SOCIAL_WORKER_SECRET") || Deno.env.get("WRAP_WORKER_SECRET");
+  if (!configured) return jsonResponse({ error: "Worker secret not configured" }, 500);
+  return isWorkerRequest(req) ? null : jsonResponse({ error: "Unauthorized" }, 401);
 }
 
 export async function writeAudit(
