@@ -21,7 +21,7 @@ import {
   serviceClient,
   writeAudit,
 } from "../_shared/social-admin.ts";
-import { Image } from "https://deno.land/x/imagescript@1.2.17/mod.ts";
+import { Jimp } from "https://esm.sh/jimp@1.6.0";
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import {
   WRAP_TEMPLATES,
@@ -95,23 +95,27 @@ async function aiImage(prompt: string): Promise<Uint8Array> {
 
 /* -------------------------------------------------------------- image helpers */
 
+const readImage = async (bytes: Uint8Array) =>
+  // deno-lint-ignore no-explicit-any
+  await (Jimp as any).fromBuffer(
+    bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer,
+  );
+
+const asBytes = (buf: ArrayBufferLike | Uint8Array) =>
+  buf instanceof Uint8Array ? buf : new Uint8Array(buf as ArrayBuffer);
+
 /** Resize to the exact UV template size and squeeze the PNG under 1MB. */
 async function toTexturePng(bytes: Uint8Array, width: number, height: number) {
-  const img = await Image.decode(bytes);
-  img.resize(width, height);
-  let out = await img.encode(9);
+  const img = await readImage(bytes);
+  img.resize({ w: width, h: height });
+  let out = asBytes(await img.getBuffer("image/png"));
   // PNG still too heavy? posterize progressively — flat livery art survives this
   // far better than photography, and Tesla rejects anything over 1MB.
   for (let bits = 5; out.byteLength > MAX_PNG_BYTES && bits >= 3; bits--) {
-    const step = 256 / (1 << bits);
-    const copy = await Image.decode(bytes);
-    copy.resize(width, height);
-    for (const [x, y, color] of copy.iterateWithColors()) {
-      const [r, g, b, a] = Image.colorToRGBA(color);
-      const q = (v: number) => Math.min(255, Math.round(v / step) * step);
-      copy.setPixelAt(x, y, Image.rgbaToColor(q(r), q(g), q(b), a));
-    }
-    out = await copy.encode(9);
+    const copy = await readImage(bytes);
+    copy.resize({ w: width, h: height });
+    copy.posterize(1 << bits);
+    out = asBytes(await copy.getBuffer("image/png"));
   }
   if (out.byteLength > MAX_PNG_BYTES) {
     throw new Error(`Texture is ${out.byteLength} bytes, above the 1MB Tesla limit`);
@@ -121,16 +125,16 @@ async function toTexturePng(bytes: Uint8Array, width: number, height: number) {
 
 /** Cover-crop to an aspect ratio and encode as JPEG. */
 async function toJpeg(bytes: Uint8Array, width: number, height: number, quality = 88) {
-  const img = await Image.decode(bytes);
+  const img = await readImage(bytes);
   const scale = Math.max(width / img.width, height / img.height);
-  img.resize(Math.ceil(img.width * scale), Math.ceil(img.height * scale));
-  img.crop(
-    Math.floor((img.width - width) / 2),
-    Math.floor((img.height - height) / 2),
-    width,
-    height,
-  );
-  return await img.encodeJPEG(quality);
+  img.resize({ w: Math.ceil(img.width * scale), h: Math.ceil(img.height * scale) });
+  img.crop({
+    x: Math.floor((img.width - width) / 2),
+    y: Math.floor((img.height - height) / 2),
+    w: width,
+    h: height,
+  });
+  return asBytes(await img.getBuffer("image/jpeg", { quality }));
 }
 
 const toDataUrl = (bytes: Uint8Array, mime: string) => {
@@ -374,7 +378,14 @@ async function stageScheduling(admin: SupabaseClient, job: Job) {
   const brief = job.brief;
   const actor = await systemActor(admin, job.triggered_by);
   const now = new Date().toISOString();
-  const scheduledAt = job.scheduled_post_at ?? new Date(Date.now() + 15 * 60_000).toISOString();
+  // Default: the next 9:00 AM Pacific (16:00/17:00 UTC), otherwise 15 minutes out.
+  const nextNinePacific = () => {
+    const target = new Date();
+    target.setUTCHours(16, 0, 0, 0);
+    if (target.getTime() <= Date.now() + 5 * 60_000) target.setUTCDate(target.getUTCDate() + 1);
+    return target.toISOString();
+  };
+  const scheduledAt = job.scheduled_post_at ?? nextNinePacific();
 
   const caption =
     `${brief.title} — a free digital wrap for your Tesla.\n\n` +
