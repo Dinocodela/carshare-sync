@@ -374,7 +374,14 @@ async function stageScheduling(admin: SupabaseClient, job: Job) {
   const brief = job.brief;
   const actor = await systemActor(admin, job.triggered_by);
   const now = new Date().toISOString();
-  const scheduledAt = job.scheduled_post_at ?? new Date(Date.now() + 15 * 60_000).toISOString();
+  // Default: the next 9:00 AM Pacific (16:00/17:00 UTC), otherwise 15 minutes out.
+  const nextNinePacific = () => {
+    const target = new Date();
+    target.setUTCHours(16, 0, 0, 0);
+    if (target.getTime() <= Date.now() + 5 * 60_000) target.setUTCDate(target.getUTCDate() + 1);
+    return target.toISOString();
+  };
+  const scheduledAt = job.scheduled_post_at ?? nextNinePacific();
 
   const caption =
     `${brief.title} — a free digital wrap for your Tesla.\n\n` +
