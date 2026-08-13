@@ -3148,6 +3148,68 @@ export type Database = {
         }
         Relationships: []
       }
+      wrap_drop_jobs: {
+        Row: {
+          asset_paths: Json
+          attempts: number
+          brief: Json | null
+          created_at: string
+          design_id: string | null
+          error: string | null
+          id: string
+          post_id: string | null
+          scheduled_post_at: string | null
+          status: string
+          template_key: string
+          theme: string | null
+          triggered_by: string | null
+          updated_at: string
+          video_job_id: string | null
+        }
+        Insert: {
+          asset_paths?: Json
+          attempts?: number
+          brief?: Json | null
+          created_at?: string
+          design_id?: string | null
+          error?: string | null
+          id?: string
+          post_id?: string | null
+          scheduled_post_at?: string | null
+          status?: string
+          template_key: string
+          theme?: string | null
+          triggered_by?: string | null
+          updated_at?: string
+          video_job_id?: string | null
+        }
+        Update: {
+          asset_paths?: Json
+          attempts?: number
+          brief?: Json | null
+          created_at?: string
+          design_id?: string | null
+          error?: string | null
+          id?: string
+          post_id?: string | null
+          scheduled_post_at?: string | null
+          status?: string
+          template_key?: string
+          theme?: string | null
+          triggered_by?: string | null
+          updated_at?: string
+          video_job_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wrap_drop_jobs_design_id_fkey"
+            columns: ["design_id"]
+            isOneToOne: false
+            referencedRelation: "wrap_designs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       client_visible_earnings: {
