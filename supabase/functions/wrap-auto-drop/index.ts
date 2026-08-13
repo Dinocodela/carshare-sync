@@ -62,7 +62,7 @@ async function aiText(prompt: string): Promise<string> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash",
+      model: "google/gemini-3-flash-preview",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
     }),
