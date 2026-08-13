@@ -77,17 +77,9 @@ export default function ClientRegisterCard({ onDone, onBackToLogin }: Props) {
           description: "Please verify your email.",
         });
 
-        try {
-          await supabase.functions.invoke('notify-admin-new-client', {
-            body: {
-              clientName: `${formData.firstName} ${formData.lastName}`,
-              clientEmail: formData.email,
-              clientPhone: formData.phone,
-            },
-          });
-        } catch (e) {
-          console.warn("Admin notification failed:", e);
-        }
+        // Admin Slack/email alert is fired server-side by a database trigger
+        // on profile creation, so every signup path is covered.
+
 
         onDone?.();
         onBackToLogin();
