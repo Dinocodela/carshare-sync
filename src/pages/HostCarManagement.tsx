@@ -436,6 +436,9 @@ export default function HostCarManagement() {
 
   // Delete confirmation state
   const [deleteClaimId, setDeleteClaimId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<
+    { type: "earning" | "expense"; id: string; label?: string } | null
+  >(null);
   const [deleteClaimDialogOpen, setDeleteClaimDialogOpen] = useState(false);
 
   // Loading states for better UX
@@ -3685,7 +3688,7 @@ export default function HostCarManagement() {
                                   <Edit className="h-3 w-3 mr-2" /> Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onDeleteExpense(expense.id)} className="text-destructive">
+                                <DropdownMenuItem onClick={() => setPendingDelete({ type: "expense", id: expense.id, label: expense.trip_id ? `Trip ${expense.trip_id}` : undefined })} className="text-destructive">
                                   <Trash className="h-3 w-3 mr-2" /> Delete
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -5868,7 +5871,7 @@ export default function HostCarManagement() {
                                       <Edit className="h-3 w-3 mr-2" /> Edit
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => onDeleteEarning(earning.id)} className="text-destructive">
+                                    <DropdownMenuItem onClick={() => setPendingDelete({ type: "earning", id: earning.id, label: earning.trip_id ? `Trip ${earning.trip_id}` : undefined })} className="text-destructive">
                                       <Trash className="h-3 w-3 mr-2" /> Delete
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
@@ -7503,6 +7506,43 @@ export default function HostCarManagement() {
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Delete Claim
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Earning / Expense Confirmation */}
+        <AlertDialog
+          open={!!pendingDelete}
+          onOpenChange={(open) => !open && setPendingDelete(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Delete {pendingDelete?.type === "earning" ? "Earning" : "Expense"}?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this{" "}
+                {pendingDelete?.type === "earning" ? "earning" : "expense"}
+                {pendingDelete?.label ? ` (${pendingDelete.label})` : ""}? This
+                action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setPendingDelete(null)}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (!pendingDelete) return;
+                  const { type, id } = pendingDelete;
+                  setPendingDelete(null);
+                  if (type === "earning") onDeleteEarning(id);
+                  else onDeleteExpense(id);
+                }}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
