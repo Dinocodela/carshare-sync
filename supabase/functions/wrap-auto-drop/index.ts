@@ -29,7 +29,7 @@ import {
   templateStyleNote,
   templateVehicleName,
 } from "./templates.ts";
-import { renderTitleOverlay } from "./overlay.ts";
+import { type BackdropStats, renderTitleOverlay } from "./overlay.ts";
 
 const SITE_URL = "https://teslys.app";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
@@ -147,16 +147,47 @@ const toDataUrl = (bytes: Uint8Array, mime: string) => {
   return `data:${mime};base64,${btoa(binary)}`;
 };
 
+/**
+ * Average luminance + detail level of the region the title sits on
+ * (the lower third of the 1080x1920 hero), used to pick the contrast plan.
+ */
+function measureBackdrop(img: any): BackdropStats {
+  const x0 = Math.floor(img.width * 0.08);
+  const x1 = Math.ceil(img.width * 0.92);
+  const y0 = Math.floor(img.height * 0.55);
+  const y1 = Math.ceil(img.height * 0.94);
+  const step = Math.max(1, Math.floor((x1 - x0) / 90));
+
+  let n = 0;
+  let sum = 0;
+  let sumSq = 0;
+  for (let y = y0; y < y1; y += step) {
+    for (let x = x0; x < x1; x += step) {
+      const { r, g, b } = Jimp.intToRGBA(img.getPixelColor(x, y));
+      const l = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+      sum += l;
+      sumSq += l * l;
+      n++;
+    }
+  }
+  if (!n) return { luma: 0.32, variance: 0.18 };
+  const luma = sum / n;
+  const variance = Math.sqrt(Math.max(0, sumSq / n - luma * luma));
+  return { luma, variance };
+}
+
 /** Burn the centred title lockup into the 1080x1920 hero frame. */
 async function withTitleCard(
   heroJpeg: Uint8Array,
   card: { kicker: string; title: string; subtitle: string },
 ) {
-  const overlay = await readImage(await renderTitleOverlay(card));
   const base = await readImage(heroJpeg);
+  const backdrop = measureBackdrop(base);
+  const overlay = await readImage(await renderTitleOverlay(card, backdrop));
   base.composite(overlay, 0, 0);
   return asBytes(await base.getBuffer("image/jpeg", { quality: 92 }));
 }
+
 
 /* ---------------------------------------------------------------- job helpers */
 
