@@ -92,7 +92,7 @@ export async function renderTitleOverlay(card: TitleCard): Promise<Uint8Array> {
 
   // Block is anchored in the lower third, above the Instagram caption zone.
   const blockH =
-    46 + 34 + title.lines.length * titleLead + 40 + subtitle.lines.length * subLead;
+    46 + 34 + title.lines.length * titleLead + 120 + subtitle.lines.length * subLead;
   let y = CANVAS_H - 420 - blockH + 46;
 
   const parts: string[] = [];
@@ -108,9 +108,9 @@ export async function renderTitleOverlay(card: TitleCard): Promise<Uint8Array> {
         `font-size="${title.fontSize}" fill="#FFFDF9">${escapeXml(line)}</text>`,
     );
   }
-  y += 40;
+  y += 120;
   parts.push(
-    `<rect x="${cx - 70}" y="${y - 20}" width="140" height="2" fill="#C6A15B" fill-opacity="0.9"/>`,
+    `<rect x="${cx - 70}" y="${y - 62}" width="140" height="2" fill="#C6A15B" fill-opacity="0.9"/>`,
   );
   for (const line of subtitle.lines) {
     y += subLead;
