@@ -25,9 +25,11 @@ import { Jimp } from "https://esm.sh/jimp@1.6.0";
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import {
   WRAP_TEMPLATES,
+  templateModelName,
   templateStyleNote,
   templateVehicleName,
 } from "./templates.ts";
+import { renderTitleOverlay } from "./overlay.ts";
 
 const SITE_URL = "https://teslys.app";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
@@ -144,6 +146,17 @@ const toDataUrl = (bytes: Uint8Array, mime: string) => {
   }
   return `data:${mime};base64,${btoa(binary)}`;
 };
+
+/** Burn the centred title lockup into the 1080x1920 hero frame. */
+async function withTitleCard(
+  heroJpeg: Uint8Array,
+  card: { kicker: string; title: string; subtitle: string },
+) {
+  const overlay = await readImage(await renderTitleOverlay(card));
+  const base = await readImage(heroJpeg);
+  base.composite(overlay, 0, 0);
+  return asBytes(await base.getBuffer("image/jpeg", { quality: 92 }));
+}
 
 /* ---------------------------------------------------------------- job helpers */
 
@@ -278,9 +291,32 @@ async function stagePreview(admin: SupabaseClient, job: Job) {
     .upload(heroPath, hero, { contentType: "image/jpeg", upsert: true });
   if (up2.error) throw new Error(up2.error.message);
 
+  // Title card burned into the reel's first frame. Never fail the drop over it.
+  let titledPath: string | null = null;
+  try {
+    const titled = await withTitleCard(hero, {
+      kicker: `${templateModelName(template.key)} · Free digital wrap`,
+      title: brief.title,
+      subtitle: 'Comment "WRAP" for the free download',
+    });
+    titledPath = `previews/${brief.slug}-hero-titled.jpg`;
+    const up3 = await admin.storage
+      .from("wraps")
+      .upload(titledPath, titled, { contentType: "image/jpeg", upsert: true });
+    if (up3.error) throw new Error(up3.error.message);
+  } catch (e) {
+    console.error("title overlay failed, using clean hero:", e);
+    titledPath = null;
+  }
+
   await patch(admin, job.id, {
     status: "video",
-    asset_paths: { ...job.asset_paths, preview: galleryPath, hero: heroPath },
+    asset_paths: {
+      ...job.asset_paths,
+      preview: galleryPath,
+      hero: heroPath,
+      ...(titledPath ? { hero_titled: titledPath } : {}),
+    },
   });
 }
 
@@ -289,7 +325,10 @@ async function stageVideo(admin: SupabaseClient, job: Job) {
 
   // 1) create the Veo job the first time we reach this stage
   if (!job.video_job_id) {
-    const hero = await download(admin, job.asset_paths.hero);
+    const hero = await download(
+      admin,
+      job.asset_paths.hero_titled ?? job.asset_paths.hero,
+    );
     const res = await fetch(`${GATEWAY}/videos`, {
       method: "POST",
       headers: {
@@ -299,10 +338,12 @@ async function stageVideo(admin: SupabaseClient, job: Job) {
       body: JSON.stringify({
         model: "google/veo-3.1-lite",
         prompt:
-          `Slow cinematic orbit around the parked Tesla in the image, camera gliding from the ` +
-          `front three-quarter to the side, studio lighting sweeping across the ` +
-          `${brief.paint_summary ?? "custom"} wrap, reflections rolling over the bodywork. ` +
-          `The car stays still. No text overlays, no people.`,
+          `Slow cinematic orbit around the parked ${templateVehicleName(job.template_key)} in ` +
+          `the image, camera gliding from the front three-quarter to the side, studio lighting ` +
+          `sweeping across the ${brief.paint_summary ?? "custom"} wrap, reflections rolling ` +
+          `over the bodywork. The car stays still. Keep the existing typography overlay from ` +
+          `the first frame perfectly static, sharp, centred and fully inside the frame for the ` +
+          `whole clip — do not move, warp, re-render, crop or add any other text. No people.`,
         seconds: "8",
         size: "1080x1920",
         input_reference: toDataUrl(hero, "image/jpeg"),
@@ -387,8 +428,11 @@ async function stageScheduling(admin: SupabaseClient, job: Job) {
   };
   const scheduledAt = job.scheduled_post_at ?? nextNinePacific();
 
+  const modelName = templateModelName(job.template_key);
+  const shownCar = templateVehicleName(job.template_key);
   const caption =
-    `${brief.title} — a free digital wrap for your Tesla.\n\n` +
+    `${brief.title} — a free digital wrap for your Tesla ${modelName}.\n\n` +
+    `Shown on a ${shownCar}. Fits: ${WRAP_TEMPLATES.find((t) => t.key === job.template_key)?.compatibility ?? modelName}\n\n` +
     `Your Tesla deserves more than the same factory look.\n\n` +
     `Comment "WRAP" below and we'll send you the free link in your DMs.\n\n` +
     `More designs at ${SITE_URL}/wraps/${brief.slug}`;
@@ -398,7 +442,14 @@ async function stageScheduling(admin: SupabaseClient, job: Job) {
     .insert({
       title: `Wrap drop — ${brief.title}`,
       caption,
-      hashtags: ["#tesla", "#teslawrap", "#paintshop", "#teslacommunity", "#teslys"],
+      hashtags: [
+        "#tesla",
+        `#tesla${modelName.toLowerCase().replace(/[^a-z0-9]/g, "")}`,
+        "#teslawrap",
+        "#paintshop",
+        "#teslacommunity",
+        "#teslys",
+      ],
       format: "reel",
       status: "scheduled",
       scheduled_at: scheduledAt,
@@ -423,7 +474,7 @@ async function stageScheduling(admin: SupabaseClient, job: Job) {
     mime_type: "video/mp4",
     bytes: job.asset_paths.video_bytes ?? 0,
     position: 0,
-    alt_text: `${brief.title} digital Tesla wrap reel`,
+    alt_text: `${brief.title} digital wrap shown on a ${shownCar}`,
     created_by: actor,
   });
   if (assetError) throw new Error(assetError.message);
