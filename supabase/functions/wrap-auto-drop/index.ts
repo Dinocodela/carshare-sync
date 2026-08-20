@@ -29,7 +29,7 @@ import {
   templateStyleNote,
   templateVehicleName,
 } from "./templates.ts";
-import { renderTitleOverlay } from "./overlay.ts";
+import { type BackdropStats, renderTitleOverlay } from "./overlay.ts";
 
 const SITE_URL = "https://teslys.app";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
