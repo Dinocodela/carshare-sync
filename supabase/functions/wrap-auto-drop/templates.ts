@@ -149,3 +149,14 @@ const find = (key: string) =>
 
 export const templateVehicleName = (key: string) => find(key).vehicle;
 export const templateStyleNote = (key: string) => find(key).style;
+
+/** Marketing-facing model name, e.g. "Model Y", "Cybertruck". */
+export const templateModelName = (key: string) => {
+  const k = find(key).key;
+  if (k.startsWith("cybertruck")) return "Cybertruck";
+  if (k.startsWith("modely")) return "Model Y";
+  if (k.startsWith("model3")) return "Model 3";
+  if (k.startsWith("models")) return "Model S";
+  if (k.startsWith("modelx")) return "Model X";
+  return "Tesla";
+};
