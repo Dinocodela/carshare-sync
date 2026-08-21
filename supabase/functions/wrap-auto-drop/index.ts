@@ -617,6 +617,79 @@ async function tick(admin: SupabaseClient) {
   }
 }
 
+/* ------------------------------------------------------- coverage safety net */
+
+/** 9:00 AM Pacific (16:00 UTC) on the day `offset` days from today, UTC-based. */
+function slotForDay(offset: number) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + offset);
+  d.setUTCHours(16, 0, 0, 0);
+  return d;
+}
+
+/**
+ * Guarantees the next COVERAGE_DAYS days each have a wrap post on the calendar.
+ * Finds the first uncovered day and queues a drop for it; a day whose job failed
+ * or timed out therefore gets picked back up automatically on the next run.
+ */
+async function ensureCoverage(admin: SupabaseClient, triggeredBy: string | null) {
+  const { data: active } = await admin
+    .from("wrap_drop_jobs")
+    .select("id")
+    .not("status", "in", "(done,failed)")
+    .limit(1);
+  if (active && active.length > 0) return { ok: true, skipped: "a_drop_is_already_running" };
+
+  const windowStart = slotForDay(0);
+  windowStart.setUTCHours(0, 0, 0, 0);
+  const windowEnd = slotForDay(COVERAGE_DAYS);
+
+  const { data: posts, error } = await admin
+    .from("social_posts")
+    .select("id, scheduled_at, status")
+    .eq("campaign", "free-wraps")
+    .not("scheduled_at", "is", null)
+    .gte("scheduled_at", windowStart.toISOString())
+    .lt("scheduled_at", windowEnd.toISOString())
+    .not("status", "in", "(canceled,failed)");
+  if (error) throw new Error(error.message);
+
+  const coveredDays = new Set(
+    (posts ?? []).map((p) => new Date(p.scheduled_at as string).toISOString().slice(0, 10)),
+  );
+
+  for (let offset = 0; offset < COVERAGE_DAYS; offset++) {
+    const slot = slotForDay(offset);
+    const key = slot.toISOString().slice(0, 10);
+    if (coveredDays.has(key)) continue;
+
+    // A slot already past (a day we lost to a failure) publishes as soon as the
+    // pipeline finishes instead of being skipped entirely.
+    const soonest = new Date(Date.now() + 20 * 60_000);
+    const scheduledPostAt = slot.getTime() > soonest.getTime() ? slot : soonest;
+
+    const job = await createJob(admin, {
+      triggeredBy,
+      scheduledPostAt: scheduledPostAt.toISOString(),
+    });
+    await tick(admin);
+    await notifySlack(
+      `🗓️ Filling an empty wrap-drop slot for ${key} — queued ${job.template_key} ` +
+        `(posts ${scheduledPostAt.toISOString()}).`,
+    );
+    return {
+      ok: true,
+      filled: key,
+      job_id: job.id,
+      scheduled_post_at: scheduledPostAt.toISOString(),
+    };
+  }
+
+  return { ok: true, covered: true, days: COVERAGE_DAYS };
+}
+
+
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
