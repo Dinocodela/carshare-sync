@@ -651,7 +651,9 @@ async function ensureCoverage(admin: SupabaseClient, triggeredBy: string | null)
     .not("scheduled_at", "is", null)
     .gte("scheduled_at", windowStart.toISOString())
     .lt("scheduled_at", windowEnd.toISOString())
-    .not("status", "in", "(canceled,failed)");
+    // Only posts that will actually go out count as coverage — a draft or a
+    // merely "approved" post never reaches the publish worker.
+    .in("status", ["scheduled", "publishing", "published"]);
   if (error) throw new Error(error.message);
 
   const coveredDays = new Set(
