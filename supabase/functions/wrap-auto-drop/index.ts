@@ -11,6 +11,8 @@
  *   kickoff  — cron, daily: create one queued job for the next model in rotation
  *   tick     — cron, every few minutes: advance whatever is in flight
  *   run_now  — super admin, from Wrap Studio: create a job immediately
+ *   coverage — cron, hourly: guarantee every day in the coverage window has a
+ *              scheduled post; re-fills days lost to a failed or timed-out job
  */
 import {
   corsHeaders,
@@ -36,6 +38,7 @@ const GATEWAY = "https://ai.gateway.lovable.dev/v1";
 const MAX_PNG_BYTES = 1_000_000; // Tesla custom-wraps spec: keep the PNG under 1MB
 const MAX_ATTEMPTS = 3;
 const STALE_MINUTES = 120;
+const COVERAGE_DAYS = 3; // today + the next two days must always have a post
 
 const CHECKLIST_KEYS = [
   "brand_safe",
