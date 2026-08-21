@@ -710,6 +710,9 @@ Deno.serve(async (req) => {
   }
 
   try {
+    if (mode === "coverage") {
+      return jsonResponse(await ensureCoverage(admin, actorId));
+    }
     if (mode === "kickoff" || mode === "run_now") {
       const { data: active } = await admin
         .from("wrap_drop_jobs")
