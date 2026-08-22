@@ -2,19 +2,20 @@ import { useEffect, useRef } from "react";
 import {
   TESLA_MODELS,
   TeslaModelKey,
-  getWrapCountByModel,
 } from "@/data/wraps";
 
 interface ModelTabsProps {
   active: TeslaModelKey;
   onChange: (key: TeslaModelKey) => void;
+  /** Live wrap count per model, from the published catalog. */
+  counts?: Partial<Record<TeslaModelKey, number>>;
 }
 
 /**
  * Primary Tesla model selector for the wraps gallery.
  * Accessible tablist with keyboard arrow navigation.
  */
-export function ModelTabs({ active, onChange }: ModelTabsProps) {
+export function ModelTabs({ active, onChange, counts }: ModelTabsProps) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +60,7 @@ export function ModelTabs({ active, onChange }: ModelTabsProps) {
     >
       {TESLA_MODELS.map((model, i) => {
         const isActive = model.key === active;
-        const count = getWrapCountByModel(model.key);
+        const count = counts?.[model.key] ?? 0;
         return (
           <button
             key={model.key}

@@ -56,6 +56,12 @@ export default function Wraps() {
     [allWraps, activeModel]
   );
 
+  const modelCounts = useMemo(() => {
+    const acc: Partial<Record<TeslaModelKey, number>> = {};
+    for (const w of allWraps) acc[w.modelKey] = (acc[w.modelKey] ?? 0) + 1;
+    return acc;
+  }, [allWraps]);
+
   useEffect(() => {
     trackWrapEvent("wrap_gallery_view", { count: allWraps.length });
   }, [allWraps.length]);
@@ -153,7 +159,7 @@ export default function Wraps() {
         {/* Model selector */}
         <section className="px-6" aria-label="Select a Tesla model">
           <div className="max-w-4xl mx-auto">
-            <ModelTabs active={activeModel} onChange={selectModel} />
+            <ModelTabs active={activeModel} onChange={selectModel} counts={modelCounts} />
           </div>
         </section>
 
