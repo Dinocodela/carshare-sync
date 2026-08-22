@@ -43,13 +43,26 @@ export const TESLA_MODELS: TeslaModelConfig[] = [
     status: "available",
     templateNote: "2026 Tesla Model 3.",
   },
-  { key: "model-s", label: "Model S", subtitle: "Coming soon", status: "coming-soon" },
-  { key: "model-x", label: "Model X", subtitle: "Coming soon", status: "coming-soon" },
+  {
+    key: "model-s",
+    label: "Model S",
+    subtitle: "2021+ Model S · Plaid",
+    status: "available",
+    templateNote: "2021+ Tesla Model S, including 2025 Model S Plaid.",
+  },
+  {
+    key: "model-x",
+    label: "Model X",
+    subtitle: "2021+ Model X",
+    status: "available",
+    templateNote: "2021+ Tesla Model X.",
+  },
   {
     key: "cybertruck",
     label: "Cybertruck",
-    subtitle: "Coming soon",
-    status: "coming-soon",
+    subtitle: "2024+ Cybertruck",
+    status: "available",
+    templateNote: "2024+ Tesla Cybertruck.",
   },
 ];
 
@@ -80,6 +93,9 @@ export interface Wrap {
 export const WRAP_BASE_PATH = "/wraps/model-y-premium";
 export const MODEL_WRAP_BASE_PATHS: Partial<Record<TeslaModelKey, string>> = {
   "model-3": "/wraps/model-3",
+  "model-s": "/wraps/model-s",
+  "model-x": "/wraps/model-x",
+  cybertruck: "/wraps/cybertruck",
 };
 export const WRAP_PREVIEW_BASE_PATH = "/wraps/previews";
 export const WRAP_PLACEHOLDER = "/wraps/placeholder.svg";
@@ -106,6 +122,48 @@ const base = {
 };
 
 export const wraps: Wrap[] = [
+  {
+    price: "Free",
+    modelKey: "model-s",
+    compatibility: "2021+ Tesla Model S, including 2025 Model S Plaid.",
+    slug: "midnight-meridian",
+    filename: "Midnight_Meridian.png",
+    previewFilename: "Midnight_Meridian-preview-v1.jpg",
+    dimensions: "1024 × 1024 px",
+    fileSize: "SIZE_S",
+    title: "Midnight Meridian",
+    category: "Featured",
+    description:
+      "Midnight navy laced with liquid-chrome ribbons and thin teal light bands — a quiet, executive livery built for the Model S silhouette.",
+  },
+  {
+    price: "Free",
+    modelKey: "model-x",
+    compatibility: "2021+ Tesla Model X.",
+    slug: "canyon-mirage",
+    filename: "Canyon_Mirage.png",
+    previewFilename: "Canyon_Mirage-preview-v1.jpg",
+    dimensions: "1024 × 1024 px",
+    fileSize: "SIZE_X",
+    title: "Canyon Mirage",
+    category: "Lifestyle",
+    description:
+      "Terracotta and sandstone strata traced with bronze topographic contours — desert-road warmth wrapped around the Model X.",
+  },
+  {
+    price: "Free",
+    modelKey: "cybertruck",
+    compatibility: "2024+ Tesla Cybertruck.",
+    slug: "titan-circuit",
+    filename: "Titan_Circuit.png",
+    previewFilename: "Titan_Circuit-preview-v1.jpg",
+    dimensions: "1024 × 768 px",
+    fileSize: "SIZE_C",
+    title: "Titan Circuit",
+    category: "Featured",
+    description:
+      "Gunmetal stainless panels threaded with electric-cyan circuit traces and graphite hazard chevrons — engineered for the Cybertruck's hard edges.",
+  },
   {
     price: "Free",
     modelKey: "model-3",
