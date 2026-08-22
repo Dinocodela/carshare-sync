@@ -43,13 +43,26 @@ export const TESLA_MODELS: TeslaModelConfig[] = [
     status: "available",
     templateNote: "2026 Tesla Model 3.",
   },
-  { key: "model-s", label: "Model S", subtitle: "Coming soon", status: "coming-soon" },
-  { key: "model-x", label: "Model X", subtitle: "Coming soon", status: "coming-soon" },
+  {
+    key: "model-s",
+    label: "Model S",
+    subtitle: "2021+ Model S · Plaid",
+    status: "available",
+    templateNote: "2021+ Tesla Model S, including 2025 Model S Plaid.",
+  },
+  {
+    key: "model-x",
+    label: "Model X",
+    subtitle: "2021+ Model X",
+    status: "available",
+    templateNote: "2021+ Tesla Model X.",
+  },
   {
     key: "cybertruck",
     label: "Cybertruck",
-    subtitle: "Coming soon",
-    status: "coming-soon",
+    subtitle: "2024+ Cybertruck",
+    status: "available",
+    templateNote: "2024+ Tesla Cybertruck.",
   },
 ];
 
