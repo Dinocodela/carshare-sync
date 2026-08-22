@@ -217,7 +217,7 @@ export default function Wraps() {
                 >
                   <WrapImage
                     src={wrap.previewUrl}
-                    alt={`${wrap.title} wrapped Tesla Model Y concept preview`}
+                    alt={`${wrap.title} wrapped ${modelConfig.label} concept preview`}
                     className="aspect-[3/2]"
                     badge="Concept preview"
                     priority={i < 3}
@@ -238,7 +238,7 @@ export default function Wraps() {
                       {wrap.description}
                     </p>
                     <p className="mt-3 text-xs text-muted-foreground/80">
-                      Model Y Premium (2025+ Juniper)
+                      {wrap.compatibility}
                     </p>
                     <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
                       View wrap
