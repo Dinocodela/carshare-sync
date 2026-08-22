@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, ArrowUp, Download, Sparkles, Upload, Wand2 } from "lucide-react";
+import { ArrowRight, ArrowUp, Download, Search, Sparkles, Upload, Wand2, X } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WrapImage } from "@/components/wraps/WrapImage";
@@ -43,6 +43,7 @@ const steps = [
 export default function Wraps() {
   const [active, setActive] = useState<"All" | WrapCategory>("All");
   const [showTopBtn, setShowTopBtn] = useState(false);
+  const [search, setSearch] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
 
   const modelParam = searchParams.get("model");
@@ -176,8 +177,40 @@ export default function Wraps() {
           </div>
         </section>
 
+        {/* Search */}
+        <section className="px-6 pt-6" aria-label="Search wraps">
+          <div className="max-w-xl mx-auto relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search all wraps by name — try “Astromech”"
+              aria-label="Search wraps by name"
+              className="w-full rounded-full border border-sand-border bg-sand-card py-3 pl-11 pr-11 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            {isSearching && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {isSearching && (
+            <p className="mt-3 text-center text-sm text-muted-foreground">
+              {visible.length === 0
+                ? `No wraps match “${search.trim()}”.`
+                : `${visible.length} wrap${visible.length === 1 ? "" : "s"} across all models match “${search.trim()}”.`}
+            </p>
+          )}
+        </section>
+
         {/* Filters */}
-        {hasWraps && (
+        {hasWraps && !isSearching && (
         <section className="px-6 pt-8" aria-label="Filter wraps by category">
           <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-2">
             {WRAP_CATEGORIES.map((cat) => {
