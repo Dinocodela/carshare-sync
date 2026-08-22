@@ -497,7 +497,7 @@ Estimates are modeled on historical Teslys trip data. They are not a
           <div className="text-center pt-6 pb-4 space-y-3" style={fade(500)}>
             <div className="flex items-center justify-center gap-6 text-white/30 text-xs">
               <span className="flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5" /> Fully Insured
+                <Shield className="w-3.5 h-3.5" /> Marketplace protection
               </span>
               <span className="flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5" /> 500+ Trips

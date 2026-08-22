@@ -171,7 +171,7 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
           <h2 className="text-3xl font-bold mb-8">Why Hosts Trust Teslys</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: Shield, title: "Fully Insured", desc: "Commercial insurance covers every trip. Your investment is protected." },
+              { icon: Shield, title: "Marketplace protection", desc: "Protection is provided by the applicable third-party car-sharing marketplace, subject to its terms." },
               { icon: Users, title: "Professional Co-Hosting", desc: "We handle guest communication, cleaning, and vehicle turnover." },
               { icon: Star, title: "5-Star Guest Experience", desc: "Professional management leads to higher ratings and more bookings." },
             ].map((item) => (
