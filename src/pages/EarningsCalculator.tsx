@@ -30,32 +30,42 @@ import {
   Lock,
 } from "lucide-react";
 
-/* ── Static benchmark data from real platform rentals ── */
+/* ── Benchmarks: median GROSS booking revenue per vehicle-month
+   observed on the Teslys platform (trailing 18 months). Owner payout is
+   calculated from gross after the rental platform's 30% share and the
+   Teslys 30% management fee. ── */
 type BenchmarkKey = string;
 
 interface Benchmark {
+  /** Median gross booking revenue per month at full availability. */
   avgMonthly: number;
   trips: number;
 }
 
 const BENCHMARKS: Record<BenchmarkKey, Benchmark> = {
-  "Model 3|2018-2020": { avgMonthly: 1600, trips: 40 },
-  "Model 3|2021-2022": { avgMonthly: 2100, trips: 166 },
-  "Model 3|2023-2025": { avgMonthly: 1900, trips: 30 },
-  "Model Y|2018-2020": { avgMonthly: 1700, trips: 15 },
-  "Model Y|2021-2022": { avgMonthly: 2000, trips: 98 },
-  "Model Y|2023-2025": { avgMonthly: 1260, trips: 25 },
+  "Model 3|2018-2020": { avgMonthly: 1200, trips: 40 },
+  "Model 3|2021-2022": { avgMonthly: 1450, trips: 166 },
+  "Model 3|2023-2025": { avgMonthly: 1400, trips: 30 },
+  "Model Y|2018-2020": { avgMonthly: 1250, trips: 15 },
+  "Model Y|2021-2022": { avgMonthly: 1800, trips: 98 },
+  "Model Y|2023-2025": { avgMonthly: 1650, trips: 25 },
   "Model X|2018-2020": { avgMonthly: 1500, trips: 20 },
-  "Model X|2021-2022": { avgMonthly: 1800, trips: 32 },
-  "Model X|2023-2025": { avgMonthly: 1700, trips: 10 },
-  "Model S|2018-2020": { avgMonthly: 1400, trips: 18 },
-  "Model S|2021-2022": { avgMonthly: 1700, trips: 22 },
-  "Model S|2023-2025": { avgMonthly: 1600, trips: 8 },
-  "Cybertruck|2023-2025": { avgMonthly: 1800, trips: 34 },
+  "Model X|2021-2022": { avgMonthly: 1900, trips: 32 },
+  "Model X|2023-2025": { avgMonthly: 1800, trips: 10 },
+  "Model S|2018-2020": { avgMonthly: 1300, trips: 18 },
+  "Model S|2021-2022": { avgMonthly: 1500, trips: 22 },
+  "Model S|2023-2025": { avgMonthly: 1450, trips: 8 },
+  "Cybertruck|2023-2025": { avgMonthly: 1500, trips: 34 },
 };
 
 const MODELS = ["Model 3", "Model Y", "Model X", "Model S", "Cybertruck"] as const;
-const HOST_COMMISSION = 0.3;
+/** Rental platform (Eon / Turo) share of gross. */
+const PLATFORM_SHARE = 0.3;
+/** Teslys management fee, applied to gross. */
+const MANAGEMENT_FEE = 0.3;
+/** Share of gross booking revenue paid to the owner. */
+const OWNER_SHARE = 1 - PLATFORM_SHARE - MANAGEMENT_FEE;
+
 
 function yearBucketForYear(year: number): string {
   if (year <= 2020) return "2018-2020";
