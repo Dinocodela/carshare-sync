@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { EarningsDisclaimer } from "@/components/marketing/EarningsDisclaimer";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { RelatedPages } from "@/components/marketing/RelatedPages";
@@ -100,7 +101,7 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
               <DollarSign className="h-5 w-5 text-primary" />
               <div>
                 <div className="text-2xl font-bold">{data.avgMonthlyEarnings}</div>
-                <div className="text-sm text-muted-foreground">Avg. Monthly Earnings</div>
+                <div className="text-sm text-muted-foreground">Typical Gross Bookings / Mo</div>
               </div>
             </div>
             <div className="flex items-center gap-2 bg-card border rounded-lg px-4 py-3">
