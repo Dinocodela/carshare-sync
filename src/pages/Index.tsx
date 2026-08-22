@@ -416,7 +416,7 @@ const Index = () => {
               }}
             >
               {[
-                { icon: Shield, label: "Fully Insured" },
+                { icon: Shield, label: "Marketplace protection" },
                 { icon: Star, label: "Top Rated" },
                 { icon: Users, label: "Trusted Hosts" },
               ].map(({ icon: Icon, label }) => (

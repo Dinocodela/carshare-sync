@@ -36,7 +36,7 @@ const navSections = [
 ];
 
 const trustBadges = [
-  { icon: Shield, label: "Fully Insured" },
+  { icon: Shield, label: "Marketplace protection" },
   { icon: Clock, label: "24/7 Support" },
   { icon: Headphones, label: "Dedicated Manager" },
 ];

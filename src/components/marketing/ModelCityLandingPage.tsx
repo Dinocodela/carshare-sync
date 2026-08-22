@@ -227,7 +227,7 @@ export function ModelCityLandingPage({ data }: { data: ModelCityData }) {
             <div className="max-w-4xl mx-auto px-4">
               <div className="flex justify-center gap-10">
                 {[
-                  { icon: Shield, label: "Fully Insured" },
+                  { icon: Shield, label: "Marketplace protection" },
                   { icon: Star, label: "Top Rated" },
                   { icon: Users, label: "Trusted Hosts" },
                 ].map(({ icon: Icon, label }) => (
