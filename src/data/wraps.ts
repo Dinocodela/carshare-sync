@@ -137,7 +137,7 @@ export const wraps: Wrap[] = [
     slug: "neon-velocity",
 
     filename: "Neon_Velocity-v2.png",
-    previewFilename: "Neon_Velocity-preview-v2.jpg",
+    previewFilename: "Neon_Velocity-preview-v3.jpg",
     dimensions: "1024 × 1024 px",
     fileSize: "159 KB",
     title: "Neon Velocity",
