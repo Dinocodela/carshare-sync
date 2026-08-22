@@ -130,7 +130,7 @@ export const wraps: Wrap[] = [
     filename: "Midnight_Meridian.png",
     previewFilename: "Midnight_Meridian-preview-v1.jpg",
     dimensions: "1024 × 1024 px",
-    fileSize: "SIZE_S",
+    fileSize: "1.5 MB",
     title: "Midnight Meridian",
     category: "Featured",
     description:
@@ -144,7 +144,7 @@ export const wraps: Wrap[] = [
     filename: "Canyon_Mirage.png",
     previewFilename: "Canyon_Mirage-preview-v1.jpg",
     dimensions: "1024 × 1024 px",
-    fileSize: "SIZE_X",
+    fileSize: "1.6 MB",
     title: "Canyon Mirage",
     category: "Lifestyle",
     description:
@@ -158,7 +158,7 @@ export const wraps: Wrap[] = [
     filename: "Titan_Circuit.png",
     previewFilename: "Titan_Circuit-preview-v1.jpg",
     dimensions: "1024 × 768 px",
-    fileSize: "SIZE_C",
+    fileSize: "1.2 MB",
     title: "Titan Circuit",
     category: "Featured",
     description:
