@@ -393,16 +393,38 @@ export default function EarningsCalculator() {
                       </div>
                     </div>
 
+                    {/* Gross → net breakdown */}
+                    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 space-y-1.5 text-[12px] text-white/60">
+                      <div className="flex justify-between">
+                        <span>Gross booking revenue</span>
+                        <span className="tabular-nums text-white/80">${estimates.gross.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Rental platform share (30%)</span>
+                        <span className="tabular-nums">−${Math.round(estimates.gross * PLATFORM_SHARE).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Teslys management fee (30%)</span>
+                        <span className="tabular-nums">−${Math.round(estimates.gross * MANAGEMENT_FEE).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-white/10 pt-1.5 font-semibold text-white">
+                        <span>Estimated owner payout</span>
+                        <span className="tabular-nums">${estimates.avg.toLocaleString()}</span>
+                      </div>
+                    </div>
+
                     {/* Annual */}
                     <div className="bg-accent/10 rounded-xl p-4 text-center border border-accent/20">
                       <p className="text-[11px] text-white/50 mb-1">
-                        Projected Annual Earnings
+                        Estimated Annual Owner Payout
                       </p>
                       <p className="text-3xl font-black text-white tracking-tight flex items-center justify-center gap-1 tabular-nums">
                         <DollarSign className="w-6 h-6 text-accent" />
                         {(estimates.avg * 12).toLocaleString()}
                       </p>
                     </div>
+
+                    <EarningsDisclaimer variant="dark" />
                   </>
                   )
                 ) : (
@@ -411,6 +433,7 @@ export default function EarningsCalculator() {
                   </p>
                 )}
               </div>
+
 
               {/* CTA */}
               <Link to="/register/client" className="block">
