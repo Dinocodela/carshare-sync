@@ -7,7 +7,7 @@ import {
   wrapPreviewUrl,
   wraps as staticWraps,
 } from "@/data/wraps";
-import { templateDisplayModel } from "@/lib/wrapTemplates";
+import { getTemplate, templateDisplayModel } from "@/lib/wrapTemplates";
 import type { Tables } from "@/integrations/supabase/types";
 
 /** A wrap ready to render: static catalog fields plus fully-resolved URLs. */
@@ -48,7 +48,9 @@ export const rowToCatalog = (row: Tables<"wrap_designs">): CatalogWrap => {
     modelKey: templateDisplayModel(row.model_key),
     templateKey: row.model_key,
     price: "Free",
-    compatibility: row.compatibility || COMPATIBILITY,
+    compatibility:
+      row.compatibility ||
+      (row.model_key ? getTemplate(row.model_key).label : COMPATIBILITY),
     dimensions: row.dimensions,
     fileSize: row.file_size,
     filename,
