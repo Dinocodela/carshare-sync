@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { MarketplaceDisclosure } from "@/components/marketing/MarketplaceDisclosure";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
@@ -63,6 +64,13 @@ export default function TeslaRentalCost() {
           </div>
         </div>
       </section>
+
+      <section className="bg-muted/30 border-y border-border">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <MarketplaceDisclosure />
+        </div>
+      </section>
+
 
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
