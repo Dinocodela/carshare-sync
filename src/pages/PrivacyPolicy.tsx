@@ -242,8 +242,11 @@ export default function PrivacyPolicy() {
                     "App-store billing and subscription management — Apple, Google, RevenueCat.",
                     "Commerce and merchandise fulfillment — Shopify.",
                     "Analytics and tag management — Google (loaded only after you consent).",
+                    "Mobile app attribution and in-app analytics — AppsFlyer, used in our iOS and Android apps to measure installs, campaign attribution, and in-app events. AppsFlyer runs in the native apps and is not currently gated by the website cookie banner.",
+                    "Push notification delivery — Firebase Cloud Messaging (Google) on Android and the Apple Push Notification service on iOS, which process a device push token to deliver notifications.",
                     "Internal operational alerting — Slack.",
                     "Social publishing and lead capture — Meta (Instagram).",
+                    "Vehicle management data feeds — third-party car-sharing marketplaces (such as Turo and Eon) that send us trip, earnings, and claim information for vehicles we manage.",
                   ]}
                 />
                 <p>
