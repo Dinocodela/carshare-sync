@@ -216,6 +216,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
                   </div>
                 ))}
               </div>
+              <EarningsDisclaimer variant="box" className="mt-6 text-left" prefix="Figures show gross booking revenue before the rental platform's 30% share and the Teslys 30% management fee." />
             </div>
           </section>
 
