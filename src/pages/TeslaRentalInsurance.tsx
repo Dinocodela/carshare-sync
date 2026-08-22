@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { MarketplaceDisclosure } from "@/components/marketing/MarketplaceDisclosure";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
@@ -31,20 +32,20 @@ export default function TeslaRentalInsurance() {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     mainEntity: [
-      { "@type": "Question", name: "Does Teslys include insurance with Tesla rentals?", acceptedAnswer: { "@type": "Answer", text: "Yes. Every Tesla rental through Teslys includes comprehensive liability and collision coverage. This protects both the vehicle owner and the renter during the rental period." } },
-      { "@type": "Question", name: "What does Tesla rental insurance cover?", acceptedAnswer: { "@type": "Answer", text: "Standard coverage includes liability protection, collision damage, comprehensive coverage for theft and weather damage, and uninsured/underinsured motorist protection. Premium plans add zero-deductible and roadside assistance." } },
-      { "@type": "Question", name: "How much does Tesla rental insurance cost?", acceptedAnswer: { "@type": "Answer", text: "Basic insurance is included at no extra cost with every Teslys rental. Premium coverage options start at $15/day and provide enhanced protection with lower or zero deductibles." } },
-      { "@type": "Question", name: "Can I use my personal auto insurance for a Tesla rental?", acceptedAnswer: { "@type": "Answer", text: "Some personal auto insurance policies extend coverage to rental vehicles. However, Teslys includes its own insurance so you're always covered regardless of your personal policy status." } },
-      { "@type": "Question", name: "What happens if the rental Tesla gets damaged?", acceptedAnswer: { "@type": "Answer", text: "If damage occurs, document it with photos and contact Teslys support immediately. Our insurance partner handles the claim process. With standard coverage, a deductible may apply. Premium coverage offers zero-deductible protection." } },
-      { "@type": "Question", name: "Does Teslys offer insurance for Tesla owners who list their cars?", acceptedAnswer: { "@type": "Answer", text: "Yes. Tesla owners on the Teslys platform receive commercial rental insurance that covers their vehicle during every trip. This is separate from and in addition to the owner's personal auto insurance." } },
+      { "@type": "Question", name: "Who provides protection for Teslas managed by Teslys?", acceptedAnswer: { "@type": "Answer", text: "Teslys is a vehicle management and co-hosting service, not an insurer. Trip protection is provided by the third-party car-sharing marketplace a trip is booked on, such as Turo or Eon, subject to that platform's terms, limits, and deductibles." } },
+      { "@type": "Question", name: "What does marketplace trip protection typically cover?", acceptedAnswer: { "@type": "Answer", text: "Marketplace protection plans typically address liability, physical damage to the vehicle during a trip, and related deductibles. Exact coverage, limits, exclusions, and deductibles are set by the marketplace and can change; review the platform terms before each trip." } },
+      { "@type": "Question", name: "What deductibles apply on the marketplaces Teslys works with?", acceptedAnswer: { "@type": "Answer", text: "At the time of writing, trips booked through Eon carry a $0 owner deductible and trips booked through Turo carry a $250 owner deductible. These figures are set by the marketplaces and are subject to change under their terms." } },
+      { "@type": "Question", name: "Do I still need my own auto insurance as an owner?", acceptedAnswer: { "@type": "Answer", text: "Yes. Owners must maintain the insurance they are legally required to carry and should disclose commercial car-sharing use to their insurer where required. Marketplace protection applies only during qualifying trips, per platform terms." } },
+      { "@type": "Question", name: "What happens if a managed Tesla is damaged during a trip?", acceptedAnswer: { "@type": "Answer", text: "Document the damage with photos and contact Teslys support. We coordinate the claim with the marketplace on the owner's behalf. Any recovery, deductible, and outcome are determined by the marketplace under its terms; Teslys does not guarantee a result." } },
+      { "@type": "Question", name: "Does Teslys sell insurance to Tesla owners?", acceptedAnswer: { "@type": "Answer", text: "No. Teslys does not underwrite, issue, or guarantee insurance. Owners can obtain commercial car-sharing coverage separately through providers such as Bonzah, whose terms and eligibility are set by the insurer." } },
     ],
   };
 
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Tesla Rental Insurance | Coverage & Protection | Teslys"
-        description="Learn about Tesla rental insurance coverage with Teslys. Comprehensive liability, collision, and theft protection included with every rental. Premium plans available."
+        title="Tesla Car-Sharing Protection Explained | Teslys"
+        description="How protection works for Teslas managed by Teslys. Trip protection is provided by third-party car-sharing marketplaces such as Turo and Eon, subject to their terms."
         canonical="https://teslys.app/tesla-rental-insurance"
         keywords="Tesla rental insurance, Tesla car rental coverage, rental car insurance Tesla, Tesla rental protection, EV rental insurance"
       />
@@ -67,10 +68,10 @@ export default function TeslaRentalInsurance() {
             <ArrowLeft className="h-4 w-4" /> Back to Home
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Tesla Rental Insurance — Drive with Confidence
+            Tesla Car-Sharing Protection — How It Works
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mb-8">
-            Every Tesla rental through Teslys comes with comprehensive insurance coverage. Whether you're renting a Tesla or listing yours on our platform, you're fully protected from day one.
+            Teslys is a vehicle management and co-hosting service, not an insurance company. Bookings and trip protection are handled by third-party car-sharing marketplaces such as Turo and Eon, subject to their terms.
           </p>
           <div className="flex flex-wrap gap-3">
             <a href="https://app.eonrides.com/" target="_blank" rel="noopener noreferrer">
@@ -83,21 +84,28 @@ export default function TeslaRentalInsurance() {
         </div>
       </section>
 
+      <section className="bg-muted/30 border-y border-border">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <MarketplaceDisclosure />
+        </div>
+      </section>
+
+
       {/* Coverage Types */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-3">What's Covered</h2>
           <p className="text-muted-foreground mb-8 max-w-2xl">
-            Teslys partners with top-rated insurance providers to deliver rental protection that meets or exceeds industry standards. Here's what's included with every Tesla rental.
+            Marketplaces typically address the categories below during a qualifying trip. Coverage, limits, exclusions, and deductibles are defined by the marketplace and can change — always review the platform's current terms.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { title: "Liability Protection", desc: "Covers bodily injury and property damage to third parties. Meets or exceeds state minimum requirements in all 50 states." },
-              { title: "Collision Coverage", desc: "Pays for damage to the rental Tesla from accidents, regardless of fault. Standard deductible applies; zero-deductible available with premium plans." },
-              { title: "Comprehensive Coverage", desc: "Protects against theft, vandalism, weather damage, and other non-collision incidents during your rental period." },
-              { title: "Uninsured Motorist", desc: "Covers you if you're involved in an accident with an uninsured or underinsured driver." },
-              { title: "Roadside Assistance", desc: "24/7 roadside support including towing, flat tire assistance, lockout service, and mobile charging for your Tesla." },
-              { title: "Personal Effects", desc: "Premium plans include coverage for personal belongings damaged or stolen from the rental vehicle." },
+              { title: "Liability", desc: "Marketplace liability protection may apply to third-party injury or property damage during a qualifying trip, per platform terms." },
+              { title: "Physical Damage", desc: "Damage to the vehicle during a qualifying trip may be addressed by the marketplace plan. Deductibles vary by platform." },
+              { title: "Theft & Vandalism", desc: "Some marketplace plans address theft, vandalism, and non-collision incidents during a trip. Check the platform terms." },
+              { title: "Uninsured Motorist", desc: "Availability of uninsured or underinsured motorist protection depends on the marketplace plan and state." },
+              { title: "Roadside Assistance", desc: "Roadside support during trips is generally provided by the marketplace; Teslys coordinates on the owner's behalf." },
+              { title: "Owner Policy", desc: "Owners must keep the insurance they are legally required to carry and disclose commercial car-sharing use where required." },
             ].map((c) => (
               <div key={c.title} className="bg-card border rounded-xl p-6">
                 <CheckCircle className="h-6 w-6 text-primary mb-3" />
@@ -112,14 +120,14 @@ export default function TeslaRentalInsurance() {
       {/* Plans Comparison */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-3">Insurance Plans</h2>
-          <p className="text-muted-foreground mb-8">Choose the level of protection that works for you.</p>
+          <h2 className="text-3xl font-bold mb-3">Marketplace Deductibles</h2>
+          <p className="text-muted-foreground mb-8">Owner deductibles are set by the marketplace a trip is booked on and are subject to change under that platform's terms.</p>
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
             <div className="bg-card border rounded-xl p-6">
-              <h3 className="text-xl font-bold mb-2">Standard Coverage</h3>
-              <div className="text-2xl font-bold text-primary mb-4">Included<span className="text-sm font-normal text-muted-foreground ml-1">with every rental</span></div>
+              <h3 className="text-xl font-bold mb-2">Eon</h3>
+              <div className="text-2xl font-bold text-primary mb-4">$0<span className="text-sm font-normal text-muted-foreground ml-1">owner deductible</span></div>
               <ul className="space-y-3">
-                {["Liability protection", "Collision coverage ($1,500 deductible)", "Comprehensive coverage", "Uninsured motorist protection"].map((f) => (
+                {["Protection provided by Eon, per its terms", "70/30 gross revenue split with the marketplace", "Claims coordinated by Teslys on your behalf", "Terms and limits set by Eon and subject to change"].map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CheckCircle className="w-4 h-4 text-primary shrink-0" /> {f}
                   </li>
@@ -127,11 +135,11 @@ export default function TeslaRentalInsurance() {
               </ul>
             </div>
             <div className="bg-card border-2 border-primary rounded-xl p-6 relative">
-              <div className="absolute -top-3 right-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">RECOMMENDED</div>
-              <h3 className="text-xl font-bold mb-2">Premium Coverage</h3>
-              <div className="text-2xl font-bold text-primary mb-4">$15<span className="text-sm font-normal text-muted-foreground">/day</span></div>
+              
+              <h3 className="text-xl font-bold mb-2">Turo</h3>
+              <div className="text-2xl font-bold text-primary mb-4">$250<span className="text-sm font-normal text-muted-foreground ml-1">owner deductible</span></div>
               <ul className="space-y-3">
-                {["Everything in Standard", "Zero deductible", "24/7 roadside assistance", "Personal effects coverage", "Tire & windshield protection"].map((f) => (
+                {["Protection provided by Turo, per its terms", "70/30 gross revenue split with the marketplace", "Claims coordinated by Teslys on your behalf", "Terms and limits set by Turo and subject to change"].map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CheckCircle className="w-4 h-4 text-primary shrink-0" /> {f}
                   </li>
@@ -148,17 +156,17 @@ export default function TeslaRentalInsurance() {
           <div className="bg-card border-2 border-primary/20 rounded-2xl p-8 md:p-10 max-w-4xl mx-auto">
             <div className="flex items-center gap-2 mb-4">
               <Shield className="h-6 w-6 text-primary" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Official Insurance Partner</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Insurance Partner</span>
             </div>
-            <h2 className="text-3xl font-bold mb-3">Powered by Bonzah Insurance</h2>
+            <h2 className="text-3xl font-bold mb-3">Optional Coverage Through Bonzah</h2>
             <p className="text-muted-foreground mb-6 max-w-2xl">
-              Teslys partners with Bonzah to provide commercial rental insurance specifically designed for Tesla car-sharing. This coverage protects your vehicle during every active booking and allows hosts to offer professional insurance to private rental clients outside standard platform bookings.
+              Bonzah offers commercial car-sharing coverage that owners and hosts can purchase directly. Coverage, eligibility, limits, and claim decisions are determined and underwritten by Bonzah — Teslys is not an insurer, agent, or underwriter and does not guarantee coverage.
             </p>
             <div className="grid sm:grid-cols-3 gap-6 mb-8">
               {[
-                { title: "Commercial Coverage", desc: "Your Tesla is covered under a commercial rental policy during every active booking — from pickup to return." },
-                { title: "Damage Claims", desc: "If a renter causes damage, Teslys and Bonzah handle the entire claims process. Your personal insurance is not affected." },
-                { title: "Private Rental Coverage", desc: "Hosts can extend professional insurance to private clients outside of standard platform bookings through the Bonzah partnership." },
+                { title: "Commercial Policy", desc: "Bonzah offers commercial car-sharing policies that owners can purchase directly, subject to underwriting." },
+                { title: "Damage Claims", desc: "Teslys can help coordinate documentation; claim decisions rest with the insurer or marketplace." },
+                { title: "Direct Bookings", desc: "Hosts arranging bookings outside a marketplace can explore coverage options directly with Bonzah." },
               ].map((item) => (
                 <div key={item.title}>
                   <h3 className="text-sm font-semibold mb-1">{item.title}</h3>
@@ -169,7 +177,7 @@ export default function TeslaRentalInsurance() {
             <div className="bg-muted/50 rounded-xl p-6 border border-border">
               <h3 className="text-lg font-semibold mb-2">Get Set Up with Bonzah</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Contact our dedicated Bonzah agent to set up commercial rental insurance for your Tesla fleet.
+                Contact a Bonzah agent to discuss commercial car-sharing coverage options for your Tesla fleet.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 text-sm">
                 <div>
@@ -191,15 +199,15 @@ export default function TeslaRentalInsurance() {
       {/* For Owners */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-3">Insurance for Tesla Owners</h2>
+          <h2 className="text-3xl font-bold mb-3">What Owners Should Know</h2>
           <p className="text-muted-foreground mb-8 max-w-3xl">
-            When you list your Tesla on Teslys, your vehicle is protected by commercial rental insurance during every active trip. This coverage is separate from your personal auto policy and specifically designed for car-sharing.
+            When Teslys manages your Tesla, the vehicle is listed on third-party car-sharing marketplaces. Trip protection is provided by those marketplaces under their terms, and owners must continue to maintain the insurance they are legally required to carry.
           </p>
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { icon: Shield, title: "Commercial Coverage", desc: "Your Tesla is covered under a commercial rental policy during every active booking — from pickup to return." },
-              { icon: FileText, title: "Damage Claims", desc: "If a renter causes damage, Teslys handles the entire claims process. Your personal insurance is not affected." },
-              { icon: Phone, title: "Dedicated Support", desc: "Our team manages all insurance communications, documentation, and claim resolution on your behalf." },
+              { icon: Shield, title: "Marketplace protection", desc: "Protection during a trip is provided by the applicable marketplace, subject to its terms, limits, and deductibles." },
+              { icon: FileText, title: "Claim Coordination", desc: "If damage occurs, Teslys coordinates documentation and filing with the marketplace. Outcomes are decided by the platform or insurer." },
+              { icon: Phone, title: "Dedicated Support", desc: "Our team manages communications and paperwork on your behalf throughout the process." },
             ].map((item) => (
               <div key={item.title} className="bg-card border rounded-xl p-6">
                 <item.icon className="h-8 w-8 text-primary mb-3" />
@@ -214,15 +222,15 @@ export default function TeslaRentalInsurance() {
       {/* FAQ */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8">Insurance FAQ</h2>
+          <h2 className="text-3xl font-bold mb-8">Protection FAQ</h2>
           <div className="space-y-4">
             {[
-              { q: "Does Teslys include insurance with Tesla rentals?", a: "Yes. Every Tesla rental through Teslys includes comprehensive liability and collision coverage. This protects both the vehicle owner and the renter during the rental period." },
-              { q: "What does Tesla rental insurance cover?", a: "Standard coverage includes liability protection, collision damage, comprehensive coverage for theft and weather damage, and uninsured/underinsured motorist protection. Premium plans add zero-deductible and roadside assistance." },
-              { q: "How much does Tesla rental insurance cost?", a: "Basic insurance is included at no extra cost with every Teslys rental. Premium coverage options start at $15/day and provide enhanced protection with lower or zero deductibles." },
-              { q: "Can I use my personal auto insurance for a Tesla rental?", a: "Some personal auto insurance policies extend coverage to rental vehicles. However, Teslys includes its own insurance so you're always covered regardless of your personal policy status." },
-              { q: "What happens if the rental Tesla gets damaged?", a: "If damage occurs, document it with photos and contact Teslys support immediately. Our insurance partner handles the claim process. With standard coverage, a deductible may apply. Premium coverage offers zero-deductible protection." },
-              { q: "Does Teslys offer insurance for Tesla owners who list their cars?", a: "Yes. Tesla owners on the Teslys platform receive commercial rental insurance that covers their vehicle during every trip. This is separate from and in addition to the owner's personal auto insurance." },
+              { q: "Does Teslys provide insurance?", a: "No. Teslys is a vehicle management and co-hosting service, not an insurer. Trip protection is provided by the third-party marketplace a trip is booked on, subject to its terms." },
+              { q: "What does marketplace protection typically cover?", a: "Plans generally address liability and physical damage during a qualifying trip. Exact coverage, limits, exclusions, and deductibles are set by the marketplace and can change." },
+              { q: "What deductible applies to my vehicle?", a: "At the time of writing, Eon trips carry a $0 owner deductible and Turo trips carry a $250 owner deductible. These are set by the marketplaces and subject to change." },
+              { q: "Do I still need my own policy?", a: "Yes. Owners must maintain legally required insurance and should disclose commercial car-sharing use to their insurer where required." },
+              { q: "What happens if the Tesla is damaged during a trip?", a: "Document it with photos and contact Teslys support. We coordinate the claim with the marketplace; the platform or insurer determines the outcome and any deductible." },
+              { q: "Can I buy additional coverage?", a: "Owners can explore commercial car-sharing coverage directly with providers such as Bonzah. Eligibility and terms are set by the insurer, not by Teslys." },
             ].map((faq) => (
               <div key={faq.q} className="bg-card border rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>
@@ -236,8 +244,8 @@ export default function TeslaRentalInsurance() {
       {/* CTA */}
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Drive Protected. Rent or List with Confidence.</h2>
-          <p className="text-lg opacity-90 mb-8">Every Tesla on Teslys is fully insured. Whether you're renting or earning, your peace of mind is included.</p>
+          <h2 className="text-3xl font-bold mb-4">Know Exactly How Protection Works</h2>
+          <p className="text-lg opacity-90 mb-8">Teslys manages your Tesla; bookings and trip protection are handled by third-party car-sharing marketplaces under their terms.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <a href="https://app.eonrides.com/" target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="secondary">Rent a Tesla <ArrowRight className="ml-2 h-4 w-4" /></Button>

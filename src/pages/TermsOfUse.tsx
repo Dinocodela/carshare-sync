@@ -54,7 +54,8 @@ export default function TermsOfUse() {
               and Teslys ("Teslys", "we", "our", "us") governing your use of the
               Teslys website at teslys.app, our iOS and Android apps, and all
               related services (together, the "Service"). By creating an
-              account, listing a vehicle, booking a vehicle, purchasing from our
+              account, listing a vehicle, using vehicle discovery links or
+              accessing third-party booking options, purchasing from our
               shop, or otherwise using the Service, you agree to these Terms and
               to our{" "}
               <a

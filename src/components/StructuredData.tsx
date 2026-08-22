@@ -102,7 +102,7 @@ function getStructuredData(type: string, customData?: Record<string, any>) {
                 "@type": "Service",
                 name: "Host Tesla Rental Management",
                 description:
-                  "Complete rental management for Tesla owners including guest screening, cleaning coordination, and maintenance scheduling.",
+                  "Vehicle management and co-hosting for Tesla owners, including listing management on third-party car-sharing marketplaces, cleaning coordination, and maintenance scheduling.",
               },
             },
             {

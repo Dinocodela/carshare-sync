@@ -25,7 +25,7 @@ const comparisons = [
     feature: "Full rental management",
     teslys: true,
     selfManaged: false,
-    detail: "We handle bookings, guest screening, cleaning, and key exchanges",
+    detail: "We manage listings, guest coordination, cleaning, and key exchanges; screening is performed by the marketplace",
   },
   {
     feature: "Guest support (24/7)",

@@ -21,17 +21,17 @@ export default function FAQ() {
     {
       question: "Is Tesla car sharing profitable?",
       answer:
-        "Yes! Many Tesla owners cover their monthly car payments entirely through Teslys rentals, with surplus income becoming true passive earnings. After accounting for our management fees, cleaning, and minimal wear, most hosts see significant net profit. Our analytics dashboard helps you track every dollar earned and spent, making it easy to optimize your earnings.",
+        "Many Tesla owners offset a meaningful portion of their monthly car payment through marketplace bookings, though actual earnings vary by vehicle, location, and demand, and no earnings are guaranteed. Payouts are calculated after the marketplace's share, management fees, cleaning, and vehicle costs. Our analytics dashboard helps you track every dollar earned and spent, making it easy to optimize your earnings.",
     },
     {
       question: "How does Teslys protect my Tesla during rentals?",
       answer:
-        "We implement multiple layers of protection: thorough guest screening and verification, comprehensive insurance coverage for every rental, 24/7 monitoring and support, GPS tracking and remote control through Tesla's app, and professional cleaning and inspection after each rental. Your vehicle's safety is our top priority.",
+        "We coordinate 24/7 monitoring and support, vehicle tracking through Tesla's app, and professional cleaning and inspection after each trip. Renter verification and trip protection are handled by the third-party car-sharing marketplace the vehicle is listed on, subject to that platform's terms.",
     },
     {
       question: "What does Teslys handle for me?",
       answer:
-        "Teslys provides full-service rental management including guest screening and booking coordination, professional cleaning between rentals, 24/7 guest support and communication, maintenance scheduling and tracking, earnings and expense analytics, and emergency assistance. You simply provide the vehicle and collect passive income.",
+        "Teslys provides vehicle management including listing management on third-party car-sharing marketplaces, booking coordination, professional cleaning between trips, 24/7 guest support and communication, maintenance scheduling, earnings and expense analytics, and emergency assistance. Renter screening, rental contracts, and trip protection are handled by the marketplace.",
     },
     {
       question: "Do I need to be present for rentals?",
@@ -41,7 +41,7 @@ export default function FAQ() {
     {
       question: "What happens if my Tesla gets damaged?",
       answer:
-        "Every rental includes comprehensive insurance coverage. If damage occurs, we handle the entire claims process from documentation and filing to repairs and communication with guests. Our platform tracks all incidents, and you're protected from financial loss. Most hosts never experience issues thanks to our thorough guest screening.",
+        "Trip protection is provided by the third-party marketplace the trip was booked on, subject to that platform's terms, coverage limits, and deductibles (for example, $0 on Eon and $250 on Turo at the time of writing). If damage occurs, we coordinate the claim — documentation, filing, repairs, and guest communication — but Teslys is not an insurer and does not guarantee any recovery.",
     },
     {
       question: "Can I block dates when I need my Tesla?",
@@ -71,7 +71,7 @@ export default function FAQ() {
     {
       question: "What are the fees for using Teslys?",
       answer:
-        "Teslys charges a service fee that covers our full-service management including guest screening, 24/7 support, cleaning coordination, maintenance tracking, and platform technology. All fees are transparent and deducted before payouts. Most hosts find the passive income far exceeds the management costs, especially compared to self-managing rentals.",
+        "Teslys charges a 30% management fee that covers listing management, 24/7 support, cleaning coordination, maintenance tracking, and platform technology. The car-sharing marketplace also takes its own share of gross bookings. All fees are transparent and deducted before payouts. Professional management can reduce your day-to-day workload; actual earnings vary.",
     },
     {
       question: "How do I track my Tesla rental earnings?",
@@ -86,7 +86,7 @@ export default function FAQ() {
     {
       question: "What insurance is required for Tesla car sharing?",
       answer:
-        "Teslys partnerships provide comprehensive commercial rental insurance that covers every booking. This is separate from your personal auto insurance and includes liability coverage, collision and comprehensive coverage, and guest protection. All insurance requirements are handled automatically when you list your Tesla.",
+        "Owners must maintain the insurance they are legally required to carry and disclose commercial car-sharing use to their insurer where required. Trip protection during a booking is provided by the applicable third-party marketplace under its terms. Teslys does not underwrite, issue, or guarantee insurance.",
     },
     {
       question: "What tax deductions can I claim when renting my Tesla?",
@@ -101,7 +101,7 @@ export default function FAQ() {
     {
       question: "What are the advantages for business owners listing their Tesla with Teslys?",
       answer:
-        "Business owners benefit from a fully managed passive income stream, tax-deductible vehicle expenses, and professional fleet management tools. Teslys handles guest screening, cleaning, maintenance coordination, and 24/7 support — so you focus on your business while your Tesla earns. Our analytics dashboard doubles as a bookkeeping tool, tracking every dollar of revenue and expenses for clean tax reporting. Many owners offset their car payments entirely and build equity in a scalable rental business.",
+        "Business owners benefit from a fully managed passive income stream, tax-deductible vehicle expenses, and professional fleet management tools. Teslys manages listings, cleaning, maintenance coordination, and 24/7 support — so you focus on your business while your Tesla earns. Renter screening and trip protection are handled by the marketplace. Our analytics dashboard doubles as a bookkeeping tool, tracking every dollar of revenue and expenses for clean tax reporting. Many owners offset their car payments entirely and build equity in a scalable rental business.",
     },
     {
       question: "Should I form an LLC for my Tesla rental business?",
@@ -116,7 +116,7 @@ export default function FAQ() {
     {
       question: "Does Teslys offer a military program for active-duty members?",
       answer:
-        "Yes! Teslys is veteran-owned and we offer a special 85/15 profit split for active-duty military members going on deployment. You keep 85% of all rental earnings while we manage your Tesla — handling guest screening, cleaning, maintenance, and support. It's the perfect way to keep your car earning while you serve. Visit our Military Program page to learn more and enroll.",
+        "Yes! Teslys is veteran-owned and we offer a special 85/15 profit split for active-duty military members going on deployment. You keep 85% of owner earnings while we manage your Tesla — listing management, cleaning, maintenance, and support. It's the perfect way to keep your car earning while you serve. Visit our Military Program page to learn more and enroll.",
     },
     {
       question: "Do I get a better rate if I have multiple cars with Teslys?",
@@ -131,7 +131,7 @@ export default function FAQ() {
     {
       question: "Can hosts offer rental insurance to their private clients?",
       answer:
-        "Yes! Through our partnership with Bonzah, hosts can offer commercial rental insurance to guests booking directly. This provides comprehensive coverage for every rental, building trust with guests and protecting your vehicles. Our dedicated agent can set you up quickly — visit the Bonzah Insurance page in your host dashboard.",
+        "Yes! Through our partnership with Bonzah, hosts can offer commercial rental coverage to guests booking directly. Coverage terms, limits, and eligibility are set and underwritten by Bonzah, not by Teslys. Our dedicated agent can set you up quickly — visit the Bonzah Insurance page in your host dashboard.",
     },
   ];
 

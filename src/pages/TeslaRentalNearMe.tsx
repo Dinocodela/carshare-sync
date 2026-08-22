@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { MarketplaceDisclosure } from "@/components/marketing/MarketplaceDisclosure";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { RelatedPages } from "@/components/marketing/RelatedPages";
 import { Logo } from "@/components/ui/logo";
@@ -35,7 +36,7 @@ export default function TeslaRentalNearMe() {
     "@type": "FAQPage",
     mainEntity: [
       { "@type": "Question", name: "How much does it cost to rent a Tesla?", acceptedAnswer: { "@type": "Answer", text: "Tesla rental rates vary by model and duration. A Model 3 starts at $85/day, Model Y at $110/day, and Model X at $155/day. Weekly and monthly discounts of up to 40% are available." } },
-      { "@type": "Question", name: "Is insurance included with a Tesla rental?", acceptedAnswer: { "@type": "Answer", text: "Yes. Every Tesla rental through Teslys includes comprehensive insurance coverage. Additional premium coverage options are also available for full peace of mind." } },
+      { "@type": "Question", name: "Is insurance included with a Tesla rental?", acceptedAnswer: { "@type": "Answer", text: "Bookings are completed on third-party car-sharing marketplaces such as Turo or Eon, and trip protection is provided by that marketplace under its terms. Coverage levels and deductibles are set by the marketplace, not by Teslys." } },
       { "@type": "Question", name: "Is there a mileage limit on Tesla rentals?", acceptedAnswer: { "@type": "Answer", text: "Most Tesla rentals include 200–250 miles per day. Unlimited mileage packages are available for weekly and monthly bookings. Excess mileage is charged at a per-mile rate." } },
       { "@type": "Question", name: "Can I get a Tesla delivered to me?", acceptedAnswer: { "@type": "Answer", text: "Absolutely. Teslys offers doorstep delivery and pickup in most major cities. Your Tesla can be delivered to your home, office, hotel, or airport." } },
       { "@type": "Question", name: "Where can I charge a rental Tesla?", acceptedAnswer: { "@type": "Answer", text: "You can charge at any of 50,000+ Tesla Superchargers across the U.S. or at public charging stations. Each Tesla comes with a charging guide and the Supercharger network is built into the navigation system." } },
@@ -85,12 +86,19 @@ export default function TeslaRentalNearMe() {
         </div>
       </section>
 
+      <section className="bg-muted/30 border-y border-border">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <MarketplaceDisclosure />
+        </div>
+      </section>
+
+
       {/* Available Tesla Models */}
       <section className="py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-3">Available Tesla Models for Rent</h2>
           <p className="text-muted-foreground mb-8 max-w-2xl">
-            Whether you need an affordable daily driver or a luxury SUV, our fleet of Tesla vehicles has you covered. Every car rental includes insurance, charging access, and 24/7 roadside assistance.
+            Whether you need an affordable daily driver or a luxury SUV, our fleet of Tesla vehicles has you covered. Bookings are completed on third-party car-sharing marketplaces, where protection and roadside terms are set by that platform.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {[
@@ -197,7 +205,7 @@ export default function TeslaRentalNearMe() {
           <h2 className="text-3xl font-bold mb-8">Rental Terms at a Glance</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Shield, title: "Insurance Included", desc: "Comprehensive coverage included with every booking. Optional premium plans available." },
+              { icon: Shield, title: "Marketplace protection", desc: "Protection is provided by the applicable third-party marketplace, subject to its terms." },
               { icon: Clock, title: "Mileage Policy", desc: "200–250 miles/day included. Unlimited mileage on weekly and monthly plans." },
               { icon: FileText, title: "Age & License", desc: "Minimum age 21. Valid driver's license and clean driving record required." },
               { icon: CheckCircle, title: "Cancellation", desc: "Free cancellation up to 24 hours before pickup. Full refund, no questions asked." },
@@ -219,7 +227,7 @@ export default function TeslaRentalNearMe() {
           <div className="space-y-4">
             {[
               { q: "How much does it cost to rent a Tesla?", a: "Tesla rental rates vary by model and duration. A Model 3 starts at $85/day, Model Y at $110/day, and Model X at $155/day. Weekly and monthly discounts of up to 40% are available." },
-              { q: "Is insurance included with a Tesla rental?", a: "Yes. Every Tesla rental through Teslys includes comprehensive insurance coverage. Additional premium coverage options are also available for full peace of mind." },
+              { q: "Is insurance included with a Tesla rental?", a: "Bookings are completed on third-party car-sharing marketplaces such as Turo or Eon, and trip protection is provided by that marketplace under its terms. Coverage levels and deductibles are set by the marketplace, not by Teslys." },
               { q: "Is there a mileage limit on Tesla rentals?", a: "Most Tesla rentals include 200–250 miles per day. Unlimited mileage packages are available for weekly and monthly bookings. Excess mileage is charged at a per-mile rate." },
               { q: "Can I get a Tesla delivered to me?", a: "Absolutely. Teslys offers doorstep delivery and pickup in most major cities. Your Tesla can be delivered to your home, office, hotel, or airport." },
               { q: "Where can I charge a rental Tesla?", a: "You can charge at any of 50,000+ Tesla Superchargers across the U.S. or at public charging stations. Each Tesla comes with a charging guide and the Supercharger network is built into the navigation system." },

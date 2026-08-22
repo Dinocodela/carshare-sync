@@ -35,13 +35,13 @@ export default function GetStarted() {
       icon: Sparkles,
       title: "We Handle Everything",
       description:
-        "Guest screening, cleaning, 24/7 support, maintenance coordination — zero hassle for you.",
+        "Listing management, cleaning, 24/7 support, and maintenance coordination — zero hassle for you.",
     },
   ];
 
   const checkpoints = [
-    "Professional guest screening & verification",
-    "Comprehensive insurance on every rental",
+    "Listing management on third-party car-sharing marketplaces",
+    "Marketplace protection applies per platform terms",
     "Earnings & expense analytics for tax season",
     "Block dates anytime you need your car",
     "No long-term commitment required",

@@ -132,7 +132,7 @@ const Login = () => {
         {/* Trust badges */}
         <div className="flex justify-center gap-6 mt-6">
           {[
-            { icon: Shield, label: "Fully Insured" },
+            { icon: Shield, label: "Marketplace protection" },
             { icon: Star, label: "Top Rated" },
             { icon: Users, label: "Trusted Hosts" },
           ].map(({ icon: Icon, label }) => (

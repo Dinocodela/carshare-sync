@@ -102,7 +102,7 @@ export default function PrivacyPolicy() {
               This Privacy Policy explains how Teslys ("we", "our", "us")
               collects, uses, shares, and protects personal information when you
               use teslys.app, our mobile apps, and related services (the
-              "Service"). It applies to vehicle owners, renters, investors,
+              "Service"). It applies to vehicle owners, co-hosts, investors,
               shoppers, and visitors. You can manage cookie and tracking choices
               any time in our{" "}
               <a
@@ -242,8 +242,11 @@ export default function PrivacyPolicy() {
                     "App-store billing and subscription management — Apple, Google, RevenueCat.",
                     "Commerce and merchandise fulfillment — Shopify.",
                     "Analytics and tag management — Google (loaded only after you consent).",
+                    "Mobile app attribution and in-app analytics — AppsFlyer, used in our iOS and Android apps to measure installs, campaign attribution, and in-app events. AppsFlyer runs in the native apps and is not currently gated by the website cookie banner.",
+                    "Push notification delivery — Firebase Cloud Messaging (Google) on Android and the Apple Push Notification service on iOS, which process a device push token to deliver notifications.",
                     "Internal operational alerting — Slack.",
                     "Social publishing and lead capture — Meta (Instagram).",
+                    "Vehicle management data feeds — third-party car-sharing marketplaces (such as Turo and Eon) that send us trip, earnings, and claim information for vehicles we manage.",
                   ]}
                 />
                 <p>
@@ -306,9 +309,15 @@ export default function PrivacyPolicy() {
                 <p>
                   In our mobile apps we may collect a device push token, device
                   model, OS version, and app version to deliver notifications
-                  and diagnose issues. You can disable push notifications in
-                  your device settings at any time; transactional information
-                  will still be available in-app and by email.
+                  and diagnose issues. Push messages are delivered through
+                  Firebase Cloud Messaging (Google) on Android and the Apple
+                  Push Notification service on iOS. Our apps also use AppsFlyer
+                  for install attribution and in-app analytics, which may
+                  process device and app-event identifiers. You can disable push
+                  notifications in your device settings at any time, and you can
+                  limit ad tracking through your device's operating-system
+                  privacy settings; transactional information will still be
+                  available in-app and by email.
                 </p>
               </LegalSection>
 

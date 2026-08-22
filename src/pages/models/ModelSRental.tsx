@@ -28,7 +28,7 @@ const data: ModelDetailData = {
   faqs: [
     { question: "How much can I earn renting my Model S?", answer: "Model S owners on Teslys earn an average of $1,900+ per month, with daily rates ranging from $125 to $160+ depending on trim (Long Range vs Plaid) and location." },
     { question: "Is the Model S Plaid worth more for rentals?", answer: "Yes — the Plaid variant commands a significant premium, often $20-30 more per day. Its performance specs are a major draw for car enthusiasts and content creators." },
-    { question: "How does Teslys protect my Model S?", answer: "Every trip is covered by commercial insurance. We conduct pre- and post-trip inspections, and our professional co-hosts ensure your Model S is maintained to the highest standards." },
+    { question: "How does Teslys protect my Model S?", answer: "We conduct pre- and post-trip inspections, and our co-hosts keep your Model S maintained. Trip protection during a booking is provided by the third-party marketplace, subject to its terms." },
     { question: "What's the ideal renter for a Model S?", answer: "The Model S attracts business executives, car enthusiasts, and special occasion renters. These guests tend to book longer trips and treat the vehicle with more care." },
   ],
   topCities: [
