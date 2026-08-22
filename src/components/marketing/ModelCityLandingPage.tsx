@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { EarningsDisclaimer } from "@/components/marketing/EarningsDisclaimer";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { RelatedPages } from "@/components/marketing/RelatedPages";
@@ -46,7 +47,7 @@ export function ModelCityLandingPage({ data }: { data: ModelCityData }) {
         name: `How much can I earn renting my ${data.model} in ${data.city}?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `${data.model} owners in ${data.city} earn an average of ${data.avgMonthlyEarnings}/month with Teslys, based on an average daily rate of ${data.avgDailyRate}.`,
+          text: `${data.model} vehicles managed in ${data.city} have typically generated around ${data.avgMonthlyEarnings}/month in gross bookings at an average daily rate of ${data.avgDailyRate}. Owner payouts are calculated after the rental platform's 30% share and the Teslys 30% management fee, and results are not guaranteed.`,
         },
       },
       {
@@ -125,7 +126,7 @@ export function ModelCityLandingPage({ data }: { data: ModelCityData }) {
               <div className="grid grid-cols-3 gap-6 text-center">
                 <div>
                   <p className="text-2xl md:text-3xl font-bold text-primary">{data.avgMonthlyEarnings}</p>
-                  <p className="text-xs md:text-sm text-muted-foreground mt-1">Avg Monthly Earnings</p>
+                  <p className="text-xs md:text-sm text-muted-foreground mt-1">Typical Gross Bookings / Mo</p>
                 </div>
                 <div>
                   <p className="text-2xl md:text-3xl font-bold text-primary">{data.avgDailyRate}</p>
@@ -136,6 +137,7 @@ export function ModelCityLandingPage({ data }: { data: ModelCityData }) {
                   <p className="text-xs md:text-sm text-muted-foreground mt-1">Avg Days Booked/Mo</p>
                 </div>
               </div>
+              <EarningsDisclaimer variant="box" className="mt-6 text-left" prefix="Figures show gross booking revenue before the rental platform's 30% share and the Teslys 30% management fee." />
             </div>
           </section>
 
@@ -196,7 +198,7 @@ export function ModelCityLandingPage({ data }: { data: ModelCityData }) {
                     How much can I earn renting my {data.model} in {data.city}?
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {data.model} owners in {data.city} earn an average of {data.avgMonthlyEarnings}/month with Teslys, based on an average daily rate of {data.avgDailyRate}. Use our{" "}
+                    {data.model} vehicles managed in {data.city} have typically generated around {data.avgMonthlyEarnings}/month in gross bookings at an average daily rate of {data.avgDailyRate}. Owner payouts are calculated after the rental platform's 30% share and the Teslys 30% management fee, and results are not guaranteed. Use our{" "}
                     <Link to="/earnings-calculator" className="text-primary hover:underline">earnings calculator</Link> for a personalized estimate.
                   </p>
                 </div>

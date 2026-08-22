@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Logo } from "@/components/ui/logo";
+import { EarningsDisclaimer } from "@/components/marketing/EarningsDisclaimer";
 import {
   ArrowRight,
   Calculator,
@@ -30,32 +31,42 @@ import {
   Lock,
 } from "lucide-react";
 
-/* ── Static benchmark data from real platform rentals ── */
+/* ── Benchmarks: median GROSS booking revenue per vehicle-month
+   observed on the Teslys platform (trailing 18 months). Owner payout is
+   calculated from gross after the rental platform's 30% share and the
+   Teslys 30% management fee. ── */
 type BenchmarkKey = string;
 
 interface Benchmark {
+  /** Median gross booking revenue per month at full availability. */
   avgMonthly: number;
   trips: number;
 }
 
 const BENCHMARKS: Record<BenchmarkKey, Benchmark> = {
-  "Model 3|2018-2020": { avgMonthly: 1600, trips: 40 },
-  "Model 3|2021-2022": { avgMonthly: 2100, trips: 166 },
-  "Model 3|2023-2025": { avgMonthly: 1900, trips: 30 },
-  "Model Y|2018-2020": { avgMonthly: 1700, trips: 15 },
-  "Model Y|2021-2022": { avgMonthly: 2000, trips: 98 },
-  "Model Y|2023-2025": { avgMonthly: 1260, trips: 25 },
+  "Model 3|2018-2020": { avgMonthly: 1200, trips: 40 },
+  "Model 3|2021-2022": { avgMonthly: 1450, trips: 166 },
+  "Model 3|2023-2025": { avgMonthly: 1400, trips: 30 },
+  "Model Y|2018-2020": { avgMonthly: 1250, trips: 15 },
+  "Model Y|2021-2022": { avgMonthly: 1800, trips: 98 },
+  "Model Y|2023-2025": { avgMonthly: 1650, trips: 25 },
   "Model X|2018-2020": { avgMonthly: 1500, trips: 20 },
-  "Model X|2021-2022": { avgMonthly: 1800, trips: 32 },
-  "Model X|2023-2025": { avgMonthly: 1700, trips: 10 },
-  "Model S|2018-2020": { avgMonthly: 1400, trips: 18 },
-  "Model S|2021-2022": { avgMonthly: 1700, trips: 22 },
-  "Model S|2023-2025": { avgMonthly: 1600, trips: 8 },
-  "Cybertruck|2023-2025": { avgMonthly: 1800, trips: 34 },
+  "Model X|2021-2022": { avgMonthly: 1900, trips: 32 },
+  "Model X|2023-2025": { avgMonthly: 1800, trips: 10 },
+  "Model S|2018-2020": { avgMonthly: 1300, trips: 18 },
+  "Model S|2021-2022": { avgMonthly: 1500, trips: 22 },
+  "Model S|2023-2025": { avgMonthly: 1450, trips: 8 },
+  "Cybertruck|2023-2025": { avgMonthly: 1500, trips: 34 },
 };
 
 const MODELS = ["Model 3", "Model Y", "Model X", "Model S", "Cybertruck"] as const;
-const HOST_COMMISSION = 0.3;
+/** Rental platform (Eon / Turo) share of gross. */
+const PLATFORM_SHARE = 0.3;
+/** Teslys management fee, applied to gross. */
+const MANAGEMENT_FEE = 0.3;
+/** Share of gross booking revenue paid to the owner. */
+const OWNER_SHARE = 1 - PLATFORM_SHARE - MANAGEMENT_FEE;
+
 
 function yearBucketForYear(year: number): string {
   if (year <= 2020) return "2018-2020";
@@ -115,15 +126,16 @@ export default function EarningsCalculator() {
         modelBenches.reduce((s, b) => s + b.avgMonthly, 0) / modelBenches.length;
       const scale = availability[0] / 100;
       const gross = Math.round(avg * scale);
-      const net = Math.round(gross * (1 - HOST_COMMISSION));
-      return { low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
+      const net = Math.round(gross * OWNER_SHARE);
+      return { gross, low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
     }
 
     const scale = availability[0] / 100;
     const gross = Math.round(bench.avgMonthly * scale);
-    const net = Math.round(gross * (1 - HOST_COMMISSION));
-    return { low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
+    const net = Math.round(gross * OWNER_SHARE);
+    return { gross, low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
   }, [model, year, availability]);
+
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -134,7 +146,7 @@ export default function EarningsCalculator() {
         name: "How much can I earn renting my Tesla?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Earnings vary by model, year, and availability. On average, Tesla owners on Teslys earn $900–$1,900 per month after host fees.",
+          text: "It depends on the vehicle, its location, and how often it rents. Across vehicles managed by Teslys, owner payouts have typically ranged from roughly $600 to $1,300 per month after the rental platform's 30% share and the Teslys 30% management fee, with some months higher and some lower. These are historical ranges, not guarantees of future income.",
         },
       },
       {
@@ -142,7 +154,7 @@ export default function EarningsCalculator() {
         name: "What does Teslys charge?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Teslys hosts typically take a 30% commission for managing your vehicle, handling guest support, cleaning, and logistics.",
+          text: "The rental platform (Eon or Turo) keeps 30% of gross booking revenue, and Teslys charges a 30% management fee for guest support, cleaning, logistics, and maintenance coordination. Owners receive the remaining share of gross booking revenue.",
         },
       },
     ],
@@ -292,8 +304,9 @@ export default function EarningsCalculator() {
               </div>
 
               <p className="text-[10px] text-white/30 leading-relaxed">
-                Based on real trip data. Actual earnings vary by location, season, and
-                demand.
+Estimates are modeled on historical Teslys trip data. They are not a
+                projection or guarantee — actual results vary by vehicle, location,
+                season, and demand.
               </p>
             </div>
 
@@ -305,9 +318,9 @@ export default function EarningsCalculator() {
                     <TrendingUp className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <h2 className="font-bold text-white">Monthly Earnings</h2>
+                    <h2 className="font-bold text-white">Estimated Monthly Owner Payout</h2>
                     <p className="text-[11px] text-white/40">
-                      After host management fees (30%)
+                      Net of the platform's 30% share and the 30% management fee
                     </p>
                   </div>
                 </div>
@@ -351,7 +364,7 @@ export default function EarningsCalculator() {
                     {/* Main number */}
                     <div className="text-center py-6">
                       <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] mb-2">
-                        Average Estimate
+                        Typical Estimate
                       </p>
                       <div className="relative inline-block">
                         <p className="text-6xl sm:text-7xl font-black bg-gradient-to-r from-accent via-teal-light to-accent bg-clip-text text-transparent tracking-tight tabular-nums">
@@ -359,7 +372,7 @@ export default function EarningsCalculator() {
                         </p>
                         <Sparkles className="absolute -top-2 -right-5 w-5 h-5 text-accent/60 animate-pulse" />
                       </div>
-                      <p className="text-sm text-white/40 mt-1">per month</p>
+                      <p className="text-sm text-white/40 mt-1">per month (estimated, not guaranteed)</p>
                     </div>
 
                     {/* Range cards */}
@@ -382,16 +395,38 @@ export default function EarningsCalculator() {
                       </div>
                     </div>
 
+                    {/* Gross → net breakdown */}
+                    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 space-y-1.5 text-[12px] text-white/60">
+                      <div className="flex justify-between">
+                        <span>Gross booking revenue</span>
+                        <span className="tabular-nums text-white/80">${estimates.gross.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Rental platform share (30%)</span>
+                        <span className="tabular-nums">−${Math.round(estimates.gross * PLATFORM_SHARE).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Teslys management fee (30%)</span>
+                        <span className="tabular-nums">−${Math.round(estimates.gross * MANAGEMENT_FEE).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-white/10 pt-1.5 font-semibold text-white">
+                        <span>Estimated owner payout</span>
+                        <span className="tabular-nums">${estimates.avg.toLocaleString()}</span>
+                      </div>
+                    </div>
+
                     {/* Annual */}
                     <div className="bg-accent/10 rounded-xl p-4 text-center border border-accent/20">
                       <p className="text-[11px] text-white/50 mb-1">
-                        Projected Annual Earnings
+                        Estimated Annual Owner Payout
                       </p>
                       <p className="text-3xl font-black text-white tracking-tight flex items-center justify-center gap-1 tabular-nums">
                         <DollarSign className="w-6 h-6 text-accent" />
                         {(estimates.avg * 12).toLocaleString()}
                       </p>
                     </div>
+
+                    <EarningsDisclaimer variant="dark" />
                   </>
                   )
                 ) : (
@@ -400,6 +435,7 @@ export default function EarningsCalculator() {
                   </p>
                 )}
               </div>
+
 
               {/* CTA */}
               <Link to="/register/client" className="block">

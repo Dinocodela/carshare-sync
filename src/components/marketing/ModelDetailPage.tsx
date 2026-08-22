@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { EarningsDisclaimer } from "@/components/marketing/EarningsDisclaimer";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { RelatedPages } from "@/components/marketing/RelatedPages";
@@ -100,7 +101,7 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
               <DollarSign className="h-5 w-5 text-primary" />
               <div>
                 <div className="text-2xl font-bold">{data.avgMonthlyEarnings}</div>
-                <div className="text-sm text-muted-foreground">Avg. Monthly Earnings</div>
+                <div className="text-sm text-muted-foreground">Typical Gross Bookings / Mo</div>
               </div>
             </div>
             <div className="flex items-center gap-2 bg-card border rounded-lg px-4 py-3">
@@ -115,6 +116,7 @@ export function ModelDetailPage({ data }: { data: ModelDetailData }) {
             <Link to="/register/client"><Button size="lg">List Your {data.modelShort} <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
             <Link to="/earnings-calculator"><Button variant="outline" size="lg"><Calculator className="mr-2 h-4 w-4" /> Calculate Earnings</Button></Link>
           </div>
+          <div className="max-w-3xl mt-6"><EarningsDisclaimer variant="box" className="mt-6 text-left" prefix="Figures show gross booking revenue before the rental platform's 30% share and the Teslys 30% management fee." /></div>
         </div>
       </section>
 

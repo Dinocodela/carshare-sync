@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { EarningsDisclaimer } from "@/components/marketing/EarningsDisclaimer";
 import { SEO } from "@/components/SEO";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
 import { RelatedPages } from "@/components/marketing/RelatedPages";
@@ -56,7 +57,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
     {
       icon: DollarSign,
       title: "Earn Passive Income",
-      description: `Your host handles rentals, cleaning, and guest support while you earn ${city.marketStats.avgMonthlyEarnings}/month on average.`,
+      description: `Your host handles rentals, cleaning, and guest support. Vehicles in this market have typically generated around ${city.marketStats.avgMonthlyEarnings}/month in gross bookings before platform and management fees. Results vary and are not guaranteed.`,
     },
   ];
 
@@ -94,7 +95,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
       {
         "@type": "Question",
         name: `How much can I earn renting my Tesla in ${city.city}?`,
-        acceptedAnswer: { "@type": "Answer", text: `Tesla owners in ${city.city} earn an average of ${city.marketStats.avgMonthlyEarnings}/month through Teslys. Earnings vary by model and booking frequency, with average daily rates of ${city.marketStats.avgDailyRate}.` },
+        acceptedAnswer: { "@type": "Answer", text: `Tesla vehicles managed in ${city.city} have typically generated around ${city.marketStats.avgMonthlyEarnings}/month in gross bookings, before the rental platform's 30% share and the Teslys 30% management fee. Owner payouts are lower than the gross figure, vary by model, condition, and booking frequency, and are not guaranteed. Average daily rates run about ${city.marketStats.avgDailyRate}.` },
       },
       {
         "@type": "Question",
@@ -194,7 +195,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
                 {[
                   {
                     value: city.marketStats.avgMonthlyEarnings,
-                    label: "Avg Monthly Earnings",
+                    label: "Typical Gross Bookings / Mo",
                   },
                   {
                     value: city.marketStats.activeHosts,
@@ -215,6 +216,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
                   </div>
                 ))}
               </div>
+              <EarningsDisclaimer variant="box" className="mt-6 text-left" prefix="Figures show gross booking revenue before the rental platform's 30% share and the Teslys 30% management fee." />
             </div>
           </section>
 

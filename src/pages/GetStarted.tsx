@@ -21,7 +21,7 @@ export default function GetStarted() {
   const benefits = [
     {
       icon: DollarSign,
-      title: "Earn $1,500–$3,000+/mo",
+      title: "Owner payouts often $600-$1,300/mo",
       description:
         "Your Tesla works for you while you sleep. Most hosts cover their car payment and then some.",
     },
@@ -53,7 +53,7 @@ export default function GetStarted() {
     <>
       <SEO
         title="Rent Your Tesla for Passive Income | Get Started with Teslys"
-        description="Turn your Tesla into a tax-deductible income machine. Earn $1,500-$3,000+/mo with full-service management. Get started in minutes."
+        description="Put your Tesla to work with full-service management. Owner payouts on our platform have typically ranged $600-$1,300/mo. Results vary and are not guaranteed."
         keywords="rent my Tesla for income, Tesla tax write off rental, Tesla passive income, Tesla car sharing business"
         canonical="https://teslys.app/get-started"
         ogType="website"
