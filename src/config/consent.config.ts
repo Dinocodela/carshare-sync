@@ -76,7 +76,7 @@ export interface BrandConfig {
 
 export const brand: BrandConfig = {
   productName: "Teslys",
-  companyName: "Teslys Inc.",
+  companyName: "Teslys LLC",
   websiteUrl: "https://teslys.app",
   privacyEmail: "support@teslys.com",
   supportEmail: "support@teslys.com",

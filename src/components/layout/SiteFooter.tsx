@@ -152,7 +152,7 @@ export function SiteFooter() {
           {/* Bottom bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-navy-foreground/30">
-              © {new Date().getFullYear()} Teslys Inc. All rights reserved.
+              © {new Date().getFullYear()} Teslys LLC All rights reserved.
             </p>
             <div className="flex items-center gap-1.5 text-xs text-navy-foreground/30">
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
