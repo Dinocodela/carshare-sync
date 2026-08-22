@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { EarningsDisclaimer } from "@/components/marketing/EarningsDisclaimer";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { NewsletterSignup } from "@/components/marketing/NewsletterSignup";
@@ -18,11 +19,11 @@ import {
 } from "lucide-react";
 
 const modelData = [
-  { model: "Model 3", avgMonthly: "$1,400–$1,900", bestYear: "2021–2022", notes: "Highest trip volume; most in-demand model on the platform." },
-  { model: "Model Y", avgMonthly: "$1,200–$1,800", bestYear: "2021–2022", notes: "Strong family/SUV demand; excellent year-round performer." },
-  { model: "Model X", avgMonthly: "$1,300–$1,700", bestYear: "2021–2022", notes: "Premium rates; lower trip volume but higher per-trip revenue." },
-  { model: "Model S", avgMonthly: "$1,200–$1,600", bestYear: "2021–2022", notes: "Luxury appeal for business travelers and special occasions." },
-  { model: "Cybertruck", avgMonthly: "$1,500–$1,800", bestYear: "2024+", notes: "Novelty factor drives high demand and premium pricing." },
+  { model: "Model 3", avgMonthly: "$550-$850", bestYear: "2021-2022", notes: "Highest trip volume; consistently one of the most requested models on the platform." },
+  { model: "Model Y", avgMonthly: "$600-$950", bestYear: "2021-2022", notes: "Strong family/SUV demand; steady performer across seasons." },
+  { model: "Model X", avgMonthly: "$700-$1,000", bestYear: "2021-2022", notes: "Higher rates per trip, lower trip volume. Based on a small sample of vehicles." },
+  { model: "Model S", avgMonthly: "$600-$850", bestYear: "2021-2022", notes: "Luxury appeal for business travelers and special occasions." },
+  { model: "Cybertruck", avgMonthly: "$650-$900", bestYear: "2024+", notes: "Novelty demand has supported premium pricing to date." },
 ];
 
 const cityData = [
@@ -50,17 +51,17 @@ const faqSchema = {
     {
       "@type": "Question",
       name: "How much can I earn renting my Tesla?",
-      acceptedAnswer: { "@type": "Answer", text: "Tesla owners on Teslys typically earn $1,000–$2,000 per month after host management fees, depending on model, year, location, and availability." },
+      acceptedAnswer: { "@type": "Answer", text: "Owner payouts observed on Teslys have typically ranged from about $600 to $1,300 per month after the rental platform's 30% share and the 30% Teslys management fee, depending on model, year, location, and availability. Past results are not a guarantee of future income." },
     },
     {
       "@type": "Question",
       name: "Is renting my Tesla on Turo worth it?",
-      acceptedAnswer: { "@type": "Answer", text: "Yes, but self-managing takes 10+ hours per week. With Teslys, your host handles everything, making it truly passive income. Most owners net $1,000–$1,500/month with zero time investment." },
+      acceptedAnswer: { "@type": "Answer", text: "Yes, but self-managing typically takes many hours per week. With Teslys, your host handles day-to-day operations. Owner payouts on our platform have generally fallen in the $600-$1,300 per month range; results vary widely by vehicle and are not guaranteed." },
     },
     {
       "@type": "Question",
       name: "Which Tesla model earns the most from rentals?",
-      acceptedAnswer: { "@type": "Answer", text: "The Model 3 (2021–2022) consistently earns the most at approximately $1,900/month gross, followed by the Model Y at $1,800/month. Newer Cybertrucks also command premium rates." },
+      acceptedAnswer: { "@type": "Answer", text: "Model 3 and Model Y vehicles from 2021-2022 have generated the most trip volume on our platform, with median gross bookings of roughly $1,400-$1,800 per month before platform and management fees. Individual results vary." },
     },
   ],
 };
@@ -114,8 +115,9 @@ export default function EarningsGuide() {
           <section className="bg-primary/5 border border-primary/20 rounded-2xl p-6 sm:p-8 mb-12">
             <h2 className="text-xl font-bold text-foreground mb-3">The Short Answer</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              Tesla owners on Teslys earn between <strong className="text-foreground">$1,000 and $2,000 per month</strong> after
-              host management fees. The exact amount depends on your model, year, city, and how many days per month your car is available.
+              Tesla owners on Teslys earn between <strong className="text-foreground">$600 and $1,300 per month</strong> in owner payouts -
+              after the rental platform keeps 30% of gross bookings and Teslys charges its 30% management fee.
+              These are historical ranges observed on our platform, not a guarantee of future income. The exact amount depends on your model, year, city, and how many days per month your car is available.
             </p>
             <Link to="/earnings-calculator" className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
               Get your personalized estimate <ArrowRight className="w-3.5 h-3.5" />
@@ -142,12 +144,12 @@ export default function EarningsGuide() {
                   </div>
                   <div className="text-right sm:w-40 shrink-0">
                     <p className="text-lg font-bold text-primary">{item.avgMonthly}</p>
-                    <p className="text-xs text-muted-foreground">per month (net)</p>
+                    <p className="text-xs text-muted-foreground">est. owner payout / month</p>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground mt-3">* Net earnings after 30% host management fee. Based on 80% monthly availability.</p>
+            <EarningsDisclaimer variant="box" className="mt-4" prefix="Ranges reflect owner payouts observed across vehicles managed by Teslys." />
           </section>
 
           {/* Factors */}
@@ -186,11 +188,13 @@ export default function EarningsGuide() {
                 >
                   <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{item.city}</p>
                   <p className="text-lg font-bold text-primary mt-1">{item.earnings}</p>
-                  <p className="text-xs text-muted-foreground">per month</p>
+                  <p className="text-xs text-muted-foreground">gross bookings / month</p>
                 </Link>
               ))}
             </div>
           </section>
+
+          <EarningsDisclaimer variant="box" className="mb-12" prefix="City figures show gross booking revenue before the rental platform's 30% share and the Teslys 30% management fee." />
 
           {/* Why Teslys */}
           <section className="mb-12">
