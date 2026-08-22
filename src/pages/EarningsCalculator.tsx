@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Logo } from "@/components/ui/logo";
+import { EarningsDisclaimer } from "@/components/marketing/EarningsDisclaimer";
 import {
   ArrowRight,
   Calculator,
@@ -145,7 +146,7 @@ export default function EarningsCalculator() {
         name: "How much can I earn renting my Tesla?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Earnings vary by model, year, and availability. On average, Tesla owners on Teslys earn $900–$1,900 per month after host fees.",
+          text: "It depends on the vehicle, its location, and how often it rents. Across vehicles managed by Teslys, owner payouts have typically ranged from roughly $600 to $1,300 per month after the rental platform's 30% share and the Teslys 30% management fee, with some months higher and some lower. These are historical ranges, not guarantees of future income.",
         },
       },
       {
@@ -153,7 +154,7 @@ export default function EarningsCalculator() {
         name: "What does Teslys charge?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Teslys hosts typically take a 30% commission for managing your vehicle, handling guest support, cleaning, and logistics.",
+          text: "The rental platform (Eon or Turo) keeps 30% of gross booking revenue, and Teslys charges a 30% management fee for guest support, cleaning, logistics, and maintenance coordination. Owners receive the remaining share of gross booking revenue.",
         },
       },
     ],
@@ -303,8 +304,9 @@ export default function EarningsCalculator() {
               </div>
 
               <p className="text-[10px] text-white/30 leading-relaxed">
-                Based on real trip data. Actual earnings vary by location, season, and
-                demand.
+Estimates are modeled on historical Teslys trip data. They are not a
+                projection or guarantee — actual results vary by vehicle, location,
+                season, and demand.
               </p>
             </div>
 
@@ -316,9 +318,9 @@ export default function EarningsCalculator() {
                     <TrendingUp className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <h2 className="font-bold text-white">Monthly Earnings</h2>
+                    <h2 className="font-bold text-white">Estimated Monthly Owner Payout</h2>
                     <p className="text-[11px] text-white/40">
-                      After host management fees (30%)
+                      Net of the platform's 30% share and the 30% management fee
                     </p>
                   </div>
                 </div>
@@ -362,7 +364,7 @@ export default function EarningsCalculator() {
                     {/* Main number */}
                     <div className="text-center py-6">
                       <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] mb-2">
-                        Average Estimate
+                        Typical Estimate
                       </p>
                       <div className="relative inline-block">
                         <p className="text-6xl sm:text-7xl font-black bg-gradient-to-r from-accent via-teal-light to-accent bg-clip-text text-transparent tracking-tight tabular-nums">
@@ -370,7 +372,7 @@ export default function EarningsCalculator() {
                         </p>
                         <Sparkles className="absolute -top-2 -right-5 w-5 h-5 text-accent/60 animate-pulse" />
                       </div>
-                      <p className="text-sm text-white/40 mt-1">per month</p>
+                      <p className="text-sm text-white/40 mt-1">per month (estimated, not guaranteed)</p>
                     </div>
 
                     {/* Range cards */}
