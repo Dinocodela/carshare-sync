@@ -125,15 +125,16 @@ export default function EarningsCalculator() {
         modelBenches.reduce((s, b) => s + b.avgMonthly, 0) / modelBenches.length;
       const scale = availability[0] / 100;
       const gross = Math.round(avg * scale);
-      const net = Math.round(gross * (1 - HOST_COMMISSION));
-      return { low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
+      const net = Math.round(gross * OWNER_SHARE);
+      return { gross, low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
     }
 
     const scale = availability[0] / 100;
     const gross = Math.round(bench.avgMonthly * scale);
-    const net = Math.round(gross * (1 - HOST_COMMISSION));
-    return { low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
+    const net = Math.round(gross * OWNER_SHARE);
+    return { gross, low: Math.round(net * 0.7), avg: net, high: Math.round(net * 1.3) };
   }, [model, year, availability]);
+
 
   const faqSchema = {
     "@context": "https://schema.org",
