@@ -102,7 +102,7 @@ export default function PrivacyPolicy() {
               This Privacy Policy explains how Teslys ("we", "our", "us")
               collects, uses, shares, and protects personal information when you
               use teslys.app, our mobile apps, and related services (the
-              "Service"). It applies to vehicle owners, renters, investors,
+              "Service"). It applies to vehicle owners, co-hosts, investors,
               shoppers, and visitors. You can manage cookie and tracking choices
               any time in our{" "}
               <a

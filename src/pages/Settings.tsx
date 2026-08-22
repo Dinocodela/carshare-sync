@@ -879,7 +879,7 @@ export default function Settings() {
               >
                 {[
                   { icon: Lock, label: "256-bit encryption" },
-                  { icon: Shield, label: "SOC 2 compliant" },
+                  { icon: Shield, label: "Security controls enabled" },
                   { icon: CheckCircle, label: "Verified by Teslys" },
                 ].map(({ icon: TIcon, label }) => (
                   <span key={label} className="flex items-center gap-1.5">
