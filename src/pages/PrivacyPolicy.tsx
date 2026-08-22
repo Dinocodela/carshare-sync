@@ -309,9 +309,15 @@ export default function PrivacyPolicy() {
                 <p>
                   In our mobile apps we may collect a device push token, device
                   model, OS version, and app version to deliver notifications
-                  and diagnose issues. You can disable push notifications in
-                  your device settings at any time; transactional information
-                  will still be available in-app and by email.
+                  and diagnose issues. Push messages are delivered through
+                  Firebase Cloud Messaging (Google) on Android and the Apple
+                  Push Notification service on iOS. Our apps also use AppsFlyer
+                  for install attribution and in-app analytics, which may
+                  process device and app-event identifiers. You can disable push
+                  notifications in your device settings at any time, and you can
+                  limit ad tracking through your device's operating-system
+                  privacy settings; transactional information will still be
+                  available in-app and by email.
                 </p>
               </LegalSection>
 
