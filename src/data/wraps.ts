@@ -138,7 +138,7 @@ export const wraps: Wrap[] = [
     filename: "Astromech.png",
     previewFilename: "Astromech-preview-v1.jpg",
     dimensions: "1024 × 1024 px",
-    fileSize: "FILESIZE",
+    fileSize: "1.2 MB",
     title: "Astromech",
     category: "Featured",
     description:
