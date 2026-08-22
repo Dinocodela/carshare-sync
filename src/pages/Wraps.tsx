@@ -111,15 +111,28 @@ export default function Wraps() {
     });
   };
 
-  const visible = useMemo(
-    () =>
-      active === "All"
-        ? modelWraps
-        : modelWraps.filter((w) => w.category === active),
-    [active, modelWraps]
-  );
+  const query = search.trim().toLowerCase();
+  const isSearching = query.length > 0;
 
-  const hasWraps = modelWraps.length > 0;
+  // Search spans every model so a name like "Astromech" is always findable.
+  const searchResults = useMemo(() => {
+    if (!isSearching) return [];
+    return allWraps.filter((w) =>
+      [w.title, w.description, w.category, w.compatibility]
+        .filter(Boolean)
+        .some((field) => String(field).toLowerCase().includes(query))
+    );
+  }, [allWraps, isSearching, query]);
+
+  const visible = useMemo(() => {
+    if (isSearching) return searchResults;
+    return active === "All"
+      ? modelWraps
+      : modelWraps.filter((w) => w.category === active);
+  }, [active, modelWraps, isSearching, searchResults]);
+
+  const hasWraps = isSearching ? true : modelWraps.length > 0;
+
 
   return (
     <div className="min-h-screen bg-sand text-foreground">
