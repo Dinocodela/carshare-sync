@@ -134,6 +134,18 @@ export const wraps: Wrap[] = [
   },
   {
     ...base,
+    slug: "astromech",
+    filename: "Astromech.png",
+    previewFilename: "Astromech-preview-v1.jpg",
+    dimensions: "1024 × 1024 px",
+    fileSize: "1.2 MB",
+    title: "Astromech",
+    category: "Featured",
+    description:
+      "Arctic-white panels, cobalt-blue utility blocks and brushed-silver segment bands — an original astromech droid tribute for the 2026 Model Y Juniper. Fan-made homage, not affiliated with any franchise.",
+  },
+  {
+    ...base,
     slug: "neon-velocity",
 
     filename: "Neon_Velocity-v2.png",
