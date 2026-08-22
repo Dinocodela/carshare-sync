@@ -57,7 +57,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
     {
       icon: DollarSign,
       title: "Earn Passive Income",
-      description: `Your host handles rentals, cleaning, and guest support. Vehicles in this market have typically generated around ${city.marketStats.avgMonthlyEarnings}/month in gross bookings before platform and management fees. Results vary and are not guaranteed.`,
+      description: `Your host manages the listing, cleaning, and guest coordination on third-party car-sharing marketplaces. Vehicles in this market have typically generated around ${city.marketStats.avgMonthlyEarnings}/month in gross bookings before platform and management fees. Results vary and are not guaranteed.`,
     },
   ];
 
@@ -105,7 +105,7 @@ export function CityLandingPage({ city }: { city: CityData }) {
       {
         "@type": "Question",
         name: `What does Teslys handle for Tesla owners in ${city.city}?`,
-        acceptedAnswer: { "@type": "Answer", text: `Teslys provides complete rental management including listing optimization, guest screening, vehicle cleaning, key exchange, damage claims, and maintenance coordination. Tesla owners earn passively without lifting a finger.` },
+        acceptedAnswer: { "@type": "Answer", text: `Teslys provides vehicle management including listing optimization on third-party car-sharing marketplaces, vehicle cleaning, key exchange, claim coordination, and maintenance. Renter screening, rental contracts, and trip protection are handled by the marketplace under its terms. Actual earnings vary and are not guaranteed.` },
       },
     ],
   };

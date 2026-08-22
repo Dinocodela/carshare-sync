@@ -33,7 +33,7 @@ export default function TeslaRentalCost() {
     mainEntity: [
       { "@type": "Question", name: "How much does it cost to rent a Tesla?", acceptedAnswer: { "@type": "Answer", text: "Tesla rental costs range from $85/day for a Model 3 to $220/day for a Cybertruck. Monthly rates offer 30-40% savings. Exact pricing depends on model, location, and season." } },
       { "@type": "Question", name: "How much can I earn renting out my Tesla?", acceptedAnswer: { "@type": "Answer", text: "Tesla owners earn $1,200-$3,000+ per month depending on model and city. The Cybertruck earns the most, followed by Model X, Model S, Model Y, and Model 3." } },
-      { "@type": "Question", name: "Is renting a Tesla on Turo worth it?", acceptedAnswer: { "@type": "Answer", text: "Yes — most Tesla owners cover their monthly car payment and earn additional profit. With professional co-hosting through Teslys, owners earn 30-50% more than self-managing." } },
+      { "@type": "Question", name: "Is renting a Tesla on Turo worth it?", acceptedAnswer: { "@type": "Answer", text: "Yes — most Tesla owners cover their monthly car payment and earn additional profit. Professional co-hosting through Teslys can reduce the owner's day-to-day workload; actual earnings vary and are not guaranteed." } },
     ],
   };
 
@@ -128,8 +128,8 @@ export default function TeslaRentalCost() {
             {[
               { q: "How much does it cost to rent a Tesla?", a: "Tesla rental costs range from $85/day for a Model 3 to $220/day for a Cybertruck. Monthly rates offer 30-40% savings. Exact pricing depends on model, location, and season." },
               { q: "How much can I earn renting out my Tesla?", a: "Tesla owners earn $1,200-$3,000+ per month depending on model and city. The Cybertruck earns the most, followed by Model X, Model S, Model Y, and Model 3." },
-              { q: "Is renting a Tesla on Turo worth it?", a: "Yes — most Tesla owners cover their monthly car payment and earn additional profit. With professional co-hosting through Teslys, owners earn 30-50% more than self-managing." },
-              { q: "What are the hidden costs of renting a Tesla?", a: "The main costs are charging (Supercharger fees are minimal), insurance (covered by Teslys), and occasional cleaning. With co-hosting, these are all handled for you." },
+              { q: "Is renting a Tesla on Turo worth it?", a: "Yes — most Tesla owners cover their monthly car payment and earn additional profit. Professional co-hosting through Teslys can reduce the owner's day-to-day workload; actual earnings vary and are not guaranteed." },
+              { q: "What are the hidden costs of renting a Tesla?", a: "The main costs are charging, insurance you carry on the vehicle, and occasional cleaning. Trip protection during a booking is provided by the third-party car-sharing marketplace, subject to its terms; Teslys is not an insurer." },
             ].map((faq) => (
               <div key={faq.q} className="bg-card border rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>

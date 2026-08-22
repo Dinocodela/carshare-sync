@@ -96,7 +96,7 @@ export default function TeslaMonthlyRental() {
             {[
               { icon: TrendingUp, title: "Stable Monthly Income", desc: "No gaps between bookings. Monthly renters provide predictable, recurring revenue that makes financial planning easier." },
               { icon: Shield, title: "Less Vehicle Wear", desc: "Fewer guest turnovers means less cleaning, fewer key exchanges, and reduced wear on your Tesla compared to daily rentals." },
-              { icon: Calendar, title: "Hands-Off Management", desc: "Teslys handles everything — guest screening, contracts, insurance, and maintenance — so you earn without lifting a finger." },
+              { icon: Calendar, title: "Hands-Off Management", desc: "Teslys manages your listing, guest coordination, cleaning, and maintenance. Renter screening, rental contracts, and trip protection are handled by the third-party marketplace under its terms." },
             ].map((item) => (
               <div key={item.title} className="bg-card border rounded-xl p-6">
                 <item.icon className="h-8 w-8 text-primary mb-3" />
@@ -116,7 +116,7 @@ export default function TeslaMonthlyRental() {
               <thead><tr className="border-b"><th className="text-left py-3 px-4 font-semibold">Factor</th><th className="text-left py-3 px-4 font-semibold">Daily Rentals</th><th className="text-left py-3 px-4 font-semibold">Monthly Rentals</th></tr></thead>
               <tbody>
                 {[
-                  ["Revenue Potential", "Higher per-day rate", "Lower rate but guaranteed income"],
+                  ["Revenue Potential", "Higher per-day rate", "Lower rate but more predictable income potential"],
                   ["Vehicle Wear", "Higher — frequent turnovers", "Lower — single renter"],
                   ["Management Effort", "More guest interactions", "Set it and forget it"],
                   ["Booking Gaps", "Risk of empty days", "Minimal gaps"],
@@ -142,7 +142,7 @@ export default function TeslaMonthlyRental() {
               { q: "How much does a monthly Tesla rental cost?", a: "Monthly Tesla rental rates vary by model: Model 3 starts at $1,800/month, Model Y at $2,400/month, Model S at $3,200/month, Model X at $3,600/month, and Cybertruck at $4,500/month." },
               { q: "Is renting a Tesla monthly cheaper than daily?", a: "Yes — monthly Tesla rentals typically offer 30-40% savings compared to daily rates. Most hosts offer significant discounts for 30+ day bookings." },
               { q: "Can I earn passive income with long-term Tesla rentals?", a: "Absolutely. Long-term rentals provide stable, predictable income with less vehicle wear compared to frequent short-term trips. Many Teslys hosts prefer monthly renters for their consistency." },
-              { q: "Does Teslys manage long-term rentals?", a: "Yes. Teslys handles guest screening, contracts, insurance coordination, and vehicle maintenance for both short-term and long-term rentals." },
+              { q: "Does Teslys manage long-term rentals?", a: "Yes. Teslys manages the listing, guest coordination, cleaning, and maintenance for both short-term and long-term bookings. Renter screening, rental contracts, and trip protection are handled by the third-party marketplace under its terms. Actual earnings vary." },
             ].map((faq) => (
               <div key={faq.q} className="bg-card border rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>

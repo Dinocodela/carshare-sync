@@ -28,8 +28,8 @@ const data: ModelDetailData = {
   faqs: [
     { question: "How much can I earn renting my Cybertruck?", answer: "Cybertruck owners on Teslys earn an average of $2,500+ per month, with daily rates ranging from $175 to $220+ depending on your city and season." },
     { question: "Is there enough demand for Cybertruck rentals?", answer: "Absolutely. The Cybertruck is the most searched-for rental vehicle on Turo, and demand consistently outstrips supply. Most Cybertruck listings are booked 20+ days per month." },
-    { question: "Does Teslys handle everything?", answer: "Yes — Teslys manages guest communication, vehicle cleaning, key handoff, and insurance coordination. You simply provide the Cybertruck and earn passive income." },
-    { question: "Is my Cybertruck insured during rentals?", answer: "Yes. Every trip is covered by commercial rental insurance, protecting you against damage, theft, and liability." },
+    { question: "Does Teslys handle everything?", answer: "Teslys manages guest communication, vehicle cleaning, key handoff, and claim coordination. Bookings, renter screening, and trip protection are handled by the third-party marketplace. Actual earnings vary." },
+    { question: "Is my Cybertruck insured during rentals?", answer: "Trip protection is provided by the third-party car-sharing marketplace the vehicle is listed on, subject to that platform's terms, coverage limits, and deductibles. Teslys is not an insurer, and you must maintain the insurance you are required to carry." },
   ],
   topCities: [
     { city: "Los Angeles", slug: "tesla-cybertruck-rental-income-los-angeles" },

@@ -31,7 +31,7 @@ const testimonials: Testimonial[] = [
     role: "Tesla Model Y Owner",
     location: "Beverly Hills, CA",
     rating: 5,
-    comment: "As a busy professional, I don't have time to manage rentals. Teslys makes it effortless - they handle guest screening, coordinate cleanings, and I just watch the earnings roll in. My Model Y pays for itself now!",
+    comment: "As a busy professional, I don't have time to manage rentals. Teslys makes it effortless - they manage the listing, coordinate cleanings, and I just watch the earnings roll in. My Model Y pays for itself now!",
     date: "2024-10-15",
     carModel: "Tesla Model Y Performance",
   },

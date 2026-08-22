@@ -265,7 +265,7 @@ export default function TeslaRentalStatistics() {
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Start Earning with Your Tesla</h2>
-          <p className="text-lg opacity-90 mb-8">Join the fastest-growing Tesla car-sharing platform. Professional management, full insurance, and real earnings data to back it up.</p>
+          <p className="text-lg opacity-90 mb-8">Professional vehicle management for Tesla owners, with real earnings data to back it up. Bookings and trip protection are handled by third-party car-sharing marketplaces. Actual earnings vary.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link to="/register/client">
               <Button size="lg" variant="secondary">List Your Tesla <ArrowRight className="ml-2 h-4 w-4" /></Button>

@@ -7,8 +7,8 @@ import { Shield, DollarSign, CheckCircle2, Star, Clock, Car } from "lucide-react
 export default function MilitaryProgram() {
   const benefits = [
     { icon: DollarSign, title: "85/15 Split", desc: "You keep 85% of all rental earnings — only 15% management fee for active-duty members." },
-    { icon: Car, title: "Full Management", desc: "We handle guest screening, cleaning, maintenance, and 24/7 support while you're deployed." },
-    { icon: Shield, title: "Vehicle Protection", desc: "Comprehensive insurance on every rental. Your car is safe and cared for." },
+    { icon: Car, title: "Full Management", desc: "We manage your listing, cleaning, maintenance, and support while you're deployed. Renter screening is performed by the marketplace." },
+    { icon: Shield, title: "Vehicle Protection", desc: "Trip protection is provided by the applicable third-party marketplace, subject to its terms." },
     { icon: Clock, title: "Flexible Terms", desc: "Deploy for 3 months or 3 years — we manage your car as long as you need." },
   ];
 
